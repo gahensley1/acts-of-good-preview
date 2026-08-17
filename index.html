@@ -200,7 +200,7 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
 
     <button id="setup-back" class="hide" onclick="backFromSetup()"
       style="color:var(--muted);font-size:14px;font-weight:600;padding:0 0 14px">‹ Done</button>
-    <div class="steps">Step 1 of 3</div>
+    <div class="steps" id="setup-step">Step 2 of 3</div>
     <h1 style="font-size:23px;margin-bottom:8px">Let's set up your year.</h1>
     <p class="note" style="margin-bottom:26px">Three questions. You can change any of
       them later — nobody's checking.</p>
@@ -235,7 +235,7 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
 
     <div id="cadence" class="pace" style="margin-bottom:22px"></div>
 
-    <button class="btn" onclick="sheet('you')">Continue</button>
+    <button class="btn" onclick="sheet('social')">Continue</button>
     <p class="ph">REAL ARTWORK · placeholder fonts</p>
   </div>
 </section>
@@ -268,9 +268,7 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
     </div>
 
     <h3 style="font-size:13px;color:var(--muted);text-transform:uppercase;
-        letter-spacing:.05em;margin:26px 0 12px">Recent</h3>
-    <p class="note" style="margin:-4px 0 12px">Four example acts, so it isn't empty.
-      Pretend you're sixteen weeks in.</p>
+        letter-spacing:.05em;margin:26px 0 12px">Your acts</h3>
     <div id="recent"></div>
   </div>
 </section>
@@ -280,8 +278,9 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
   <div class="top"><h2 id="grid-title">The grid</h2><div class="sub">contents page</div></div>
   <div class="wrap">
     <div class="grid" id="grid"></div>
-    <p class="note" style="margin-top:18px">Tap a filled tile to read it. Empty tiles
-      are the rest of your year — not a debt.</p>
+    <p class="note" style="margin-top:18px" id="grid-note">Every tile is one act.
+      Fill them in any order, at whatever pace suits you — they're the rest of your
+      year, not a debt.</p>
   </div>
 </section>
 
@@ -422,14 +421,14 @@ What you actually did. Why it mattered. Say the awkward parts."></textarea>
 <!-- ══════════ TABS ══════════ -->
 <!-- ══ SHEET 1 — about you ══ -->
 <div class="sheet hide" id="sheet-you"><div class="panel">
-  <div class="steps">Step 2 of 3</div>
-  <h3>A bit about you</h3>
+  <div class="steps">Step 1 of 3</div>
+  <h3>First, a bit about you</h3>
   <div class="privacy"><b>This stays on your phone.</b> Nothing here is uploaded,
     shared or seen by anyone else. It's used to work out your year and to fill in
     your posts for you.</div>
 
   <div class="field"><label>Your name</label>
-    <input id="you-name" placeholder="Jessica"></div>
+    <input id="you-name" placeholder="Your first name"></div>
 
   <div class="field"><label>Your birthday</label>
     <input id="you-bday" type="date">
@@ -440,8 +439,8 @@ What you actually did. Why it mattered. Say the awkward parts."></textarea>
     <textarea id="you-why" style="min-height:88px"
       placeholder="The honest reason. Nobody else reads this — it's the thing you'll want to remember in month seven."></textarea></div>
 
-  <button class="btn" onclick="sheet('social')">Continue</button>
-  <button class="btn ghost" style="margin-top:10px" onclick="sheet('social')">Skip for now</button>
+  <button class="btn" onclick="saveYou()">Continue</button>
+  <button class="btn ghost" style="margin-top:10px" onclick="saveYou()">Skip for now</button>
 </div></div>
 
 <!-- ══ SHEET 2 — where you post ══ -->
@@ -482,14 +481,27 @@ const $ = id => document.getElementById(id);
 /* ── state (in-memory only — resets on reload) ── */
 const S = {
   n: 25, weeks: 52, reason: 'in year fifty', start: new Date(),
-  acts: [], people: ['Ginger','Kate','Julia','Sam'], chosen: [],
+  acts: [], people: [], chosen: [],
   outcome: 'Went to plan', lead: 'Today', current: null,
   line: 'in year', word: '', lineTouched: false, wordTouched: false,
   name: '', bday: '', why: '',
   platforms: { instagram:{on:true,handle:''}, facebook:{on:true,handle:''},
                threads:{on:false,handle:''}, x:{on:false,handle:''} }
 };
-const WORDS = {12:'twelve',20:'twenty',25:'twenty-five',30:'thirty',40:'forty',50:'fifty'};
+/* spell any age, not just round ones — "thirty-two", not "32" */
+const ONES=['zero','one','two','three','four','five','six','seven','eight','nine','ten',
+  'eleven','twelve','thirteen','fourteen','fifteen','sixteen','seventeen','eighteen','nineteen'];
+const TENS=['','','twenty','thirty','forty','fifty','sixty','seventy','eighty','ninety'];
+function spellNum(n){
+  n=parseInt(n,10);
+  if(isNaN(n)||n<0) return '';
+  if(n<20) return ONES[n];
+  if(n<100){ const t=TENS[Math.floor(n/10)], o=n%10; return o? t+'-'+ONES[o] : t; }
+  if(n===100) return 'one hundred';
+  return String(n);
+}
+const ORD = new Proxy({}, { get:(_,k)=> spellNum(k) });
+const WORDS = new Proxy({}, { get:(_,k)=> spellNum(k) });
 const NOPTS = [12,20,25,30,50];
 const WOPTS = [['A year',52],['Six months',26],['A summer',13]];
 const LEADS = ['Today','This weekend','A week or two','Needs a month'];
@@ -520,9 +532,7 @@ const every = n => 'one every ' + Math.round(S.weeks*7/n) + 'd';
 /* The lockup reads:  [n] acts of good / [line] / [word]
    IMPORTANT: the script word is the YEAR being marked, not the number of acts.
    20 acts does not mean year twenty. The year comes from the birthday. */
-const ORD = {20:'twenty',21:'twenty-one',25:'twenty-five',30:'thirty',35:'thirty-five',
-  40:'forty',45:'forty-five',50:'fifty',55:'fifty-five',60:'sixty',65:'sixty-five',
-  70:'seventy',75:'seventy-five',80:'eighty',90:'ninety',100:'one hundred'};
+
 
 function ageTurning(bday){
   if(!bday) return null;
@@ -566,8 +576,8 @@ function drawSetup(){
   syncReason();
   $('su-n').textContent   = S.n;
   $('su-iy').textContent  = S.line;
-  $('su-scr').textContent = S.word || '…';
-  $('su-scr').style.opacity = S.word ? 1 : .25;
+  $('su-scr').textContent = S.word || 'your year';
+  $('su-scr').style.opacity = S.word ? 1 : .18;
   $('reason-word').placeholder = S.bday ? '' : 'set at step 2';
   const days=Math.round(S.weeks*7/S.n);
   $('cadence').innerHTML=
@@ -580,21 +590,14 @@ function drawSetup(){
 function startYear(){
   S.line = $('reason-line').value.trim();
   S.word = $('reason-word').value.trim();
-  S.acts=[
-    {no:'1',t:'Doughnuts for the vet clinic staff',out:'Went to plan',who:['Julia'],cost:18,
-     story:'Bonnie had her annual check-up and we stopped at the bakery on the way.'},
-    {no:'2',t:'Supply bags for teachers',out:'Went to plan',who:['Ginger','Kate'],cost:64,story:''},
-    {no:'2.5',t:'Gave blood with Sam',out:"Didn't go to plan",who:['Sam'],cost:0,
-     story:"They wouldn't take mine — broken arm. Sam gave. Half an act."},
-    {no:'4',t:'Breakfast for 90 neighbours',out:'Went to plan',who:['Ginger'],cost:0,story:''}
-  ];
   $('tabs').classList.remove('hide');
   go('home');
 }
 
 /* ── home ── */
 function drawHome(){
-  const done=S.acts.length, wk=16;
+  const done=S.acts.length;
+  const wk=Math.max(1, Math.ceil((Date.now()-S.start.getTime())/6.048e8));
   const target=Math.round(S.n*wk/S.weeks), ahead=done-target;
   $('home-sub').textContent='week '+wk+' of '+S.weeks;
   $('p-count').textContent=done+' of '+S.n;
@@ -607,6 +610,11 @@ function drawHome(){
   $('sug-body').textContent='Starts in nine days. A supply-bag act needs about a week — enough time to ask someone to split it with you.';
 
   const r=$('recent'); r.innerHTML='';
+  if(!S.acts.length){
+    r.innerHTML='<p class="note">Nothing logged yet. When you do something — however '+
+      'small — tap <b>Log</b> and it takes about fifteen seconds. You can write it '+
+      'up properly whenever you feel like it.</p>';
+  }
   S.acts.slice().reverse().forEach(a=>{
     const d=document.createElement('div');
     d.className='row-item';
@@ -656,7 +664,8 @@ function drawLog(){
     pc.appendChild(b);
   });
   const add=document.createElement('button');
-  add.className='chip'; add.textContent='+ someone new';
+  add.className='chip';
+  add.textContent = S.people.length ? '+ someone new' : '+ add someone';
   add.onclick=()=>{const n=prompt('Name?'); if(n){S.people.push(n);S.chosen.push(n);drawLog();}};
   pc.appendChild(add);
 }
@@ -776,9 +785,16 @@ function drawPlats(){
     box.appendChild(row);
   });
 }
-function finishSetup(){
+/* step 1 → close, and let the setup screen auto-populate from the birthday */
+function saveYou(){
   S.name=$('you-name').value.trim();
   S.why =$('you-why').value.trim();
+  sheet(null);
+  if($('tabs').classList.contains('hide')) drawSetup();   // first run
+  else { drawYou(); drawTodo(); }                          // reopened from You
+}
+
+function finishSetup(){
   sheet(null);
   if($('tabs').classList.contains('hide')) startYear();
   else { drawYou(); drawTodo(); }      // reopened later from You — just save
@@ -799,7 +815,9 @@ function go(v){
   window.scrollTo(0,0);
 }
 
-/* ── boot ── */
+/* ── boot: ask who you are first, so everything else fills itself in ── */
+setTimeout(()=>{ if($('tabs').classList.contains('hide')) sheet('you'); }, 350);
+
 $('reason-line').addEventListener('input',()=>{
   S.lineTouched=true; S.line=$('reason-line').value; drawSetup(); });
 $('reason-word').addEventListener('input',()=>{
