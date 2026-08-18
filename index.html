@@ -79,6 +79,7 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
   margin-bottom:18px;font-size:13.5px;line-height:1.55}
 .todo b{font-weight:600}
 .todo button{color:var(--coral);font-weight:600;font-size:13.5px;padding:0;margin-top:6px}
+.note.warn{color:var(--coral);font-weight:500}
 .sheetback{color:var(--muted);font-size:14px;font-weight:600;
   padding:0 0 12px;display:block}
 .steps{font-size:11px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;
@@ -456,7 +457,7 @@ What you actually did. Why it mattered. Say the awkward parts."></textarea>
     <input id="you-name" placeholder="Your first name"></div>
 
   <div class="field"><label>Your birthday</label>
-    <input id="you-bday" type="date" min="1920-01-01">
+    <input id="you-bday" type="date" min="1930-01-01">
     <p class="note" style="margin-top:8px" id="bday-hint">Used to work out which
       year you're marking — that's the word on your card.</p></div>
 
@@ -931,11 +932,19 @@ function go(v){
 })();
 
 /* nobody born before 1920, and nobody under six */
-(function(){
-  const el=$('you-bday'), now=new Date();
-  const max=new Date(now.getFullYear()-6, now.getMonth(), now.getDate());
-  el.max = max.toISOString().slice(0,10);
-})();
+const BDAY_MIN='1930-01-01';
+const BDAY_MAX=(()=>{const n=new Date();
+  return new Date(n.getFullYear()-6,n.getMonth(),n.getDate()).toISOString().slice(0,10);})();
+(function(){ const el=$('you-bday'); el.min=BDAY_MIN; el.max=BDAY_MAX; })();
+
+/* never silently correct what someone typed — say what's wrong and let them fix it */
+function checkBday(v){
+  if(!v) return null;
+  if(v < BDAY_MIN) return "That's before "+BDAY_MIN.slice(0,4)+
+    " — the earliest we can take. Could you check the year?";
+  if(v > BDAY_MAX) return "That would make you under six. Could you check the year?";
+  return null;
+}
 
 /* ── boot: ask who you are first, so everything else fills itself in ── */
 setTimeout(()=>{ if($('tabs').classList.contains('hide')) sheet('you'); }, 350);
@@ -945,11 +954,21 @@ $('reason-line').addEventListener('input',()=>{
 $('reason-word').addEventListener('input',()=>{
   S.wordTouched=true; S.word=$('reason-word').value; drawSetup(); });
 $('you-bday').addEventListener('input',()=>{
-  S.bday=$('you-bday').value;
-  const a=ageTurning(S.bday);
-  $('bday-hint').textContent = a
-    ? 'You\'re in year ' + (ORD[a]||a) + ' — that\'s the word on your card. Change it if you like.'
-    : 'Used to work out which year you\'re marking — that\'s the word on your card.';
+  const v=$('you-bday').value;
+  const problem=checkBday(v);
+  const hint=$('bday-hint');
+  if(problem){
+    S.bday='';                          // don't use it, don't rewrite it
+    hint.textContent=problem;
+    hint.classList.add('warn');
+  } else {
+    S.bday=v;
+    hint.classList.remove('warn');
+    const a=ageTurning(S.bday);
+    hint.textContent = a
+      ? "You're in year " + (ORD[a]||a) + " — that's the word on your card. Change it if you like."
+      : "Used to work out which year you're marking — that's the word on your card.";
+  }
   drawSetup();
 });
 $('resetreason').addEventListener('click',()=>{
