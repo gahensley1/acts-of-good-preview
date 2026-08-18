@@ -94,8 +94,9 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
 .tone{width:46px;height:46px;border-radius:50%;border:2.5px solid var(--line);
   cursor:pointer;transition:.15s;position:relative}
 .tone.on{border-color:var(--ink);transform:scale(1.06)}
-.tone.peek{border-color:var(--coral);transform:scale(1.14);
-  box-shadow:0 0 0 4px rgba(232,93,79,.16)}
+/* the tour highlight is black, not coral — coral reads as "selected" */
+.tone.peek{border-color:var(--ink);transform:scale(1.14);
+  box-shadow:0 0 0 4px rgba(0,0,0,.14)}
 .tone.on::after{content:"✓";position:absolute;inset:0;display:flex;align-items:center;
   justify-content:center;color:#fff;font-size:17px;font-weight:700;
   text-shadow:0 1px 3px rgba(0,0,0,.45)}
@@ -541,7 +542,7 @@ What you actually did. Why it mattered. Say the awkward parts."></textarea>
 
   <div class="field"><label>Why are you doing this?</label>
     <textarea id="you-why" style="min-height:88px"
-      placeholder="The honest reason. Nobody else reads this — it's the thing you'll want to remember in month seven."></textarea></div>
+      placeholder="It's the thing you'll want to remember in month seven."></textarea></div>
 
   <button class="btn" onclick="saveYou()">Continue</button>
   <button class="btn ghost" style="margin-top:10px" onclick="saveYou()">Skip for now</button>
@@ -658,7 +659,7 @@ function serialise(){
   return {
     v:1, n:S.n, weeks:S.weeks, line:S.line, word:S.word,
     lineTouched:S.lineTouched, wordTouched:S.wordTouched,
-    tone:S.tone, toneToured:S.toneToured,
+    tone:S.tone,
     name:S.name, bday:S.bday, why:S.why,
     start:S.start.toISOString(),
     people:S.people, platforms:S.platforms,
@@ -681,7 +682,7 @@ async function load(){
 
   S.n=o.n; S.weeks=o.weeks; S.line=o.line; S.word=o.word;
   S.lineTouched=o.lineTouched; S.wordTouched=o.wordTouched;
-  S.tone=o.tone; S.toneToured=o.toneToured;
+  S.tone=o.tone;
   S.name=o.name||''; S.bday=o.bday||''; S.why=o.why||'';
   S.start=o.start?new Date(o.start):new Date();
   S.people=o.people||[]; S.platforms=o.platforms||S.platforms;
@@ -870,7 +871,7 @@ function paintHands(preview){
 /* a short tour when the swatches first come into view: each tone shown on the
    real card, in turn, then it stops and waits. Nothing is pre-selected. */
 function tourTones(){
-  if(S.toneToured) return;
+  if(S.toneToured) return;             // once per session, then it settles back
   S.toneToured = true;
   const box = $('tonechips');
   TONE_ORDER.forEach((t,i)=>{
@@ -1302,7 +1303,7 @@ function go(v){
   $('s-'+v).classList.remove('hide');
   toTop();
   fitAllMarks();        // hidden elements measure zero — refit once visible
-  if(v==='setup')  setTimeout(tourIfVisible, 260);
+  if(v==='setup'){ drawSetup(); setTimeout(tourIfVisible, 260); }
   if(v==='home'){ drawHome(); drawTodo(); }
   if(v==='you')    drawYou();
   if(v==='grid')   drawGrid();
@@ -1360,7 +1361,6 @@ window.addEventListener('scroll', tourIfVisible, { passive:true });
     $('you-why').value=S.why;
     if(S.bday){ $('bday-month').value=String(parseInt(S.bday.slice(5,7),10));
                 $('bday-year').value=S.bday.slice(0,4); }
-    S.toneToured=true;
     $('tabs').classList.remove('hide');
     go('home');
   } else {
