@@ -165,6 +165,10 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
 .mark .scr{font-family:var(--script);color:var(--goldscript);line-height:.9;
   margin-top:-.04em;font-size:25cqw;white-space:nowrap}
 .balloon{width:26cqw;flex:none;margin-top:.5cqw}
+/* Step 2 preview: the type column starts 5px below the tip of the heart.
+   Measured, not guessed — the artwork's ink begins 0.53% into the PNG. */
+#s-setup .mark .txt{margin-top:15.9px}
+#s-setup .balloon{margin-top:calc(.5cqw - 25px)}   /* art up, type stays put */
 .balloon img{width:100%;height:auto;display:block}
 
 /* card */
@@ -175,8 +179,8 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
   aspect-ratio:1;display:flex;flex-direction:column;justify-content:flex-start}
 #cardface .lockup{padding:6cqw 3cqw 0}
 #cardface hr{border:none;border-top:1px solid var(--ink);opacity:.9;
-  width:78cqw;margin:0 auto;position:absolute;top:59.5cqw;left:11cqw}
-#cardface .actno{position:absolute;top:70cqw;left:0;right:0;
+  width:78cqw;margin:0 auto;position:absolute;top:68.3cqw;left:11cqw}
+#cardface .actno{position:absolute;top:73.3cqw;left:0;right:0;
   color:var(--coral);font-size:10.4cqw;font-weight:700;letter-spacing:-.01em}
 #cardface{position:relative}
 .cardbox .ded{font-size:12px;color:var(--muted);margin-top:6px}
@@ -239,7 +243,7 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
 
 <!-- ══════════ SETUP ══════════ -->
 <section id="s-setup">
-  <div class="wrap" style="padding-top:calc(28px + env(safe-area-inset-top))">
+  <div class="wrap" style="padding-top:calc(38px + env(safe-area-inset-top))">
     <div class="lockup" style="margin-bottom:34px"><div class="mark">
       <div class="txt">
         <div class="n" id="su-n">50</div>
