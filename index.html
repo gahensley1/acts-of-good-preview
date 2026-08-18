@@ -154,8 +154,12 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
      "50" 14.3 · "acts of good" 4.9 · "in year" 2.8 · script 19 · balloon 24
      rule at 59.5% down · "act N of N" 10.4                                  */
 .lockup{container-type:inline-size}
-.mark{display:flex;align-items:flex-start;justify-content:center;gap:0}
-.mark .txt{text-align:center;min-width:0}
+/* Fixed geometry, measured off Jessica's act-20 card (% of lockup width):
+     artwork  left 60 · width 24.2 · ink top 6.4
+     type stack centred on 43.5 — so the column is 87 wide, starting at 0
+     script may run to 62 before it reaches the artwork                      */
+.mark{position:relative;min-height:57.2cqw}
+.mark .txt{text-align:center;width:87cqw}
 .mark .n{font-weight:800;color:var(--gold);line-height:.80;letter-spacing:.01em;
   font-size:15.6cqw}
 .mark .aog{font-weight:700;letter-spacing:-.02em;line-height:1.02;margin-top:.10em;
@@ -164,11 +168,13 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
   font-size:3.6cqw}
 .mark .scr{font-family:var(--script);color:var(--goldscript);line-height:.9;
   margin-top:-.04em;font-size:25cqw;white-space:nowrap}
-.balloon{width:26cqw;flex:none;margin-top:.5cqw}
+/* the PNG carries transparent margin, so the box is wider than the ink and
+   sits slightly left of it — these numbers put the INK at 60–84.2 */
+.balloon{position:absolute;left:59.7cqw;top:0;width:24.9cqw}
 /* Step 2 preview: the type column starts 5px below the tip of the heart.
    Measured, not guessed — the artwork's ink begins 0.53% into the PNG. */
 #s-setup .mark .txt{margin-top:15.9px}
-#s-setup .balloon{margin-top:calc(.5cqw - 25px)}   /* art up, type stays put */
+#s-setup .balloon{top:-25px}   /* art up, type stays put */
 .balloon img{width:100%;height:auto;display:block}
 
 /* card */
@@ -177,7 +183,12 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
 /* the shareable card — square, and sized to the real artwork's proportions */
 #cardface{container-type:inline-size;padding:0;border-radius:var(--r);overflow:hidden;
   aspect-ratio:1;display:flex;flex-direction:column;justify-content:flex-start}
-#cardface .lockup{padding:6cqw 3cqw 0}
+/* no side padding: every cqw in the mark is then exactly 1% of the card,
+   which is how the measurements off her artwork are expressed */
+#cardface .lockup{padding:12.1cqw 0 0}
+/* the type sits 12.1 down, the artwork starts at 6.4 — so pull the art back
+   up out of that padding */
+#cardface .balloon{top:-6cqw}
 #cardface hr{border:none;border-top:1px solid var(--ink);opacity:.9;
   width:78cqw;margin:0 auto;position:absolute;top:68.3cqw;left:11cqw}
 #cardface .actno{position:absolute;top:73.3cqw;left:0;right:0;
@@ -888,6 +899,84 @@ function drawTones(){
   });
 }
 
+/* ── mark fitting ───────────────────────────────────────────────────────────
+   Two rules, applied to every instance of the mark (setup preview, card,
+   anywhere else it appears):
+
+   1. SCRIPT NEVER TOUCHES THE ILLUSTRATION.
+      The script word is the only variable-width part of the lockup — "six" is
+      short, "twenty-eight" is more than twice as wide. When the word at its
+      normal size would run under the balloon and hand, its font size steps
+      down until it fits the space to the left of the artwork. Short words are
+      untouched; only the long ones shrink, and only as much as they must.
+
+   2. THE STACK CENTRES ON THE SCRIPT.
+      "50 / acts of good / in year" is centred on the script word beneath it,
+      not on the panel — because the script is the widest element and the eye
+      reads the group as one block hanging off it.
+
+   Both are recomputed whenever the number, the word or the width changes.   */
+const ART_EDGE   = 0.62;      // where the script must stop — Jessica's own
+                              // "fifty" reaches exactly here
+const TXT_CENTRE = 0.435;     // the type stack's resting centre, from her card
+const LEFT_EDGE  = 0.02;      // how close to the left edge the stack may slide
+const MIN_SCALE  = 0.35;      // never shrink past this — below it the script
+                              // stops reading as the same mark
+
+function fitMark(lockup){
+  const scr = lockup.querySelector('.scr');
+  if(!scr) return;
+  const W = lockup.clientWidth;
+  if(!W) return;
+
+  scr.style.fontSize = '';                       // back to the CSS size
+  const base = parseFloat(getComputedStyle(scr).fontSize);
+  if(!base) return;
+
+  const txt = lockup.querySelector('.txt');
+  const natural = measureText(scr, base) / W;      // as a fraction of the mark
+
+  /* Step 1 — SLIDE. At rest the stack centres on 43.5%, which leaves the
+     script 37% of the mark to live in. A long word gets more room simply by
+     moving the whole stack left, until its left edge reaches LEFT_EDGE. That
+     buys width from 37% up to 60% before any shrinking is needed at all. */
+  const maxW = ART_EDGE - LEFT_EDGE;
+
+  /* Step 2 — SHRINK, but only once sliding has run out. */
+  let w = natural, scale = 1;
+  if(w > maxW){ scale = Math.max(MIN_SCALE, maxW / w); w = natural * scale; }
+
+  /* the stack sits as far right as it can while keeping the script clear of
+     the artwork — so short words stay exactly where Jessica put them */
+  const centre = Math.min(TXT_CENTRE, Math.max(LEFT_EDGE + w/2, ART_EDGE - w/2));
+
+  scr.style.fontSize = (scale < 1) ? base*scale + 'px' : '';
+  if(txt) txt.style.transform = 'translateX(' + ((centre - TXT_CENTRE) * W) + 'px)';
+}
+
+/* width of the script at a given size, measured off-layout so the flex
+   container cannot squash the answer */
+function measureText(el, px){
+  const cs = getComputedStyle(el);
+  const g = document.createElement('span');
+  g.style.cssText = 'position:absolute;visibility:hidden;white-space:nowrap;left:-9999px';
+  g.style.fontFamily = cs.fontFamily;
+  g.style.fontWeight = cs.fontWeight;
+  g.style.fontStyle  = cs.fontStyle;
+  g.style.letterSpacing = cs.letterSpacing;
+  g.style.fontSize = px + 'px';
+  g.textContent = el.textContent;
+  document.body.appendChild(g);
+  const w = g.getBoundingClientRect().width;
+  g.remove();
+  return w;
+}
+
+function fitAllMarks(){ document.querySelectorAll('.lockup').forEach(fitMark); }
+window.addEventListener('resize', fitAllMarks);
+/* webfonts land after first paint — refit when they do */
+if(document.fonts && document.fonts.ready) document.fonts.ready.then(fitAllMarks);
+
 function drawSetup(){
   paintHands(); drawTones(); if(S.started) save();
   $('setup-h1').textContent = "Let's set up your " + periodNoun() + ".";
@@ -898,6 +987,7 @@ function drawSetup(){
   $('su-iy').textContent  = S.line;
   $('su-scr').textContent = S.word || 'your year';
   $('su-scr').style.opacity = S.word ? 1 : .18;
+  fitAllMarks();
   $('reason-word').placeholder = S.bday ? '' : 'set at step 2';
   const days=Math.round(S.weeks*7/S.n);
   $('cadence').innerHTML=
@@ -1068,6 +1158,7 @@ function drawCard(){
   $('cd-iy').textContent  = S.line;
   $('cd-scr').textContent = S.word;
   $('cd-act').textContent = 'act '+a.no+' of '+S.n;
+  fitAllMarks();
 }
 
 /* ── browse ── */
@@ -1210,6 +1301,7 @@ function go(v){
   VIEWS.forEach(x=>$('s-'+x).classList.add('hide'));
   $('s-'+v).classList.remove('hide');
   toTop();
+  fitAllMarks();        // hidden elements measure zero — refit once visible
   if(v==='setup')  setTimeout(tourIfVisible, 260);
   if(v==='home'){ drawHome(); drawTodo(); }
   if(v==='you')    drawYou();
