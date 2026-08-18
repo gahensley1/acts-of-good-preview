@@ -862,12 +862,12 @@ function tourTones(){
     setTimeout(()=>{
       paintHands(t);
       [...box.children].forEach((c,j)=>c.classList.toggle('peek', j===i));
-    }, 260 + i*420);
+    }, 320 + i*840);
   });
   setTimeout(()=>{
     [...box.children].forEach(c=>c.classList.remove('peek'));
     paintHands();                      // settle back, still unchosen
-  }, 260 + TONE_ORDER.length*420 + 120);
+  }, 320 + TONE_ORDER.length*840 + 240);
 }
 
 const TONE_SWATCH = {'light':'#F7DBC5','medium-light':'#F0C398','medium':'#D09B66',
