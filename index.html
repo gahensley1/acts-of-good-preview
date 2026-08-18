@@ -134,31 +134,51 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
 
 /* chips */
 .chips{display:flex;flex-wrap:wrap;gap:8px}
+/* one swipeable line — nine categories would otherwise push the ideas off-screen */
+.chips.scrollrow{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;
+  scrollbar-width:none;padding-bottom:2px;
+  /* bleed to the screen edge so it reads as scrollable */
+  margin-left:-20px;margin-right:-20px;padding-left:20px;padding-right:20px;
+  scroll-padding-left:20px}
+.chips.scrollrow::-webkit-scrollbar{display:none}
+.chips.scrollrow .chip{flex:none;white-space:nowrap}
+.tlink{color:var(--coral);text-decoration:none;border-bottom:1px solid var(--coral);
+  font-weight:500}
 .chip{padding:9px 15px;border-radius:999px;border:1.5px solid var(--line);
   font-size:13.5px;font-weight:500;background:var(--paper);transition:.15s}
 .chip.on{border-color:var(--coral);background:var(--coral);color:#fff}
 .chip small{display:block;font-size:10.5px;opacity:.7;font-weight:400}
 
-/* ── the mark — real artwork, type set live ── */
-.mark{display:flex;align-items:stretch;justify-content:center;gap:2%}
-.mark .txt{text-align:center;padding-top:4%;flex:1;min-width:0}
-.mark .n{font-weight:800;color:var(--gold);line-height:.86;letter-spacing:.01em;
-  font-size:clamp(34px,13.5cqw,90px)}
-.mark .aog{font-weight:700;letter-spacing:-.015em;line-height:1.05;margin-top:.06em;
-  font-size:clamp(16px,6.4cqw,42px)}
-.mark .iy{font-weight:500;color:var(--ink);line-height:1.4;margin-top:.15em;
-  font-size:clamp(9px,3.4cqw,22px)}
-.mark .scr{font-family:var(--script);color:var(--goldscript);line-height:.95;
-  margin-top:.02em;font-size:clamp(34px,15.5cqw,104px);white-space:nowrap}
-.balloon{width:31%;flex:none;align-self:flex-start;margin-top:1%}
-.balloon img{width:100%;height:auto;display:block}
+/* ── the mark — real artwork, type set live ──
+   Sizes are % of the CARD width, measured off Jessica's own act-20 card:
+     "50" 14.3 · "acts of good" 4.9 · "in year" 2.8 · script 19 · balloon 24
+     rule at 59.5% down · "act N of N" 10.4                                  */
 .lockup{container-type:inline-size}
+.mark{display:flex;align-items:flex-start;justify-content:center;gap:0}
+.mark .txt{text-align:center;min-width:0}
+.mark .n{font-weight:800;color:var(--gold);line-height:.80;letter-spacing:.01em;
+  font-size:15.6cqw}
+.mark .aog{font-weight:700;letter-spacing:-.02em;line-height:1.02;margin-top:.10em;
+  font-size:4.9cqw;white-space:nowrap}
+.mark .iy{font-weight:500;color:var(--ink);line-height:1.3;margin-top:.2em;
+  font-size:3.6cqw}
+.mark .scr{font-family:var(--script);color:var(--goldscript);line-height:.9;
+  margin-top:-.04em;font-size:25cqw;white-space:nowrap}
+.balloon{width:26cqw;flex:none;margin-top:.5cqw}
+.balloon img{width:100%;height:auto;display:block}
 
 /* card */
 .cardbox{background:var(--paper);border:1px solid var(--line);border-radius:var(--r);
   padding:30px 24px 26px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,.04)}
-.cardbox hr{border:none;border-top:1px solid var(--ink);margin:24px 6px 20px;opacity:.85}
-.cardbox .actno{color:var(--coral);font-size:29px;font-weight:600;letter-spacing:-.02em}
+/* the shareable card — square, and sized to the real artwork's proportions */
+#cardface{container-type:inline-size;padding:0;border-radius:var(--r);overflow:hidden;
+  aspect-ratio:1;display:flex;flex-direction:column;justify-content:flex-start}
+#cardface .lockup{padding:6cqw 3cqw 0}
+#cardface hr{border:none;border-top:1px solid var(--ink);opacity:.9;
+  width:78cqw;margin:0 auto;position:absolute;top:59.5cqw;left:11cqw}
+#cardface .actno{position:absolute;top:70cqw;left:0;right:0;
+  color:var(--coral);font-size:10.4cqw;font-weight:700;letter-spacing:-.01em}
+#cardface{position:relative}
 .cardbox .ded{font-size:12px;color:var(--muted);margin-top:6px}
 
 /* grid */
@@ -415,9 +435,12 @@ What you actually did. Why it mattered. Say the awkward parts."></textarea>
 <!-- ══════════ BROWSE ══════════ -->
 <section id="s-browse" class="hide">
   <div class="top"><button class="back" onclick="go('home')">‹</button>
-    <h2>Ideas</h2><div class="sub">filter by time</div></div>
+    <h2>Ideas</h2></div>
   <div class="wrap">
-    <div class="chips" id="leadchips" style="margin-bottom:20px"></div>
+    <div class="sub" style="margin:0 0 8px">filter by time</div>
+    <div class="chips" id="leadchips" style="margin-bottom:18px"></div>
+    <div class="sub" style="margin:0 0 8px">filter by who it helps</div>
+    <div class="chips scrollrow" id="catchips" style="margin-bottom:20px"></div>
     <div id="ideas"></div>
   </div>
 </section>
@@ -672,7 +695,7 @@ async function wipe(){
 const S = {
   n: 25, weeks: 52, reason: 'in year fifty', start: new Date(),
   acts: [], people: [], chosen: [],
-  outcome: 'Went to plan', lead: 'Today', current: null,
+  outcome: 'Went to plan', lead: 'Today', cat: 'Anything', current: null,
   line: 'in year', word: '', lineTouched: false, wordTouched: false, tone: null, toneToured: false,
   name: '', bday: '', why: '',
   platforms: { instagram:{on:true,handle:''}, facebook:{on:true,handle:''},
@@ -696,25 +719,61 @@ const NOPTS = [12,20,25,30,50];
 const WOPTS = [['A year',52],['Half a year',26],['A summer',13]];
 const LEADS = ['Today','This weekend','A week or two','Needs a month'];
 
+/* Categories are by WHO IS HELPED — Jessica's own axis, not by what you do.
+   Her two lists (act 0, and the answers doc) gave 15-odd overlapping names;
+   these nine are those combined, and nothing is dropped:
+     youth + teachers → Teachers & schools
+     unsheltered neighbours + feeding friends → Neighbours (celebrating) / Feed people
+     LGBTQ + missions + democracy → Causes & voice
+     mankind + supporting friends' endeavours + a night off → Friends & family
+     Mother Earth → kept as she wrote it                                        */
+const CATS = ['Anything','Neighbours','Teachers & schools','Community helpers',
+  'Elders','Feed people','Animals','Mother Earth','Friends & family',
+  'Causes & voice'];
+
 const IDEAS = [
- {t:'Bake something for new neighbours',l:'Today',s:'An hour',
+ {t:'Bake something for new neighbours',l:'Today',s:'An hour',c:'Neighbours',
   d:"Wrap it, add a handwritten tag. Don't overthink the allergies — the welcome is the point."},
- {t:'Take a bag and a glove on your walk',l:'Today',s:'An hour',
+ {t:'Take a bag and a glove on your walk',l:'Today',s:'An hour',c:'Mother Earth',
   d:'Bolt it onto a walk you were taking anyway. You will be surprised what you find.'},
- {t:'Doughnuts for the vet, surgery or library',l:'Today',s:'An hour',
+ {t:'Doughnuts for the vet, surgery or library',l:'Today',s:'An hour',c:'Community helpers',
   d:"Buy them somewhere you'd like to keep in business. Include a note saying why."},
- {t:"Fill a teacher's classroom wish list",l:'This weekend',s:'A weekend',
+ {t:'Sponsor a friend’s fundraiser, and say why',l:'Today',s:'An hour',c:'Friends & family',
+  d:'Money counts. Adding a sentence about why you gave is what they will remember.'},
+ {t:'Write to a teacher who mattered',l:'Today',s:'An hour',c:'Teachers & schools',
+  d:'Yours, or your children’s. Post it — a letter lands differently than a message.'},
+ {t:'Leave a review for a small business',l:'Today',s:'An hour',c:'Neighbours',
+  d:'Free, takes four minutes, and it is worth real money to somebody local.'},
+ {t:"Fill a teacher's classroom wish list",l:'This weekend',s:'A weekend',c:'Teachers & schools',
   d:'Most teachers post one. Split it with a friend and cover a few items each.'},
- {t:'Give blood, or platelets',l:'This weekend',s:'A weekend',
+ {t:'Give blood, or platelets',l:'This weekend',s:'A weekend',c:'Causes & voice',
   d:'Platelets take about 2 hours — sometimes longer. Bring something to watch.'},
- {t:'Cook a meal for someone ill, moving or grieving',l:'This weekend',s:'A weekend',
+ {t:'Cook a meal for someone ill, moving or grieving',l:'This weekend',s:'A weekend',c:'Friends & family',
   d:'Foil tray, reheating instructions taped on. Ask about allergies first.'},
- {t:'Bake treats for an animal shelter',l:'A week or two',s:'A weekend',
+ {t:'Take a shift at a shelter breakfast',l:'This weekend',s:'A weekend',c:'Feed people',
+  d:'Early start, warm room. Most places want you back, which is the good part.'},
+ {t:'Babysit so someone gets a night off',l:'This weekend',s:'A weekend',c:'Friends & family',
+  d:'Offer a specific date rather than "any time" — that is what makes it happen.'},
+ {t:'Bake treats for an animal shelter',l:'A week or two',s:'A weekend',c:'Animals',
   d:'200 dog biscuits is one afternoon. Bring flowers for the staff too.'},
- {t:'Games hour at a care home',l:'Needs a month',s:'A village',
+ {t:'Take flowers to a care home',l:'A week or two',s:'An hour',c:'Elders',
+  d:'Ring first and ask how many residents. Small posies beat one big arrangement.'},
+ {t:'Restock a little free pantry',l:'A week or two',s:'An hour',c:'Feed people',
+  d:'Tinned protein, tampons, nappies. Check what is missing before you shop.'},
+ {t:'Support a centre that looks after people who get overlooked',l:'A week or two',s:'A weekend',c:'Causes & voice',
+  d:'LGBTQ centres, refugee services, veterans’ groups. Ask what they actually need.'},
+ {t:'Games hour at a care home',l:'Needs a month',s:'A village',c:'Elders',
   d:'Ring two weeks ahead, ask the activities coordinator. Bring prizes and a flyer.'},
- {t:'Welcome packages for people arriving somewhere new',l:'Needs a month',s:'A village',
-  d:'Find someone on the inside who can tell you who they are. Recruit two friends.'}
+ {t:'Welcome packages for people arriving somewhere new',l:'Needs a month',s:'A village',c:'Neighbours',
+  d:'Find someone on the inside who can tell you who they are. Recruit two friends.'},
+ {t:'Thank the crews nobody thanks',l:'Needs a month',s:'A weekend',c:'Community helpers',
+  d:'Bin collection, road crews, night staff. Find out when they are actually there.'},
+ {t:'Adopt one local cause for the whole stretch',l:'Needs a month',s:'A village',c:'Causes & voice',
+  d:'Turning up four times beats turning up once at four places.'},
+ {t:'Organise a litter pick with neighbours',l:'Needs a month',s:'A village',c:'Mother Earth',
+  d:'Council will usually lend bags and grabbers. Finish at a café.'},
+ {t:'Foster or transport for a rescue',l:'Needs a month',s:'A village',c:'Animals',
+  d:'Transport runs are a weekend and no long-term commitment. Start there.'}
 ];
 
 /* people don't think in "0.48 a week" — say it the way you'd say it out loud */
@@ -1010,9 +1069,25 @@ function drawCard(){
 /* ── browse ── */
 function drawBrowse(){
   chips($('leadchips'),LEADS,()=>S.lead,v=>{S.lead=v;drawBrowse();});
+  chips($('catchips'),CATS,()=>S.cat||'Anything',v=>{S.cat=v;drawBrowse();});
   const box=$('ideas'); box.innerHTML='';
-  const list=IDEAS.filter(i=>i.l===S.lead);
-  if(!list.length){ box.innerHTML='<p class="note">Nothing at that length yet.</p>'; return; }
+  const cat=S.cat||'Anything';
+  const list=IDEAS.filter(i=>i.l===S.lead && (cat==='Anything'||i.c===cat));
+  /* keep the chosen category visible in the scroll row */
+  const sel=[...$('catchips').children].find(c=>c.classList.contains('on'));
+  if(sel && sel.scrollIntoView) sel.scrollIntoView({block:'nearest',inline:'center'});
+  if(!list.length){
+    /* never a dead end — say where that category does have something */
+    const other=LEADS.filter(L=>L!==S.lead && IDEAS.some(i=>i.l===L && i.c===cat));
+    let msg='<p class="note">Nothing for <b>'+cat+'</b> at that length yet.';
+    if(other.length){
+      msg+=' There is something under '+other.map(L=>
+        '<a class="tlink" href="#" onclick="S.lead=\''+L+'\';drawBrowse();return false">'+
+        L.toLowerCase()+'</a>').join(' · ')+'.';
+    }
+    msg+=' Or show <a class="tlink" href="#" onclick="S.cat=\'Anything\';drawBrowse();'+
+      'return false">any category</a>.</p>';
+    box.innerHTML=msg; return; }
   list.forEach(i=>{
     const d=document.createElement('div');
     d.className='cardbox';
