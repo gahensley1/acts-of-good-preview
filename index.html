@@ -90,6 +90,8 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
 .tone{width:46px;height:46px;border-radius:50%;border:2.5px solid var(--line);
   cursor:pointer;transition:.15s;position:relative}
 .tone.on{border-color:var(--ink);transform:scale(1.06)}
+.tone.peek{border-color:var(--coral);transform:scale(1.14);
+  box-shadow:0 0 0 4px rgba(232,93,79,.16)}
 .tone.on::after{content:"✓";position:absolute;inset:0;display:flex;align-items:center;
   justify-content:center;color:#fff;font-size:17px;font-weight:700;
   text-shadow:0 1px 3px rgba(0,0,0,.45)}
@@ -215,7 +217,7 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
     <button id="setup-prev" onclick="sheet('you')"
       style="color:var(--muted);font-size:14px;font-weight:600;padding:0 0 14px">‹ Back</button>
     <div class="steps" id="setup-step">Step 2 of 3</div>
-    <h1 style="font-size:23px;margin-bottom:8px">Let's set up your year.</h1>
+    <h1 style="font-size:23px;margin-bottom:8px" id="setup-h1">Let's set up your year.</h1>
     <p class="note" style="margin-bottom:26px">Three questions. You can change any of
       them later — nobody's checking.</p>
 
@@ -261,7 +263,7 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
 
 <!-- ══════════ HOME ══════════ -->
 <section id="s-home" class="hide">
-  <div class="top"><h2>Your year</h2><div class="sub" id="home-sub"></div></div>
+  <div class="top"><h2 id="home-h2">Your year</h2><div class="sub" id="home-sub"></div></div>
   <div class="wrap">
     <div class="pace">
       <div class="row">
@@ -396,7 +398,7 @@ What you actually did. Why it mattered. Say the awkward parts."></textarea>
   <div class="wrap">
 
     <div class="setgroup">
-      <h3 class="seth">Your year</h3>
+      <h3 class="seth" id="you-seth">Your year</h3>
       <div class="setrow" onclick="editYear()">
         <div class="t"><b>How many acts</b><span id="v-n">25 acts over a year</span></div>
         <span class="chev">›</span>
@@ -454,7 +456,7 @@ What you actually did. Why it mattered. Say the awkward parts."></textarea>
     <input id="you-name" placeholder="Your first name"></div>
 
   <div class="field"><label>Your birthday</label>
-    <input id="you-bday" type="date">
+    <input id="you-bday" type="date" min="1920-01-01">
     <p class="note" style="margin-top:8px" id="bday-hint">Used to work out which
       year you're marking — that's the word on your card.</p></div>
 
@@ -481,7 +483,7 @@ What you actually did. Why it mattered. Say the awkward parts."></textarea>
     handle is optional — it's the people you tag that matter, and you'll add them
     as you go.</p>
 
-  <button class="btn" onclick="finishSetup()">Start my year</button>
+  <button class="btn" onclick="finishSetup()">Start</button>
   <button class="btn ghost" style="margin-top:10px" onclick="finishSetup()">Skip for now</button>
 </div></div>
 
@@ -492,7 +494,7 @@ What you actually did. Why it mattered. Say the awkward parts."></textarea>
 </div>
 
 <nav class="tabs hide" id="tabs">
-  <button data-t="home" onclick="go('home')"><span class="ic">◔</span>Year</button>
+  <button data-t="home" onclick="go('home')"><span class="ic">◔</span>Progress</button>
   <button data-t="grid" onclick="go('grid')"><span class="ic">▦</span>Grid</button>
   <button data-t="log"  onclick="newAct()"><span class="ic" style="font-size:23px">＋</span>Log</button>
   <button data-t="browse" onclick="go('browse')"><span class="ic">✦</span>Ideas</button>
@@ -510,7 +512,7 @@ const S = {
   n: 25, weeks: 52, reason: 'in year fifty', start: new Date(),
   acts: [], people: [], chosen: [],
   outcome: 'Went to plan', lead: 'Today', current: null,
-  line: 'in year', word: '', lineTouched: false, wordTouched: false, tone: 'medium-light',
+  line: 'in year', word: '', lineTouched: false, wordTouched: false, tone: null, toneToured: false,
   name: '', bday: '', why: '',
   platforms: { instagram:{on:true,handle:''}, facebook:{on:true,handle:''},
                threads:{on:false,handle:''}, x:{on:false,handle:''} }
@@ -530,7 +532,7 @@ function spellNum(n){
 const ORD = new Proxy({}, { get:(_,k)=> spellNum(k) });
 const WORDS = new Proxy({}, { get:(_,k)=> spellNum(k) });
 const NOPTS = [12,20,25,30,50];
-const WOPTS = [['A year',52],['Six months',26],['A summer',13]];
+const WOPTS = [['A year',52],['Half a year',26],['A summer',13]];
 const LEADS = ['Today','This weekend','A week or two','Needs a month'];
 
 const IDEAS = [
@@ -576,6 +578,12 @@ function shortCadence(days){
 }
 const every = n => shortCadence(Math.round(S.weeks*7/n));
 
+/* what to call the stretch — it isn't always a year */
+function periodNoun(w){
+  w = w || S.weeks;
+  return w === 52 ? 'year' : w === 26 ? 'half year' : 'summer';
+}
+
 /* The lockup reads:  [n] acts of good / [line] / [word]
    IMPORTANT: the script word is the YEAR being marked, not the number of acts.
    20 acts does not mean year twenty. The year comes from the birthday. */
@@ -617,8 +625,29 @@ function chips(el, items, get, set){
 }
 
 /* ── setup ── */
-function paintHands(){
-  document.querySelectorAll('.handimg').forEach(i=>{ i.src = HANDS[S.tone]; });
+/* until they choose, the card shows the artwork as drawn */
+const DEFAULT_TONE = 'medium-light';
+function paintHands(preview){
+  const t = preview || S.tone || DEFAULT_TONE;
+  document.querySelectorAll('.handimg').forEach(i=>{ i.src = HANDS[t]; });
+}
+
+/* a short tour when the swatches first come into view: each tone shown on the
+   real card, in turn, then it stops and waits. Nothing is pre-selected. */
+function tourTones(){
+  if(S.toneToured) return;
+  S.toneToured = true;
+  const box = $('tonechips');
+  TONE_ORDER.forEach((t,i)=>{
+    setTimeout(()=>{
+      paintHands(t);
+      [...box.children].forEach((c,j)=>c.classList.toggle('peek', j===i));
+    }, 260 + i*420);
+  });
+  setTimeout(()=>{
+    [...box.children].forEach(c=>c.classList.remove('peek'));
+    paintHands();                      // settle back, still unchosen
+  }, 260 + TONE_ORDER.length*420 + 260);
 }
 
 const TONE_SWATCH = {'light':'#F7DBC5','medium-light':'#F0C398','medium':'#D09B66',
@@ -637,6 +666,7 @@ function drawTones(){
 
 function drawSetup(){
   paintHands(); drawTones();
+  $('setup-h1').textContent = "Let's set up your " + periodNoun() + ".";
   chips($('nchips'), NOPTS.map(n=>[n,n,every(n)]), ()=>S.n, v=>{S.n=v;drawSetup();});
   chips($('wchips'), WOPTS, ()=>S.weeks, v=>{S.weeks=v;drawSetup();});
   syncReason();
@@ -650,7 +680,7 @@ function drawSetup(){
     '<div class="lab">That\'s</div>'+
     '<div class="big">'+humanCadence(days)+'</div>'+
     '<div class="lab" style="margin-top:4px">roughly every '+days+' days · finishing in '+
-    (S.weeks===52?'a year':S.weeks===26?'six months':'about three months')+'</div>';
+    (S.weeks===52?'a year':S.weeks===26?'half a year':'about three months')+'</div>';
 }
 
 function startYear(){
@@ -665,6 +695,7 @@ function drawHome(){
   const done=S.acts.length;
   const wk=Math.max(1, Math.ceil((Date.now()-S.start.getTime())/6.048e8));
   const target=Math.round(S.n*wk/S.weeks), ahead=done-target;
+  $('home-h2').textContent = 'Your ' + periodNoun();
   $('home-sub').textContent='week '+wk+' of '+S.weeks;
   $('p-count').textContent=done+' of '+S.n;
   $('p-week').textContent='week '+wk+' of '+S.weeks;
@@ -788,7 +819,8 @@ function drawBrowse(){
 
 /* ── You screen ── */
 function drawYou(){
-  const per = S.weeks===52?'a year':S.weeks===26?'six months':'a summer';
+  const per = S.weeks===52?'a year':S.weeks===26?'half a year':'a summer';
+  $('you-seth').textContent = 'Your ' + periodNoun();
   $('v-n').textContent = S.n+' acts over '+per+' · '+humanCadence(Math.round(S.weeks*7/S.n));
   $('v-reason').textContent = (S.line+' '+(S.word||'—')).trim();
   $('v-name').textContent = S.name || 'Not set';
@@ -797,7 +829,9 @@ function drawYou(){
       ' · year '+ (ORD[ageTurning(S.bday)]||ageTurning(S.bday))
     : 'Not set — your card says "in year …"';
   $('v-why').textContent = S.why || 'Not set';
-  $('v-tone').textContent = S.tone.replace('-',' ').replace(/^./,c=>c.toUpperCase());
+  $('v-tone').textContent = S.tone
+    ? S.tone.replace('-',' ').replace(/^./,c=>c.toUpperCase())
+    : 'As drawn';
   const on = PLATS.filter(([k])=>S.platforms[k].on).map(([,l])=>l);
   $('v-plats').textContent = on.length? on.join(', ') : 'None chosen';
 }
@@ -885,6 +919,23 @@ function go(v){
     b.classList.toggle('on', b.dataset.t===v));
   window.scrollTo(0,0);
 }
+
+/* watch for the tone picker coming into view */
+(function(){
+  const el = $('tonechips');
+  if(!('IntersectionObserver' in window) || !el) return;
+  const io = new IntersectionObserver(es=>{
+    es.forEach(e=>{ if(e.isIntersecting){ tourTones(); io.disconnect(); } });
+  }, { threshold: 0.85 });
+  io.observe(el);
+})();
+
+/* nobody born before 1920, and nobody under six */
+(function(){
+  const el=$('you-bday'), now=new Date();
+  const max=new Date(now.getFullYear()-6, now.getMonth(), now.getDate());
+  el.max = max.toISOString().slice(0,10);
+})();
 
 /* ── boot: ask who you are first, so everything else fills itself in ── */
 setTimeout(()=>{ if($('tabs').classList.contains('hide')) sheet('you'); }, 350);
