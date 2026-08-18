@@ -808,7 +808,7 @@ function tourTones(){
   setTimeout(()=>{
     [...box.children].forEach(c=>c.classList.remove('peek'));
     paintHands();                      // settle back, still unchosen
-  }, 260 + TONE_ORDER.length*420 + 260);
+  }, 260 + TONE_ORDER.length*420 + 120);
 }
 
 const TONE_SWATCH = {'light':'#F7DBC5','medium-light':'#F0C398','medium':'#D09B66',
@@ -1085,6 +1085,7 @@ function sheet(which){
   ['you','social'].forEach(x=>$('sheet-'+x).classList.add('hide'));
   if(which){ $('sheet-'+which).classList.remove('hide'); }
   if(which==='social') drawPlats();
+  if(!which) setTimeout(tourIfVisible, 260);   // sheet closed — is the picker showing?
 }
 const PLATS=[['instagram','Instagram','@you'],['facebook','Facebook','Your name'],
              ['threads','Threads','@you'],['x','X','@you']];
@@ -1124,6 +1125,7 @@ const VIEWS=['setup','home','grid','log','write','card','browse','you'];
 function go(v){
   VIEWS.forEach(x=>$('s-'+x).classList.add('hide'));
   $('s-'+v).classList.remove('hide');
+  if(v==='setup')  setTimeout(tourIfVisible, 260);
   if(v==='home'){ drawHome(); drawTodo(); }
   if(v==='you')    drawYou();
   if(v==='grid')   drawGrid();
@@ -1134,17 +1136,6 @@ function go(v){
   window.scrollTo(0,0);
 }
 
-/* watch for the tone picker coming into view */
-(function(){
-  const el = $('tonechips');
-  if(!('IntersectionObserver' in window) || !el) return;
-  const io = new IntersectionObserver(es=>{
-    es.forEach(e=>{ if(e.isIntersecting){ tourTones(); io.disconnect(); } });
-  }, { threshold: 0.85 });
-  io.observe(el);
-})();
-
-/* nobody born before 1920, and nobody under six */
 /* Two selects instead of a date picker. iOS ignores min/max on <input type=date>
    — you can scroll past the limits. With selects, out-of-range simply doesn't
    exist. The day of the month is never used, so we don't ask for it. */
@@ -1166,6 +1157,22 @@ function readBday(){
   const m=$('bday-month').value, y=$('bday-year').value;
   return (m && y) ? y+'-'+String(m).padStart(2,'0')+'-01' : '';
 }
+
+/* Run the tone tour only when the picker is genuinely on screen — that means
+   in the viewport AND with no sheet covering it. An IntersectionObserver alone
+   can't tell: an element behind a full-screen overlay still 'intersects'. */
+function sheetOpen(){
+  return ['you','social'].some(x=>!$('sheet-'+x).classList.contains('hide'));
+}
+function tourIfVisible(){
+  if(S.toneToured || sheetOpen()) return;
+  const el=$('tonechips');
+  if($('s-setup').classList.contains('hide')) return;
+  const r=el.getBoundingClientRect();
+  const onScreen = r.top < (window.innerHeight - r.height*0.6) && r.bottom > 0;
+  if(onScreen) tourTones();
+}
+window.addEventListener('scroll', tourIfVisible, { passive:true });
 
 /* ── boot ── */
 (async function(){
