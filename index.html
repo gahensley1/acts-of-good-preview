@@ -209,6 +209,11 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
 .tile img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .tile .tilenum{position:absolute;left:4px;bottom:2px;color:#fff;font-size:11px;
   text-shadow:0 1px 3px rgba(0,0,0,.7);font-weight:700}
+/* a planned act — present but not yet done */
+.tile.planned{background:#FBF7F2;border:1.5px solid var(--gold);color:var(--gold)}
+.tile.planned .tilenum{position:static;color:var(--gold);text-shadow:none;font-size:12.5px}
+.tile .tilewhen{position:absolute;left:0;right:0;bottom:3px;font-size:8.5px;
+  font-weight:600;color:var(--gold);text-align:center;letter-spacing:0}
 .tile:active{transform:scale(.94)}
 
 /* pace */
@@ -351,21 +356,62 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
     </div>
 
     <h3 style="font-size:13px;color:var(--muted);text-transform:uppercase;
-        letter-spacing:.05em;margin:26px 0 12px">Your acts</h3>
-    <div id="recent"></div>
+        letter-spacing:.05em;margin:26px 0 4px" id="grid-title">The 25</h3>
+    <p class="note" id="grid-note" style="margin:0 0 14px">Every tile is one act.
+      Tap an empty one to plan it.</p>
+    <div class="grid" id="grid"></div>
+    <div id="filternote" class="hide" style="margin-top:14px"></div>
   </div>
 </section>
 
 <!-- ══════════ GRID ══════════ -->
-<section id="s-grid" class="hide">
-  <div class="top"><h2 id="grid-title">The grid</h2><div class="sub">contents page</div></div>
+<section id="s-people" class="hide">
+  <div class="top"><h2>People</h2><div class="sub">who's in your year</div></div>
   <div class="wrap">
-    <div class="grid" id="grid"></div>
-    <p class="note" style="margin-top:18px" id="grid-note">Every tile is one act.
-      Fill them in any order, at whatever pace suits you — they're the rest of your
-      year, not a debt.</p>
+    <p class="note" style="margin-bottom:16px">Everyone who's been part of an act, and
+      anyone who's offered. Tap a name to add their handles &mdash; that's what fills in
+      the tags when you post.</p>
+    <div id="people-list"></div>
+    <button class="btn ghost" style="margin-top:16px" onclick="addPerson()">
+      + Add someone</button>
   </div>
 </section>
+
+<!-- ══ SHEET — a person ══ -->
+<div class="sheet hide" id="sheet-person"><div class="panel">
+  <button class="sheetback" onclick="sheet(null)">‹ Done</button>
+  <h3 id="per-h3">Add someone</h3>
+  <p class="note" style="margin-bottom:18px">Their handles are only used to write the
+    tags into your caption when you post. Nothing is sent to them or to anyone else.</p>
+  <div class="field"><label>Name</label>
+    <input id="per-name" placeholder="First name is fine"></div>
+  <div class="field"><label>Instagram</label>
+    <input id="per-instagram" placeholder="@handle" autocapitalize="off"></div>
+  <div class="field"><label>Facebook</label>
+    <input id="per-facebook" placeholder="Their name as it appears there"></div>
+  <div class="field"><label>Threads</label>
+    <input id="per-threads" placeholder="@handle" autocapitalize="off"></div>
+  <div class="field"><label>X</label>
+    <input id="per-x" placeholder="@handle" autocapitalize="off"></div>
+  <button class="btn" onclick="savePerson()">Save</button>
+  <button class="btn ghost" style="margin-top:10px" id="per-acts"
+    onclick="showTheirActs()">See their acts</button>
+</div></div>
+
+<!-- ══ SHEET — plan a slot ══ -->
+<div class="sheet hide" id="sheet-plan"><div class="panel">
+  <button class="sheetback" onclick="sheet(null)">‹ Done</button>
+  <h3 id="plan-h3">Plan act 4</h3>
+  <p class="note" style="margin-bottom:18px">Put something in the diary. It sits in the
+    grid until you do it &mdash; no reminder, no pressure.</p>
+  <div class="field"><label>What are you thinking?</label>
+    <input id="pl-title" placeholder="Doughnuts for the vet"></div>
+  <div class="field"><label>When? (optional)</label>
+    <input id="pl-when" type="date"></div>
+  <button class="btn" onclick="savePlan()">Put it in the grid</button>
+  <button class="btn ghost" style="margin-top:10px" onclick="clearPlan()"
+    id="pl-clear">Clear this slot</button>
+</div></div>
 
 <!-- ══════════ LOG ══════════ -->
 <section id="s-log" class="hide">
@@ -410,7 +456,7 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
 
 <!-- ══════════ WRITE-UP ══════════ -->
 <section id="s-write" class="hide">
-  <div class="top"><button class="back" onclick="go('grid')">‹</button>
+  <div class="top"><button class="back" onclick="go('home')">‹</button>
     <h2>Write it up</h2><div class="sub" id="w-no"></div></div>
   <div class="wrap">
     <p class="note" style="margin-bottom:18px">This is the diary entry. The post comes
@@ -436,7 +482,7 @@ What you actually did. Why it mattered. Say the awkward parts."></textarea>
 
 <!-- ══════════ CARD ══════════ -->
 <section id="s-card" class="hide">
-  <div class="top"><button class="back" onclick="go('grid')">‹</button>
+  <div class="top"><button class="back" onclick="go('home')">‹</button>
     <h2>Slide 1</h2><div class="sub">auto-generated</div></div>
   <div class="wrap">
     <div class="cardbox" id="cardface">
@@ -613,10 +659,10 @@ What you actually did. Why it mattered. Say the awkward parts."></textarea>
 </div>
 
 <nav class="tabs hide" id="tabs">
-  <button data-t="home" onclick="go('home')"><span class="ic">◔</span>Progress</button>
-  <button data-t="grid" onclick="go('grid')"><span class="ic">▦</span>Grid</button>
+  <button data-t="home" onclick="go('home')"><span class="ic">▦</span>Your year</button>
   <button data-t="log"  onclick="newAct()"><span class="ic" style="font-size:23px">＋</span>Log</button>
   <button data-t="browse" onclick="go('browse')"><span class="ic">✦</span>Ideas</button>
+  <button data-t="people" onclick="go('people')"><span class="ic">☺</span>People</button>
   <button data-t="you" onclick="go('you')"><span class="ic">◍</span>You</button>
 </nav>
 
@@ -702,7 +748,7 @@ function serialise(){
     name:S.name, bday:S.bday, why:S.why,
     start:S.start.toISOString(),
     people:S.people, platforms:S.platforms,
-    started:S.started,
+    started:S.started, plans:S.plans||{}, handles:S.handles||{},
     acts:S.acts.map(a=>({ no:a.no, t:a.t, out:a.out, who:a.who, cost:a.cost, spends:a.spends||[],
                           story:a.story, photos:(a.photos||[]).map(p=>p.id) }))
   };
@@ -725,7 +771,7 @@ async function load(){
   S.name=o.name||''; S.bday=o.bday||''; S.why=o.why||'';
   S.start=o.start?new Date(o.start):new Date();
   S.people=o.people||[]; S.platforms=o.platforms||S.platforms;
-  S.started=!!o.started;
+  S.started=!!o.started; S.plans=o.plans||{}; S.handles=o.handles||{};
 
   S.acts=[];
   for(const a of (o.acts||[])){
@@ -1080,25 +1126,7 @@ function drawHome(){
   $('sug-title').textContent='Teacher Appreciation Week';
   $('sug-body').textContent='Starts in nine days. A supply-bag act needs about a week — enough time to ask someone to split it with you.';
 
-  const r=$('recent'); r.innerHTML='';
-  if(!S.acts.length){
-    r.innerHTML='<p class="note">Nothing logged yet. When you do something — however '+
-      'small — tap <b>Log</b> and it takes about fifteen seconds. You can write it '+
-      'up properly whenever you feel like it.</p>';
-  }
-  S.acts.slice().reverse().forEach(a=>{
-    const d=document.createElement('div');
-    d.className='row-item';
-    d.innerHTML=(a.photos&&a.photos.length
-        ? '<div class="dot on" style="background-image:url('+a.photos[0].url+');'+
-          'background-size:cover;background-position:center;color:transparent"></div>'
-        : '<div class="dot on">'+a.no+'</div>')+
-      '<div class="t"><b>'+a.t+'</b>'+
-      '<span>'+(a.who.length?a.who.join(', '):'on your own')+
-      (a.out!=='Went to plan'?' · '+a.out.toLowerCase():'')+'</span></div>';
-    d.onclick=()=>openAct(a);
-    r.appendChild(d);
-  });
+  drawGrid();
 }
 
 /* ── grid ── */
@@ -1106,17 +1134,160 @@ function drawGrid(){
   $('grid-title').textContent='The '+S.n;
   const g=$('grid'); g.innerHTML='';
   const map={}; S.acts.forEach(a=>{map[Math.floor(parseFloat(a.no))]=a;});
+  const plans=S.plans||{};
   const nextN = S.acts.length ? Math.max.apply(null,S.acts.map(a=>Math.floor(parseFloat(a.no))))+1 : 1;
+  const f = S.filterPerson;
+
   for(let i=1;i<=S.n;i++){
-    const t=document.createElement('div'), a=map[i];
-    t.className='tile'+(a ? (a.no.indexOf('.')>-1?' half':' done') : (i===nextN?' next':''));
+    const t=document.createElement('div'), a=map[i], pl=plans[i];
+    t.className='tile'+(a ? (a.no.indexOf('.')>-1?' half':' done')
+                          : (pl ? ' planned' : (i===nextN?' next':'')));
     if(a && a.photos && a.photos.length){
       t.innerHTML='<img src="'+a.photos[0].url+'" alt="">'+
                   '<b class="tilenum">'+i+'</b>';
+    } else if(pl){
+      /* a planned act sits in its slot as a ghost, so the grid answers
+         "what's coming?" as well as "what's done?" */
+      t.innerHTML='<span class="tilenum">'+i+'</span>'+
+        (pl.d ? '<b class="tilewhen">'+shortDate(pl.d)+'</b>' : '');
+      t.title=pl.t||'';
     } else { t.textContent=i; }
-    if(a) t.onclick=()=>openAct(a);
+
+    /* filtering by a person dims everything they weren't part of */
+    if(f){
+      const inIt = a && a.who && a.who.indexOf(f)>-1;
+      t.style.opacity = inIt ? 1 : .22;
+    }
+
+    /* The grid is the tabs of a journal — a tile takes you to its page.
+       Done goes to the write-up; empty or planned goes to Log, with that
+       number already set and anything you'd planned filled in. */
+    t.onclick = a ? (()=>openAct(a)) : (()=>logSlot(i));
     g.appendChild(t);
   }
+
+  const fn=$('filternote');
+  fn.classList.toggle('hide', !f);
+  if(f) fn.innerHTML='<p class="note">Showing acts with <b>'+f+'</b>. '+
+    '<a class="tlink" href="#" onclick="S.filterPerson=null;drawGrid();return false">'+
+    'show everything</a></p>';
+}
+const shortDate = d => {
+  const p=(d||'').split('-'); if(p.length<3) return '';
+  return +p[2] + ' ' + ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][+p[1]-1];
+};
+
+/* ── planning an empty slot ─────────────────────────────────────────────────
+   Two thirds of the grid is empty for most of the year. Leaving those tiles
+   inert made it a scoreboard; making them tappable makes it a planning board,
+   which is the half of the north star the grid wasn't serving.              */
+/* start logging into a particular slot in the grid */
+function logSlot(i){
+  const pl=(S.plans||{})[i]||{};
+  newAct();
+  $('l-num').value = i;
+  $('log-no').textContent = 'act '+i+' of '+S.n;
+  if(pl.t) $('l-title').value = pl.t;
+}
+
+function openPlan(i){
+  S.planSlot=i;
+  const pl=(S.plans||{})[i]||{};
+  $('plan-h3').textContent='Plan act '+i;
+  $('pl-title').value=pl.t||'';
+  $('pl-when').value=pl.d||'';
+  $('pl-clear').classList.toggle('hide', !pl.t && !pl.d);
+  sheet('plan');
+}
+function savePlan(){
+  S.plans=S.plans||{};
+  const t=$('pl-title').value.trim(), d=$('pl-when').value;
+  if(!t && !d){ sheet(null); return; }
+  S.plans[S.planSlot]={t:t,d:d};
+  save(); sheet(null); drawGrid();
+}
+function clearPlan(){
+  if(S.plans) delete S.plans[S.planSlot];
+  save(); sheet(null); drawGrid();
+}
+
+/* ── people ─────────────────────────────────────────────────────────────────
+   Ten of Jessica's first nineteen acts started with a person rather than an
+   idea, and six people volunteered on her announcement before a single act
+   existed. This is the directory that was previously homeless.              */
+function actsWith(name){ return S.acts.filter(a=>(a.who||[]).indexOf(name)>-1); }
+function gaveWith(name){
+  let n=0;
+  S.acts.forEach(a=>(a.spends||[]).forEach(sp=>{
+    if((sp.n||'').indexOf(name)>-1) n++;
+  }));
+  return n;
+}
+function drawPeople(){
+  const box=$('people-list'); box.innerHTML='';
+  if(!S.people.length){
+    box.innerHTML='<p class="note">Nobody yet. People you log alongside an act turn '+
+      'up here, and anyone who offers to help is worth adding before you start.</p>';
+    return;
+  }
+  S.people.slice().sort((a,b)=>actsWith(b).length-actsWith(a).length).forEach(name=>{
+    const acts=actsWith(name), money=gaveWith(name);
+    const h=handlesOf(name), got=HANDLE_KEYS.filter(k=>h[k]);
+    const bits=[];
+    bits.push(acts.length ? acts.length+(acts.length===1?' act':' acts') : 'not in an act yet');
+    if(money) bits.push('chipped in on '+money);
+    bits.push(got.length ? got.length+(got.length===1?' handle':' handles') : 'no handles yet');
+    const d=document.createElement('div');
+    d.className='row-item';
+    d.innerHTML='<div class="dot on">'+name.trim().charAt(0).toUpperCase()+'</div>'+
+      '<div class="t"><b>'+name+'</b><span>'+bits.join(' · ')+'</span></div>';
+    d.onclick=()=>openPerson(name);
+    box.appendChild(d);
+  });
+}
+/* Handles are stored per person, per platform, because they don't match:
+   Holly is "Holly Williams" on Facebook and @hollyyoungwilliamsarchitect on
+   Instagram, and Leigh is "Leigh Vinson Halabi" and @leigh_halabi. That can't
+   be derived, so it has to be kept. The composer substitutes the right one. */
+const HANDLE_KEYS = ['instagram','facebook','threads','x'];
+function handlesOf(name){ return (S.handles||(S.handles={}))[name] || {}; }
+
+let PER_EDITING = null;
+function openPerson(name){
+  PER_EDITING = name || null;
+  const h = name ? handlesOf(name) : {};
+  $('per-h3').textContent = name ? name : 'Add someone';
+  $('per-name').value = name || '';
+  HANDLE_KEYS.forEach(k=>{ $('per-'+k).value = h[k] || ''; });
+  $('per-acts').classList.toggle('hide', !name);
+  sheet('person');
+}
+function addPerson(){ openPerson(null); }
+
+function savePerson(){
+  const name = $('per-name').value.trim();
+  if(!name){ $('per-name').focus(); return; }
+  S.handles = S.handles || {};
+  if(PER_EDITING && PER_EDITING !== name){
+    /* renamed — carry the handles and every mention across */
+    S.handles[name] = S.handles[PER_EDITING] || {};
+    delete S.handles[PER_EDITING];
+    S.people = S.people.map(x=> x===PER_EDITING ? name : x);
+    S.acts.forEach(a=>{ a.who = (a.who||[]).map(x=> x===PER_EDITING ? name : x); });
+    if(S.chosen) S.chosen = S.chosen.map(x=> x===PER_EDITING ? name : x);
+  } else if(S.people.indexOf(name) < 0){
+    S.people.push(name);
+  }
+  const h = S.handles[name] = S.handles[name] || {};
+  HANDLE_KEYS.forEach(k=>{
+    const v = $('per-'+k).value.trim();
+    if(v) h[k] = v; else delete h[k];
+  });
+  save(); sheet(null); drawPeople();
+}
+function showTheirActs(){
+  S.filterPerson = PER_EDITING;
+  sheet(null); go('home');
 }
 
 /* ── photos ── */
@@ -1375,8 +1546,10 @@ function saveAct(writeNow){
                               : parseFloat(($('l-cost').value||'').replace(/[^0-9.]/g,''))||0,
            spends:spends, story:'', photos:S.newPhotos.slice()};
   S.draftSpends=[];
-  S.acts.push(a); S.current=a; save();
-  if(writeNow) openWrite(a); else go('grid');
+  S.acts.push(a); S.current=a;
+  if(S.plans) delete S.plans[Math.floor(parseFloat(a.no))];
+  save();
+  if(writeNow) openWrite(a); else go('home');
 }
 function openAct(a){ S.current=a; openWrite(a); }
 function openWrite(a){
@@ -1435,7 +1608,16 @@ function drawBrowse(){
       '<b style="font-size:15.5px;display:block;margin-bottom:6px">'+i.t+'</b>'+
       '<p class="note" style="margin:0 0 14px">'+i.d+'</p>'+
       '<button class="btn mini ghost">Save for later</button>';
-    d.querySelector('button').onclick=()=>alert('Saved to your shortlist.\n\nGive it a date and it becomes a planned act — with reminders, and a flyer if it needs one.');
+    d.querySelector('button').onclick=()=>{
+      /* shortlisting drops the idea into the next free slot in the grid,
+         where it sits as a plan until you actually do it */
+      const used={}; S.acts.forEach(x=>used[Math.floor(parseFloat(x.no))]=1);
+      Object.keys(S.plans||{}).forEach(k=>used[k]=1);
+      let slot=1; while(used[slot] && slot<=S.n) slot++;
+      if(slot>S.n){ alert('Every slot has something in it already.'); return; }
+      openPlan(slot);
+      $('pl-title').value=i.t;
+    };
     box.appendChild(d);
   });
 }
@@ -1500,7 +1682,7 @@ function drawTodo(){
 function toTop(){ window.scrollTo(0,0); document.documentElement.scrollTop=0; }
 
 function sheet(which){
-  ['you','social','spend'].forEach(x=>$('sheet-'+x).classList.add('hide'));
+  ['you','social','spend','plan','person'].forEach(x=>$('sheet-'+x).classList.add('hide'));
   if(which){ $('sheet-'+which).classList.remove('hide'); }
   if(which==='social') drawPlats();
   if(!which){ toTop(); setTimeout(tourIfVisible, 260); }  // sheet closed — is the picker showing?
@@ -1539,7 +1721,7 @@ function finishSetup(){
 }
 
 /* ── nav ── */
-const VIEWS=['setup','home','grid','log','write','card','browse','you'];
+const VIEWS=['setup','home','log','write','card','browse','people','you'];
 function go(v){
   VIEWS.forEach(x=>$('s-'+x).classList.add('hide'));
   $('s-'+v).classList.remove('hide');
@@ -1548,7 +1730,7 @@ function go(v){
   if(v==='setup'){ drawSetup(); setTimeout(tourIfVisible, 260); }
   if(v==='home'){ drawHome(); drawTodo(); }
   if(v==='you')    drawYou();
-  if(v==='grid')   drawGrid();
+  if(v==='people') drawPeople();
   if(v==='card')   drawCard();
   if(v==='browse') drawBrowse();
   document.querySelectorAll('.tabs button').forEach(b=>
@@ -1582,7 +1764,7 @@ function readBday(){
    in the viewport AND with no sheet covering it. An IntersectionObserver alone
    can't tell: an element behind a full-screen overlay still 'intersects'. */
 function sheetOpen(){
-  return ['you','social','spend'].some(x=>!$('sheet-'+x).classList.contains('hide'));
+  return ['you','social','spend','plan','person'].some(x=>!$('sheet-'+x).classList.contains('hide'));
 }
 function tourIfVisible(){
   if(S.toneToured || sheetOpen()) return;
