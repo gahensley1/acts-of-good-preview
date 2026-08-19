@@ -521,7 +521,7 @@ What you actually did. Why it mattered. Say the awkward parts."></textarea>
       <button class="btn" onclick="openCompose()">Post this act</button>
       <button class="btn ghost" style="margin-top:10px" onclick="doItAgain()">Do it again</button>
       <button class="btn ghost" style="margin-top:10px" onclick="toggleHalf()"
-        id="mk-btn">Mark up as half an act</button>
+        id="mk-btn">Mark as half an act</button>
       <p class="note" style="margin-top:10px">Like act 3 &mdash; the plan was to give
         blood together, they wouldn't take hers, her son gave and she didn't. The number
         gets crossed out and the half written in.</p>
@@ -1960,7 +1960,7 @@ function drawActNo(a){
   const b = $('mk-btn');
   if(b) b.textContent = a.half
     ? 'Put it back to act ' + wholeNo(a.no)
-    : 'Mark up to ' + halfNo(a.no) + ' — as half an act';
+    : 'Mark to ' + halfNo(a.no) + ' — as half an act';
 }
 
 /* ── do it again ────────────────────────────────────────────────────────────
