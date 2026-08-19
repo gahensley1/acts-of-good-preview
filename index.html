@@ -145,6 +145,13 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
 .chips.scrollrow .chip{flex:none;white-space:nowrap}
 .tlink{color:var(--coral);text-decoration:none;border-bottom:1px solid var(--coral);
   font-weight:500}
+/* the half — her act 2.5 treatment, measured off the card */
+.struck{position:relative;display:inline-block}
+.struck::after{content:"";position:absolute;left:50%;top:.05em;height:1.09em;
+  width:.030em;background:var(--ink);transform:translateX(-50%) rotate(30deg);
+  border-radius:.02em}
+.struck .half{position:absolute;bottom:87%;left:50%;transform:translateX(-10%);
+  font-size:.62em;line-height:1;white-space:nowrap;color:var(--coral)}
 .chip{padding:9px 15px;border-radius:999px;border:1.5px solid var(--line);
   font-size:13.5px;font-weight:500;background:var(--paper);transition:.15s}
 .chip.on{border-color:var(--coral);background:var(--coral);color:#fff}
@@ -190,8 +197,8 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
 /* the type sits 12.1 down, the artwork starts at 6.4 — so pull the art back
    up out of that padding */
 #cardface .balloon{top:-6cqw}
-#cardface hr{border:none;border-top:1px solid var(--ink);opacity:.9;
-  width:78cqw;margin:0 auto;position:absolute;top:68.3cqw;left:11cqw}
+#cardface hr{border:none;border-top:.5px solid var(--ink);opacity:.9;
+  width:78cqw;margin:0 auto;position:absolute;top:65.9cqw;left:11cqw}
 #cardface .actno{position:absolute;top:73.3cqw;left:0;right:0;
   color:var(--coral);font-size:10.4cqw;font-weight:700;letter-spacing:-.01em}
 #cardface{position:relative}
@@ -481,7 +488,10 @@ What you actually did. Why it mattered. Say the awkward parts."></textarea>
       <p class="note" style="margin-top:8px">Add any that arrived later — someone
         sending you a picture weeks afterwards is part of the act too.</p></div>
 
-    <button class="btn" onclick="go('card')">See the card</button>
+    <div style="display:flex;gap:10px">
+      <button class="btn ghost" style="flex:1;margin:0" onclick="go('card')">See the card</button>
+      <button class="btn" style="flex:1;margin:0" onclick="openCompose()">Post it</button>
+    </div>
   </div>
 </section>
 
@@ -510,8 +520,12 @@ What you actually did. Why it mattered. Say the awkward parts."></textarea>
     <div style="margin-top:22px">
       <button class="btn" onclick="openCompose()">Post this act</button>
       <button class="btn ghost" style="margin-top:10px" onclick="doItAgain()">Do it again</button>
-      <button class="btn ghost" style="margin-top:10px"
-        onclick="alert('In the app: a scribble layer over the card — so you can strike out the number and write 2.5 in pen, like act 3.')">Mark it up</button>
+      <button class="btn ghost" style="margin-top:10px" onclick="toggleHalf()"
+        id="mk-btn">It only half happened</button>
+      <p class="note" style="margin-top:10px">Like act 3 &mdash; the plan was to give
+        blood together, they wouldn't take hers, her son gave and she didn't. The number
+        gets crossed out and the half written in.</p>
+
     </div>
   </div>
 </section>
@@ -818,7 +832,8 @@ function serialise(){
     people:S.people, platforms:S.platforms,
     started:S.started, plans:S.plans||{}, handles:S.handles||{}, places:S.places||{},
     acts:S.acts.map(a=>({ no:a.no, t:a.t, out:a.out, who:a.who, cost:a.cost, spends:a.spends||[],
-                          story:a.story, photos:(a.photos||[]).map(p=>p.id) }))
+                          story:a.story, half:!!a.half, captions:a.captions||{},
+                          photos:(a.photos||[]).map(p=>p.id) }))
   };
 }
 function save(){
@@ -849,6 +864,7 @@ async function load(){
       if(url) photos.push({id,url});
     }
     S.acts.push({ no:a.no, t:a.t, out:a.out, who:a.who||[], cost:a.cost||0, spends:a.spends||[],
+                  half:!!a.half, captions:a.captions||{},
                   story:a.story||'', photos });
   }
   return true;
@@ -1072,8 +1088,10 @@ function drawTones(){
    Both are recomputed whenever the number, the word or the width changes.   */
 const ART_INK_W  = 0.242;     // the artwork's ink width, from her card
 const OVERLAP    = 0.02;      // her script's tail tucks this far under the art
-const MAX_TEXT   = 0.77;      // widest the type may get before it must shrink —
-                              // set by what's left once the artwork has its room
+const MARK_INSET = 0.045;     // breathing room down each side of the mark. Her
+                              // card never lets ink touch the edge, and at long
+                              // words the type was running right up to it.
+const MARK_AVAIL = 1 - MARK_INSET*2;
 const MIN_SCALE  = 0.35;      // floor, so a very long word can't vanish
 const TXT_CENTRE = 0.435;     // the type column's resting centre in the CSS
 
@@ -1093,9 +1111,11 @@ function fitMark(lockup){
   /* 1 — how wide does the word want to be, as a fraction of the mark */
   const natural = measureText(scr, base) / W;
 
-  /* 2 — shrink only if it exceeds what the mark can hold */
+  /* 2 — shrink only if it exceeds what the mark can hold, which is the space
+         inside the margins once the artwork has taken its room */
+  const maxText = MARK_AVAIL - (ART_INK_W - OVERLAP);
   let scale = 1, w = natural;
-  if(w > MAX_TEXT){ scale = Math.max(MIN_SCALE, MAX_TEXT / w); w = natural * scale; }
+  if(w > maxText){ scale = Math.max(MIN_SCALE, maxText / w); w = natural * scale; }
 
   /* 3 — the type block is as wide as its widest line */
   const textW = Math.max(w,
@@ -1105,7 +1125,7 @@ function fitMark(lockup){
   /* 4 — type and artwork are one object. Its width is the type plus the part
          of the artwork that clears the type, and it sits centred in the mark. */
   const objW    = textW + ART_INK_W - OVERLAP;
-  const objLeft = (1 - objW) / 2;
+  const objLeft = MARK_INSET + (MARK_AVAIL - objW) / 2;
 
   /* 5 — place both halves of the object */
   const centre = objLeft + textW/2;
@@ -1668,10 +1688,11 @@ function count(){
 function drawCard(){
   const a=S.current||S.acts[S.acts.length-1]||{no:'1'};
   drawSlides(a);
+
   $('cd-n').textContent   = S.n;
   $('cd-iy').textContent  = S.line;
   $('cd-scr').textContent = S.word;
-  $('cd-act').textContent = 'act '+a.no+' of '+S.n;
+  drawActNo(a);
   fitAllMarks();
 }
 
@@ -1886,6 +1907,44 @@ function openApp(){
   const urls={instagram:'instagram://app',facebook:'fb://',threads:'barcelona://',x:'twitter://'};
   alert('In the app: opens '+PLATS.filter(([k])=>k===CM_PLAT)[0][1]+
         ' with the caption already on the clipboard.\n\n('+urls[CM_PLAT]+')');
+}
+
+
+/* ── half acts ──────────────────────────────────────────────────────────────
+   This exists for exactly one situation, and act 3 is the model: Jessica and
+   her son went to give blood, they wouldn't take hers because of a broken arm,
+   he gave and she didn't. It went up with the number crossed out and 2.5
+   written in pen.
+
+   So this isn't a drawing tool. It's one decision — "it only half happened" —
+   and the card does the crossing out for you. A free scribble layer would let
+   you write anything; what's actually needed is the half.                    */
+function halfNo(n){ return (Math.floor(parseFloat(n)) - 0.5).toString(); }
+function wholeNo(n){ return Math.ceil(parseFloat(n)).toString(); }
+
+function toggleHalf(){
+  const a = S.current || S.acts[S.acts.length-1];
+  if(!a) return;
+  a.half = !a.half;
+  a.no = a.half ? halfNo(a.no) : wholeNo(a.no);
+  save(); drawCard();
+}
+function drawActNo(a){
+  const el = $('cd-act');
+  if(a.half){
+    /* Copied from her act 2.5 card, exactly: the line still reads "act 3 of
+       50" at full size in coral; a single BLACK diagonal slash crosses the
+       numeral, bottom-left to top-right, overshooting it top and bottom; and
+       "2.5" sits above in the same coral and the same face, about 58% size,
+       tucked under the rule and nudged slightly right of centre. */
+    el.innerHTML = 'act <span class="struck">' +
+      '<span class="half">' + a.no + '</span>' + wholeNo(a.no) +
+      '</span> of ' + S.n;
+  } else {
+    el.textContent = 'act ' + a.no + ' of ' + S.n;
+  }
+  const b = $('mk-btn');
+  if(b) b.textContent = a.half ? 'No — it counted in full' : 'It only half happened';
 }
 
 /* ── do it again ────────────────────────────────────────────────────────────
