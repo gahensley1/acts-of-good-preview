@@ -354,6 +354,8 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
       </div>
     </div>
 
+    <div id="month" class="pace" style="margin-top:-10px;position:relative"></div>
+
     <div id="todo" class="todo hide"></div>
 
     <h3 style="font-size:13px;color:var(--muted);text-transform:uppercase;
@@ -388,6 +390,23 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
       + Add someone</button>
   </div>
 </section>
+
+<!-- ══ SHEET — the month grid ══ -->
+<div class="sheet hide" id="sheet-cal"><div class="panel">
+  <button class="sheetback" onclick="sheet(null)">‹ Done</button>
+  <div style="display:flex;align-items:baseline;justify-content:space-between">
+    <h3 id="cal-title" style="margin:0">September</h3>
+    <div>
+      <button onclick="calStep(-1)" style="padding:6px 10px;font-size:18px;
+        color:var(--muted)">‹</button>
+      <button onclick="calStep(1)" style="padding:6px 10px;font-size:18px;
+        color:var(--muted)">›</button>
+    </div>
+  </div>
+  <p class="note" id="cal-sub" style="margin:6px 0 16px"></p>
+  <div id="cal-grid"></div>
+  <div id="cal-list" style="margin-top:16px"></div>
+</div></div>
 
 <!-- ══ SHEET — a person ══ -->
 <div class="sheet hide" id="sheet-person"><div class="panel">
@@ -832,7 +851,7 @@ function serialise(){
     people:S.people, platforms:S.platforms,
     started:S.started, plans:S.plans||{}, handles:S.handles||{}, places:S.places||{},
     acts:S.acts.map(a=>({ no:a.no, t:a.t, out:a.out, who:a.who, cost:a.cost, spends:a.spends||[],
-                          story:a.story, half:!!a.half, captions:a.captions||{},
+                          story:a.story, half:!!a.half, d:a.d||'', captions:a.captions||{},
                           photos:(a.photos||[]).map(p=>p.id) }))
   };
 }
@@ -864,7 +883,7 @@ async function load(){
       if(url) photos.push({id,url});
     }
     S.acts.push({ no:a.no, t:a.t, out:a.out, who:a.who||[], cost:a.cost||0, spends:a.spends||[],
-                  half:!!a.half, captions:a.captions||{},
+                  half:!!a.half, d:a.d||'', captions:a.captions||{},
                   story:a.story||'', photos });
   }
   return true;
@@ -1214,7 +1233,154 @@ function drawHome(){
   $('sug-title').textContent='Teacher Appreciation Week';
   $('sug-body').textContent='Starts in nine days. A supply-bag act needs about a week — enough time to ask someone to split it with you.';
 
+  drawMonth();
   drawGrid();
+}
+
+
+/* ── the month ──────────────────────────────────────────────────────────────
+   A year is too long to steer by and a week is too short. A month is how
+   people actually plan — "I'll do a couple in September" — so the year screen
+   says what this month asks of you, and lists what you've already done in it,
+   dated. The number in brackets is what's left to keep the year on track, so
+   it falls as you go and it accounts for being ahead or behind.             */
+const MONTHS_LONG = ['January','February','March','April','May','June','July',
+  'August','September','October','November','December'];
+function todayISO(){
+  const d=new Date();
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+
+         String(d.getDate()).padStart(2,'0');
+}
+function monthsInPeriod(){ return Math.max(1, Math.round(S.weeks/4.345)); }
+
+function drawMonth(){
+  const box=$('month'); if(!box) return;
+  const now = new Date();
+  const start = S.start;
+  /* how many whole months in, counting the month you started as the first */
+  const idx = Math.max(0,
+    (now.getFullYear()-start.getFullYear())*12 + (now.getMonth()-start.getMonth()));
+  const total = monthsInPeriod();
+  const done  = S.acts.length;
+  /* where the year should stand by the end of THIS month */
+  const target = Math.round(S.n * Math.min(1,(idx+1)/total));
+  const left   = Math.max(0, target - done);
+
+  const thisMonth = S.acts.filter(a=>{
+    if(!a.d) return false;
+    const d=new Date(a.d+'T00:00:00');
+    return d.getMonth()===now.getMonth() && d.getFullYear()===now.getFullYear();
+  }).sort((x,y)=> x.d < y.d ? -1 : 1);
+
+  let head = MONTHS_LONG[now.getMonth()];
+  head += left ? ' <span style="color:var(--coral)">(' + left +
+                 (left===1?' to go)':' to go)') + '</span>'
+               : ' <span style="color:var(--muted)">(all done)</span>';
+
+  let html = '<div class="lab">This month</div>'+
+             '<div class="big" style="margin-bottom:'+(thisMonth.length?'10px':'0')+'">'+head+'</div>';
+
+  thisMonth.forEach(a=>{
+    html += '<div style="display:flex;gap:10px;align-items:baseline;padding:5px 0;'+
+      'border-top:1px solid var(--line)">'+
+      '<b style="font-size:12.5px;color:var(--muted);min-width:52px">'+shortDate(a.d)+'</b>'+
+      '<span style="font-size:14.5px;flex:1">'+a.t+'</span>'+
+      '<span style="font-size:12.5px;color:var(--muted)">act '+a.no+'</span></div>';
+  });
+  if(!thisMonth.length && left){
+    html += '<p class="note" style="margin:6px 0 0">Nothing logged in '+
+      MONTHS_LONG[now.getMonth()]+' yet.</p>';
+  }
+  html += '<button onclick="openCal()" aria-label="Month calendar" '+
+    'style="position:absolute;top:16px;right:16px;padding:6px">'+
+    '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" '+
+    'stroke="var(--muted)" stroke-width="1.7">'+
+    '<rect x="3" y="5" width="18" height="16" rx="2.5"/>'+
+    '<path d="M3 10h18M8 3v4M16 3v4"/></svg></button>';
+  box.innerHTML = html;
+}
+
+/* ── the month grid ─────────────────────────────────────────────────────────
+   The list answers "what have I done"; the grid answers "when". Days with an
+   act are filled, planned dates are outlined in gold, today is ringed.      */
+let CAL_M = null;   // {y, m}
+function openCal(){
+  const n=new Date();
+  CAL_M = CAL_M || {y:n.getFullYear(), m:n.getMonth()};
+  sheet('cal');
+}
+function calStep(d){
+  CAL_M.m += d;
+  if(CAL_M.m < 0){ CAL_M.m = 11; CAL_M.y--; }
+  if(CAL_M.m > 11){ CAL_M.m = 0; CAL_M.y++; }
+  drawCal();
+}
+function drawCal(){
+  const {y,m} = CAL_M;
+  const now = new Date();
+  $('cal-title').textContent = MONTHS_LONG[m] + (y!==now.getFullYear() ? ' ' + y : '');
+
+  /* acts and plans falling in this month */
+  const acts = {}, plans = {};
+  S.acts.forEach(a=>{
+    if(!a.d) return;
+    const d=new Date(a.d+'T00:00:00');
+    if(d.getMonth()===m && d.getFullYear()===y) (acts[d.getDate()] = acts[d.getDate()]||[]).push(a);
+  });
+  Object.keys(S.plans||{}).forEach(slot=>{
+    const pl=S.plans[slot]; if(!pl.d) return;
+    const d=new Date(pl.d+'T00:00:00');
+    if(d.getMonth()===m && d.getFullYear()===y)
+      (plans[d.getDate()] = plans[d.getDate()]||[]).push(Object.assign({no:slot},pl));
+  });
+
+  const count = Object.keys(acts).reduce((n,k)=>n+acts[k].length,0);
+  $('cal-sub').textContent = count
+    ? count + (count===1?' act':' acts') + ' this month'
+    : 'Nothing logged this month.';
+
+  const first = new Date(y,m,1).getDay();            // 0 = Sunday
+  const days  = new Date(y,m+1,0).getDate();
+  let g = '<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px">';
+  ['S','M','T','W','T','F','S'].forEach(d=>{
+    g += '<div style="text-align:center;font-size:10.5px;color:var(--muted);'+
+         'font-weight:600;padding-bottom:4px">'+d+'</div>';
+  });
+  for(let i=0;i<first;i++) g += '<div></div>';
+  for(let d=1;d<=days;d++){
+    const isToday = d===now.getDate() && m===now.getMonth() && y===now.getFullYear();
+    const has = acts[d], plan = plans[d];
+    let st = 'aspect-ratio:1;display:flex;align-items:center;justify-content:center;'+
+             'border-radius:8px;font-size:12.5px;font-weight:600;';
+    if(has)        st += 'background:var(--coral);color:#fff;';
+    else if(plan)  st += 'border:1.5px solid var(--gold);color:var(--gold);';
+    else           st += 'color:#B9B2A9;';
+    if(isToday && !has) st += 'box-shadow:inset 0 0 0 1.5px var(--ink);';
+    if(isToday && has)  st += 'box-shadow:0 0 0 2px var(--ink);';
+    g += '<div style="'+st+'">'+d+'</div>';
+  }
+  g += '</div>';
+  $('cal-grid').innerHTML = g;
+
+  /* what's on those days */
+  let list='';
+  Object.keys(acts).sort((a,b)=>a-b).forEach(d=>{
+    acts[d].forEach(a=>{
+      list += '<div style="display:flex;gap:10px;padding:7px 0;border-top:1px solid var(--line)">'+
+        '<b style="min-width:26px;color:var(--coral)">'+d+'</b>'+
+        '<span style="flex:1;font-size:14.5px">'+a.t+'</span>'+
+        '<span class="note" style="margin:0">act '+a.no+'</span></div>';
+    });
+  });
+  Object.keys(plans).sort((a,b)=>a-b).forEach(d=>{
+    plans[d].forEach(pl=>{
+      list += '<div style="display:flex;gap:10px;padding:7px 0;border-top:1px solid var(--line)">'+
+        '<b style="min-width:26px;color:var(--gold)">'+d+'</b>'+
+        '<span style="flex:1;font-size:14.5px;color:var(--muted)">'+(pl.t||'Planned')+'</span>'+
+        '<span class="note" style="margin:0">planned</span></div>';
+    });
+  });
+  $('cal-list').innerHTML = list;
 }
 
 /* ── grid ── */
@@ -1661,7 +1827,7 @@ function saveAct(writeNow){
   const a={no:$('l-num').value||'1', t:title, out:S.outcome, who:S.chosen.slice(),
            cost:spends.length ? tally(spends).mine
                               : parseFloat(($('l-cost').value||'').replace(/[^0-9.]/g,''))||0,
-           spends:spends, story:'', photos:S.newPhotos.slice()};
+           spends:spends, story:'', d:todayISO(), photos:S.newPhotos.slice()};
   S.draftSpends=[];
   S.acts.push(a); S.current=a;
   if(S.plans) delete S.plans[Math.floor(parseFloat(a.no))];
@@ -2087,10 +2253,11 @@ function drawTodo(){
 function toTop(){ window.scrollTo(0,0); document.documentElement.scrollTop=0; }
 
 function sheet(which){
-  ['you','social','spend','plan','person','helpers'].forEach(x=>$('sheet-'+x).classList.add('hide'));
+  ['you','social','spend','plan','person','helpers','cal'].forEach(x=>$('sheet-'+x).classList.add('hide'));
   if(which){ $('sheet-'+which).classList.remove('hide'); }
   if(which==='social') drawPlats();
   if(which==='helpers') drawHelpers();
+  if(which==='cal') drawCal();
   if(!which){ toTop(); setTimeout(tourIfVisible, 260); }  // sheet closed — is the picker showing?
 }
 const PLATS=[['instagram','Instagram','@you'],['facebook','Facebook','Your name'],
@@ -2171,7 +2338,7 @@ function readBday(){
    in the viewport AND with no sheet covering it. An IntersectionObserver alone
    can't tell: an element behind a full-screen overlay still 'intersects'. */
 function sheetOpen(){
-  return ['you','social','spend','plan','person','helpers'].some(x=>!$('sheet-'+x).classList.contains('hide'));
+  return ['you','social','spend','plan','person','helpers','cal'].some(x=>!$('sheet-'+x).classList.contains('hide'));
 }
 function tourIfVisible(){
   if(S.toneToured || sheetOpen()) return;
