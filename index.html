@@ -505,11 +505,44 @@ What you actually did. Why it mattered. Say the awkward parts."></textarea>
     </div>
     <p class="ph">REAL ARTWORK · placeholder fonts</p>
 
+    <div id="slides" style="margin-top:18px"></div>
+
     <div style="margin-top:22px">
-      <button class="btn" onclick="alert('In the app: renders at 1080px, saves card + photos in order to a “50 Acts” album, copies the Instagram caption, opens Instagram.')">Post this act</button>
+      <button class="btn" onclick="openCompose()">Post this act</button>
+      <button class="btn ghost" style="margin-top:10px" onclick="doItAgain()">Do it again</button>
       <button class="btn ghost" style="margin-top:10px"
         onclick="alert('In the app: a scribble layer over the card — so you can strike out the number and write 2.5 in pen, like act 3.')">Mark it up</button>
     </div>
+  </div>
+</section>
+
+<!-- ══════════ COMPOSE ══════════ -->
+<section id="s-compose" class="hide">
+  <div class="top"><button class="back" onclick="go('card')">‹</button>
+    <h2>Post it</h2><div class="sub" id="cm-no"></div></div>
+  <div class="wrap">
+    <div class="chips" id="cm-plats" style="margin-bottom:16px"></div>
+
+    <div class="pace" id="cm-fit" style="margin-bottom:16px"></div>
+
+    <div class="field"><label>Caption <span style="text-transform:none;font-weight:400"
+      id="cm-label"></span></label>
+      <textarea id="cm-text" style="min-height:220px" oninput="composeEdited()"></textarea>
+      <div class="counter"><span id="cm-count"></span>
+        <button id="cm-reset" style="color:var(--coral);font-weight:600;font-size:13px;
+          padding:0" onclick="buildCaption(true)">Rebuild from the diary</button></div>
+    </div>
+
+    <div id="cm-trim"></div>
+
+    <div class="field"><label>Tagging</label>
+      <div id="cm-tags"></div></div>
+
+    <button class="btn" onclick="copyCaption()">Copy the caption</button>
+    <button class="btn ghost" style="margin-top:10px" onclick="openApp()"
+      id="cm-open">Open Instagram</button>
+    <p class="note" style="margin-top:12px">The card and your photos are saved to your
+      camera roll in order, so they're the first thing in the picker.</p>
   </div>
 </section>
 
@@ -653,8 +686,38 @@ What you actually did. Why it mattered. Say the awkward parts."></textarea>
     handle is optional — it's the people you tag that matter, and you'll add them
     as you go.</p>
 
-  <button class="btn" onclick="finishSetup()">Start</button>
+  <button class="btn" onclick="sheet('helpers')">Next</button>
   <button class="btn ghost" style="margin-top:10px" onclick="finishSetup()">Skip for now</button>
+</div></div>
+
+<!-- ══ SHEET 4 — who's already offered ══════════════════════════════════════
+     Jessica's announcement drew six offers of help before a single act existed
+     — Pooja, Pat, Leisel, Amy, Rachel, Sam. They arrive in one burst and then
+     get buried in a comment thread. Catching them here, before act 1, is the
+     whole point; the People directory otherwise only fills in afterwards.  -->
+<div class="sheet hide" id="sheet-helpers"><div class="panel">
+  <button class="sheetback" onclick="sheet('social')">‹ Back</button>
+  <div class="steps">One last thing</div>
+  <h3>Has anyone offered to help?</h3>
+  <p class="note" style="margin-bottom:18px">When people hear what you're doing, some
+    of them offer. Put their names down now &mdash; they're easy to forget once
+    they're buried in a comment thread, and they turn into acts.</p>
+
+  <div class="chips" id="hp-list" style="margin-bottom:14px"></div>
+
+  <div class="field">
+    <div style="display:flex;gap:10px">
+      <input id="hp-name" placeholder="A name" style="flex:1">
+      <button class="btn mini" style="margin:0" onclick="addHelper()">Add</button>
+    </div>
+    <input id="hp-where" placeholder="Where are they? (optional)" style="margin-top:10px">
+    <p class="note" style="margin-top:8px">A place is worth noting &mdash; a good few
+      acts happen while you're visiting somewhere.</p>
+  </div>
+
+  <button class="btn" onclick="finishSetup()">Start</button>
+  <button class="btn ghost" style="margin-top:10px" onclick="finishSetup()">
+    Nobody yet &mdash; start anyway</button>
 </div></div>
 
 <div id="install" class="hide">
@@ -753,7 +816,7 @@ function serialise(){
     name:S.name, bday:S.bday, why:S.why,
     start:S.start.toISOString(),
     people:S.people, platforms:S.platforms,
-    started:S.started, plans:S.plans||{}, handles:S.handles||{},
+    started:S.started, plans:S.plans||{}, handles:S.handles||{}, places:S.places||{},
     acts:S.acts.map(a=>({ no:a.no, t:a.t, out:a.out, who:a.who, cost:a.cost, spends:a.spends||[],
                           story:a.story, photos:(a.photos||[]).map(p=>p.id) }))
   };
@@ -776,7 +839,7 @@ async function load(){
   S.name=o.name||''; S.bday=o.bday||''; S.why=o.why||'';
   S.start=o.start?new Date(o.start):new Date();
   S.people=o.people||[]; S.platforms=o.platforms||S.platforms;
-  S.started=!!o.started; S.plans=o.plans||{}; S.handles=o.handles||{};
+  S.started=!!o.started; S.plans=o.plans||{}; S.handles=o.handles||{}; S.places=o.places||{};
 
   S.acts=[];
   for(const a of (o.acts||[])){
@@ -1242,6 +1305,7 @@ function drawPeople(){
     bits.push(acts.length ? acts.length+(acts.length===1?' act':' acts') : 'not in an act yet');
     if(money) bits.push('chipped in on '+money);
     bits.push(got.length ? got.length+(got.length===1?' handle':' handles') : 'no handles yet');
+    if((S.places||{})[name]) bits.push((S.places||{})[name]);
     const d=document.createElement('div');
     d.className='row-item';
     d.innerHTML='<div class="dot on">'+name.trim().charAt(0).toUpperCase()+'</div>'+
@@ -1268,6 +1332,34 @@ function openPerson(name){
   sheet('person');
 }
 function addPerson(){ openPerson(null); }
+
+/* people captured at setup, before act 1 */
+function drawHelpers(){
+  const box=$('hp-list'); box.innerHTML='';
+  if(!S.people.length){
+    box.innerHTML='<p class="note">Nobody yet.</p>'; return;
+  }
+  S.people.forEach(name=>{
+    const where=(S.places||{})[name];
+    const b=document.createElement('button');
+    b.className='chip on';
+    b.innerHTML=name+(where?'<small>'+where+'</small>':'');
+    b.onclick=()=>{
+      S.people=S.people.filter(x=>x!==name);
+      if(S.places) delete S.places[name];
+      save(); drawHelpers();
+    };
+    box.appendChild(b);
+  });
+}
+function addHelper(){
+  const n=$('hp-name').value.trim(), w=$('hp-where').value.trim();
+  if(!n) { $('hp-name').focus(); return; }
+  if(S.people.indexOf(n)<0) S.people.push(n);
+  if(w){ S.places=S.places||{}; S.places[n]=w; }
+  $('hp-name').value=''; $('hp-where').value='';
+  save(); drawHelpers();
+}
 
 function savePerson(){
   const name = $('per-name').value.trim();
@@ -1575,11 +1667,244 @@ function count(){
 /* ── card ── */
 function drawCard(){
   const a=S.current||S.acts[S.acts.length-1]||{no:'1'};
+  drawSlides(a);
   $('cd-n').textContent   = S.n;
   $('cd-iy').textContent  = S.line;
   $('cd-scr').textContent = S.word;
   $('cd-act').textContent = 'act '+a.no+' of '+S.n;
   fitAllMarks();
+}
+
+/* The card is slide 1; the photos are the slides after it, in order. Same
+   sequence she posts in — card first, then the act. */
+function drawSlides(a){
+  const box=$('slides'); if(!box) return;
+  box.innerHTML='';
+  const ph=(a.photos||[]);
+  if(!ph.length){
+    box.innerHTML='<p class="note">No photos on this act yet. The card posts on its '+
+      'own — or add some and they become the slides after it.</p>';
+    return;
+  }
+  box.innerHTML='<p class="note" style="margin:0 0 8px">Then '+ph.length+
+    (ph.length===1?' slide':' slides')+', in this order. Tap one to send it to '+
+    'the front.</p>';
+  const strip=document.createElement('div');
+  strip.className='photos';
+  ph.forEach((pic,i)=>{
+    const t=document.createElement('div');
+    t.className='ph-tile';
+    t.innerHTML='<img src="'+pic.url+'" alt="">'+
+      '<b style="position:absolute;left:4px;bottom:3px;color:#fff;font-size:10px;'+
+      'font-weight:700;text-shadow:0 1px 3px rgba(0,0,0,.7)">'+(i+2)+'</b>';
+    t.onclick=()=>{ a.photos.splice(i,1); a.photos.unshift(pic); save(); drawSlides(a); };
+    strip.appendChild(t);
+  });
+  box.appendChild(strip);
+}
+
+/* ── the composer ───────────────────────────────────────────────────────────
+   Designed from act 18, the only act we have in two lengths. What it showed:
+
+   1. She did NOT truncate — she rewrote. So this never chops from the bottom.
+   2. She cut about a third of the words and NONE of the credits. Every person
+      and business survived into the Instagram version. So a line carrying a
+      tagged name is protected, and only connective tissue is offered for
+      cutting. If it still won't fit with every credit in, the app says so out
+      loud rather than quietly dropping someone.
+   3. The same person needs a different identifier per platform — Holly is
+      "Holly Williams" on Facebook and @hollyyoungwilliamsarchitect on
+      Instagram. That can't be derived, so it comes from the People directory.
+   4. Whitespace costs characters. Facebook is set in short paragraphs;
+      Instagram's are collapsed, because blank lines are expensive at 2,200.  */
+
+const LIMITS = { instagram:2200, facebook:63206, threads:500, x:280 };
+let CM_PLAT = 'instagram';
+
+function openCompose(){
+  const a = S.current || S.acts[S.acts.length-1];
+  if(!a){ alert('Log an act first.'); return; }
+  const on = PLATS.filter(([k])=>S.platforms[k].on).map(([k])=>k);
+  CM_PLAT = on.indexOf(CM_PLAT)>-1 ? CM_PLAT : (on[0] || 'instagram');
+  $('cm-no').textContent = 'act '+a.no+' of '+S.n;
+  a.captions = a.captions || {};
+  go('compose');
+  drawCompose();
+}
+
+/* who gets tagged, and how they're written on THIS platform */
+function tagsFor(a, plat){
+  const out = [];
+  (a.who||[]).forEach(name=>{
+    const h = handlesOf(name)[plat];
+    out.push({ name:name, tag:h||null });
+  });
+  return out;
+}
+
+/* Build the caption from the diary entry. The entry is the thing; this is a
+   derivative of it, which is why it can always be rebuilt. */
+function buildCaption(force){
+  const a = S.current || S.acts[S.acts.length-1];
+  a.captions = a.captions || {};
+  if(a.captions[CM_PLAT] && !force){ drawCompose(); return; }
+
+  const lines = [];
+  lines.push('Act '+a.no+' of '+S.n+':');            // the number, first, always
+  const story = (a.story||'').trim();
+  if(story) lines.push(story);
+
+  const tags = tagsFor(a, CM_PLAT).map(t=>t.tag||t.name);
+  if(tags.length) lines.push('With '+listWords(tags)+'.');
+
+  const t = tally(a.spends||[]);
+  if(t.given) lines.push('');   // (kept deliberately blank — costs are private)
+
+  lines.push(defaultHashtag());
+  a.captions[CM_PLAT] = lines.filter((l,i)=>l!=='' || i===0).join('\n\n');
+  drawCompose();
+}
+function listWords(a){
+  if(!a.length) return '';
+  if(a.length===1) return a[0];
+  return a.slice(0,-1).join(', ')+' and '+a[a.length-1];
+}
+function defaultHashtag(){
+  const w=(S.word||'').replace(/[^a-z]/gi,'').toLowerCase();
+  const n=WORDS[S.n]?String(WORDS[S.n]).replace(/[^a-z]/gi,''):S.n;
+  return w ? '#'+n+'actsinyear'+w : '#'+n+'actsofgood';
+}
+
+function composeEdited(){
+  const a = S.current || S.acts[S.acts.length-1];
+  a.captions = a.captions || {};
+  a.captions[CM_PLAT] = $('cm-text').value;
+  save();
+  drawFit();
+}
+
+function drawCompose(){
+  const a = S.current || S.acts[S.acts.length-1];
+  const on = PLATS.filter(([k])=>S.platforms[k].on);
+  const list = on.length ? on : PLATS;
+  chips($('cm-plats'), list.map(([k,l])=>[l,k]), ()=>CM_PLAT, v=>{
+    CM_PLAT=v; buildCaption(false);
+  });
+  if(!a.captions || !a.captions[CM_PLAT]){ buildCaption(true); return; }
+  $('cm-text').value = a.captions[CM_PLAT];
+  $('cm-label').textContent = '— for ' + PLATS.filter(([k])=>k===CM_PLAT)[0][1];
+  $('cm-open').textContent = 'Open ' + PLATS.filter(([k])=>k===CM_PLAT)[0][1];
+
+  /* tagging: who's named, whether we have their handle for this platform */
+  const tb = $('cm-tags'); tb.innerHTML='';
+  const tags = tagsFor(a, CM_PLAT);
+  if(!tags.length){
+    tb.innerHTML = '<p class="note">Nobody named on this act.</p>';
+  } else {
+    tags.forEach(t=>{
+      const row=document.createElement('div');
+      row.style.cssText='display:flex;align-items:center;gap:10px;padding:7px 0;'+
+        'border-bottom:1px solid var(--line)';
+      row.innerHTML='<div style="flex:1"><b style="font-size:14.5px">'+t.name+'</b>'+
+        '<div class="note" style="margin:2px 0 0">'+
+        (t.tag ? 'tagged as '+t.tag : 'no handle for this one — written as a name')+
+        '</div></div>';
+      if(!t.tag){
+        const b=document.createElement('button');
+        b.className='btn mini ghost'; b.style.margin='0'; b.textContent='Add';
+        b.onclick=()=>{ go('people'); openPerson(t.name); };
+        row.appendChild(b);
+      }
+      tb.appendChild(row);
+    });
+  }
+  drawFit();
+}
+
+/* the fit panel, and the trimming suggestions when it doesn't */
+function drawFit(){
+  const txt = $('cm-text').value;
+  const lim = LIMITS[CM_PLAT] || 2200;
+  const n = txt.length;
+  const over = n - lim;
+  $('cm-count').innerHTML = '<b>'+n+'</b> / '+lim;
+  $('cm-count').className = over>0 ? 'over' : '';
+  $('cm-fit').innerHTML = over>0
+    ? '<div class="lab">Too long for '+PLATS.filter(([k])=>k===CM_PLAT)[0][1]+'</div>'+
+      '<div class="big" style="color:var(--coral)">'+over+' over</div>'
+    : '<div class="lab">Fits '+PLATS.filter(([k])=>k===CM_PLAT)[0][1]+'</div>'+
+      '<div class="big">'+(lim-n)+' spare</div>';
+
+  const box=$('cm-trim'); box.innerHTML='';
+  if(over<=0) return;
+
+  const a = S.current || S.acts[S.acts.length-1];
+  const named = tagsFor(a, CM_PLAT).map(t=>t.tag||t.name);
+  const paras = txt.split(/\n\n+/);
+  /* a paragraph that credits somebody is never offered for cutting */
+  const cuttable = paras.map((p,i)=>({i:i,p:p,
+      credits: named.some(x=>p.indexOf(x)>-1) || /^Act \d/.test(p) || p.indexOf('#')===0
+    })).filter(x=>!x.credits && x.p.trim().length>40);
+
+  if(!cuttable.length){
+    box.innerHTML='<p class="note" style="color:var(--coral)"><b>Every paragraph '+
+      'names someone.</b> Nothing here can be cut without dropping a credit — '+
+      'shorten the wording by hand instead, or post this one to '+
+      'Facebook where it fits.</p>';
+    return;
+  }
+  box.innerHTML='<p class="note"><b>Worth cutting first.</b> These are the '+
+    'paragraphs that name nobody.</p>';
+  cuttable.sort((x,y)=>y.p.length-x.p.length).slice(0,3).forEach(c=>{
+    const d=document.createElement('div');
+    d.style.cssText='border:1px solid var(--line);border-radius:10px;padding:12px;'+
+      'margin-bottom:8px';
+    d.innerHTML='<p class="note" style="margin:0 0 8px">'+
+      c.p.slice(0,120).replace(/</g,'&lt;')+(c.p.length>120?'…':'')+'</p>';
+    const b=document.createElement('button');
+    b.className='btn mini ghost'; b.style.margin='0';
+    b.textContent='Cut this ('+c.p.length+')';
+    b.onclick=()=>{
+      const keep = txt.split(/\n\n+/).filter((p,i)=>i!==c.i);
+      $('cm-text').value = keep.join('\n\n');
+      composeEdited(); drawCompose();
+    };
+    d.appendChild(b); box.appendChild(d);
+  });
+}
+
+function copyCaption(){
+  const t=$('cm-text');
+  t.select(); t.setSelectionRange(0, 99999);
+  let ok=false;
+  try { ok=document.execCommand('copy'); } catch(e){}
+  if(navigator.clipboard) navigator.clipboard.writeText(t.value).catch(()=>{});
+  alert(ok||navigator.clipboard ? 'Caption copied.\n\nOpen the app, pick the card and '+
+    'photos from your camera roll, and paste.' : 'Select the caption and copy it.');
+}
+function openApp(){
+  const urls={instagram:'instagram://app',facebook:'fb://',threads:'barcelona://',x:'twitter://'};
+  alert('In the app: opens '+PLATS.filter(([k])=>k===CM_PLAT)[0][1]+
+        ' with the caption already on the clipboard.\n\n('+urls[CM_PLAT]+')');
+}
+
+/* ── do it again ────────────────────────────────────────────────────────────
+   Act 5 → act 12 → Autumn Bingo in October is the same act three times, and
+   act 4 → act 15 is the same breakfast twice. She rebuilds them by hand. This
+   copies what's reusable — the title, the people, what it cost — and leaves the
+   story, photos and outcome blank, because those belong to the day it happens. */
+function doItAgain(){
+  const a = S.current || S.acts[S.acts.length-1];
+  if(!a) return;
+  const next = S.acts.length
+    ? Math.max.apply(null,S.acts.map(x=>Math.floor(parseFloat(x.no))))+1 : 1;
+  newAct();
+  $('l-num').value = next;
+  $('log-no').textContent = 'act '+next+' of '+S.n;
+  $('l-title').value = a.t;
+  S.chosen = (a.who||[]).slice();
+  S.draftSpends = (a.spends||[]).map(sp=>({a:sp.a,w:sp.w,p:sp.p,n:sp.n}));
+  drawLog(); updateSpendNote();
 }
 
 /* ── browse ── */
@@ -1687,9 +2012,10 @@ function drawTodo(){
 function toTop(){ window.scrollTo(0,0); document.documentElement.scrollTop=0; }
 
 function sheet(which){
-  ['you','social','spend','plan','person'].forEach(x=>$('sheet-'+x).classList.add('hide'));
+  ['you','social','spend','plan','person','helpers'].forEach(x=>$('sheet-'+x).classList.add('hide'));
   if(which){ $('sheet-'+which).classList.remove('hide'); }
   if(which==='social') drawPlats();
+  if(which==='helpers') drawHelpers();
   if(!which){ toTop(); setTimeout(tourIfVisible, 260); }  // sheet closed — is the picker showing?
 }
 const PLATS=[['instagram','Instagram','@you'],['facebook','Facebook','Your name'],
@@ -1726,7 +2052,7 @@ function finishSetup(){
 }
 
 /* ── nav ── */
-const VIEWS=['setup','home','log','write','card','browse','people','you'];
+const VIEWS=['setup','home','log','write','card','compose','browse','people','you'];
 function go(v){
   VIEWS.forEach(x=>$('s-'+x).classList.add('hide'));
   $('s-'+v).classList.remove('hide');
@@ -1737,6 +2063,7 @@ function go(v){
   if(v==='you')    drawYou();
   if(v==='people') drawPeople();
   if(v==='card')   drawCard();
+  if(v==='compose') drawCompose();
   if(v==='browse') drawBrowse();
   document.querySelectorAll('.tabs button').forEach(b=>
     b.classList.toggle('on', b.dataset.t===v));
@@ -1769,7 +2096,7 @@ function readBday(){
    in the viewport AND with no sheet covering it. An IntersectionObserver alone
    can't tell: an element behind a full-screen overlay still 'intersects'. */
 function sheetOpen(){
-  return ['you','social','spend','plan','person'].some(x=>!$('sheet-'+x).classList.contains('hide'));
+  return ['you','social','spend','plan','person','helpers'].some(x=>!$('sheet-'+x).classList.contains('hide'));
 }
 function tourIfVisible(){
   if(S.toneToured || sheetOpen()) return;
