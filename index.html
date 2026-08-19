@@ -437,9 +437,17 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
     grid until you do it &mdash; no reminder, no pressure.</p>
   <div class="field"><label>What are you thinking?</label>
     <input id="pl-title" placeholder="Doughnuts for the vet"></div>
+  <div class="field"><label>Which act?</label>
+    <div class="chips scrollrow" id="pl-slot"></div></div>
   <div class="field"><label>When? (optional)</label>
     <input id="pl-when" type="date"></div>
+  <div class="field"><label>Who's coming?</label>
+    <div class="chips" id="pl-who"></div>
+    <p class="note" style="margin-top:8px">Tap anyone who's in on it. New names go in
+      from People.</p></div>
   <button class="btn" onclick="savePlan()">Put it in the grid</button>
+  <button class="btn ghost" style="margin-top:10px" onclick="planToCalendar()">
+    Add to my phone calendar</button>
   <button class="btn ghost" style="margin-top:10px" onclick="clearPlan()"
     id="pl-clear">Clear this slot</button>
 </div></div>
@@ -447,9 +455,9 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
 <!-- ══════════ LOG ══════════ -->
 <section id="s-log" class="hide">
   <div class="top"><button class="back" onclick="go('home')">‹</button>
-    <h2>Log an act</h2><div class="sub" id="log-no"></div></div>
+    <h2 id="log-h2">Log an act</h2><div class="sub" id="log-no"></div></div>
   <div class="wrap">
-    <div class="field"><label>What did you do?</label>
+    <div class="field"><label id="l-titlelab">What did you do?</label>
       <input id="l-title" placeholder="Doughnuts for the vet clinic staff"></div>
 
     <div class="field"><label>Number</label>
@@ -457,14 +465,23 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
       <p class="note" style="margin-top:8px">Editable. Halves are allowed —
         act 2.5 is a real act.</p></div>
 
-    <div class="field"><label>How did it go?</label>
+    <div class="field"><label>When?</label>
+      <input id="l-when" type="date" onchange="logMode()" oninput="logMode()">
+      <div style="display:flex;gap:10px;margin-top:10px">
+        <button class="btn mini ghost" style="margin:0" onclick="actToCalendar()">
+          Add to my phone calendar</button>
+      </div>
+      <p class="note" style="margin-top:8px">Today unless you change it. Put a future
+        date in and it can go straight into your calendar with a reminder.</p></div>
+
+    <div class="field" id="f-out"><label>How did it go?</label>
       <div class="chips" id="outchips"></div></div>
 
-    <div class="field"><label>Who was with you?</label>
+    <div class="field"><label id="l-wholab">Who was with you?</label>
       <div class="chips" id="pchips"></div>
       <p class="note" style="margin-top:8px">Tap to add. They're remembered for next time.</p></div>
 
-    <div class="field"><label>Photos</label>
+    <div class="field" id="f-photos"><label>Photos</label>
       <div class="photos" id="l-photos"></div>
       <input type="file" id="l-file" accept="image/*" multiple hidden>
       <p class="note" style="margin-top:8px">These become the slides after your card.
@@ -480,8 +497,8 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
       <p class="note" id="l-spendnote" style="margin-top:8px">One number is fine. Or keep
         a tally as you buy things &mdash; it adds up your share for you.</p></div>
 
-    <button class="btn" onclick="saveAct()">Save — write it up later</button>
-    <button class="btn ghost" style="margin-top:10px" onclick="saveAct(true)">Save and write it up now</button>
+    <button class="btn" id="l-save" onclick="saveAct()">Save — write it up later</button>
+    <button class="btn ghost" id="l-save2" style="margin-top:10px" onclick="saveAct(true)">Save and write it up now</button>
   </div>
 </section>
 
@@ -1357,10 +1374,21 @@ function drawCal(){
     else           st += 'color:#B9B2A9;';
     if(isToday && !has) st += 'box-shadow:inset 0 0 0 1.5px var(--ink);';
     if(isToday && has)  st += 'box-shadow:0 0 0 2px var(--ink);';
-    g += '<div style="'+st+'">'+d+'</div>';
+    st += 'cursor:pointer;';
+    const iso = y+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+    g += '<div style="'+st+'" data-d="'+iso+'">'+d+'</div>';
   }
   g += '</div>';
   $('cal-grid').innerHTML = g;
+  /* tap a day to plan an act on it */
+  [...$('cal-grid').querySelectorAll('[data-d]')].forEach(el=>{
+    el.onclick=()=>{
+      const iso=el.getAttribute('data-d'), dd=+iso.slice(8);
+      const existing = Object.keys(S.plans||{}).find(k=>(S.plans[k]||{}).d===iso);
+      sheet(null);
+      openPlan(existing ? +existing : null, iso);
+    };
+  });
 
   /* what's on those days */
   let list='';
@@ -1404,7 +1432,7 @@ function drawGrid(){
          "what's coming?" as well as "what's done?" */
       t.innerHTML='<span class="tilenum">'+i+'</span>'+
         (pl.d ? '<b class="tilewhen">'+shortDate(pl.d)+'</b>' : '');
-      t.title=pl.t||'';
+      t.title=[pl.t||'', (pl.who||[]).length?'with '+listWords(pl.who):''].filter(Boolean).join(' — ');
     } else { t.textContent=i; }
 
     /* filtering by a person dims everything they weren't part of */
@@ -1442,23 +1470,101 @@ function logSlot(i){
   $('l-num').value = i;
   $('log-no').textContent = 'act '+i+' of '+S.n;
   if(pl.t) $('l-title').value = pl.t;
+  if(pl.d) $('l-when').value  = pl.d;      // keep the planned date
+  if(pl.who) S.chosen = pl.who.slice();    // and whoever was coming
+  drawLog(); logMode();
 }
 
-function openPlan(i){
-  S.planSlot=i;
-  const pl=(S.plans||{})[i]||{};
-  $('plan-h3').textContent='Plan act '+i;
-  $('pl-title').value=pl.t||'';
-  $('pl-when').value=pl.d||'';
-  $('pl-clear').classList.toggle('hide', !pl.t && !pl.d);
+function openPlan(i, whenISO){
+  S.planSlot = i || nextFreeSlot();
+  const pl=(S.plans||{})[S.planSlot]||{};
+  $('pl-title').value = pl.t||'';
+  $('pl-when').value  = whenISO || pl.d || '';
+  S.planWho = (pl.who||[]).slice();
+  drawPlan();
   sheet('plan');
+}
+function nextFreeSlot(){
+  const used={}; S.acts.forEach(x=>used[Math.floor(parseFloat(x.no))]=1);
+  Object.keys(S.plans||{}).forEach(k=>used[k]=1);
+  let slot=1; while(used[slot] && slot<=S.n) slot++;
+  return Math.min(slot, S.n);
+}
+function drawPlan(){
+  const pl=(S.plans||{})[S.planSlot]||{};
+  $('plan-h3').textContent='Plan act '+S.planSlot;
+  $('pl-clear').classList.toggle('hide', !pl.t && !pl.d);
+
+  /* which act number this fills — done ones are out, planned ones are shown */
+  const done={}; S.acts.forEach(x=>done[Math.floor(parseFloat(x.no))]=1);
+  const opts=[];
+  for(let i=1;i<=S.n;i++) if(!done[i]) opts.push([String(i), i]);
+  chips($('pl-slot'), opts, ()=>S.planSlot, v=>{ S.planSlot=v; drawPlan(); });
+  const sel=[...$('pl-slot').children].find(c=>c.classList.contains('on'));
+  if(sel && sel.scrollIntoView) sel.scrollIntoView({block:'nearest',inline:'center'});
+
+  const box=$('pl-who'); box.innerHTML='';
+  if(!S.people.length){
+    box.innerHTML='<p class="note" style="margin:0">Nobody in your people list yet.</p>';
+  }
+  S.people.forEach(name=>{
+    const b=document.createElement('button');
+    b.className='chip'+((S.planWho||[]).indexOf(name)>-1?' on':'');
+    b.textContent=name;
+    b.onclick=()=>{
+      S.planWho = S.planWho||[];
+      const i=S.planWho.indexOf(name);
+      if(i>-1) S.planWho.splice(i,1); else S.planWho.push(name);
+      drawPlan();
+    };
+    box.appendChild(b);
+  });
 }
 function savePlan(){
   S.plans=S.plans||{};
   const t=$('pl-title').value.trim(), d=$('pl-when').value;
   if(!t && !d){ sheet(null); return; }
-  S.plans[S.planSlot]={t:t,d:d};
-  save(); sheet(null); drawGrid();
+  S.plans[S.planSlot]={t:t, d:d, who:(S.planWho||[]).slice()};
+  save(); sheet(null); drawHome();
+}
+
+/* ── handing a plan to the phone's calendar ─────────────────────────────────
+   No notifications, no permissions, no background anything — the app writes a
+   standard .ics event and lets the phone's own calendar own the reminder.
+   That keeps the "app you can ignore for three weeks" posture intact: the
+   nagging, if any, belongs to a calendar the person already trusts.         */
+function planToCalendar(){
+  toCalendar($('pl-title').value.trim(), $('pl-when').value, S.planSlot, S.planWho||[]);
+}
+/* the same hand-off, from the log screen */
+function actToCalendar(){
+  toCalendar($('l-title').value.trim(), $('l-when').value,
+             $('l-num').value||'1', (S.chosen||[]));
+}
+function toCalendar(title, d, no, who){
+  const t = title || ('Act '+no);
+  if(!d){ alert('Give it a date first and it can go in your calendar.'); return; }
+  const stamp = d.replace(/-/g,'');
+  const desc = ['Act '+no+' of '+S.n,
+                who.length ? 'With '+listWords(who) : '',
+                'From Acts of Good'].filter(Boolean).join('\n');
+  const ics = [
+    'BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Acts of Good//EN','CALSCALE:GREGORIAN',
+    'BEGIN:VEVENT',
+    'UID:actsofgood-'+no+'-'+stamp+'@local',
+    'DTSTAMP:'+todayISO().replace(/-/g,'')+'T090000Z',
+    'DTSTART;VALUE=DATE:'+stamp,
+    'DTEND;VALUE=DATE:'+stamp,
+    'SUMMARY:'+t.replace(/[,;]/g,''),
+    'DESCRIPTION:'+desc.replace(/[,;]/g,''),
+    'BEGIN:VALARM','TRIGGER:-P1D','ACTION:DISPLAY',
+    'DESCRIPTION:Tomorrow — '+t.replace(/[,;]/g,''),
+    'END:VALARM','END:VEVENT','END:VCALENDAR'
+  ].join('\r\n');
+  const url = 'data:text/calendar;charset=utf-8,' + encodeURIComponent(ics);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'act-'+no+'.ics';
+  document.body.appendChild(a); a.click(); a.remove();
 }
 function clearPlan(){
   if(S.plans) delete S.plans[S.planSlot];
@@ -1795,9 +1901,10 @@ function yearSpend(){
 function newAct(){
   const next = S.acts.length ? Math.max.apply(null,S.acts.map(a=>Math.floor(parseFloat(a.no))))+1 : 1;
   $('l-num').value=next; $('l-title').value=''; $('l-cost').value='';
+  $('l-when').value=todayISO();
   S.chosen=[]; S.outcome='Went to plan'; S.newPhotos=[]; S.draftSpends=[];
   $('log-no').textContent='act '+next+' of '+S.n;
-  drawLog(); updateSpendNote(); go('log');
+  drawLog(); updateSpendNote(); logMode(); go('log');
 }
 function drawLog(){
   drawPhotos('l-photos','l-file', S.newPhotos, drawLog);
@@ -1820,14 +1927,50 @@ function drawLog(){
   add.onclick=()=>{const n=prompt('Name?'); if(n){S.people.push(n);S.chosen.push(n);drawLog();}};
   pc.appendChild(add);
 }
+/* ── logged, or planned? ────────────────────────────────────────────────────
+   The same screen serves both, because an act takes time to arrange and the
+   moment you think of it is the moment you'd write it down. A date in the
+   future means you're planning: it goes into the grid as a gold tile and
+   waits, rather than counting as done. Today or earlier means it happened.  */
+function isFuture(iso){
+  if(!iso) return false;
+  return iso > todayISO();
+}
+function logMode(){
+  const future = isFuture($('l-when').value);
+  const save=$('l-save'), save2=$('l-save2'), head=$('log-h2');
+  if(save)  save.textContent  = future ? 'Put it in the grid as planned'
+                                       : 'Save — write it up later';
+  if(save2) save2.classList.toggle('hide', future);
+  if(head)  head.textContent  = future ? 'Plan an act' : 'Log an act';
+  /* a plan hasn't happened yet, so the past-tense fields step aside */
+  const t=$('l-titlelab'), w=$('l-wholab');
+  if(t) t.textContent = future ? 'What are you thinking?' : 'What did you do?';
+  if(w) w.textContent = future ? "Who's coming?" : 'Who was with you?';
+  ['f-out','f-photos'].forEach(id=>{
+    const el=$(id); if(el) el.classList.toggle('hide', future);
+  });
+}
+
 function saveAct(writeNow){
   const title=$('l-title').value.trim();
   if(!title){ alert('Give it a title — everything else can wait.'); return; }
+
+  /* future date → this is a plan, not a diary entry */
+  if(isFuture($('l-when').value)){
+    const slot = Math.floor(parseFloat($('l-num').value||'1'));
+    S.plans = S.plans || {};
+    S.plans[slot] = { t:title, d:$('l-when').value, who:(S.chosen||[]).slice() };
+    S.draftSpends=[]; save();
+    go('home');
+    return;
+  }
   const spends=(S.draftSpends||[]).slice();
   const a={no:$('l-num').value||'1', t:title, out:S.outcome, who:S.chosen.slice(),
            cost:spends.length ? tally(spends).mine
                               : parseFloat(($('l-cost').value||'').replace(/[^0-9.]/g,''))||0,
-           spends:spends, story:'', d:todayISO(), photos:S.newPhotos.slice()};
+           spends:spends, story:'', d:$('l-when').value||todayISO(),
+           photos:S.newPhotos.slice()};
   S.draftSpends=[];
   S.acts.push(a); S.current=a;
   if(S.plans) delete S.plans[Math.floor(parseFloat(a.no))];
