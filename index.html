@@ -327,6 +327,14 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
              style="color:var(--coral);font-size:15px"></div></div>
       </div>
       <div class="bar"><i id="p-bar" style="width:0%"></i><u id="p-mark"></u></div>
+      <div id="p-spend" class="hide" style="margin-top:14px;padding-top:12px;
+           border-top:1px solid var(--line);display:flex;justify-content:space-between">
+        <div><div class="lab">Spent so far</div><div id="p-spend-all"
+             style="font-weight:700;font-size:16px"></div></div>
+        <div style="text-align:right"><div class="lab">Your share</div>
+             <div id="p-spend-mine" style="font-weight:700;font-size:16px;
+             color:var(--coral)"></div></div>
+      </div>
     </div>
 
     <div id="todo" class="todo hide"></div>
@@ -387,7 +395,13 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
 
     <div class="field"><label>What did it cost you? <span style="text-transform:none;
       font-weight:400">(optional)</span></label>
-      <input id="l-cost" placeholder="$0" style="max-width:140px"></div>
+      <div style="display:flex;gap:10px;align-items:center">
+        <input id="l-cost" placeholder="$0" style="max-width:140px" oninput="costTyped()">
+        <button class="btn mini ghost" style="margin:0" onclick="openSpends()"
+          id="l-tabbtn">Keep a tally</button>
+      </div>
+      <p class="note" id="l-spendnote" style="margin-top:8px">One number is fine. Or keep
+        a tally as you buy things &mdash; it adds up your share for you.</p></div>
 
     <button class="btn" onclick="saveAct()">Save — write it up later</button>
     <button class="btn ghost" style="margin-top:10px" onclick="saveAct(true)">Save and write it up now</button>
@@ -521,6 +535,31 @@ What you actually did. Why it mattered. Say the awkward parts."></textarea>
 </section>
 
 <!-- ══════════ TABS ══════════ -->
+<!-- ══ SHEET — the tab ══ -->
+<div class="sheet hide" id="sheet-spend"><div class="panel">
+  <button class="sheetback" onclick="sheet(null)">‹ Done</button>
+  <h3>The act tally</h3>
+  <p class="note" style="margin-bottom:18px">Add things as you buy them, and say who
+    paid. It works out your share &mdash; that's the number that matters.</p>
+
+  <div id="spend-list"></div>
+
+  <div class="field" style="margin-top:16px">
+    <div style="display:flex;gap:10px">
+      <input id="sp-amt" inputmode="decimal" placeholder="$0" style="max-width:110px">
+      <input id="sp-what" placeholder="What was it?" style="flex:1">
+    </div>
+    <div class="chips" id="sp-who" style="margin-top:10px"></div>
+    <div class="chips hide" id="sp-people" style="margin-top:10px"></div>
+    <input id="sp-name" class="hide" placeholder="Who?" style="margin-top:10px"
+      oninput="drawSpends()">
+    <p class="note hide" id="sp-hint" style="margin-top:6px"></p>
+    <button class="btn mini" style="margin-top:12px" onclick="addSpend()">Add it</button>
+  </div>
+
+  <div class="pace" id="spend-tot" style="margin-top:18px"></div>
+</div></div>
+
 <!-- ══ SHEET 1 — about you ══ -->
 <div class="sheet hide" id="sheet-you"><div class="panel">
   <div class="steps">Step 1 of 3</div>
@@ -664,7 +703,7 @@ function serialise(){
     start:S.start.toISOString(),
     people:S.people, platforms:S.platforms,
     started:S.started,
-    acts:S.acts.map(a=>({ no:a.no, t:a.t, out:a.out, who:a.who, cost:a.cost,
+    acts:S.acts.map(a=>({ no:a.no, t:a.t, out:a.out, who:a.who, cost:a.cost, spends:a.spends||[],
                           story:a.story, photos:(a.photos||[]).map(p=>p.id) }))
   };
 }
@@ -695,7 +734,7 @@ async function load(){
       const url=await idbGet(id);
       if(url) photos.push({id,url});
     }
-    S.acts.push({ no:a.no, t:a.t, out:a.out, who:a.who||[], cost:a.cost||0,
+    S.acts.push({ no:a.no, t:a.t, out:a.out, who:a.who||[], cost:a.cost||0, spends:a.spends||[],
                   story:a.story||'', photos });
   }
   return true;
@@ -917,12 +956,12 @@ function drawTones(){
       reads the group as one block hanging off it.
 
    Both are recomputed whenever the number, the word or the width changes.   */
-const ART_EDGE   = 0.62;      // where the script must stop — Jessica's own
-                              // "fifty" reaches exactly here
-const TXT_CENTRE = 0.435;     // the type stack's resting centre, from her card
-const LEFT_EDGE  = 0.02;      // how close to the left edge the stack may slide
-const MIN_SCALE  = 0.35;      // never shrink past this — below it the script
-                              // stops reading as the same mark
+const ART_INK_W  = 0.242;     // the artwork's ink width, from her card
+const OVERLAP    = 0.02;      // her script's tail tucks this far under the art
+const MAX_TEXT   = 0.77;      // widest the type may get before it must shrink —
+                              // set by what's left once the artwork has its room
+const MIN_SCALE  = 0.35;      // floor, so a very long word can't vanish
+const TXT_CENTRE = 0.435;     // the type column's resting centre in the CSS
 
 function fitMark(lockup){
   const scr = lockup.querySelector('.scr');
@@ -935,30 +974,42 @@ function fitMark(lockup){
   if(!base) return;
 
   const txt = lockup.querySelector('.txt');
-  const natural = measureText(scr, base) / W;      // as a fraction of the mark
+  const art = lockup.querySelector('.balloon');
 
-  /* Step 1 — SLIDE. At rest the stack centres on 43.5%, which leaves the
-     script 37% of the mark to live in. A long word gets more room simply by
-     moving the whole stack left, until its left edge reaches LEFT_EDGE. That
-     buys width from 37% up to 60% before any shrinking is needed at all. */
-  const maxW = ART_EDGE - LEFT_EDGE;
+  /* 1 — how wide does the word want to be, as a fraction of the mark */
+  const natural = measureText(scr, base) / W;
 
-  /* Step 2 — SHRINK, but only once sliding has run out. */
-  let w = natural, scale = 1;
-  if(w > maxW){ scale = Math.max(MIN_SCALE, maxW / w); w = natural * scale; }
+  /* 2 — shrink only if it exceeds what the mark can hold */
+  let scale = 1, w = natural;
+  if(w > MAX_TEXT){ scale = Math.max(MIN_SCALE, MAX_TEXT / w); w = natural * scale; }
 
-  /* the stack sits as far right as it can while keeping the script clear of
-     the artwork — so short words stay exactly where Jessica put them */
-  const centre = Math.min(TXT_CENTRE, Math.max(LEFT_EDGE + w/2, ART_EDGE - w/2));
+  /* 3 — the type block is as wide as its widest line */
+  const textW = Math.max(w,
+    measureText(lockup.querySelector('.aog'), 0) / W,
+    measureText(lockup.querySelector('.n'),   0) / W);
 
+  /* 4 — type and artwork are one object. Its width is the type plus the part
+         of the artwork that clears the type, and it sits centred in the mark. */
+  const objW    = textW + ART_INK_W - OVERLAP;
+  const objLeft = (1 - objW) / 2;
+
+  /* 5 — place both halves of the object */
+  const centre = objLeft + textW/2;
   scr.style.fontSize = (scale < 1) ? base*scale + 'px' : '';
   if(txt) txt.style.transform = 'translateX(' + ((centre - TXT_CENTRE) * W) + 'px)';
+  if(art){
+    const boxW = art.offsetWidth / W;            // box is wider than the ink
+    const inkOffset = boxW * 0.0121;             // transparent margin in the PNG
+    art.style.left = ((objLeft + textW - OVERLAP - inkOffset) * W) + 'px';
+  }
 }
 
 /* width of the script at a given size, measured off-layout so the flex
    container cannot squash the answer */
 function measureText(el, px){
+  if(!el) return 0;
   const cs = getComputedStyle(el);
+  if(!px) px = parseFloat(cs.fontSize);
   const g = document.createElement('span');
   g.style.cssText = 'position:absolute;visibility:hidden;white-space:nowrap;left:-9999px';
   g.style.fontFamily = cs.fontFamily;
@@ -1019,6 +1070,13 @@ function drawHome(){
     : Math.abs(ahead)===1? 'one to catch up' : Math.abs(ahead)+' to catch up';
   $('p-bar').style.width=Math.min(100,done/S.n*100)+'%';
   $('p-mark').style.left=Math.min(100,wk/S.weeks*100)+'%';
+  /* stated plainly, never as a warning — but stated, because cost is what
+     quietly ends these projects */
+  const sp = yearSpend();
+  $('p-spend').classList.toggle('hide', !sp.all);
+  $('p-spend-all').textContent  = money(sp.all);
+  $('p-spend-mine').textContent = money(sp.mine);
+
   $('sug-title').textContent='Teacher Appreciation Week';
   $('sug-body').textContent='Starts in nine days. A supply-bag act needs about a week — enough time to ask someone to split it with you.';
 
@@ -1098,13 +1156,194 @@ async function takeFiles(input, list, onChange){
   save();
 }
 
+
+/* ── the act tally ────────────────────────────────────────────────────────────────
+   Cost is one number on the log screen — the total agreed. Behind it sits a
+   list you can add to as you buy things, because the spending happens over
+   days, before the act is finished.
+
+   The field that earns its place is WHO PAID. In the corpus, Ginger bought the
+   items for act 3, Holly bought and shipped the gift cards for act 18, act 2's
+   supplies were split with a friend. Without it the app would report that an
+   act cost $100 when the person's own share was $30 — and their share is the
+   number that decides whether they can keep going. baked4good stopped for two
+   and a half years over exactly this.                                        */
+const PAYERS = [['me','I paid'],['split','Split it'],
+                ['them','Someone else paid'],['gave','Someone chipped in']];
+let SP_WHO = 'me';
+
+function spendsOf(a){ if(!a.spends) a.spends=[]; return a.spends; }
+
+/* a split can be any number of ways. The names are what the person actually
+   knows — "Ginger and Leigh" — so the count comes from them: everyone named,
+   plus you. No names typed means the common case, straight down the middle. */
+function names(sp){
+  return (sp.n||'').split(/,| and /).map(x=>x.trim()).filter(Boolean);
+}
+function ways(sp){ return Math.max(2, names(sp).length + 1); }
+function nameList(sp){
+  const a = names(sp);
+  if(!a.length) return '';
+  if(a.length===1) return a[0];
+  return a.slice(0,-1).join(', ') + ' and ' + a[a.length-1];
+}
+
+/* two totals, always: what the act cost, and what it cost YOU */
+function tally(spends){
+  let all=0, mine=0, given=0;
+  (spends||[]).forEach(s=>{
+    const amt = +s.a || 0;
+    if(s.p==='gave'){
+      /* A contribution isn't a purchase — the act still cost what it cost.
+         It comes off YOUR share, which is how an uneven split actually
+         happens in life: you buy the thing, someone hands you twenty dollars. */
+      given += amt;
+      return;
+    }
+    all  += amt;
+    mine += s.p==='me' ? amt : s.p==='split' ? amt/ways(s) : 0;
+  });
+  return { all:all, mine:Math.max(0, mine-given), given:given,
+           over:Math.max(0, given-mine) };
+}
+const money = n => '$' + (Math.round(n*100)/100).toFixed(2).replace(/\.00$/,'');
+
+function openSpends(){
+  const a = S.current || {};
+  if(!S.current){ S.draftSpends = S.draftSpends || []; }
+  sheet('spend'); drawSpends();
+}
+function currentSpends(){
+  return S.current ? spendsOf(S.current) : (S.draftSpends = S.draftSpends || []);
+}
+
+function drawSpends(){
+  const list = currentSpends();
+  const box = $('spend-list'); box.innerHTML='';
+  if(!list.length){
+    box.innerHTML = '<p class="note">Nothing on the tab yet.</p>';
+  }
+  list.forEach((sp,i)=>{
+    const row=document.createElement('div');
+    row.style.cssText='display:flex;align-items:center;gap:10px;padding:9px 0;'+
+      'border-bottom:1px solid var(--line)';
+    const label = sp.w || (sp.p==='gave' ? 'Towards it' : 'Something');
+    const whoTxt = sp.p==='gave' ? ((nameList(sp)||'someone')+' chipped in')
+                 : sp.p==='me' ? 'you paid'
+                 : sp.p==='split' ? (nameList(sp) ? 'split with '+nameList(sp)+
+                     ' — '+ways(sp)+' ways, '+money((+sp.a||0)/ways(sp))+' each'
+                     : 'split two ways — '+money((+sp.a||0)/2)+' each')
+                 : ((nameList(sp)||'someone else')+' paid');
+    row.innerHTML='<div style="flex:1"><b style="font-size:14.5px">'+label+'</b>'+
+      '<div class="note" style="margin:2px 0 0">'+whoTxt+'</div></div>'+
+      '<div style="font-weight:700'+(sp.p==='gave'?';color:var(--coral)':'')+'">'+
+      (sp.p==='gave'?'−':'')+money(+sp.a||0)+'</div>';
+    const x=document.createElement('button');
+    x.textContent='×'; x.setAttribute('aria-label','remove');
+    x.style.cssText='color:var(--muted);font-size:19px;padding:0 2px';
+    x.onclick=()=>{ list.splice(i,1); syncCost(); drawSpends(); };
+    row.appendChild(x);
+    box.appendChild(row);
+  });
+
+  chips($('sp-who'), PAYERS.map(([k,l])=>[l,k]), ()=>SP_WHO, v=>{
+    SP_WHO=v;
+    drawSpends();
+  });
+  /* The people on this act are already known — tap them instead of typing.
+     Same directory as "who was with you", so a collaborator named once is
+     never typed again. */
+  const nm=$('sp-name'), hint=$('sp-hint'), ppl=$('sp-people');
+  const known = S.people.slice().sort((a,b)=>
+    (S.chosen.indexOf(b)>-1) - (S.chosen.indexOf(a)>-1));   // this act's first
+  ppl.classList.toggle('hide', SP_WHO==='me' || !known.length);
+  ppl.innerHTML='';
+  const picked = names({n:nm.value});
+  known.forEach(name=>{
+    const b=document.createElement('button');
+    b.className='chip'+(picked.indexOf(name)>-1?' on':'');
+    b.textContent=name;
+    b.onclick=()=>{
+      const i=picked.indexOf(name);
+      if(i>-1) picked.splice(i,1); else picked.push(name);
+      nm.value=picked.join(', ');
+      drawSpends();
+    };
+    ppl.appendChild(b);
+  });
+  nm.classList.toggle('hide', SP_WHO==='me');
+  hint.classList.toggle('hide', SP_WHO!=='split');
+  $('sp-what').placeholder = SP_WHO==='gave' ? 'What for? (optional)' : 'What was it?';
+  nm.placeholder = known.length
+    ? (SP_WHO==='split' ? 'or type another name' : 'or type who paid')
+    : (SP_WHO==='split' ? 'Who with? (separate names with commas)' : 'Who paid?');
+  if(SP_WHO==='split'){
+    const draft = { a: parseFloat(($('sp-amt').value||'').replace(/[^0-9.]/g,''))||0,
+                    n: nm.value };
+    const k = ways(draft);
+    hint.textContent = draft.a
+      ? k + ' ways — ' + money(draft.a/k) + ' each'
+      : k + ' ways, counting you';
+  }
+
+  const t = tally(list);
+  $('spend-tot').innerHTML =
+    '<div class="lab">This act</div><div class="big">'+money(t.all)+'</div>'+
+    (t.given ? '<div class="lab" style="margin-top:8px">Chipped in by others</div>'+
+               '<div class="big">'+money(t.given)+'</div>' : '')+
+    '<div class="lab" style="margin-top:8px">Your share</div>'+
+    '<div class="big" style="color:var(--coral)">'+money(t.mine)+'</div>'+
+    (t.over ? '<p class="note" style="margin:6px 0 0">'+money(t.over)+
+              ' more than you spent — worth putting toward the next one.</p>' : '');
+}
+
+function addSpend(){
+  const amt = parseFloat(($('sp-amt').value||'').replace(/[^0-9.]/g,''));
+  if(!amt){ $('sp-amt').focus(); return; }
+  const who=$('sp-name').value.trim();
+  names({n:who}).forEach(x=>{ if(S.people.indexOf(x)<0) S.people.push(x); });
+  currentSpends().push({ a:amt, w:$('sp-what').value.trim(), p:SP_WHO, n:who });
+  $('sp-amt').value=''; $('sp-what').value=''; $('sp-name').value='';
+  syncCost(); drawSpends();
+}
+
+/* the tab writes back into the one number on the log screen */
+function syncCost(){
+  const t = tally(currentSpends());
+  if($('l-cost')) $('l-cost').value = t.mine ? money(t.mine) : '';
+  if(S.current){ S.current.cost = t.mine; save(); }
+  updateSpendNote();
+}
+/* typing straight into the field is still allowed — it just clears the tab's
+   claim on the number, so the two can never disagree silently */
+function costTyped(){ updateSpendNote(); }
+function updateSpendNote(){
+  const n = currentSpends().length;
+  const btn = $('l-tabbtn'), note = $('l-spendnote');
+  if(!btn) return;
+  btn.textContent = n ? (n + (n===1?' item':' items')) : 'Keep a tally';
+  if(note) note.textContent = n
+    ? 'From your tally — ' + money(tally(currentSpends()).all) + ' spent in all.'
+    : 'One number is fine. Or keep a tally as you buy things — it adds up your share for you.';
+}
+
+/* what the whole year has cost, for the Progress screen */
+function yearSpend(){
+  let all=0, mine=0;
+  S.acts.forEach(a=>{
+    if(a.spends && a.spends.length){ const t=tally(a.spends); all+=t.all; mine+=t.mine; }
+    else { all += +a.cost||0; mine += +a.cost||0; }
+  });
+  return {all:all, mine:mine};
+}
+
 /* ── log ── */
 function newAct(){
   const next = S.acts.length ? Math.max.apply(null,S.acts.map(a=>Math.floor(parseFloat(a.no))))+1 : 1;
   $('l-num').value=next; $('l-title').value=''; $('l-cost').value='';
-  S.chosen=[]; S.outcome='Went to plan'; S.newPhotos=[];
+  S.chosen=[]; S.outcome='Went to plan'; S.newPhotos=[]; S.draftSpends=[];
   $('log-no').textContent='act '+next+' of '+S.n;
-  drawLog(); go('log');
+  drawLog(); updateSpendNote(); go('log');
 }
 function drawLog(){
   drawPhotos('l-photos','l-file', S.newPhotos, drawLog);
@@ -1130,9 +1369,12 @@ function drawLog(){
 function saveAct(writeNow){
   const title=$('l-title').value.trim();
   if(!title){ alert('Give it a title — everything else can wait.'); return; }
+  const spends=(S.draftSpends||[]).slice();
   const a={no:$('l-num').value||'1', t:title, out:S.outcome, who:S.chosen.slice(),
-           cost:parseFloat(($('l-cost').value||'').replace(/[^0-9.]/g,''))||0, story:'',
-           photos:S.newPhotos.slice()};
+           cost:spends.length ? tally(spends).mine
+                              : parseFloat(($('l-cost').value||'').replace(/[^0-9.]/g,''))||0,
+           spends:spends, story:'', photos:S.newPhotos.slice()};
+  S.draftSpends=[];
   S.acts.push(a); S.current=a; save();
   if(writeNow) openWrite(a); else go('grid');
 }
@@ -1258,7 +1500,7 @@ function drawTodo(){
 function toTop(){ window.scrollTo(0,0); document.documentElement.scrollTop=0; }
 
 function sheet(which){
-  ['you','social'].forEach(x=>$('sheet-'+x).classList.add('hide'));
+  ['you','social','spend'].forEach(x=>$('sheet-'+x).classList.add('hide'));
   if(which){ $('sheet-'+which).classList.remove('hide'); }
   if(which==='social') drawPlats();
   if(!which){ toTop(); setTimeout(tourIfVisible, 260); }  // sheet closed — is the picker showing?
@@ -1340,7 +1582,7 @@ function readBday(){
    in the viewport AND with no sheet covering it. An IntersectionObserver alone
    can't tell: an element behind a full-screen overlay still 'intersects'. */
 function sheetOpen(){
-  return ['you','social'].some(x=>!$('sheet-'+x).classList.contains('hide'));
+  return ['you','social','spend'].some(x=>!$('sheet-'+x).classList.contains('hide'));
 }
 function tourIfVisible(){
   if(S.toneToured || sheetOpen()) return;
