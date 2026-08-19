@@ -521,7 +521,7 @@ What you actually did. Why it mattered. Say the awkward parts."></textarea>
       <button class="btn" onclick="openCompose()">Post this act</button>
       <button class="btn ghost" style="margin-top:10px" onclick="doItAgain()">Do it again</button>
       <button class="btn ghost" style="margin-top:10px" onclick="toggleHalf()"
-        id="mk-btn">It only half happened</button>
+        id="mk-btn">Mark up as half an act</button>
       <p class="note" style="margin-top:10px">Like act 3 &mdash; the plan was to give
         blood together, they wouldn't take hers, her son gave and she didn't. The number
         gets crossed out and the half written in.</p>
@@ -1687,6 +1687,7 @@ function count(){
 /* ── card ── */
 function drawCard(){
   const a=S.current||S.acts[S.acts.length-1]||{no:'1'};
+  paintHands();          // the artwork's src is set here too, not only at setup
   drawSlides(a);
 
   $('cd-n').textContent   = S.n;
@@ -1903,10 +1904,23 @@ function copyCaption(){
   alert(ok||navigator.clipboard ? 'Caption copied.\n\nOpen the app, pick the card and '+
     'photos from your camera roll, and paste.' : 'Select the caption and copy it.');
 }
+/* Actually leave for the app. iOS will only follow a custom scheme from a real
+   tap, so this runs straight off the button, and falls back to the website if
+   nothing catches the scheme within a moment. The caption goes on the clipboard
+   first, so it's ready to paste when you land. */
+const APP_SCHEME = {instagram:'instagram://app', facebook:'fb://',
+                    threads:'barcelona://', x:'twitter://'};
+const APP_WEB    = {instagram:'https://www.instagram.com/', facebook:'https://www.facebook.com/',
+                    threads:'https://www.threads.net/', x:'https://x.com/compose/post'};
 function openApp(){
-  const urls={instagram:'instagram://app',facebook:'fb://',threads:'barcelona://',x:'twitter://'};
-  alert('In the app: opens '+PLATS.filter(([k])=>k===CM_PLAT)[0][1]+
-        ' with the caption already on the clipboard.\n\n('+urls[CM_PLAT]+')');
+  const t=$('cm-text');
+  try { t.select(); t.setSelectionRange(0,99999); document.execCommand('copy'); } catch(e){}
+  if(navigator.clipboard) navigator.clipboard.writeText(t.value).catch(()=>{});
+  const started = Date.now();
+  const web = APP_WEB[CM_PLAT];
+  /* if the app opens, this tab goes to the background and the timer is late */
+  setTimeout(()=>{ if(Date.now()-started < 1800 && !document.hidden) window.location.href = web; }, 1200);
+  window.location.href = APP_SCHEME[CM_PLAT];
 }
 
 
@@ -1944,7 +1958,9 @@ function drawActNo(a){
     el.textContent = 'act ' + a.no + ' of ' + S.n;
   }
   const b = $('mk-btn');
-  if(b) b.textContent = a.half ? 'No — it counted in full' : 'It only half happened';
+  if(b) b.textContent = a.half
+    ? 'Put it back to act ' + wholeNo(a.no)
+    : 'Mark up to ' + halfNo(a.no) + ' — as half an act';
 }
 
 /* ── do it again ────────────────────────────────────────────────────────────
@@ -2170,6 +2186,7 @@ window.addEventListener('scroll', tourIfVisible, { passive:true });
 /* ── boot ── */
 (async function(){
   const restored = await load();
+  paintHands();          // a returning user may never pass through setup
   if(restored && S.started){
     // put the saved values back into the form fields
     $('you-name').value=S.name;
