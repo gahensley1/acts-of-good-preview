@@ -247,6 +247,11 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
   display:flex;flex-direction:column;align-items:center;gap:4px;padding:4px}
 .tabs button.on{color:var(--coral)}
 .tabs .ic{font-size:19px;line-height:1}
+/* the one drawn icon — a glyph for "people" that isn't a cartoon face.
+   Two overlapping discs — solid like the others, and the same circle motif
+   as the You icon. */
+.tabs .ics{display:block;width:21px;height:21px}
+.tabs .ics svg{width:100%;height:100%;display:block}
 
 .hide{display:none!important}
 .ph{font-size:10.5px;color:#B9B2A9;text-align:center;margin-top:10px;letter-spacing:.04em}
@@ -662,7 +667,7 @@ What you actually did. Why it mattered. Say the awkward parts."></textarea>
   <button data-t="home" onclick="go('home')"><span class="ic">▦</span>Your year</button>
   <button data-t="log"  onclick="newAct()"><span class="ic" style="font-size:23px">＋</span>Log</button>
   <button data-t="browse" onclick="go('browse')"><span class="ic">✦</span>Ideas</button>
-  <button data-t="people" onclick="go('people')"><span class="ic">☺</span>People</button>
+  <button data-t="people" onclick="go('people')"><span class="ic ics"><svg viewBox="0 0 24 24"><circle cx="8.6" cy="12" r="5.2" fill="currentColor"/><circle cx="15.4" cy="12" r="6.6" fill="var(--paper)"/><circle cx="15.4" cy="12" r="5.2" fill="currentColor"/></svg></span>People</button>
   <button data-t="you" onclick="go('you')"><span class="ic">◍</span>You</button>
 </nav>
 
