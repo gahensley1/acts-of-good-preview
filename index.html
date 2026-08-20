@@ -411,6 +411,37 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
   </div>
 </section>
 
+<!-- ══ SHEET — ask someone along ══════════════════════════════════════════
+     "Ask. People say yes far more often than you'd think, and asking is itself
+     a kind of good — it gives someone else a way in." The hardest part is the
+     first sentence, so the app writes it and you send it.                  -->
+<div class="sheet hide" id="sheet-ask"><div class="panel">
+  <button class="sheetback" onclick="sheet(null)">‹ Done</button>
+  <h3>Ask them along</h3>
+  <p class="note" style="margin-bottom:16px">Nothing is sent by the app. This opens
+    your own Messages or Mail with the words already there &mdash; change anything
+    you like before you send it.</p>
+
+  <div class="chips" id="ask-mode" style="margin-bottom:14px"></div>
+
+  <div class="field" id="ask-subwrap"><label>Subject</label>
+    <input id="ask-subject"></div>
+  <div class="field"><label>Message</label>
+    <textarea id="ask-body" style="min-height:200px"></textarea></div>
+
+  <button class="btn" onclick="sendAsk()" id="ask-send">Open Messages</button>
+  <button class="btn ghost" style="margin-top:10px" onclick="shareInvite()" id="ask-invite">
+    Send it with an invitation</button>
+  <button class="btn ghost" style="margin-top:10px" onclick="shareInvite(true)">
+    Send the card and the invitation</button>
+  <p class="note" id="ask-invnote" style="margin-top:8px"></p>
+  <button class="btn ghost" style="margin-top:10px" onclick="copyBoth()">
+    Copy the card and the note</button>
+  <p class="note" style="margin-top:10px">Copies both together. Paste into Mail and the
+    card sits at the top with your note underneath &mdash; in the message itself,
+    nothing to tap.</p>
+</div></div>
+
 <!-- ══ SHEET — pick a date ══════════════════════════════════════════════════
      iOS's own date picker is a black panel with blue accents and can't be
      restyled, so the app brings its own: today in gold, the chosen day in
@@ -458,6 +489,9 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
     tags into your caption when you post. Nothing is sent to them or to anyone else.</p>
   <div class="field"><label>Name</label>
     <input id="per-name" placeholder="First name is fine"></div>
+  <div class="field"><label>Email <span style="text-transform:none;font-weight:400">
+    (only used to invite them to an act)</span></label>
+    <input id="per-email" type="email" placeholder="name@example.com" autocapitalize="off"></div>
   <div class="field"><label>Instagram</label>
     <input id="per-instagram" placeholder="@handle" autocapitalize="off"></div>
   <div class="field"><label>Facebook</label>
@@ -488,9 +522,14 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
     <div class="chips" id="pl-who"></div>
     <p class="note" style="margin-top:8px">Tap anyone who's in on it. New names go in
       from People.</p></div>
+  <div class="field"><label>Remind me</label>
+    <div class="chips" id="pl-remind"></div></div>
+
   <button class="btn" onclick="savePlan()">Put it in the grid</button>
   <button class="btn ghost" style="margin-top:10px" onclick="planToCalendar()">
     Add to my phone calendar</button>
+  <button class="btn ghost" style="margin-top:10px" onclick="openAsk('plan')"
+    id="pl-ask">Ask them along</button>
   <button class="btn ghost" style="margin-top:10px" onclick="clearPlan()"
     id="pl-clear">Clear this slot</button>
 </div></div>
@@ -514,6 +553,8 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
       <div style="display:flex;gap:10px;margin-top:10px">
         <button class="btn mini ghost" style="margin:0" onclick="actToCalendar()">
           Add to my phone calendar</button>
+        <button class="btn mini ghost" style="margin:0" onclick="openAsk('log')">
+          Ask them along</button>
       </div>
       <p class="note" style="margin-top:8px">Today unless you change it. Put a future
         date in and it can go straight into your calendar with a reminder.</p></div>
@@ -757,6 +798,13 @@ What you actually did. Why it mattered. Say the awkward parts."></textarea>
     <p class="note" style="margin-top:8px" id="bday-hint">Used to work out which
       year you're marking — that's the word on your card.</p></div>
 
+  <div class="field"><label>Your email <span style="text-transform:none;font-weight:400">
+    (optional)</span></label>
+    <input id="you-email" type="email" placeholder="only used to send invitations"
+      autocapitalize="off">
+    <p class="note" style="margin-top:8px">Needed only if you want people to be able to
+      accept an invitation. Never sent anywhere by the app.</p></div>
+
   <div class="field"><label>Why are you doing this?</label>
     <textarea id="you-why" style="min-height:88px"
       placeholder="It's the thing you'll want to remember in month seven."></textarea></div>
@@ -913,7 +961,7 @@ function serialise(){
     v:1, n:S.n, weeks:S.weeks, line:S.line, word:S.word,
     lineTouched:S.lineTouched, wordTouched:S.wordTouched,
     tone:S.tone,
-    name:S.name, bday:S.bday, why:S.why,
+    name:S.name, bday:S.bday, why:S.why, email:S.email||'',
     start:S.start.toISOString(),
     people:S.people, platforms:S.platforms,
     started:S.started, plans:S.plans||{}, handles:S.handles||{}, places:S.places||{},
@@ -937,7 +985,7 @@ async function load(){
   S.n=o.n; S.weeks=o.weeks; S.line=o.line; S.word=o.word;
   S.lineTouched=o.lineTouched; S.wordTouched=o.wordTouched;
   S.tone=o.tone;
-  S.name=o.name||''; S.bday=o.bday||''; S.why=o.why||'';
+  S.name=o.name||''; S.bday=o.bday||''; S.why=o.why||''; S.email=o.email||'';
   S.start=o.start?new Date(o.start):new Date();
   S.people=o.people||[]; S.platforms=o.platforms||S.platforms;
   S.started=!!o.started; S.plans=o.plans||{}; S.handles=o.handles||{}; S.places=o.places||{};
@@ -1306,6 +1354,219 @@ function drawHome(){
 
 
 
+
+/* ── reminders ──────────────────────────────────────────────────────────────
+   The alert lives in the phone's own calendar, not in the app. Lead times
+   vary enormously — doughnuts need a day, a bingo hour at a care home needs a
+   fortnight — so the choice is offered rather than assumed. All of them fire
+   at 9am, because an all-day event with a midnight alarm is a wasted alarm. */
+const REMINDERS = [['None','none'],['That morning','0'],['Day before','1'],
+                   ['3 days before','3'],['A week before','7']];
+const ALARM = { '0':'PT9H', '1':'-PT15H', '3':'-PT63H', '7':'-PT159H' };
+
+/* ── asking someone along ───────────────────────────────────────────────────
+   From the starter kit: "Ask. People say yes far more often than you'd think,
+   and asking is itself a kind of good — it gives someone else a way in."
+
+   Act 18 took "a lot of texting between California and Georgia", and act 0
+   produced six offers of help that then sat in a comment thread. The ask is
+   the part people put off, so the app writes the first sentence.
+
+   Nothing is sent from the app and no phone numbers are stored: it opens the
+   person's own Messages or Mail with the words in place, recipient blank.   */
+let ASK_MODE = 'text', ASK_CTX = 'plan';
+
+function askDetails(){
+  if(ASK_CTX==='log'){
+    return { t:$('l-title').value.trim(), d:$('l-when').value,
+             no:$('l-num').value||'1', who:(S.chosen||[]).slice() };
+  }
+  return { t:$('pl-title').value.trim(), d:$('pl-when').value,
+           no:S.planSlot, who:(S.planWho||[]).slice() };
+}
+function whenWords(iso){
+  if(!iso) return 'sometime soon';
+  const d=new Date(iso+'T00:00:00'), now=new Date();
+  const days=Math.round((d-new Date(now.getFullYear(),now.getMonth(),now.getDate()))/864e5);
+  const DAYS=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  if(days===0) return 'today';
+  if(days===1) return 'tomorrow';
+  if(days>1 && days<7) return 'this '+DAYS[d.getDay()];
+  if(days>=7 && days<14) return DAYS[d.getDay()]+' week, '+longDate(iso);
+  return 'on '+longDate(iso);
+}
+function askDrafts(){
+  const a = askDetails();
+  const name = (S.name||'').trim();
+  const first = a.who.length ? listWords(a.who.map(n=>n.split(' ')[0])) : 'you';
+  const what  = a.t || ('act '+a.no);
+  const when  = whenWords(a.d);
+  const per   = periodNoun();
+
+  const text =
+    'Hello ' + (a.who.length ? first : 'you') + ' — I’m doing act ' + a.no +
+    ' of ' + S.n + ' ' + when + ': ' + what + '.\n\n' +
+    'Any chance you fancy joining me? Genuinely no pressure if not — ' +
+    'it’s more fun with company, that’s all.' +
+    (name ? '\n\n' + name : '');
+
+  const subject = 'Act ' + a.no + ' of ' + S.n + ' — fancy joining me?';
+  const email =
+    'Hello ' + (a.who.length ? first : 'there') + ',\n\n' +
+    'I’m doing ' + S.n + ' acts of good over a ' + per + ', and number ' +
+    a.no + ' is ' + when + '.\n\n' +
+    '  • What  —  ' + what + '\n' +
+    '  • When  —  ' + (a.d ? longDate(a.d) : 'still deciding') + '\n' +
+    '\nWould you like to come along? No obligation whatsoever — the offer is the\n' +
+    'point, and these things are always better with someone else in them.\n\n' +
+    'If this one doesn’t suit, there are ' + Math.max(1, S.n - S.acts.length - 1) +
+    ' more to come.\n\n' +
+    (name ? name + '\n' : '') +
+    '\n———\n' +
+    S.n + ' acts of good' + (S.word ? ' · ' + S.line + ' ' + S.word : '') + '\n';
+
+  return { text:text, subject:subject, email:email };
+}
+
+function openAsk(ctx){
+  ASK_CTX = ctx || 'plan';
+  const a = askDetails();
+  if(!a.t && !a.d){ alert('Give it a name or a date first — then there’s something to ask about.'); return; }
+  drawAsk();
+  sheet('ask');
+}
+function drawAsk(){
+  const d = askDrafts();
+  chips($('ask-mode'), [['Text','text'],['Email','email']], ()=>ASK_MODE, v=>{ ASK_MODE=v; drawAsk(); });
+  $('ask-subwrap').classList.toggle('hide', ASK_MODE!=='email');
+  $('ask-subject').value = d.subject;
+  $('ask-body').value    = ASK_MODE==='email' ? d.email : d.text;
+  $('ask-send').textContent = ASK_MODE==='email' ? 'Open Mail' : 'Open Messages';
+  const a = askDetails();
+  const known = (a.who||[]).filter(n=>(handlesOf(n)||{}).email);
+  const note = $('ask-invnote');
+  if(!a.d){
+    note.textContent = 'Add a date and you can send a calendar invitation too.';
+  } else if(known.length && (S.email||'').indexOf('@')>0){
+    note.textContent = 'Goes as a proper invitation to ' + listWords(known) +
+      ' — they can accept, and it lands in their calendar.';
+  } else if(known.length){
+    note.textContent = 'Add your own email under You and ' + listWords(known) +
+      ' will be able to accept. Without it, it still attaches as an event they '+
+      'can add in one tap.';
+  } else {
+    note.textContent = (a.who||[]).length
+      ? 'Add an email in People and ' + listWords(a.who) + ' can accept it. '+
+        'Without one it still attaches as an event they can add in one tap.'
+      : 'Attaches the act as an event they can add in one tap.';
+  }
+}
+function sendAsk(){
+  const body = encodeURIComponent($('ask-body').value);
+  if(ASK_MODE==='email'){
+    window.location.href = 'mailto:?subject=' + encodeURIComponent($('ask-subject').value) +
+                           '&body=' + body;
+  } else {
+    /* iOS wants sms:&body=, Android wants sms:?body= — this form works on both */
+    window.location.href = 'sms:&body=' + body;
+  }
+}
+/* ── sending the invitation ─────────────────────────────────────────────────
+   The message is words; the invitation is a file. Attaching the .ics is what
+   turns "are you free on the 12th?" into a tap that puts it in their diary —
+   and if we know their email it goes as a proper REQUEST, so they get
+   Accept / Maybe / Decline rather than a bare event.
+
+   It goes through the phone's own share sheet, so the app still sends nothing
+   itself and never sees who you chose.                                      */
+async function shareInvite(withCard){
+  const a = askDetails();
+  if(!a.d){ alert('It needs a date before anyone can put it in their diary.'); return; }
+  const remind = ASK_CTX==='plan' ? (S.planRemind||'1') : '1';
+  const file = icsFor(a.t, a.d, a.no, a.who, remind, true);
+  const blob = new File([file.text], file.name, { type:'text/calendar' });
+  const body = $('ask-body').value;
+
+  /* the card as a picture — mail can't be composed as HTML from an app, but
+     an image attaches and previews inline, which is the thing that actually
+     looks like the mark */
+  const files = [blob];
+  if(withCard){
+    try {
+      const png = await inviteBlob(a);
+      if(png) files.unshift(new File([png], 'invitation-act-'+a.no+'.png', { type:'image/png' }));
+    } catch(e){}
+  }
+
+  if(navigator.canShare && navigator.canShare({ files:files })){
+    navigator.share({ files:files, text: body }).catch(()=>{});
+    return;
+  }
+  /* no file sharing here — hand over the file and let them attach it */
+  const url = 'data:text/calendar;charset=utf-8,' + encodeURIComponent(file.text);
+  const el = document.createElement('a');
+  el.href = url; el.download = file.name;
+  document.body.appendChild(el); el.click(); el.remove();
+  alert('Invitation saved as ' + file.name + '.\n\nAttach it to your message and '+
+        'they can add it to their calendar in one tap.');
+}
+
+/* One copy, both things. The clipboard can hold several flavours of the same
+   content at once, so this writes rich HTML — the card as an embedded image,
+   the note beneath it — plus a plain-text version for anywhere that can't
+   take the rich one. Paste into Mail and it arrives assembled, in the body,
+   with nothing to tap. That is the closest thing to a designed email that a
+   phone app can honestly produce.                                           */
+async function copyBoth(){
+  const a = askDetails();
+  const note = $('ask-body').value;
+  try {
+    const blob = await inviteBlob(a);
+    const dataUrl = await new Promise(res=>{
+      const r = new FileReader(); r.onload = ()=>res(r.result); r.readAsDataURL(blob);
+    });
+    const html =
+      '<div style="font-family:-apple-system,Helvetica,Arial,sans-serif;font-size:15px;'+
+      'line-height:1.5;color:#231F1B">' +
+      '<img src="' + dataUrl + '" alt="You are invited" ' +
+      'style="width:100%;max-width:420px;height:auto;display:block;margin:0 0 16px">' +
+      note.split('\n').map(l=>l.trim()?('<div>'+l.replace(/&/g,'&amp;').replace(/</g,'&lt;')+'</div>')
+                                      :'<div><br></div>').join('') +
+      '</div>';
+
+    if(navigator.clipboard && window.ClipboardItem){
+      await navigator.clipboard.write([ new ClipboardItem({
+        'text/html' : new Blob([html], {type:'text/html'}),
+        'text/plain': new Blob([note], {type:'text/plain'})
+      })]);
+      alert('Copied — card and note together.\n\nOpen Mail, paste, and send. '+
+            'The card sits at the top of the message with your words underneath.');
+      return;
+    }
+    throw new Error('no clipboard');
+  } catch(e){
+    /* no rich clipboard here — hand over the picture and the words separately */
+    try {
+      const blob = await inviteBlob(a);
+      const url = URL.createObjectURL(blob);
+      const el = document.createElement('a');
+      el.href=url; el.download='invitation-act-'+a.no+'.png';
+      document.body.appendChild(el); el.click(); el.remove();
+      setTimeout(()=>URL.revokeObjectURL(url), 4000);
+      if(navigator.clipboard) navigator.clipboard.writeText(note).catch(()=>{});
+      alert('Card saved and the words copied. Put the card in first, then paste.');
+    } catch(e2){ alert('Couldn’t make the card just now.'); }
+  }
+}
+
+function copyAsk(){
+  const t=$('ask-body');
+  t.select(); t.setSelectionRange(0,99999);
+  try{ document.execCommand('copy'); }catch(e){}
+  if(navigator.clipboard) navigator.clipboard.writeText(t.value).catch(()=>{});
+  alert('Copied. Paste it wherever suits.');
+}
+
 /* ── date picker ────────────────────────────────────────────────────────────
    On brand: today is gold, the selected day is coral, everything else is the
    same muted grey as the rest of the app.                                   */
@@ -1373,11 +1634,11 @@ function drawDate(){
    made of. Runs once per session on the first sight of Your year; any tap
    ends it. Nothing about it is required reading.                            */
 const TAB_TOUR = [
-  ['home',   'Everything at a glance'],
+  ['home',   'Everything so far'],
   ['log',    'Log it, or plan it'],
-  ['browse', 'Stuck? Start here'],
+  ['browse', 'Borrow an idea'],
   ['people', "Who's in it with you"],
-  ['you',    'Your year, your way']
+  ['you',    'All about you']
 ];
 let TOUR_T = [];
 function tabTour(){
@@ -1649,6 +1910,7 @@ function openPlan(i, whenISO){
   $('pl-when').value  = whenISO || pl.d || '';
   syncDateBtn('pl-when');
   S.planWho = (pl.who||[]).slice();
+  S.planRemind = pl.r || '1';
   drawPlan();
   sheet('plan');
 }
@@ -1671,6 +1933,8 @@ function drawPlan(){
   const sel=[...$('pl-slot').children].find(c=>c.classList.contains('on'));
   if(sel && sel.scrollIntoView) sel.scrollIntoView({block:'nearest',inline:'center'});
 
+  chips($('pl-remind'), REMINDERS, ()=>S.planRemind||'1', v=>{ S.planRemind=v; drawPlan(); });
+
   const box=$('pl-who'); box.innerHTML='';
   if(!S.people.length){
     box.innerHTML='<p class="note" style="margin:0">Nobody in your people list yet.</p>';
@@ -1692,7 +1956,7 @@ function savePlan(){
   S.plans=S.plans||{};
   const t=$('pl-title').value.trim(), d=$('pl-when').value;
   if(!t && !d){ sheet(null); return; }
-  S.plans[S.planSlot]={t:t, d:d, who:(S.planWho||[]).slice()};
+  S.plans[S.planSlot]={t:t, d:d, who:(S.planWho||[]).slice(), r:S.planRemind||'1'};
   save(); sheet(null); drawHome();
 }
 
@@ -1702,36 +1966,59 @@ function savePlan(){
    That keeps the "app you can ignore for three weeks" posture intact: the
    nagging, if any, belongs to a calendar the person already trusts.         */
 function planToCalendar(){
-  toCalendar($('pl-title').value.trim(), $('pl-when').value, S.planSlot, S.planWho||[]);
+  toCalendar($('pl-title').value.trim(), $('pl-when').value, S.planSlot,
+             S.planWho||[], S.planRemind||'1');
 }
 /* the same hand-off, from the log screen */
 function actToCalendar(){
   toCalendar($('l-title').value.trim(), $('l-when').value,
-             $('l-num').value||'1', (S.chosen||[]));
+             $('l-num').value||'1', (S.chosen||[]), '1');
 }
-function toCalendar(title, d, no, who){
+/* An .ics with METHOD:REQUEST and named attendees is a genuine invitation —
+   Mail and Calendar show Accept / Maybe / Decline rather than a bare event.
+   Without an address it degrades to a plain event, which still offers a
+   one-tap "Add to Calendar". Either way the person keeps control.          */
+function icsFor(title, d, no, who, remind, invite){
   const t = title || ('Act '+no);
-  if(!d){ alert('Give it a date first and it can go in your calendar.'); return; }
+  const emails = (who||[]).map(n=>({n:n, e:(handlesOf(n)||{}).email})).filter(x=>x.e);
   const stamp = d.replace(/-/g,'');
   const desc = ['Act '+no+' of '+S.n,
-                who.length ? 'With '+listWords(who) : '',
+                (who&&who.length) ? 'With '+listWords(who) : '',
                 'From Acts of Good'].filter(Boolean).join('\n');
-  const ics = [
-    'BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Acts of Good//EN','CALSCALE:GREGORIAN',
-    'BEGIN:VEVENT',
+  /* a REQUEST without a valid organiser gets rejected by Mail, so it only
+     becomes a true invitation when we know the sender's address too */
+  const rsvp = !!(invite && emails.length && (S.email||'').indexOf('@')>0);
+  const head = ['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Acts of Good//EN','CALSCALE:GREGORIAN'];
+  if(rsvp) head.push('METHOD:REQUEST');
+  const ev = ['BEGIN:VEVENT',
     'UID:actsofgood-'+no+'-'+stamp+'@local',
     'DTSTAMP:'+todayISO().replace(/-/g,'')+'T090000Z',
     'DTSTART;VALUE=DATE:'+stamp,
     'DTEND;VALUE=DATE:'+stamp,
     'SUMMARY:'+t.replace(/[,;]/g,''),
-    'DESCRIPTION:'+desc.replace(/[,;]/g,''),
-    'BEGIN:VALARM','TRIGGER:-P1D','ACTION:DISPLAY',
-    'DESCRIPTION:Tomorrow — '+t.replace(/[,;]/g,''),
-    'END:VALARM','END:VEVENT','END:VCALENDAR'
-  ].join('\r\n');
-  const url = 'data:text/calendar;charset=utf-8,' + encodeURIComponent(ics);
+    'DESCRIPTION:'+desc.replace(/[,;]/g,'').replace(/\n/g,'\\n')];
+  if(rsvp){
+    ev.push('ORGANIZER;CN='+((S.name||'Me').replace(/[,;]/g,''))+':mailto:'+S.email);
+    emails.forEach(x=>ev.push(
+      'ATTENDEE;CN='+x.n.replace(/[,;]/g,'')+';ROLE=REQ-PARTICIPANT;PARTSTAT=NEEDS-ACTION;RSVP=TRUE:mailto:'+x.e));
+    ev.push('STATUS:CONFIRMED');
+  }
+  if(remind && remind!=='none' && ALARM[remind]){
+    ev.push('BEGIN:VALARM','TRIGGER:'+ALARM[remind],'ACTION:DISPLAY',
+            'DESCRIPTION:'+t.replace(/[,;]/g,''),'END:VALARM');
+  }
+  ev.push('END:VEVENT');
+  return { text: head.concat(ev,['END:VCALENDAR']).join('\r\n'),
+           rsvp: rsvp, invited: emails.map(x=>x.n), name: 'act-'+no+'.ics' };
+}
+
+function toCalendar(title, d, no, who, remind){
+  const t = title || ('Act '+no);
+  if(!d){ alert('Give it a date first and it can go in your calendar.'); return; }
+  const file = icsFor(t, d, no, who, remind, false);
+  const url = 'data:text/calendar;charset=utf-8,' + encodeURIComponent(file.text);
   const a = document.createElement('a');
-  a.href = url; a.download = 'act-'+no+'.ics';
+  a.href = url; a.download = file.name;
   document.body.appendChild(a); a.click(); a.remove();
 }
 function clearPlan(){
@@ -1760,11 +2047,12 @@ function drawPeople(){
   }
   S.people.slice().sort((a,b)=>actsWith(b).length-actsWith(a).length).forEach(name=>{
     const acts=actsWith(name), money=gaveWith(name);
-    const h=handlesOf(name), got=HANDLE_KEYS.filter(k=>h[k]);
+    const h=handlesOf(name), got=HANDLE_KEYS.filter(k=>k!=='email'&&h[k]);
     const bits=[];
     bits.push(acts.length ? acts.length+(acts.length===1?' act':' acts') : 'not in an act yet');
     if(money) bits.push('chipped in on '+money);
     bits.push(got.length ? got.length+(got.length===1?' handle':' handles') : 'no handles yet');
+    if(h.email) bits.push('can be invited');
     if((S.places||{})[name]) bits.push((S.places||{})[name]);
     const d=document.createElement('div');
     d.className='row-item';
@@ -1778,7 +2066,7 @@ function drawPeople(){
    Holly is "Holly Williams" on Facebook and @hollyyoungwilliamsarchitect on
    Instagram, and Leigh is "Leigh Vinson Halabi" and @leigh_halabi. That can't
    be derived, so it has to be kept. The composer substitutes the right one. */
-const HANDLE_KEYS = ['instagram','facebook','threads','x'];
+const HANDLE_KEYS = ['email','instagram','facebook','threads','x'];
 function handlesOf(name){ return (S.handles||(S.handles={}))[name] || {}; }
 
 let PER_EDITING = null;
@@ -2440,6 +2728,253 @@ function drawActNo(a){
     : 'Mark to ' + halfNo(a.no) + ' — as half an act';
 }
 
+
+
+/* ── the invitation card ────────────────────────────────────────────────────
+   A web app can't compose an HTML email — mailto carries plain text and
+   nothing else. So instead of a styled email, the app draws a proper
+   invitation and attaches it as a picture. Mail and Messages preview an
+   attached image inline, so what the person sees when they open the message
+   IS the designed thing. It also survives being forwarded, screenshotted, or
+   opened on a laptop, which an HTML email frequently doesn't.
+
+   Portrait 1080×1350 — the shape both Instagram and Mail preview best.      */
+function wrapLines(g, text, maxW){
+  const words = (text||'').split(/\s+/).filter(Boolean), out=[];
+  let line='';
+  words.forEach(w=>{
+    const test = line ? line+' '+w : w;
+    if(g.measureText(test).width > maxW && line){ out.push(line); line=w; }
+    else line = test;
+  });
+  if(line) out.push(line);
+  return out;
+}
+
+async function renderInvite(a){
+  const W=1080, H=1350, k=W/100;
+  const c=document.createElement('canvas'); c.width=W; c.height=H;
+  const g=c.getContext('2d');
+
+  if(document.fonts){
+    try{ await Promise.all([
+      document.fonts.load('800 100px Montserrat'), document.fonts.load('700 100px Montserrat'),
+      document.fonts.load('500 100px Montserrat'), document.fonts.load('400 100px Montserrat'),
+      document.fonts.load('400 100px "Great Vibes"')]); await document.fonts.ready; }catch(e){}
+  }
+  const css = n => getComputedStyle(document.body).getPropertyValue(n).trim();
+  const coral = css('--coral')||'#EA634F', gold = css('--gold')||'#E1BA52',
+        gscr = css('--goldscript')||'#DDB44C', ink = css('--ink')||'#000',
+        muted = css('--muted')||'#7A736B';
+
+  /* paper, with a hairline gold rule inset like a proper invitation */
+  g.fillStyle='#FFFFFF'; g.fillRect(0,0,W,H);
+  g.strokeStyle=gold; g.globalAlpha=.55; g.lineWidth=2;
+  g.strokeRect(4.5*k, 4.5*k, W-9*k, H-9*k);
+  g.globalAlpha=1;
+
+  const centre = txt => W/2 - g.measureText(txt).width/2;
+
+  /* the balloon from the icon, floating at the top */
+  const svg = document.querySelector('#tourball .tb-art');
+  if(svg){
+    const src = 'data:image/svg+xml;charset=utf-8,' +
+                encodeURIComponent(new XMLSerializer().serializeToString(svg));
+    const img = await new Promise(res=>{ const i=new Image(); i.onload=()=>res(i); i.onerror=()=>res(null); i.src=src; });
+    if(img){
+      const h = 21*k, w = h*(img.width/img.height);
+      g.drawImage(img, W/2-w/2, 8*k, w, h);
+    }
+  }
+
+  /* "you're invited" */
+  g.font='600 '+(2.6*k)+'px "Montserrat", sans-serif';
+  g.fillStyle=muted;
+  const kern='Y O U ’ R E   I N V I T E D';
+  g.fillText(kern, centre(kern), 36.5*k);
+
+  /* the act itself, big */
+  g.font='700 '+(6.6*k)+'px "Montserrat", sans-serif';
+  g.fillStyle=ink;
+  const title = a.t || ('Act '+a.no);
+  const lines = wrapLines(g, title, W-20*k);
+  let y = 46*k;
+  lines.slice(0,3).forEach(l=>{ g.fillText(l, centre(l), y); y += 8*k; });
+
+  /* the date, in the script */
+  if(a.d){
+    const when = longDate(a.d);
+    g.font='400 '+(9*k)+'px "Great Vibes", cursive';
+    g.fillStyle=gscr;
+    g.fillText(when, centre(when), y + 6*k);
+    y += 12*k;
+  }
+
+  /* who, and the number */
+  g.font='500 '+(3*k)+'px "Montserrat", sans-serif';
+  g.fillStyle=muted;
+  const who = (a.who&&a.who.length) ? 'with ' + listWords(a.who) : '';
+  const meta = 'act ' + a.no + ' of ' + S.n + (who ? '  ·  ' + who : '');
+  g.fillText(meta, centre(meta), y + 3*k);
+  y += 10*k;
+
+  /* the warm bit */
+  g.font='400 '+(3.4*k)+'px "Montserrat", sans-serif';
+  g.fillStyle=ink;
+  const warm = wrapLines(g, 'Come along if you’d like to. No pressure at all — '+
+                            'these things are simply nicer with company.', W-24*k);
+  warm.forEach(l=>{ g.fillText(l, centre(l), y); y += 5*k; });
+
+  /* the mark, small, at the foot */
+  const footY = H - 12*k;
+  g.strokeStyle=ink; g.globalAlpha=.25; g.lineWidth=1.5;
+  g.beginPath(); g.moveTo(34*k, footY-7*k); g.lineTo(66*k, footY-7*k); g.stroke();
+  g.globalAlpha=1;
+  g.font='700 '+(3.2*k)+'px "Montserrat", sans-serif';
+  g.fillStyle=gold;
+  const nline = String(S.n);
+  g.fillText(nline, centre(nline), footY-2*k);
+  g.font='600 '+(2.2*k)+'px "Montserrat", sans-serif';
+  g.fillStyle=ink;
+  const aog='acts of good';
+  g.fillText(aog, centre(aog), footY+1.6*k);
+  if(S.word){
+    g.font='400 '+(3.4*k)+'px "Great Vibes", cursive';
+    g.fillStyle=gscr;
+    const w2 = (S.line?S.line+' ':'')+S.word;
+    g.fillText(w2, centre(w2), footY+6*k);
+  }
+  return c;
+}
+function inviteBlob(a){
+  return renderInvite(a).then(c=>new Promise(res=>c.toBlob(res,'image/png',0.95)));
+}
+
+/* ── rendering the card ─────────────────────────────────────────────────────
+   The card on screen is HTML; this draws the same thing onto a canvas so it
+   can leave the app as a picture — attached to an invitation, saved to the
+   camera roll, or posted. Every number here is the same parameter the CSS
+   uses, expressed as a percentage of the card's width, so the two cannot
+   drift apart.                                                              */
+const CARD = {
+  nTop: 12.7, aogTop: 23.0, iyTop: 28.8, scrTop: 34.3,   // ink tops, % of width
+  artTop: 6.4, ruleY: 65.9, actTop: 75.1,
+  nSize: 15.6, aogSize: 4.9, iySize: 3.6, scrSize: 25, actSize: 10.4
+};
+
+async function renderCard(a, W){
+  W = W || 1080;
+  const k = W/100;                                   // one unit = 1% of width
+  const c = document.createElement('canvas');
+  c.width = W; c.height = W;
+  const g = c.getContext('2d');
+  g.fillStyle = '#FFFFFF'; g.fillRect(0,0,W,W);
+
+  /* canvas won't fall back to a face the page happens to be using — each
+     weight has to be explicitly loaded before it can be drawn with */
+  if(document.fonts){
+    try {
+      await Promise.all([
+        document.fonts.load('800 100px Montserrat'),
+        document.fonts.load('700 100px Montserrat'),
+        document.fonts.load('500 100px Montserrat'),
+        document.fonts.load('400 100px "Great Vibes"')
+      ]);
+      await document.fonts.ready;
+    } catch(e){}
+  }
+
+  const gold  = getComputedStyle(document.body).getPropertyValue('--gold').trim()  || '#E1BA52';
+  const gscr  = getComputedStyle(document.body).getPropertyValue('--goldscript').trim() || '#DDB44C';
+  const coral = getComputedStyle(document.body).getPropertyValue('--coral').trim() || '#EA634F';
+
+  const f = (px, weight, family) => (weight?weight+' ':'400 ') + (px*k) + 'px ' +
+        (family==='Great Vibes' ? '"Great Vibes", cursive' : '"Montserrat", sans-serif');
+  const widthOf = (txt, font) => { g.font = font; return g.measureText(txt).width/k; };
+
+  const nTxt   = String(S.n);
+  const iyTxt  = S.line || '';
+  const scrTxt = S.word || '';
+
+  /* the same fit as the screen: shrink only if it can't fit, then centre the
+     whole object — type and artwork together — inside the margins */
+  let scrSize = CARD.scrSize;
+  let scrW = scrTxt ? widthOf(scrTxt, f(scrSize, '', 'Great Vibes')) : 0;
+  const maxText = (100 - MARK_INSET*200) - (ART_INK_W - OVERLAP)*100;
+  if(scrW > maxText){ scrSize = scrSize * maxText/scrW; scrW = maxText; }
+
+  const nW   = widthOf(nTxt,  f(CARD.nSize,   800));
+  const aogW = widthOf('acts of good', f(CARD.aogSize, 700));
+  const textW = Math.max(scrW, nW, aogW);
+  const objW  = textW + (ART_INK_W - OVERLAP)*100;
+  const objL  = MARK_INSET*100 + ((100 - MARK_INSET*200) - objW)/2;
+  const cx    = objL + textW/2;
+
+  const line = (txt, size, weight, family, colour, inkTop) => {
+    if(!txt) return;
+    g.font = f(size, weight, family);
+    g.fillStyle = colour;
+    const m = g.measureText(txt);
+    g.textBaseline = 'alphabetic';
+    g.fillText(txt, cx*k - m.width/2, inkTop*k + (m.actualBoundingBoxAscent||size*k*0.72));
+  };
+  line(nTxt,           CARD.nSize,   800, 'Montserrat', gold,      CARD.nTop);
+  line('acts of good', CARD.aogSize, 700, 'Montserrat', '#000000', CARD.aogTop);
+  line(iyTxt,          CARD.iySize,  500, 'Montserrat', '#000000', CARD.iyTop);
+  line(scrTxt,         scrSize,      '',  'Great Vibes', gscr,     CARD.scrTop);
+
+  /* the artwork — the PNG carries transparent margin, so place by its ink */
+  const art = document.querySelector('#cardface .handimg');
+  if(art && art.complete && art.naturalWidth){
+    const boxW = (ART_INK_W*100)/0.972;
+    const boxH = boxW * (art.naturalHeight/art.naturalWidth);
+    const inkL = objL + textW - OVERLAP*100;
+    g.drawImage(art, (inkL - boxW*0.0121)*k, (CARD.artTop - boxH*0.00526)*k, boxW*k, boxH*k);
+  }
+
+  /* the rule */
+  g.strokeStyle = '#000000'; g.globalAlpha = .9;
+  g.lineWidth = Math.max(1, 0.13*k);
+  g.beginPath(); g.moveTo(11*k, CARD.ruleY*k); g.lineTo(89*k, CARD.ruleY*k); g.stroke();
+  g.globalAlpha = 1;
+
+  /* act N of N — with the half treatment when it applies */
+  const whole = a.half ? wholeNo(a.no) : a.no;
+  const parts = ['act ', whole, ' of ' + S.n];
+  g.font = f(CARD.actSize, 700);
+  const wA = g.measureText(parts[0]).width, wB = g.measureText(parts[1]).width,
+        wC = g.measureText(parts[2]).width;
+  const total = wA+wB+wC;
+  let x = W/2 - total/2;
+  const base = CARD.actTop*k + (g.measureText('act').actualBoundingBoxAscent || CARD.actSize*k*0.72);
+  g.fillStyle = coral;
+  g.fillText(parts[0], x, base); x += wA;
+  const digitX = x;
+  g.fillText(parts[1], x, base); x += wB;
+  g.fillText(parts[2], x, base);
+
+  if(a.half){
+    /* the slash, at the angle measured off her act 2.5 card */
+    const h = CARD.actSize*k*0.72, cxd = digitX + wB/2;
+    const len = h*1.28, ang = 30*Math.PI/180;
+    g.strokeStyle = '#000000'; g.lineWidth = Math.max(1, 0.040*CARD.actSize*k);
+    g.beginPath();
+    g.moveTo(cxd + Math.sin(ang)*len/2, base - h/2 - Math.cos(ang)*len/2);
+    g.lineTo(cxd - Math.sin(ang)*len/2, base - h/2 + Math.cos(ang)*len/2);
+    g.stroke();
+    /* and the half itself, above and slightly right */
+    g.font = f(CARD.actSize*0.58, 700);
+    g.fillStyle = coral;
+    const hm = g.measureText(a.no);
+    g.fillText(a.no, cxd - hm.width*0.36, CARD.actTop*k - 1.5*k);
+  }
+  return c;
+}
+
+function cardBlob(a, W){
+  return renderCard(a, W).then(c => new Promise(res => c.toBlob(res, 'image/png', 0.95)));
+}
+
 /* ── do it again ────────────────────────────────────────────────────────────
    Act 5 → act 12 → Autumn Bingo in October is the same act three times, and
    act 4 → act 15 is the same breakfast twice. She rebuilds them by hand. This
@@ -2564,7 +3099,7 @@ function drawTodo(){
 function toTop(){ window.scrollTo(0,0); document.documentElement.scrollTop=0; }
 
 function sheet(which){
-  ['you','social','spend','plan','person','helpers','cal','date'].forEach(x=>$('sheet-'+x).classList.add('hide'));
+  ['you','social','spend','plan','person','helpers','cal','date','ask'].forEach(x=>$('sheet-'+x).classList.add('hide'));
   if(which){ $('sheet-'+which).classList.remove('hide'); }
   if(which==='social') drawPlats();
   if(which==='helpers') drawHelpers();
@@ -2592,6 +3127,7 @@ function drawPlats(){
 function saveYou(){
   S.name=$('you-name').value.trim();
   S.why =$('you-why').value.trim();
+  S.email=$('you-email').value.trim();
   save();
   sheet(null);
   if($('tabs').classList.contains('hide')) drawSetup();   // first run
@@ -2649,7 +3185,7 @@ function readBday(){
    in the viewport AND with no sheet covering it. An IntersectionObserver alone
    can't tell: an element behind a full-screen overlay still 'intersects'. */
 function sheetOpen(){
-  return ['you','social','spend','plan','person','helpers','cal','date'].some(x=>!$('sheet-'+x).classList.contains('hide'));
+  return ['you','social','spend','plan','person','helpers','cal','date','ask'].some(x=>!$('sheet-'+x).classList.contains('hide'));
 }
 function tourIfVisible(){
   if(S.toneToured || sheetOpen()) return;
@@ -2669,6 +3205,7 @@ window.addEventListener('scroll', tourIfVisible, { passive:true });
     // put the saved values back into the form fields
     $('you-name').value=S.name;
     $('you-why').value=S.why;
+    $('you-email').value=S.email||'';
     if(S.bday){ $('bday-month').value=String(parseInt(S.bday.slice(5,7),10));
                 $('bday-year').value=S.bday.slice(0,4); }
     $('tabs').classList.remove('hide');
