@@ -468,6 +468,21 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
     Later &mdash; take me home</button>
 </div></div>
 
+<!-- ══ DIALOG — our own ask / tell / check, so nothing iOS-grey appears ══ -->
+<div class="sheet hide" id="dlg" style="align-items:center">
+  <div class="panel" id="dlg-panel" style="border-radius:18px;max-width:400px;
+    width:calc(100% - 40px);padding:24px 22px">
+    <h3 id="dlg-title"></h3>
+    <p class="note" id="dlg-note" style="margin-top:6px"></p>
+    <div class="field hide" id="dlg-field" style="margin-top:16px">
+      <input id="dlg-input"></div>
+    <div style="display:flex;gap:10px;margin-top:20px">
+      <button class="btn ghost hide" id="dlg-no" style="flex:1;margin:0"></button>
+      <button class="btn" id="dlg-yes" style="flex:1;margin:0"></button>
+    </div>
+  </div>
+</div>
+
 <div class="sheet hide" id="sheet-date"><div class="panel">
   <button class="sheetback" onclick="sheet(null)">‹ Done</button>
   <div style="display:flex;align-items:baseline;justify-content:space-between">
@@ -771,7 +786,7 @@ What you actually did. Why it mattered. Say the awkward parts."></textarea>
       <h3 class="seth">This device</h3>
       <p class="note" id="storagenote">Everything is saved on this phone.</p>
       <button class="btn ghost" style="margin-top:12px;color:var(--coral)"
-        onclick="if(confirm('Delete your acts and start again? This cannot be undone.')) wipe();">
+        onclick="checkFirst('Start again?','This deletes every act, photo and person. It cannot be undone.','Delete everything', wipe)">
         Start over</button>
     </div>
   </div>
@@ -1455,7 +1470,7 @@ function askDrafts(){
 function openAsk(ctx){
   ASK_CTX = ctx || 'plan';
   const a = askDetails();
-  if(!a.t && !a.d){ alert('Give it a name or a date first — then there’s something to ask about.'); return; }
+  if(!a.t && !a.d){ say('Not quite yet','Give it a name or a date first — then there’s something to ask about.'); return; }
   drawAsk();
   sheet('ask');
 }
@@ -1505,7 +1520,7 @@ function sendAsk(){
    itself and never sees who you chose.                                      */
 async function shareInvite(withCard){
   const a = askDetails();
-  if(!a.d){ alert('It needs a date before anyone can put it in their diary.'); return; }
+  if(!a.d){ say('It needs a date','Nobody can put it in their diary without one.'); return; }
   const remind = ASK_CTX==='plan' ? (S.planRemind||'1') : '1';
   const file = icsFor(a.t, a.d, a.no, a.who, remind, true);
   const blob = new File([file.text], file.name, { type:'text/calendar' });
@@ -1531,7 +1546,7 @@ async function shareInvite(withCard){
   const el = document.createElement('a');
   el.href = url; el.download = file.name;
   document.body.appendChild(el); el.click(); el.remove();
-  alert('Invitation saved as ' + file.name + '.\n\nAttach it to your message and '+
+  say('Invitation saved', 'Saved as ' + file.name + '. Attach it to your message and '+
         'they can add it to their calendar in one tap.');
 }
 
@@ -1563,7 +1578,7 @@ async function copyBoth(){
         'text/html' : new Blob([html], {type:'text/html'}),
         'text/plain': new Blob([note], {type:'text/plain'})
       })]);
-      alert('Copied — card and note together.\n\nOpen Mail, paste, and send. '+
+      say('Copied — card and note together', 'Open Mail, paste, and send. '+
             'The card sits at the top of the message with your words underneath.');
       return;
     }
@@ -1578,8 +1593,8 @@ async function copyBoth(){
       document.body.appendChild(el); el.click(); el.remove();
       setTimeout(()=>URL.revokeObjectURL(url), 4000);
       if(navigator.clipboard) navigator.clipboard.writeText(note).catch(()=>{});
-      alert('Card saved and the words copied. Put the card in first, then paste.');
-    } catch(e2){ alert('Couldn’t make the card just now.'); }
+      say('Card saved','The words are copied too. Put the card in first, then paste.');
+    } catch(e2){ say('Hmm','Couldn’t make the card just now. Try again in a moment.'); }
   }
 }
 
@@ -1588,7 +1603,7 @@ function copyAsk(){
   t.select(); t.setSelectionRange(0,99999);
   try{ document.execCommand('copy'); }catch(e){}
   if(navigator.clipboard) navigator.clipboard.writeText(t.value).catch(()=>{});
-  alert('Copied. Paste it wherever suits.');
+  say('Copied','Paste it wherever suits.');
 }
 
 /* ── date picker ────────────────────────────────────────────────────────────
@@ -2038,7 +2053,7 @@ function icsFor(title, d, no, who, remind, invite){
 
 function toCalendar(title, d, no, who, remind){
   const t = title || ('Act '+no);
-  if(!d){ alert('Give it a date first and it can go in your calendar.'); return; }
+  if(!d){ say('It needs a date','Give it one and it can go straight in your calendar.'); return; }
   const file = icsFor(t, d, no, who, remind, false);
   const url = 'data:text/calendar;charset=utf-8,' + encodeURIComponent(file.text);
   const a = document.createElement('a');
@@ -2417,7 +2432,8 @@ function drawLog(){
   const add=document.createElement('button');
   add.className='chip';
   add.textContent = S.people.length ? '+ someone new' : '+ add someone';
-  add.onclick=()=>{const n=prompt('Name?'); if(n){S.people.push(n);S.chosen.push(n);drawLog();}};
+  add.onclick=()=>askFor('Who else was there?','First name is plenty',
+      n=>{ S.people.push(n); S.chosen.push(n); save(); drawLog(); });
   pc.appendChild(add);
 }
 /* ── logged, or planned? ────────────────────────────────────────────────────
@@ -2447,7 +2463,7 @@ function logMode(){
 
 function saveAct(writeNow){
   const title=$('l-title').value.trim();
-  if(!title){ alert('Give it a title — everything else can wait.'); return; }
+  if(!title){ say('It needs a title','Everything else can wait — that bit can’t.'); return; }
 
   /* future date → this is a plan, not a diary entry */
   if(isFuture($('l-when').value)){
@@ -2570,7 +2586,7 @@ let CM_PLAT = 'instagram';
 
 function openCompose(){
   const a = S.current || S.acts[S.acts.length-1];
-  if(!a){ alert('Log an act first.'); return; }
+  if(!a){ say('Nothing to show yet','Log an act first.'); return; }
   const on = PLATS.filter(([k])=>S.platforms[k].on).map(([k])=>k);
   CM_PLAT = on.indexOf(CM_PLAT)>-1 ? CM_PLAT : (on[0] || 'instagram');
   $('cm-no').textContent = 'act '+a.no+' of '+S.n;
@@ -2726,8 +2742,9 @@ function copyCaption(){
   let ok=false;
   try { ok=document.execCommand('copy'); } catch(e){}
   if(navigator.clipboard) navigator.clipboard.writeText(t.value).catch(()=>{});
-  alert(ok||navigator.clipboard ? 'Caption copied.\n\nOpen the app, pick the card and '+
-    'photos from your camera roll, and paste.' : 'Select the caption and copy it.');
+  if(ok||navigator.clipboard) say('Caption copied','Open the app, pick the card and '+
+    'photos from your camera roll, and paste.');
+  else say('Nearly','Select the caption and copy it.');
 }
 /* Actually leave for the app. iOS will only follow a custom scheme from a real
    tap, so this runs straight off the button, and falls back to the website if
@@ -3094,7 +3111,7 @@ function drawBrowse(){
       const used={}; S.acts.forEach(x=>used[Math.floor(parseFloat(x.no))]=1);
       Object.keys(S.plans||{}).forEach(k=>used[k]=1);
       let slot=1; while(used[slot] && slot<=S.n) slot++;
-      if(slot>S.n){ alert('Every slot has something in it already.'); return; }
+      if(slot>S.n){ say('Your year is full','Every slot has something in it already.'); return; }
       openPlan(slot);
       $('pl-title').value=i.t;
     };
@@ -3160,6 +3177,37 @@ function drawTodo(){
    sheet, so the next screen can open already scrolled — putting the lockup
    under the status bar. Every transition starts at the top. */
 function toTop(){ window.scrollTo(0,0); document.documentElement.scrollTop=0; }
+
+/* ── our own dialogs ────────────────────────────────────────────────────────
+   iOS's native prompt/alert arrive in system grey with blue buttons, which
+   reads as "the browser is talking", not the app. Same three jobs, our paper
+   and our coral.                                                            */
+function dlg(o){
+  const box=$('dlg'); if(!box) return;
+  $('dlg-title').textContent = o.title||'';
+  const n=$('dlg-note'); n.textContent=o.note||''; n.classList.toggle('hide', !o.note);
+  const f=$('dlg-field'), i=$('dlg-input');
+  f.classList.toggle('hide', !o.input);
+  if(o.input){ i.placeholder=o.placeholder||''; i.value=o.value||''; }
+  const yes=$('dlg-yes'), no=$('dlg-no');
+  yes.textContent = o.ok || 'OK';
+  no.textContent  = o.cancel || 'Cancel';
+  no.classList.toggle('hide', !o.cancel);
+  const close=()=>{ box.classList.add('hide'); yes.onclick=null; no.onclick=null; };
+  yes.onclick=()=>{ const v=o.input ? i.value.trim() : true; close(); if(o.then) o.then(v); };
+  no.onclick =()=>{ close(); if(o.no) o.no(); };
+  box.classList.remove('hide');
+  if(o.input) setTimeout(()=>{ i.focus(); }, 60);
+}
+/* three shorthands that read like the thing they replace */
+function say(title, note, then){ dlg({title:title, note:note, ok:'Got it', then:then}); }
+function askFor(title, placeholder, then){
+  dlg({title:title, placeholder:placeholder, input:true, ok:'Add', cancel:'Cancel',
+       then:v=>{ if(v) then(v); }});
+}
+function checkFirst(title, note, okLabel, then){
+  dlg({title:title, note:note, ok:okLabel, cancel:'Keep it', then:then});
+}
 
 function sheet(which){
   ['you','social','spend','plan','person','helpers','cal','date','ask','done'].forEach(x=>$('sheet-'+x).classList.add('hide'));
