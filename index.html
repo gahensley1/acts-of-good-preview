@@ -417,7 +417,7 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
      first sentence, so the app writes it and you send it.                  -->
 <div class="sheet hide" id="sheet-ask"><div class="panel">
   <button class="sheetback" onclick="sheet(null)">‹ Done</button>
-  <h3>Ask them along</h3>
+  <h3>Ask a friend along</h3>
   <p class="note" style="margin-bottom:16px">Nothing is sent by the app. This opens
     your own Messages or Mail with the words already there &mdash; change anything
     you like before you send it.</p>
@@ -446,6 +446,28 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
      iOS's own date picker is a black panel with blue accents and can't be
      restyled, so the app brings its own: today in gold, the chosen day in
      coral, same grid as the month view.                                   -->
+<!-- ══ SHEET — the follow-up, after an act is completed ══════════════════
+     The questions that only make sense afterwards. Logging is the promise;
+     this is the part where you say how it actually went.                  -->
+<div class="sheet hide" id="sheet-done"><div class="panel">
+  <button class="sheetback" onclick="sheet(null)">‹ Done</button>
+  <h3 id="done-h3">Act done</h3>
+  <p class="note" style="margin-bottom:16px">Nicely done. Two quick questions while
+    it's fresh &mdash; both are optional.</p>
+
+  <div class="field"><label>How did it go?</label>
+    <div class="chips" id="done-out"></div></div>
+
+  <div class="field"><label>Anything worth remembering?</label>
+    <textarea id="done-note" style="min-height:90px"
+      placeholder="A face, a thing someone said, what you'd do differently."></textarea>
+    <p class="note" style="margin-top:8px">This becomes the first line of the write-up.</p></div>
+
+  <button class="btn" onclick="doneWrite()">Write it up now</button>
+  <button class="btn ghost" style="margin-top:10px" onclick="doneLater()">
+    Later &mdash; take me home</button>
+</div></div>
+
 <div class="sheet hide" id="sheet-date"><div class="panel">
   <button class="sheetback" onclick="sheet(null)">‹ Done</button>
   <div style="display:flex;align-items:baseline;justify-content:space-between">
@@ -526,10 +548,12 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
     <div class="chips" id="pl-remind"></div></div>
 
   <button class="btn" onclick="savePlan()">Put it in the grid</button>
+  <button class="btn ghost" style="margin-top:10px" onclick="planDone()"
+    id="pl-done">This one's done &mdash; complete it</button>
   <button class="btn ghost" style="margin-top:10px" onclick="planToCalendar()">
     Add to my phone calendar</button>
   <button class="btn ghost" style="margin-top:10px" onclick="openAsk('plan')"
-    id="pl-ask">Ask them along</button>
+    id="pl-ask">Ask a friend along</button>
   <button class="btn ghost" style="margin-top:10px" onclick="clearPlan()"
     id="pl-clear">Clear this slot</button>
 </div></div>
@@ -554,12 +578,12 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
         <button class="btn mini ghost" style="margin:0" onclick="actToCalendar()">
           Add to my phone calendar</button>
         <button class="btn mini ghost" style="margin:0" onclick="openAsk('log')">
-          Ask them along</button>
+          Ask a friend along</button>
       </div>
       <p class="note" style="margin-top:8px">Today unless you change it. Put a future
         date in and it can go straight into your calendar with a reminder.</p></div>
 
-    <div class="field" id="f-out"><label>How did it go?</label>
+    <div class="field hide" id="f-out"><label>How did it go?</label>
       <div class="chips" id="outchips"></div></div>
 
     <div class="field"><label id="l-wholab">Who was with you?</label>
@@ -582,8 +606,8 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
       <p class="note" id="l-spendnote" style="margin-top:8px">One number is fine. Or keep
         a tally as you buy things &mdash; it adds up your share for you.</p></div>
 
-    <button class="btn" id="l-save" onclick="saveAct()">Save — write it up later</button>
-    <button class="btn ghost" id="l-save2" style="margin-top:10px" onclick="saveAct(true)">Save and write it up now</button>
+    <button class="btn" id="l-save" onclick="saveAct()">Complete this act</button>
+    <button class="btn ghost" id="l-save2" style="margin-top:10px" onclick="saveAct('later')">Save it, write it up later</button>
   </div>
 </section>
 
@@ -2021,6 +2045,19 @@ function toCalendar(title, d, no, who, remind){
   a.href = url; a.download = file.name;
   document.body.appendChild(a); a.click(); a.remove();
 }
+/* a plan becomes an act: the log screen opens already filled in, dated today,
+   and the only thing left to press is Complete. */
+function planDone(){
+  const pl=(S.plans||{})[S.planSlot]||{};
+  sheet(null);
+  newAct();
+  $('l-num').value = S.planSlot;
+  $('l-title').value = ($('pl-title').value.trim() || pl.t || '');
+  $('l-when').value = todayISO(); syncDateBtn('l-when');
+  S.chosen = (S.planWho||pl.who||[]).slice();
+  $('log-no').textContent = 'act '+S.planSlot+' of '+S.n;
+  drawLog(); logMode();
+}
 function clearPlan(){
   if(S.plans) delete S.plans[S.planSlot];
   save(); sheet(null); drawGrid();
@@ -2396,16 +2433,16 @@ function logMode(){
   const future = isFuture($('l-when').value);
   const save=$('l-save'), save2=$('l-save2'), head=$('log-h2');
   if(save)  save.textContent  = future ? 'Put it in the grid as planned'
-                                       : 'Save — write it up later';
+                                       : 'Complete this act';
   if(save2) save2.classList.toggle('hide', future);
+  if(save2) save2.textContent = 'Save it, write it up later';
   if(head)  head.textContent  = future ? 'Plan an act' : 'Log an act';
   /* a plan hasn't happened yet, so the past-tense fields step aside */
   const t=$('l-titlelab'), w=$('l-wholab');
   if(t) t.textContent = future ? 'What are you thinking?' : 'What did you do?';
   if(w) w.textContent = future ? "Who's coming?" : 'Who was with you?';
-  ['f-out','f-photos'].forEach(id=>{
-    const el=$(id); if(el) el.classList.toggle('hide', future);
-  });
+  const fp=$('f-photos'); if(fp) fp.classList.toggle('hide', future);
+  const fo=$('f-out'); if(fo) fo.classList.add('hide');   // now asked afterwards
 }
 
 function saveAct(writeNow){
@@ -2431,12 +2468,35 @@ function saveAct(writeNow){
   S.acts.push(a); S.current=a;
   if(S.plans) delete S.plans[Math.floor(parseFloat(a.no))];
   save();
-  if(writeNow) openWrite(a); else go('home');
+  /* 'later' means save it quietly. Otherwise the act has just been completed,
+     and the questions that only make sense afterwards get asked now. */
+  if(writeNow==='later'){ go('home'); return; }
+  go('home'); sheet('done');
 }
+
+/* ── the follow-up ──────────────────────────────────────────────────────────
+   How it went is a past-tense question. Asking it on the form, before the act
+   has happened, was always slightly wrong — so it moved here, to the moment
+   after you press Complete.                                                 */
+function drawDone(){
+  const a=S.current||{}; if(!a.out) a.out='Went to plan';
+  const h=$('done-h3'); if(h) h.textContent='Act '+(a.no||'')+' done';
+  chips($('done-out'),['Went to plan','Partly',"Didn't go to plan"],
+        ()=>a.out, v=>{ grabDone(); a.out=v; save(); drawDone(); });
+  const n=$('done-note'); if(n && n.value!==(a.note||'')) n.value=a.note||'';
+}
+function grabDone(){
+  const a=S.current; if(!a) return;
+  const n=$('done-note'); if(n) a.note=n.value.trim();
+  save();
+}
+function doneLater(){ grabDone(); sheet(null); drawHome(); }
+function doneWrite(){ grabDone(); sheet(null); openWrite(S.current); }
 function openAct(a){ S.current=a; openWrite(a); }
 function openWrite(a){
   if(!a.photos) a.photos=[];
   $('w-no').textContent='act '+a.no+' of '+S.n;
+  if(!a.story && a.note) a.story = a.note + '\n\n';
   $('w-story').value=a.story||'';
   drawPhotos('w-photos','w-file', a.photos, ()=>drawPhotos('w-photos','w-file',a.photos,()=>{}));
   count(); go('write');
@@ -3102,11 +3162,12 @@ function drawTodo(){
 function toTop(){ window.scrollTo(0,0); document.documentElement.scrollTop=0; }
 
 function sheet(which){
-  ['you','social','spend','plan','person','helpers','cal','date','ask'].forEach(x=>$('sheet-'+x).classList.add('hide'));
+  ['you','social','spend','plan','person','helpers','cal','date','ask','done'].forEach(x=>$('sheet-'+x).classList.add('hide'));
   if(which){ $('sheet-'+which).classList.remove('hide'); }
   if(which==='social') drawPlats();
   if(which==='helpers') drawHelpers();
   if(which==='cal') drawCal();
+  if(which==='done') drawDone();
   if(!which){ toTop(); setTimeout(tourIfVisible, 260); }  // sheet closed — is the picker showing?
 }
 const PLATS=[['instagram','Instagram','@you'],['facebook','Facebook','Your name'],
@@ -3188,7 +3249,7 @@ function readBday(){
    in the viewport AND with no sheet covering it. An IntersectionObserver alone
    can't tell: an element behind a full-screen overlay still 'intersects'. */
 function sheetOpen(){
-  return ['you','social','spend','plan','person','helpers','cal','date','ask'].some(x=>!$('sheet-'+x).classList.contains('hide'));
+  return ['you','social','spend','plan','person','helpers','cal','date','ask','done'].some(x=>!$('sheet-'+x).classList.contains('hide'));
 }
 function tourIfVisible(){
   if(S.toneToured || sheetOpen()) return;
