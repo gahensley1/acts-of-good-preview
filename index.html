@@ -175,7 +175,7 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
 .lockup{container-type:inline-size}
 /* Fixed geometry, measured off Jessica's act-20 card (% of lockup width):
      artwork  left 60 · width 24.2 · ink top 6.4
-     type stack centred on 43.5 — so the column is 87 wide, starting at 0
+     type stack centred on 43.5, so the column is 87 wide, starting at 0
      script may run to 62 before it reaches the artwork                      */
 .mark{position:relative;min-height:57.2cqw}
 .mark .txt{text-align:center;width:87cqw}
@@ -188,10 +188,10 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
 .mark .scr{font-family:var(--script);color:var(--goldscript);line-height:.9;
   margin-top:-.04em;font-size:25cqw;white-space:nowrap}
 /* the PNG carries transparent margin, so the box is wider than the ink and
-   sits slightly left of it — these numbers put the INK at 60–84.2 */
+   sits slightly left of it, these numbers put the INK at 60–84.2 */
 .balloon{position:absolute;left:59.7cqw;top:0;width:24.9cqw}
 /* Step 2 preview: the type column starts 5px below the tip of the heart.
-   Measured, not guessed — the artwork's ink begins 0.53% into the PNG. */
+   Measured, not guessed, the artwork's ink begins 0.53% into the PNG. */
 #s-setup .mark .txt{margin-top:15.9px}
 #s-setup .balloon{top:-25px}   /* art up, type stays put */
 .balloon img{width:100%;height:auto;display:block}
@@ -266,7 +266,7 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
 .tabs button.on{color:var(--coral)}
 .tabs .ic{font-size:19px;line-height:1}
 /* the one drawn icon — a glyph for "people" that isn't a cartoon face.
-   Two overlapping discs — solid like the others, and the same circle motif
+   Two overlapping discs, solid like the others, and the same circle motif
    as the You icon. */
 .tabs .ics{display:block;width:21px;height:21px}
 .tabs .ics svg{width:100%;height:100%;display:block}
@@ -289,11 +289,14 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
 #tourball.on .tb-cap{opacity:1}
 /* the calendar icon is easy to miss, so once the tab tour has finished it
    breathes a few times and says what it's for */
-@keyframes calbreathe{0%,100%{transform:scale(1)}50%{transform:scale(1.3)}}
-#calbtn.breathe svg{animation:calbreathe 2.2s ease-in-out 3;transform-origin:50% 50%}
+@keyframes calbreathe{0%,100%{transform:scale(1)}
+  18%{transform:scale(1.85)}42%{transform:scale(1.15)}60%{transform:scale(1.6)}}
+#calbtn.breathe svg{animation:calbreathe 2.6s ease-in-out 3;transform-origin:50% 50%;
+  stroke:var(--coral)}
 #calnudge{position:fixed;z-index:45;background:var(--ink);color:#fff;
   font-size:12.5px;font-weight:600;line-height:1.25;text-align:center;
-  padding:8px 12px;border-radius:13px;width:172px;pointer-events:none;
+  padding:8px 12px;border-radius:13px;width:max-content;max-width:150px;
+  pointer-events:none;
   box-shadow:0 4px 14px rgba(0,0,0,.18);opacity:0;transition:opacity .4s;
   transform:translateX(-50%);top:0;left:0}
 #calnudge.on{opacity:1}
@@ -335,7 +338,7 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
 
     <h1 style="font-size:23px;margin-bottom:8px" id="setup-h1">Let's set up your year.</h1>
     <p class="note" style="margin-bottom:26px">Three questions. You can change any of
-      them later — nobody's checking.</p>
+      them later, nobody's checking.</p>
 
     <div class="field">
       <label>How many acts?</label>
@@ -348,7 +351,7 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
     </div>
 
     <div class="field">
-      <label>Your reason — one line <span style="text-transform:none;font-weight:400">(or customize your reason)</span></label>
+      <label>Your reason, one line <span style="text-transform:none;font-weight:400">(or customize your reason)</span></label>
       <div style="display:flex;gap:10px;align-items:flex-start">
         <div style="flex:1.1">
           <input id="reason-line" placeholder="in year">
@@ -423,7 +426,7 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
   <div class="top"><h2>People</h2><div class="sub">who's in your year</div></div>
   <div class="wrap">
     <p class="note" style="margin-bottom:16px">Everyone who's been part of an act, and
-      anyone who's offered. Tap a name to add their handles &mdash; that's what fills in
+      anyone who's offered. Tap a name to add their handles. That's what fills in
       the tags when you post.</p>
     <div id="people-list"></div>
     <button class="btn ghost" style="margin-top:16px" onclick="addPerson()">
@@ -433,13 +436,13 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
 
 <!-- ══ SHEET — ask someone along ══════════════════════════════════════════
      "Ask. People say yes far more often than you'd think, and asking is itself
-     a kind of good — it gives someone else a way in." The hardest part is the
+     a kind of good, it gives someone else a way in." The hardest part is the
      first sentence, so the app writes it and you send it.                  -->
 <div class="sheet hide" id="sheet-ask"><div class="panel">
   <button class="sheetback" onclick="sheet(null)">‹ Done</button>
   <h3>Ask a friend along</h3>
   <p class="note" style="margin-bottom:16px">Nothing is sent by the app. This opens
-    your own Messages or Mail with the words already there &mdash; change anything
+    your own Messages or Mail with the words already there. Change anything
     you like before you send it.</p>
 
   <div class="chips" id="ask-mode" style="margin-bottom:14px"></div>
@@ -458,7 +461,7 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
   <button class="btn ghost" style="margin-top:10px" onclick="copyBoth()">
     Copy the card and the note</button>
   <p class="note" style="margin-top:10px">Copies both together. Paste into Mail and the
-    card sits at the top with your note underneath &mdash; in the message itself,
+    card sits at the top with your note underneath, in the message itself,
     nothing to tap.</p>
 </div></div>
 
@@ -473,7 +476,7 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
   <button class="sheetback" onclick="sheet(null)">‹ Done</button>
   <h3 id="done-h3">Act done</h3>
   <p class="note" style="margin-bottom:16px">Nicely done. Two quick questions while
-    it's fresh &mdash; both are optional.</p>
+    it's fresh. Both are optional.</p>
 
   <div class="field"><label>How did it go?</label>
     <div class="chips" id="done-out"></div></div>
@@ -485,11 +488,11 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
 
   <button class="btn" onclick="doneWrite()">Write it up now</button>
   <button class="btn ghost" style="margin-top:10px" onclick="doneLater()">
-    Later &mdash; take me home</button>
+    Later. Take me home</button>
 </div></div>
 
 <!-- ══ DIALOG — our own ask / tell / check, so nothing iOS-grey appears ══ -->
-<div id="calnudge" class="hide">Pick a day &mdash; plan an act</div>
+<div id="calnudge" class="hide">Pick a day<br>plan an act</div>
 
 <div class="sheet hide" id="dlg" style="align-items:center">
   <div class="panel" id="dlg-panel" style="border-radius:18px;max-width:400px;
@@ -569,7 +572,7 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
   <button class="sheetback" onclick="sheet(null)">‹ Done</button>
   <h3 id="plan-h3">Plan act 4</h3>
   <p class="note" style="margin-bottom:18px">Put something in the diary. It sits in the
-    grid until you do it &mdash; no reminder, no pressure.</p>
+    grid until you do it. No reminder, no pressure.</p>
   <div class="field"><label>What are you thinking?</label>
     <input id="pl-title" placeholder="Doughnuts for the vet"></div>
   <div class="field"><label>Which act?</label>
@@ -589,7 +592,7 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
 
   <button class="btn" onclick="savePlan()">Put it in the grid</button>
   <button class="btn ghost" style="margin-top:10px" onclick="planDone()"
-    id="pl-done">This one's done &mdash; complete it</button>
+    id="pl-done">This one's done. Complete it</button>
   <button class="btn ghost" style="margin-top:10px" onclick="planToCalendar()">
     Add to my phone calendar</button>
   <button class="btn ghost" style="margin-top:10px" onclick="openAsk('plan')"
@@ -608,8 +611,8 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
 
     <div class="field"><label>Number</label>
       <input id="l-num" style="max-width:120px">
-      <p class="note" style="margin-top:8px">Editable. Halves are allowed —
-        act 2.5 is a real act.</p></div>
+      <p class="note" style="margin-top:8px">Editable. Halves are allowed.
+        Act 2.5 is a real act.</p></div>
 
     <div class="field"><label>When?</label>
       <input id="l-when" type="hidden">
@@ -647,7 +650,7 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
           id="l-tabbtn">Keep a tally</button>
       </div>
       <p class="note" id="l-spendnote" style="margin-top:8px">One number is fine. Or keep
-        a tally as you buy things &mdash; it adds up your share for you.</p></div>
+        a tally as you buy things. It adds up your share for you.</p></div>
 
     <button class="btn" id="l-save" onclick="saveAct()">Complete this act</button>
     <button class="btn ghost" id="l-save2" style="margin-top:10px" onclick="saveAct('later')">Save it, write it up later</button>
@@ -660,9 +663,9 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
     <h2>Write it up</h2><div class="sub" id="w-no"></div></div>
   <div class="wrap">
     <p class="note" style="margin-bottom:18px">This is the diary entry. The post comes
-      out of it — not the other way round.</p>
+      out of it, not the other way round.</p>
     <div class="field"><label>The story</label>
-      <textarea id="w-story" placeholder="How it came about. Who helped — name them.
+      <textarea id="w-story" placeholder="How it came about. Who helped, name them.
 What you actually did. Why it mattered. Say the awkward parts."></textarea>
       <div class="counter">
         <span>Instagram <b id="c-ig">0</b>/2200</span>
@@ -673,7 +676,7 @@ What you actually did. Why it mattered. Say the awkward parts."></textarea>
     <div class="field"><label>Photos</label>
       <div class="photos" id="w-photos"></div>
       <input type="file" id="w-file" accept="image/*" multiple hidden>
-      <p class="note" style="margin-top:8px">Add any that arrived later — someone
+      <p class="note" style="margin-top:8px">Add any that arrived later. Someone
         sending you a picture weeks afterwards is part of the act too.</p></div>
 
     <div style="display:flex;gap:10px">
@@ -710,7 +713,7 @@ What you actually did. Why it mattered. Say the awkward parts."></textarea>
       <button class="btn ghost" style="margin-top:10px" onclick="doItAgain()">Do it again</button>
       <button class="btn ghost" style="margin-top:10px" onclick="toggleHalf()"
         id="mk-btn">Mark as half an act</button>
-      <p class="note" style="margin-top:10px">Like act 3 &mdash; the plan was to give
+      <p class="note" style="margin-top:10px">Like act 3, the plan was to give
         blood together, they wouldn't take hers, her son gave and she didn't. The number
         gets crossed out and the half written in.</p>
 
@@ -808,7 +811,7 @@ What you actually did. Why it mattered. Say the awkward parts."></textarea>
     </div>
 
     <p class="note" style="margin-top:24px">Nothing here is required. The app works
-      without any of it — these just save you typing later.</p>
+      without any of it. These just save you typing later.</p>
 
     <div class="setgroup" style="margin-top:30px">
       <h3 class="seth">This device</h3>
@@ -826,7 +829,7 @@ What you actually did. Why it mattered. Say the awkward parts."></textarea>
   <button class="sheetback" onclick="sheet(null)">‹ Done</button>
   <h3>The act tally</h3>
   <p class="note" style="margin-bottom:18px">Add things as you buy them, and say who
-    paid. It works out your share &mdash; that's the number that matters.</p>
+    paid. It works out your share. That's the number that matters.</p>
 
   <div id="spend-list"></div>
 
@@ -851,7 +854,7 @@ What you actually did. Why it mattered. Say the awkward parts."></textarea>
   <div class="steps">Step 1 of 3</div>
   <h3>First, a bit about you</h3>
   <div class="privacy"><b>Your privacy comes first.</b> Everything happens right on
-    your device to calculate your year and draft your posts&mdash;we don't collect,
+    your device to calculate your year and draft your posts, we don't collect,
     track, or share a thing.</div>
 
   <div class="field"><label>Your name</label>
@@ -863,7 +866,7 @@ What you actually did. Why it mattered. Say the awkward parts."></textarea>
       <select id="bday-year"  style="flex:1"></select>
     </div>
     <p class="note" style="margin-top:8px" id="bday-hint">Used to work out which
-      year you're marking — that's the word on your card.</p></div>
+      year you're marking. That's the word on your card.</p></div>
 
   <div class="field"><label>Your email <span style="text-transform:none;font-weight:400">
     (optional)</span></label>
@@ -886,13 +889,13 @@ What you actually did. Why it mattered. Say the awkward parts."></textarea>
   <div class="steps">Step 3 of 3</div>
   <h3>Where do you post?</h3>
   <div class="privacy"><b>Handles are stored on your phone only.</b> The app never
-    logs in or posts for you — it writes the caption with the right handles in it
+    logs in or posts for you. It writes the caption with the right handles in it
     and hands it to you.</div>
 
   <div id="plats"></div>
 
   <p class="note" style="margin:16px 0 18px">Tick the ones you use. Adding your own
-    handle is optional — it's the people you tag that matter, and you'll add them
+    handle is optional. It's the people you tag that matter, and you'll add them
     as you go.</p>
 
   <button class="btn" onclick="sheet('helpers')">Next</button>
@@ -901,7 +904,7 @@ What you actually did. Why it mattered. Say the awkward parts."></textarea>
 
 <!-- ══ SHEET 4 — who's already offered ══════════════════════════════════════
      Jessica's announcement drew six offers of help before a single act existed
-     — Pooja, Pat, Leisel, Amy, Rachel, Sam. They arrive in one burst and then
+    , Pooja, Pat, Leisel, Amy, Rachel, Sam. They arrive in one burst and then
      get buried in a comment thread. Catching them here, before act 1, is the
      whole point; the People directory otherwise only fills in afterwards.  -->
 <div class="sheet hide" id="sheet-helpers"><div class="panel">
@@ -909,7 +912,7 @@ What you actually did. Why it mattered. Say the awkward parts."></textarea>
   <div class="steps">One last thing</div>
   <h3>Has anyone offered to help?</h3>
   <p class="note" style="margin-bottom:18px">When people hear what you're doing, some
-    of them offer. Put their names down now &mdash; they're easy to forget once
+    of them offer. Put their names down now. They're easy to forget once
     they're buried in a comment thread, and they turn into acts.</p>
 
   <div class="chips" id="hp-list" style="margin-bottom:14px"></div>
@@ -920,13 +923,13 @@ What you actually did. Why it mattered. Say the awkward parts."></textarea>
       <button class="btn mini" style="margin:0" onclick="addHelper()">Add</button>
     </div>
     <input id="hp-where" placeholder="Where are they? (optional)" style="margin-top:10px">
-    <p class="note" style="margin-top:8px">A place is worth noting &mdash; a good few
+    <p class="note" style="margin-top:8px">A place is worth noting, a good few
       acts happen while you're visiting somewhere.</p>
   </div>
 
   <button class="btn" onclick="finishSetup()">Start</button>
   <button class="btn ghost" style="margin-top:10px" onclick="finishSetup()">
-    Nobody yet &mdash; start anyway</button>
+    Nobody yet, start anyway</button>
 </div></div>
 
 <div id="install" class="hide">
@@ -961,7 +964,7 @@ const TONE_ORDER = ['light','medium-light','medium','medium-dark','dark'];
    · state  → localStorage (small JSON)
    · photos → IndexedDB, downscaled first (a phone photo is ~4MB;
      localStorage would blow its 5MB cap on two of them)
-   Everything is wrapped — if storage is blocked, the app still runs,
+   Everything is wrapped, if storage is blocked, the app still runs,
    it just forgets on reload.
    ────────────────────────────────────────────────────────────── */
 const DB_NAME='actsofgood', STORE_NAME='photos', LS_KEY='actsofgood.state';
@@ -1119,7 +1122,7 @@ const CATS = ['Anything','Neighbours','Teachers & schools','Community helpers',
 
 const IDEAS = [
  {t:'Bake something for new neighbours',l:'Today',s:'An hour',c:'Neighbours',
-  d:"Wrap it, add a handwritten tag. Don't overthink the allergies — the welcome is the point."},
+  d:"Wrap it, add a handwritten tag. Don't overthink the allergies, the welcome is the point."},
  {t:'Take a bag and a glove on your walk',l:'Today',s:'An hour',c:'Mother Earth',
   d:'Bolt it onto a walk you were taking anyway. You will be surprised what you find.'},
  {t:'Doughnuts for the vet, surgery or library',l:'Today',s:'An hour',c:'Community helpers',
@@ -1127,19 +1130,19 @@ const IDEAS = [
  {t:'Sponsor a friend’s fundraiser, and say why',l:'Today',s:'An hour',c:'Friends & family',
   d:'Money counts. Adding a sentence about why you gave is what they will remember.'},
  {t:'Write to a teacher who mattered',l:'Today',s:'An hour',c:'Teachers & schools',
-  d:'Yours, or your children’s. Post it — a letter lands differently than a message.'},
+  d:'Yours, or your children’s. Post it, a letter lands differently than a message.'},
  {t:'Leave a review for a small business',l:'Today',s:'An hour',c:'Neighbours',
   d:'Free, takes four minutes, and it is worth real money to somebody local.'},
  {t:"Fill a teacher's classroom wish list",l:'This weekend',s:'A weekend',c:'Teachers & schools',
   d:'Most teachers post one. Split it with a friend and cover a few items each.'},
  {t:'Give blood, or platelets',l:'This weekend',s:'A weekend',c:'Causes & voice',
-  d:'Platelets take about 2 hours — sometimes longer. Bring something to watch.'},
+  d:'Platelets take about 2 hours, sometimes longer. Bring something to watch.'},
  {t:'Cook a meal for someone ill, moving or grieving',l:'This weekend',s:'A weekend',c:'Friends & family',
   d:'Foil tray, reheating instructions taped on. Ask about allergies first.'},
  {t:'Take a shift at a shelter breakfast',l:'This weekend',s:'A weekend',c:'Feed people',
   d:'Early start, warm room. Most places want you back, which is the good part.'},
  {t:'Babysit so someone gets a night off',l:'This weekend',s:'A weekend',c:'Friends & family',
-  d:'Offer a specific date rather than "any time" — that is what makes it happen.'},
+  d:'Offer a specific date rather than "any time", that is what makes it happen.'},
  {t:'Bake treats for an animal shelter',l:'A week or two',s:'A weekend',c:'Animals',
   d:'200 dog biscuits is one afternoon. Bring flowers for the staff too.'},
  {t:'Take flowers to a care home',l:'A week or two',s:'An hour',c:'Elders',
@@ -1275,7 +1278,7 @@ function drawTones(){
    anywhere else it appears):
 
    1. SCRIPT NEVER TOUCHES THE ILLUSTRATION.
-      The script word is the only variable-width part of the lockup — "six" is
+      The script word is the only variable-width part of the lockup, "six" is
       short, "twenty-eight" is more than twice as wide. When the word at its
       normal size would run under the balloon and hand, its font size steps
       down until it fits the space to the left of the artwork. Short words are
@@ -1283,7 +1286,7 @@ function drawTones(){
 
    2. THE STACK CENTRES ON THE SCRIPT.
       "50 / acts of good / in year" is centred on the script word beneath it,
-      not on the panel — because the script is the widest element and the eye
+      not on the panel, because the script is the widest element and the eye
       reads the group as one block hanging off it.
 
    Both are recomputed whenever the number, the word or the width changes.   */
@@ -1413,7 +1416,7 @@ function drawHome(){
   $('p-spend-mine').textContent = money(sp.mine);
 
   $('sug-title').textContent='Teacher Appreciation Week';
-  $('sug-body').textContent='Starts in nine days. A supply-bag act needs about a week — enough time to ask someone to split it with you.';
+  $('sug-body').textContent='Starts in nine days. A supply-bag act needs about a week, enough time to ask someone to split it with you.';
 
   drawMonth();
   drawGrid();
@@ -1424,8 +1427,8 @@ function drawHome(){
 
 /* ── reminders ──────────────────────────────────────────────────────────────
    The alert lives in the phone's own calendar, not in the app. Lead times
-   vary enormously — doughnuts need a day, a bingo hour at a care home needs a
-   fortnight — so the choice is offered rather than assumed. All of them fire
+   vary enormously, doughnuts need a day, a bingo hour at a care home needs a
+   fortnight, so the choice is offered rather than assumed. All of them fire
    at 9am, because an all-day event with a midnight alarm is a wasted alarm. */
 const REMINDERS = [['None','none'],['That morning','0'],['Day before','1'],
                    ['3 days before','3'],['A week before','7']];
@@ -1433,7 +1436,7 @@ const ALARM = { '0':'PT9H', '1':'-PT15H', '3':'-PT63H', '7':'-PT159H' };
 
 /* ── asking someone along ───────────────────────────────────────────────────
    From the starter kit: "Ask. People say yes far more often than you'd think,
-   and asking is itself a kind of good — it gives someone else a way in."
+   and asking is itself a kind of good, it gives someone else a way in."
 
    Act 18 took "a lot of texting between California and Georgia", and act 0
    produced six offers of help that then sat in a comment thread. The ask is
@@ -1471,25 +1474,25 @@ function askDrafts(){
   const per   = periodNoun();
 
   const text =
-    'Hello ' + (a.who.length ? first : 'you') + ' — I’m doing act ' + a.no +
+    'Hello ' + (a.who.length ? first : 'you') + ', I’m doing act ' + a.no +
     ' of ' + S.n + ' ' + when + ': ' + what + '.\n\n' +
-    'Any chance you fancy joining me? Genuinely no pressure if not — ' +
+    'Any chance you fancy joining me? Genuinely no pressure if not, ' +
     'it’s more fun with company, that’s all.' +
     (name ? '\n\n' + name : '');
 
-  const subject = 'Act ' + a.no + ' of ' + S.n + ' — fancy joining me?';
+  const subject = 'Act ' + a.no + ' of ' + S.n + ', fancy joining me?';
   const email =
     'Hello ' + (a.who.length ? first : 'there') + ',\n\n' +
     'I’m doing ' + S.n + ' acts of good over a ' + per + ', and number ' +
     a.no + ' is ' + when + '.\n\n' +
-    '  • What  —  ' + what + '\n' +
-    '  • When  —  ' + (a.d ? longDate(a.d) : 'still deciding') + '\n' +
-    '\nWould you like to come along? No obligation whatsoever — the offer is the\n' +
+    '  • What ,  ' + what + '\n' +
+    '  • When ,  ' + (a.d ? longDate(a.d) : 'still deciding') + '\n' +
+    '\nWould you like to come along? No obligation whatsoever, the offer is the\n' +
     'point, and these things are always better with someone else in them.\n\n' +
     'If this one doesn’t suit, there are ' + Math.max(1, S.n - S.acts.length - 1) +
     ' more to come.\n\n' +
     (name ? name + '\n' : '') +
-    '\n———\n' +
+    '\n- - - - -\n' +
     S.n + ' acts of good' + (S.word ? ' · ' + S.line + ' ' + S.word : '') + '\n';
 
   return { text:text, subject:subject, email:email };
@@ -1498,7 +1501,7 @@ function askDrafts(){
 function openAsk(ctx){
   ASK_CTX = ctx || 'plan';
   const a = askDetails();
-  if(!a.t && !a.d){ say('Not quite yet','Give it a name or a date first — then there’s something to ask about.'); return; }
+  if(!a.t && !a.d){ say('Not quite yet','Give it a name or a date first, then there’s something to ask about.'); return; }
   drawAsk();
   sheet('ask');
 }
@@ -1516,7 +1519,7 @@ function drawAsk(){
     note.textContent = 'Add a date and you can send a calendar invitation too.';
   } else if(known.length && (S.email||'').indexOf('@')>0){
     note.textContent = 'Goes as a proper invitation to ' + listWords(known) +
-      ' — they can accept, and it lands in their calendar.';
+      ', they can accept, and it lands in their calendar.';
   } else if(known.length){
     note.textContent = 'Add your own email under You and ' + listWords(known) +
       ' will be able to accept. Without it, it still attaches as an event they '+
@@ -1540,7 +1543,7 @@ function sendAsk(){
 }
 /* ── sending the invitation ─────────────────────────────────────────────────
    The message is words; the invitation is a file. Attaching the .ics is what
-   turns "are you free on the 12th?" into a tap that puts it in their diary —
+   turns "are you free on the 12th?" into a tap that puts it in their diary,
    and if we know their email it goes as a proper REQUEST, so they get
    Accept / Maybe / Decline rather than a bare event.
 
@@ -1579,8 +1582,8 @@ async function shareInvite(withCard){
 }
 
 /* One copy, both things. The clipboard can hold several flavours of the same
-   content at once, so this writes rich HTML — the card as an embedded image,
-   the note beneath it — plus a plain-text version for anywhere that can't
+   content at once, so this writes rich HTML, the card as an embedded image,
+   the note beneath it, plus a plain-text version for anywhere that can't
    take the rich one. Paste into Mail and it arrives assembled, in the body,
    with nothing to tap. That is the closest thing to a designed email that a
    phone app can honestly produce.                                           */
@@ -1606,7 +1609,7 @@ async function copyBoth(){
         'text/html' : new Blob([html], {type:'text/html'}),
         'text/plain': new Blob([note], {type:'text/plain'})
       })]);
-      say('Copied — card and note together', 'Open Mail, paste, and send. '+
+      say('Copied: card and note together', 'Open Mail, paste, and send. '+
             'The card sits at the top of the message with your words underneath.');
       return;
     }
@@ -1710,7 +1713,7 @@ function drawDate(){
    ends it. Nothing about it is required reading.                            */
 const TAB_TOUR = [
   ['home',   'Everything so far'],
-  ['log',    'Log it, or plan it'],
+  ['log',    'Plan it, log it'],
   ['browse', 'Borrow an idea'],
   ['people', "Who's in it with you"],
   ['you',    'All about you']
@@ -1769,18 +1772,21 @@ function calNudge(){
   const btn=$('calbtn'), tip=$('calnudge');
   if(!btn || !tip) return;
   const r = btn.getBoundingClientRect();
-  if(!r.width || r.top < 0) return;          // not on screen — try another time
+  if(!r.width || r.top < 0) return;          // not on screen, try another time
   S.calNudged = true;                        // session only, never persisted
-  tip.style.left = (r.left + r.width/2) + 'px';
-  tip.style.top  = '0px';
+  /* measure at the left edge first, where nothing squeezes the natural width,
+     then move it over the icon */
+  tip.style.left = '0px'; tip.style.top = '0px';
+  tip.style.transform = 'none';
   tip.classList.remove('hide');
-  /* measure, then keep it fully on screen */
   requestAnimationFrame(()=>{
     const c = tip.getBoundingClientRect();
+    const cx = r.left + r.width/2;
+    tip.style.left = cx + 'px';
     tip.style.top = (r.top - c.height - 10) + 'px';
     let shift = 0;
-    if(c.left < 10) shift = 10 - c.left;
-    if(c.right > window.innerWidth - 10) shift = (window.innerWidth - 10) - c.right;
+    if(cx - c.width/2 < 10) shift = 10 - (cx - c.width/2);
+    if(cx + c.width/2 > window.innerWidth - 10) shift = (window.innerWidth - 10) - (cx + c.width/2);
     tip.style.transform = 'translateX(calc(-50% + '+Math.round(shift)+'px))';
     tip.style.setProperty('--tail', Math.round(-shift)+'px');   // tail keeps pointing at the icon
     tip.classList.add('on');
@@ -1800,7 +1806,7 @@ function endNudge(){
 
 /* ── the month ──────────────────────────────────────────────────────────────
    A year is too long to steer by and a week is too short. A month is how
-   people actually plan — "I'll do a couple in September" — so the year screen
+   people actually plan, "I'll do a couple in September", so the year screen
    says what this month asks of you, and lists what you've already done in it,
    dated. The number in brackets is what's left to keep the year on track, so
    it falls as you go and it accounts for being ahead or behind.             */
@@ -1852,9 +1858,9 @@ function drawMonth(){
       MONTHS_LONG[now.getMonth()]+' yet.</p>';
   }
   html += '<button id="calbtn" onclick="openCal()" aria-label="Month calendar" '+
-    'style="position:absolute;top:16px;right:16px;padding:6px">'+
-    '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" '+
-    'stroke="var(--muted)" stroke-width="1.7">'+
+    'style="position:absolute;top:12px;right:12px;padding:6px">'+
+    '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" '+
+    'stroke="var(--muted)" stroke-width="1.6">'+
     '<rect x="3" y="5" width="18" height="16" rx="2.5"/>'+
     '<path d="M3 10h18M8 3v4M16 3v4"/></svg></button>';
   box.innerHTML = html;
@@ -1975,7 +1981,7 @@ function drawGrid(){
          "what's coming?" as well as "what's done?" */
       t.innerHTML='<span class="tilenum">'+i+'</span>'+
         (pl.d ? '<b class="tilewhen">'+shortDate(pl.d)+'</b>' : '');
-      t.title=[pl.t||'', (pl.who||[]).length?'with '+listWords(pl.who):''].filter(Boolean).join(' — ');
+      t.title=[pl.t||'', (pl.who||[]).length?'with '+listWords(pl.who):''].filter(Boolean).join(', ');
     } else { t.textContent=i; }
 
     /* filtering by a person dims everything they weren't part of */
@@ -2077,7 +2083,7 @@ function savePlan(){
 }
 
 /* ── handing a plan to the phone's calendar ─────────────────────────────────
-   No notifications, no permissions, no background anything — the app writes a
+   No notifications, no permissions, no background anything, the app writes a
    standard .ics event and lets the phone's own calendar own the reminder.
    That keeps the "app you can ignore for three weeks" posture intact: the
    nagging, if any, belongs to a calendar the person already trusts.         */
@@ -2310,14 +2316,14 @@ async function takeFiles(input, list, onChange){
 
 
 /* ── the act tally ────────────────────────────────────────────────────────────────
-   Cost is one number on the log screen — the total agreed. Behind it sits a
+   Cost is one number on the log screen, the total agreed. Behind it sits a
    list you can add to as you buy things, because the spending happens over
    days, before the act is finished.
 
    The field that earns its place is WHO PAID. In the corpus, Ginger bought the
    items for act 3, Holly bought and shipped the gift cards for act 18, act 2's
    supplies were split with a friend. Without it the app would report that an
-   act cost $100 when the person's own share was $30 — and their share is the
+   act cost $100 when the person's own share was $30, and their share is the
    number that decides whether they can keep going. baked4good stopped for two
    and a half years over exactly this.                                        */
 const PAYERS = [['me','I paid'],['split','Split it'],
@@ -2327,7 +2333,7 @@ let SP_WHO = 'me';
 function spendsOf(a){ if(!a.spends) a.spends=[]; return a.spends; }
 
 /* a split can be any number of ways. The names are what the person actually
-   knows — "Ginger and Leigh" — so the count comes from them: everyone named,
+   knows, "Ginger and Leigh", so the count comes from them: everyone named,
    plus you. No names typed means the common case, straight down the middle. */
 function names(sp){
   return (sp.n||'').split(/,| and /).map(x=>x.trim()).filter(Boolean);
@@ -2383,8 +2389,8 @@ function drawSpends(){
     const whoTxt = sp.p==='gave' ? ((nameList(sp)||'someone')+' chipped in')
                  : sp.p==='me' ? 'you paid'
                  : sp.p==='split' ? (nameList(sp) ? 'split with '+nameList(sp)+
-                     ' — '+ways(sp)+' ways, '+money((+sp.a||0)/ways(sp))+' each'
-                     : 'split two ways — '+money((+sp.a||0)/2)+' each')
+                     ', '+ways(sp)+' ways, '+money((+sp.a||0)/ways(sp))+' each'
+                     : 'split two ways, '+money((+sp.a||0)/2)+' each')
                  : ((nameList(sp)||'someone else')+' paid');
     row.innerHTML='<div style="flex:1"><b style="font-size:14.5px">'+label+'</b>'+
       '<div class="note" style="margin:2px 0 0">'+whoTxt+'</div></div>'+
@@ -2434,7 +2440,7 @@ function drawSpends(){
                     n: nm.value };
     const k = ways(draft);
     hint.textContent = draft.a
-      ? k + ' ways — ' + money(draft.a/k) + ' each'
+      ? k + ' ways, ' + money(draft.a/k) + ' each'
       : k + ' ways, counting you';
   }
 
@@ -2446,7 +2452,7 @@ function drawSpends(){
     '<div class="lab" style="margin-top:8px">Your share</div>'+
     '<div class="big" style="color:var(--coral)">'+money(t.mine)+'</div>'+
     (t.over ? '<p class="note" style="margin:6px 0 0">'+money(t.over)+
-              ' more than you spent — worth putting toward the next one.</p>' : '');
+              ' more than you spent, worth putting toward the next one.</p>' : '');
 }
 
 function addSpend(){
@@ -2475,8 +2481,8 @@ function updateSpendNote(){
   if(!btn) return;
   btn.textContent = n ? (n + (n===1?' item':' items')) : 'Keep a tally';
   if(note) note.textContent = n
-    ? 'From your tally — ' + money(tally(currentSpends()).all) + ' spent in all.'
-    : 'One number is fine. Or keep a tally as you buy things — it adds up your share for you.';
+    ? 'From your tally, ' + money(tally(currentSpends()).all) + ' spent in all.'
+    : 'One number is fine. Or keep a tally as you buy things. It adds up your share for you.';
 }
 
 /* what the whole year has cost, for the Progress screen */
@@ -2547,7 +2553,7 @@ function logMode(){
 
 function saveAct(writeNow){
   const title=$('l-title').value.trim();
-  if(!title){ say('It needs a title','Everything else can wait — that bit can’t.'); return; }
+  if(!title){ say('It needs a title','Everything else can wait. That bit can’t.'); return; }
 
   /* future date → this is a plan, not a diary entry */
   if(isFuture($('l-when').value)){
@@ -2576,7 +2582,7 @@ function saveAct(writeNow){
 
 /* ── the follow-up ──────────────────────────────────────────────────────────
    How it went is a past-tense question. Asking it on the form, before the act
-   has happened, was always slightly wrong — so it moved here, to the moment
+   has happened, was always slightly wrong, so it moved here, to the moment
    after you press Complete.                                                 */
 function drawDone(){
   const a=S.current||{}; if(!a.out) a.out='Went to plan';
@@ -2623,14 +2629,14 @@ function drawCard(){
 }
 
 /* The card is slide 1; the photos are the slides after it, in order. Same
-   sequence she posts in — card first, then the act. */
+   sequence she posts in, card first, then the act. */
 function drawSlides(a){
   const box=$('slides'); if(!box) return;
   box.innerHTML='';
   const ph=(a.photos||[]);
   if(!ph.length){
     box.innerHTML='<p class="note">No photos on this act yet. The card posts on its '+
-      'own — or add some and they become the slides after it.</p>';
+      'own, or add some and they become the slides after it.</p>';
     return;
   }
   box.innerHTML='<p class="note" style="margin:0 0 8px">Then '+ph.length+
@@ -2653,13 +2659,13 @@ function drawSlides(a){
 /* ── the composer ───────────────────────────────────────────────────────────
    Designed from act 18, the only act we have in two lengths. What it showed:
 
-   1. She did NOT truncate — she rewrote. So this never chops from the bottom.
+   1. She did NOT truncate, she rewrote. So this never chops from the bottom.
    2. She cut about a third of the words and NONE of the credits. Every person
       and business survived into the Instagram version. So a line carrying a
       tagged name is protected, and only connective tissue is offered for
       cutting. If it still won't fit with every credit in, the app says so out
       loud rather than quietly dropping someone.
-   3. The same person needs a different identifier per platform — Holly is
+   3. The same person needs a different identifier per platform, Holly is
       "Holly Williams" on Facebook and @hollyyoungwilliamsarchitect on
       Instagram. That can't be derived, so it comes from the People directory.
    4. Whitespace costs characters. Facebook is set in short paragraphs;
@@ -2705,7 +2711,7 @@ function buildCaption(force){
   if(tags.length) lines.push('With '+listWords(tags)+'.');
 
   const t = tally(a.spends||[]);
-  if(t.given) lines.push('');   // (kept deliberately blank — costs are private)
+  if(t.given) lines.push('');   // (kept deliberately blank, costs are private)
 
   lines.push(defaultHashtag());
   a.captions[CM_PLAT] = lines.filter((l,i)=>l!=='' || i===0).join('\n\n');
@@ -2739,7 +2745,7 @@ function drawCompose(){
   });
   if(!a.captions || !a.captions[CM_PLAT]){ buildCaption(true); return; }
   $('cm-text').value = a.captions[CM_PLAT];
-  $('cm-label').textContent = '— for ' + PLATS.filter(([k])=>k===CM_PLAT)[0][1];
+  $('cm-label').textContent = ', for ' + PLATS.filter(([k])=>k===CM_PLAT)[0][1];
   $('cm-open').textContent = 'Open ' + PLATS.filter(([k])=>k===CM_PLAT)[0][1];
 
   /* tagging: who's named, whether we have their handle for this platform */
@@ -2754,7 +2760,7 @@ function drawCompose(){
         'border-bottom:1px solid var(--line)';
       row.innerHTML='<div style="flex:1"><b style="font-size:14.5px">'+t.name+'</b>'+
         '<div class="note" style="margin:2px 0 0">'+
-        (t.tag ? 'tagged as '+t.tag : 'no handle for this one — written as a name')+
+        (t.tag ? 'tagged as '+t.tag : 'no handle for this one, written as a name')+
         '</div></div>';
       if(!t.tag){
         const b=document.createElement('button');
@@ -2795,7 +2801,7 @@ function drawFit(){
 
   if(!cuttable.length){
     box.innerHTML='<p class="note" style="color:var(--coral)"><b>Every paragraph '+
-      'names someone.</b> Nothing here can be cut without dropping a credit — '+
+      'names someone.</b> Nothing here can be cut without dropping a credit, '+
       'shorten the wording by hand instead, or post this one to '+
       'Facebook where it fits.</p>';
     return;
@@ -2856,7 +2862,7 @@ function openApp(){
    he gave and she didn't. It went up with the number crossed out and 2.5
    written in pen.
 
-   So this isn't a drawing tool. It's one decision — "it only half happened" —
+   So this isn't a drawing tool. It's one decision, "it only half happened",
    and the card does the crossing out for you. A free scribble layer would let
    you write anything; what's actually needed is the half.                    */
 function halfNo(n){ return (Math.floor(parseFloat(n)) - 0.5).toString(); }
@@ -2886,20 +2892,20 @@ function drawActNo(a){
   const b = $('mk-btn');
   if(b) b.textContent = a.half
     ? 'Put it back to act ' + wholeNo(a.no)
-    : 'Mark to ' + halfNo(a.no) + ' — as half an act';
+    : 'Mark to ' + halfNo(a.no) + ', as half an act';
 }
 
 
 
 /* ── the invitation card ────────────────────────────────────────────────────
-   A web app can't compose an HTML email — mailto carries plain text and
+   A web app can't compose an HTML email, mailto carries plain text and
    nothing else. So instead of a styled email, the app draws a proper
    invitation and attaches it as a picture. Mail and Messages preview an
    attached image inline, so what the person sees when they open the message
    IS the designed thing. It also survives being forwarded, screenshotted, or
    opened on a laptop, which an HTML email frequently doesn't.
 
-   Portrait 1080×1350 — the shape both Instagram and Mail preview best.      */
+   Portrait 1080×1350, the shape both Instagram and Mail preview best.      */
 function wrapLines(g, text, maxW){
   const words = (text||'').split(/\s+/).filter(Boolean), out=[];
   let line='';
@@ -2983,7 +2989,7 @@ async function renderInvite(a){
   /* the warm bit */
   g.font='400 '+(3.4*k)+'px "Montserrat", sans-serif';
   g.fillStyle=ink;
-  const warm = wrapLines(g, 'Come along if you’d like to. No pressure at all — '+
+  const warm = wrapLines(g, 'Come along if you’d like to. No pressure at all, '+
                             'these things are simply nicer with company.', W-24*k);
   warm.forEach(l=>{ g.fillText(l, centre(l), y); y += 5*k; });
 
@@ -3016,7 +3022,7 @@ function inviteBlob(a){
 
 /* ── rendering the card ─────────────────────────────────────────────────────
    The card on screen is HTML; this draws the same thing onto a canvas so it
-   can leave the app as a picture — attached to an invitation, saved to the
+   can leave the app as a picture, attached to an invitation, saved to the
    camera roll, or posted. Every number here is the same parameter the CSS
    uses, expressed as a percentage of the card's width, so the two cannot
    drift apart.                                                              */
@@ -3061,7 +3067,7 @@ async function renderCard(a, W){
   const scrTxt = S.word || '';
 
   /* the same fit as the screen: shrink only if it can't fit, then centre the
-     whole object — type and artwork together — inside the margins */
+     whole object, type and artwork together, inside the margins */
   let scrSize = CARD.scrSize;
   let scrW = scrTxt ? widthOf(scrTxt, f(scrSize, '', 'Great Vibes')) : 0;
   const maxText = (100 - MARK_INSET*200) - (ART_INK_W - OVERLAP)*100;
@@ -3142,7 +3148,7 @@ function cardBlob(a, W){
 /* ── do it again ────────────────────────────────────────────────────────────
    Act 5 → act 12 → Autumn Bingo in October is the same act three times, and
    act 4 → act 15 is the same breakfast twice. She rebuilds them by hand. This
-   copies what's reusable — the title, the people, what it cost — and leaves the
+   copies what's reusable, the title, the people, what it cost, and leaves the
    story, photos and outcome blank, because those belong to the day it happens. */
 function doItAgain(){
   const a = S.current || S.acts[S.acts.length-1];
@@ -3161,8 +3167,8 @@ function doItAgain(){
 /* ── browse ────────────────────────────────────────────────────────────────
    The same three ideas at the top every time you open the app teaches you
    there is nothing else in here. So the order is shuffled once per session:
-   stable while you are looking — scroll away and come back and it hasn't
-   moved — and different the next time you open it. Anything you have already
+   stable while you are looking, scroll away and come back and it hasn't
+   moved, and different the next time you open it. Anything you have already
    done or shortlisted sinks to the bottom rather than disappearing, because
    "do it again" is a real thing.                                            */
 let IDEA_SEED = Math.floor(Math.random()*100000) + 1;
@@ -3239,15 +3245,15 @@ function drawYou(){
   const per = S.weeks===52?'a year':S.weeks===26?'half a year':'a summer';
   $('you-seth').textContent = 'Your ' + periodNoun();
   $('v-n').textContent = S.n+' acts over '+per+' · '+humanCadence(Math.round(S.weeks*7/S.n));
-  $('v-reason').textContent = (S.line+' '+(S.word||'—')).trim();
+  $('v-reason').textContent = (S.line+' '+(S.word||'…')).trim();
   $('v-name').textContent = S.name || 'Not set';
   $('v-bday').textContent = S.bday
     ? MONTHS[parseInt(S.bday.slice(5,7),10)-1]+' '+S.bday.slice(0,4)+
       ' · year '+(ORD[ageTurning(S.bday)]||ageTurning(S.bday))
-    : 'Not set — your card says "in year …"';
+    : 'Not set, your card says "in year …"';
   $('v-why').textContent = S.why || 'Not set';
   $('storagenote').textContent = _storageOK
-    ? 'Everything is saved on this phone — your acts, photos and settings. Nothing leaves it.'
+    ? 'Everything is saved on this phone, your acts, photos and settings. Nothing leaves it.'
     : 'Storage is unavailable in this browser, so nothing will be remembered after you close it.';
   $('v-tone').textContent = S.tone
     ? S.tone.replace('-',' ').replace(/^./,c=>c.toUpperCase())
@@ -3289,7 +3295,7 @@ function drawTodo(){
 
 /* ── setup sheets ── */
 /* iOS keeps the scroll position when a full-screen step swaps out beneath a
-   sheet, so the next screen can open already scrolled — putting the lockup
+   sheet, so the next screen can open already scrolled, putting the lockup
    under the status bar. Every transition starts at the top. */
 function toTop(){ window.scrollTo(0,0); document.documentElement.scrollTop=0; }
 
@@ -3331,7 +3337,7 @@ function sheet(which){
   if(which==='helpers') drawHelpers();
   if(which==='cal') drawCal();
   if(which==='done') drawDone();
-  if(!which){ toTop(); setTimeout(tourIfVisible, 260); }  // sheet closed — is the picker showing?
+  if(!which){ toTop(); setTimeout(tourIfVisible, 260); }  // sheet closed, is the picker showing?
 }
 const PLATS=[['instagram','Instagram','@you'],['facebook','Facebook','Your name'],
              ['threads','Threads','@you'],['x','X','@you']];
@@ -3364,7 +3370,7 @@ function saveYou(){
 function finishSetup(){
   sheet(null); save();
   if($('tabs').classList.contains('hide')) startYear();
-  else { drawYou(); drawTodo(); }      // reopened later from You — just save
+  else { drawYou(); drawTodo(); }      // reopened later from You, just save
 }
 
 /* ── nav ── */
@@ -3373,7 +3379,7 @@ function go(v){
   VIEWS.forEach(x=>$('s-'+x).classList.add('hide'));
   $('s-'+v).classList.remove('hide');
   toTop();
-  fitAllMarks();        // hidden elements measure zero — refit once visible
+  fitAllMarks();        // hidden elements measure zero, refit once visible
   if(v==='setup'){ drawSetup(); setTimeout(tourIfVisible, 260); }
   if(v==='home'){ drawHome(); drawTodo(); setTimeout(tabTour, 260); }
   if(v==='you')    drawYou();
@@ -3387,7 +3393,7 @@ function go(v){
 }
 
 /* Two selects instead of a date picker. iOS ignores min/max on <input type=date>
-   — you can scroll past the limits. With selects, out-of-range simply doesn't
+  , you can scroll past the limits. With selects, out-of-range simply doesn't
    exist. The day of the month is never used, so we don't ask for it. */
 const MONTHS=['January','February','March','April','May','June',
               'July','August','September','October','November','December'];
@@ -3451,8 +3457,8 @@ function onBdayChange(){
   const hint=$('bday-hint');
   const a = S.bday ? ageTurning(S.bday) : null;
   hint.textContent = a
-    ? "You're in year " + (ORD[a]||a) + " — that's the word on your card. Change it if you like."
-    : "Used to work out which year you're marking — that's the word on your card.";
+    ? "You're in year " + (ORD[a]||a) + ", that's the word on your card. Change it if you like."
+    : "Used to work out which year you're marking. That's the word on your card.";
 }
 $('l-file').addEventListener('change', ()=>takeFiles($('l-file'), S.newPhotos, drawLog));
 $('w-file').addEventListener('change', ()=>{
