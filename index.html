@@ -145,9 +145,16 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
 .chips.scrollrow .chip{flex:none;white-space:nowrap}
 .tlink{color:var(--coral);text-decoration:none;border-bottom:1px solid var(--coral);
   font-weight:500}
-.datebtn{width:100%;text-align:left;padding:13px 15px;border:1.5px solid var(--line);
+.datebtn{width:100%;text-align:left;padding:13px 60px 13px 15px;
+  border:1.5px solid var(--line);
   border-radius:12px;background:var(--paper);font-size:15.5px;font-weight:500;
-  font-family:inherit;color:var(--ink)}
+  font-family:inherit;color:var(--ink);white-space:nowrap;overflow:hidden;
+  text-overflow:ellipsis}
+/* the calendar sits inside the field, on the right, and opens the month */
+.datewrap{position:relative}
+.datewrap .calgo{position:absolute;right:8px;top:50%;transform:translateY(-50%);
+  padding:5px;line-height:0;border-radius:9px}
+.datewrap .calgo svg{display:block}
 .datebtn.empty{color:#B9B2A9;font-weight:400}
 /* the half — her act 2.5 treatment, measured off the card */
 .struck{position:relative;display:inline-block}
@@ -280,6 +287,19 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
   padding:8px 12px;border-radius:13px;max-width:132px;
   box-shadow:0 4px 14px rgba(0,0,0,.18);opacity:0;transition:opacity .35s}
 #tourball.on .tb-cap{opacity:1}
+/* the calendar icon is easy to miss, so once the tab tour has finished it
+   breathes a few times and says what it's for */
+@keyframes calbreathe{0%,100%{transform:scale(1)}50%{transform:scale(1.3)}}
+#calbtn.breathe svg{animation:calbreathe 2.2s ease-in-out 3;transform-origin:50% 50%}
+#calnudge{position:fixed;z-index:45;background:var(--ink);color:#fff;
+  font-size:12.5px;font-weight:600;line-height:1.25;text-align:center;
+  padding:8px 12px;border-radius:13px;width:172px;pointer-events:none;
+  box-shadow:0 4px 14px rgba(0,0,0,.18);opacity:0;transition:opacity .4s;
+  transform:translateX(-50%);top:0;left:0}
+#calnudge.on{opacity:1}
+#calnudge::after{content:"";position:absolute;top:100%;
+  left:calc(50% + var(--tail,0px));
+  transform:translateX(-50%);border:6px solid transparent;border-top-color:var(--ink)}
 .hide{display:none!important}
 .ph{font-size:10.5px;color:#B9B2A9;text-align:center;margin-top:10px;letter-spacing:.04em}
 .counter{font-size:12px;color:var(--muted);display:flex;justify-content:space-between;
@@ -469,6 +489,8 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
 </div></div>
 
 <!-- ══ DIALOG — our own ask / tell / check, so nothing iOS-grey appears ══ -->
+<div id="calnudge" class="hide">Pick a day &mdash; plan an act</div>
+
 <div class="sheet hide" id="dlg" style="align-items:center">
   <div class="panel" id="dlg-panel" style="border-radius:18px;max-width:400px;
     width:calc(100% - 40px);padding:24px 22px">
@@ -554,7 +576,10 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
     <div class="chips scrollrow" id="pl-slot"></div></div>
   <div class="field"><label>When? (optional)</label>
     <input id="pl-when" type="hidden">
-    <button class="datebtn" id="pl-when-btn" onclick="openDate('pl-when')"></button></div>
+    <div class="datewrap">
+      <button class="datebtn" id="pl-when-btn" onclick="openDate('pl-when')"></button>
+      <button class="calgo" onclick="openCal()" aria-label="Month calendar"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="1.5"><rect x="3" y="5" width="18" height="16" rx="2.5"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></button>
+    </div></div>
   <div class="field"><label>Who's coming?</label>
     <div class="chips" id="pl-who"></div>
     <p class="note" style="margin-top:8px">Tap anyone who's in on it. New names go in
@@ -588,7 +613,10 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
 
     <div class="field"><label>When?</label>
       <input id="l-when" type="hidden">
-      <button class="datebtn" id="l-when-btn" onclick="openDate('l-when')"></button>
+      <div class="datewrap">
+        <button class="datebtn" id="l-when-btn" onclick="openDate('l-when')"></button>
+        <button class="calgo" onclick="openCal()" aria-label="Month calendar"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="1.5"><rect x="3" y="5" width="18" height="16" rx="2.5"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></button>
+      </div>
       <div style="display:flex;gap:10px;margin-top:10px">
         <button class="btn mini ghost" style="margin:0" onclick="actToCalendar()">
           Add to my phone calendar</button>
@@ -1615,10 +1643,18 @@ function longDate(iso){
   const p=iso.split('-');
   return +p[2]+' '+MONTHS_LONG[+p[1]-1]+' '+p[0];
 }
+/* "20 September '26" — on a button the century is never in doubt, and those
+   two characters are what keep the longest months on one line beside the
+   calendar icon. Invitations and messages keep the full year. */
+function fieldDate(iso){
+  if(!iso) return 'Pick a date';
+  const p=iso.split('-');
+  return +p[2]+' '+MONTHS_LONG[+p[1]-1]+' \u2019'+p[0].slice(2);
+}
 function syncDateBtn(id){
   const b=$(id+'-btn'); if(!b) return;
   const v=$(id).value;
-  b.textContent = v ? longDate(v) : 'Pick a date';
+  b.textContent = v ? fieldDate(v) : 'Pick a date';
   b.classList.toggle('empty', !v);
 }
 function openDate(id){
@@ -1719,6 +1755,47 @@ function endTabTour(){
   if(!ball) return;
   ball.classList.remove('on');
   setTimeout(()=>ball.classList.add('hide'), 350);
+  setTimeout(calNudge, 700);
+}
+
+/* ── the calendar nudge ─────────────────────────────────────────────────────
+   A 20px outline icon in the corner of a card is the easiest thing in the app
+   to miss, and it's the door to the whole planning half of the year. So once
+   the tab tour has bowed out, it breathes three times and says what's behind
+   it. Once per session, and it gives up the moment you touch anything.     */
+let NUDGE_T = [];
+function calNudge(){
+  if(S.calNudged) return;
+  const btn=$('calbtn'), tip=$('calnudge');
+  if(!btn || !tip) return;
+  const r = btn.getBoundingClientRect();
+  if(!r.width || r.top < 0) return;          // not on screen — try another time
+  S.calNudged = true;                        // session only, never persisted
+  tip.style.left = (r.left + r.width/2) + 'px';
+  tip.style.top  = '0px';
+  tip.classList.remove('hide');
+  /* measure, then keep it fully on screen */
+  requestAnimationFrame(()=>{
+    const c = tip.getBoundingClientRect();
+    tip.style.top = (r.top - c.height - 10) + 'px';
+    let shift = 0;
+    if(c.left < 10) shift = 10 - c.left;
+    if(c.right > window.innerWidth - 10) shift = (window.innerWidth - 10) - c.right;
+    tip.style.transform = 'translateX(calc(-50% + '+Math.round(shift)+'px))';
+    tip.style.setProperty('--tail', Math.round(-shift)+'px');   // tail keeps pointing at the icon
+    tip.classList.add('on');
+    btn.classList.add('breathe');
+  });
+  NUDGE_T.push(setTimeout(endNudge, 6600));
+  document.addEventListener('pointerdown', endNudge, { once:true });
+}
+function endNudge(){
+  NUDGE_T.forEach(clearTimeout); NUDGE_T=[];
+  const btn=$('calbtn'), tip=$('calnudge');
+  if(btn) btn.classList.remove('breathe');
+  if(!tip) return;
+  tip.classList.remove('on');
+  setTimeout(()=>tip.classList.add('hide'), 420);
 }
 
 /* ── the month ──────────────────────────────────────────────────────────────
@@ -1774,7 +1851,7 @@ function drawMonth(){
     html += '<p class="note" style="margin:6px 0 0">Nothing logged in '+
       MONTHS_LONG[now.getMonth()]+' yet.</p>';
   }
-  html += '<button onclick="openCal()" aria-label="Month calendar" '+
+  html += '<button id="calbtn" onclick="openCal()" aria-label="Month calendar" '+
     'style="position:absolute;top:16px;right:16px;padding:6px">'+
     '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" '+
     'stroke="var(--muted)" stroke-width="1.7">'+
@@ -2113,6 +2190,13 @@ function drawPeople(){
     d.onclick=()=>openPerson(name);
     box.appendChild(d);
   });
+  if(list.length>2){
+    const more=document.createElement('p');
+    more.className='note'; more.style.textAlign='center'; more.style.marginTop='4px';
+    more.innerHTML='<a class="tlink" href="#" onclick="reshuffle();return false">'+
+      'Shuffle these</a>';
+    box.appendChild(more);
+  }
 }
 /* Handles are stored per person, per platform, because they don't match:
    Holly is "Holly Williams" on Facebook and @hollyyoungwilliamsarchitect on
@@ -3074,13 +3158,37 @@ function doItAgain(){
   drawLog(); updateSpendNote();
 }
 
-/* ── browse ── */
+/* ── browse ────────────────────────────────────────────────────────────────
+   The same three ideas at the top every time you open the app teaches you
+   there is nothing else in here. So the order is shuffled once per session:
+   stable while you are looking — scroll away and come back and it hasn't
+   moved — and different the next time you open it. Anything you have already
+   done or shortlisted sinks to the bottom rather than disappearing, because
+   "do it again" is a real thing.                                            */
+let IDEA_SEED = Math.floor(Math.random()*100000) + 1;
+function ideaRank(i){
+  /* a cheap deterministic hash of title × seed — same order all session */
+  let h = IDEA_SEED;
+  const t = i.t;
+  for(let k=0;k<t.length;k++){ h = (h*31 + t.charCodeAt(k)) % 1000003; }
+  return h;
+}
+function ideaUsed(i){
+  const t=i.t.toLowerCase();
+  if(S.acts.some(a=>(a.t||'').toLowerCase()===t)) return true;
+  return Object.keys(S.plans||{}).some(k=>((S.plans[k]||{}).t||'').toLowerCase()===t);
+}
+function reshuffle(){ IDEA_SEED = Math.floor(Math.random()*100000)+1; drawBrowse(); }
+
 function drawBrowse(){
   chips($('leadchips'),LEADS,()=>S.lead,v=>{S.lead=v;drawBrowse();});
   chips($('catchips'),CATS,()=>S.cat||'Anything',v=>{S.cat=v;drawBrowse();});
   const box=$('ideas'); box.innerHTML='';
   const cat=S.cat||'Anything';
-  const list=IDEAS.filter(i=>i.l===S.lead && (cat==='Anything'||i.c===cat));
+  const list=IDEAS.filter(i=>i.l===S.lead && (cat==='Anything'||i.c===cat))
+    .map(i=>({i:i, used:ideaUsed(i), r:ideaRank(i)}))
+    .sort((a,b)=> (a.used?1:0)-(b.used?1:0) || a.r-b.r)
+    .map(x=>x.i);
   /* keep the chosen category visible in the scroll row */
   const sel=[...$('catchips').children].find(c=>c.classList.contains('on'));
   if(sel && sel.scrollIntoView) sel.scrollIntoView({block:'nearest',inline:'center'});
@@ -3117,6 +3225,13 @@ function drawBrowse(){
     };
     box.appendChild(d);
   });
+  if(list.length>2){
+    const more=document.createElement('p');
+    more.className='note'; more.style.textAlign='center'; more.style.marginTop='4px';
+    more.innerHTML='<a class="tlink" href="#" onclick="reshuffle();return false">'+
+      'Shuffle these</a>';
+    box.appendChild(more);
+  }
 }
 
 /* ── You screen ── */
