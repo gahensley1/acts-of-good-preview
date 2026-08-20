@@ -1526,7 +1526,7 @@ async function copyBoth(){
       const r = new FileReader(); r.onload = ()=>res(r.result); r.readAsDataURL(blob);
     });
     const html =
-      '<div style="font-family:-apple-system,Helvetica,Arial,sans-serif;font-size:15px;'+
+      '<div style="font-family:-apple-system,Helvetica,Arial,sans-serif;font-size:17px;'+
       'line-height:1.5;color:#231F1B">' +
       '<img src="' + dataUrl + '" alt="You are invited" ' +
       'style="width:100%;max-width:420px;height:auto;display:block;margin:0 0 16px">' +
@@ -2760,6 +2760,7 @@ async function renderInvite(a){
     try{ await Promise.all([
       document.fonts.load('800 100px Montserrat'), document.fonts.load('700 100px Montserrat'),
       document.fonts.load('500 100px Montserrat'), document.fonts.load('400 100px Montserrat'),
+      document.fonts.load('600 100px Montserrat'),
       document.fonts.load('400 100px "Great Vibes"')]); await document.fonts.ready; }catch(e){}
   }
   const css = n => getComputedStyle(document.body).getPropertyValue(n).trim();
@@ -2826,23 +2827,25 @@ async function renderInvite(a){
   warm.forEach(l=>{ g.fillText(l, centre(l), y); y += 5*k; });
 
   /* the mark, small, at the foot */
-  const footY = H - 12*k;
-  g.strokeStyle=ink; g.globalAlpha=.25; g.lineWidth=1.5;
-  g.beginPath(); g.moveTo(34*k, footY-7*k); g.lineTo(66*k, footY-7*k); g.stroke();
+  const footY = H - 21*k;
+  g.strokeStyle=ink; g.globalAlpha=.25; g.lineWidth=2;
+  g.beginPath(); g.moveTo(24*k, footY-13*k); g.lineTo(76*k, footY-13*k); g.stroke();
   g.globalAlpha=1;
-  g.font='700 '+(3.2*k)+'px "Montserrat", sans-serif';
+  g.font='700 '+(6*k)+'px "Montserrat", sans-serif';
   g.fillStyle=gold;
   const nline = String(S.n);
-  g.fillText(nline, centre(nline), footY-2*k);
-  g.font='600 '+(2.2*k)+'px "Montserrat", sans-serif';
+  g.fillText(nline, centre(nline), footY-3.6*k);
+  g.font='600 '+(4*k)+'px "Montserrat", sans-serif';
   g.fillStyle=ink;
   const aog='acts of good';
-  g.fillText(aog, centre(aog), footY+1.6*k);
+  g.fillText(aog, centre(aog), footY+3*k);
   if(S.word){
-    g.font='400 '+(3.4*k)+'px "Great Vibes", cursive';
-    g.fillStyle=gscr;
+    let fs = 6.4;
     const w2 = (S.line?S.line+' ':'')+S.word;
-    g.fillText(w2, centre(w2), footY+6*k);
+    do{ g.font='400 '+(fs*k)+'px "Great Vibes", cursive';
+        if(g.measureText(w2).width <= W-30*k) break; fs -= .3; } while(fs>3);
+    g.fillStyle=gscr;
+    g.fillText(w2, centre(w2), footY+12*k);
   }
   return c;
 }
