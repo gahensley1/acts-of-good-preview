@@ -284,15 +284,22 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
 #tourball .tb-cap{position:absolute;bottom:100%;left:50%;transform:translateX(-50%);
   margin-bottom:8px;background:var(--ink);color:#fff;
   font-size:12.5px;font-weight:600;line-height:1.25;text-align:center;
-  padding:8px 12px;border-radius:13px;max-width:132px;
+  padding:8px 12px;border-radius:13px;width:max-content;max-width:150px;
   box-shadow:0 4px 14px rgba(0,0,0,.18);opacity:0;transition:opacity .35s}
 #tourball.on .tb-cap{opacity:1}
 /* the calendar icon is easy to miss, so once the tab tour has finished it
    breathes a few times and says what it's for */
-@keyframes calbreathe{0%,100%{transform:scale(1)}
-  18%{transform:scale(1.85)}42%{transform:scale(1.15)}60%{transform:scale(1.6)}}
-#calbtn.breathe svg{animation:calbreathe 2.6s ease-in-out 3;transform-origin:50% 50%;
-  stroke:var(--coral)}
+/* a real heartbeat: lub, dub, rest. It always returns to rest before the
+   animation ends, so nothing is ever cut off mid-swell. */
+@keyframes calbreathe{
+  0%{transform:scale(1)}
+  9%{transform:scale(1.8)}
+  18%{transform:scale(1.12)}
+  27%{transform:scale(1.55)}
+  40%{transform:scale(1)}
+  100%{transform:scale(1)}}
+#calbtn.breathe svg{animation:calbreathe 2.4s cubic-bezier(.34,.6,.3,1) 3;
+  transform-origin:50% 50%}
 #calnudge{position:fixed;z-index:45;background:var(--ink);color:#fff;
   font-size:12.5px;font-weight:600;line-height:1.25;text-align:center;
   padding:8px 12px;border-radius:13px;width:max-content;max-width:150px;
@@ -1395,6 +1402,136 @@ function startYear(){
   go('home');
 }
 
+/* ── what is worth doing about now ─────────────────────────────────────────
+   The card used to say "Teacher Appreciation Week, in nine days" whoever you
+   were and whenever you opened it, which is worse than saying nothing: it is
+   a promise of timeliness that the app was not keeping.
+
+   Two things drive it now. OCCASIONS are dated, so the app can work out how
+   far away each one is and say so truthfully. QUIET months are the opposite
+   and the more useful half: Thanksgiving and Christmas shifts are full by
+   early November, while January, July and August are when every organisation
+   is desperate. An app that only shouts about December teaches the wrong
+   lesson, so the quiet nudges are in the same rotation as the occasions.
+
+   The pick rotates per session, like the ideas do: the nearest occasion is
+   always a candidate, but so is anything else within the next six weeks and
+   the nudge for the month you are in, and which one you see changes each
+   time you open the app.                                                    */
+/* floating dates, worked out rather than hardcoded, so the app is still right
+   in 2030: nth(month, weekday, n) is "the nth <weekday> of <month>" */
+function nth(y, m, wd, n){
+  const d=new Date(y, m, 1);
+  d.setDate(1 + ((wd - d.getDay() + 7) % 7) + (n-1)*7);
+  return d;
+}
+function lastWeek(y, m, wd, n){ return nth(y, m, wd, n); }
+/* first FULL week of May starts on the first Sunday */
+const FLOATERS = [
+  {f:y=>nth(y,0,1,3),  t:'Martin Luther King Jr. Day of Service',
+   b:'The one national holiday that asks for a day on, not a day off. Projects are listed weeks ahead and most still need hands.'},
+  {f:y=>nth(y,3,0,3),  t:'National Volunteer Week',
+   b:'Third full week of April. If you have been meaning to ask an organisation how to help, this is the week they are ready to answer.'},
+  {f:y=>nth(y,4,0,1),  t:'Teacher Appreciation Week',
+   b:'First full week of May. Ask a teacher for their classroom wish list and buy the boring things on it, the ones nobody funds.'},
+  {f:y=>nth(y,7,2,1),  t:'National Night Out',
+   b:'First Tuesday of August. A block gathering where you introduce two neighbours who have lived beside each other for years.'},
+  {f:y=>nth(y,9,6,4),  t:'Make a Difference Day',
+   b:'Fourth Saturday of October. Built for exactly this: one day, one act, done alongside other people doing the same.'},
+  {f:y=>{const th=nth(y,10,4,4); const g=new Date(th); g.setDate(th.getDate()+5); return g;},
+   t:'Giving Tuesday',
+   b:'The Tuesday after Thanksgiving. Give where you already know the people, and say why. A named reason travels further than the money.'},
+  {f:y=>{const th=nth(y,10,4,4); const p=new Date(th); p.setDate(th.getDate()-1); return p;},
+   t:'The prep shift, not the day',
+   b:'Thanksgiving Day shifts filled weeks ago. The day before is chopping, hauling and setting out chairs, and it is always short.'},
+  {f:y=>nth(y,11,6,2), t:'Wreaths Across America',
+   b:'Second Saturday of December. An hour in a cold cemetery, laying wreaths and reading names aloud. Sponsorships close in November.'}
+];
+const OCCASIONS = [
+  {m:0,  d:1,  t:'National Blood Donor Month',
+   b:'January is when supply collapses and stays collapsed. Platelets take about two hours. Bring something to watch.'},
+  {m:2,  d:2,  t:'Read Across America Day',
+   b:'2 March. Offer an hour of reading aloud to a class, or fill a school library\u2019s wish list of the books children actually ask for.'},
+  {m:5,  d:14, t:'World Blood Donor Day',
+   b:'14 June. Summer is the worst shortage of the year, because the regulars are all on holiday.'},
+  {m:5,  d:19, t:'Juneteenth',
+   b:'Look for what is already being organised locally and turn up to help with it, rather than starting something of your own.'},
+  {m:8,  d:11, t:'9/11 Day of Service',
+   b:'The largest day of charitable service in the country. Meal-packing events take anyone, including children.'},
+  {m:8,  d:1,  t:'Hunger Action Month',
+   b:'September, when food banks ask outright. A standing monthly order is worth more to them than a December carload.'},
+  {m:1,  d:17, t:'Random Acts of Kindness Day',
+   b:'Five handwritten notes, a school lunch balance cleared, blankets to an animal shelter. Nothing here needs planning.'},
+  {m:2,  d:1,  t:'Background checks take weeks',
+   b:'Anything involving children, hospitals or care homes needs clearing first. Apply in March and you can say yes all year.'},
+  {m:3,  d:22, t:'Earth Day',
+   b:'A litter pick bolted onto a walk you were taking anyway. Or coffee for the unpaid staff at a conservation charity.'},
+  {m:4,  d:1,  t:'Teacher Appreciation Week',
+   b:'First full week of May. Ask a teacher for their classroom wish list and buy the boring things on it, the ones nobody funds.'},
+  {m:4,  d:6,  t:'Nurses Week',
+   b:'6 to 12 May. Coffee for the night shift, sealed and arranged through the nurse manager. Nights are the ones nobody thanks.'},
+  {m:5,  d:1,  t:'Camp season',
+   b:'Camp fees and places are decided now. A place funded in June is a summer someone else could not have paid for.'},
+  {m:6,  d:1,  t:'The food bank trough',
+   b:'School holidays are the demand peak and the donation low. July giving is worth more than December giving.'},
+  {m:7,  d:1,  t:'Back to school',
+   b:'Use the school\u2019s own supply list, or ring the school nurse and ask what sizes the clothing closet is short of.'},
+  {m:8,  d:1,  t:'New term',
+   b:'Literacy tutor intakes open now, and care homes are matching residents who get no visitors. Both want a term, not a day.'},
+  {m:9,  d:28, t:'First Responders Day',
+   b:'Pastries to a station, rung through on the non\u2011emergency line first. Also: winter shelters recruit now, not in December.'},
+  {m:10, d:13, t:'World Kindness Day',
+   b:'And Veterans Day on the 11th. Recording one veteran\u2019s story costs an afternoon and outlasts everyone in the room.'},
+  {m:11, d:15, t:'The unglamorous half of Christmas',
+   b:'Everyone wants the toy drive. Four hours of childcare for someone who cannot buy it, or a wrapping shift, is the ask nobody makes.'},
+  {m:11, d:1,  t:'The card round',
+   b:'A Christmas card to every flat in a sheltered housing block. Or four hours of childcare for someone who cannot buy it.'}
+];
+const QUIET = [
+  {m:0, t:'January is the desperate month',
+   b:'The volunteers left on 2 January and the donations stopped with them. Blood, socks, and a standing order to a food bank.'},
+  {m:6, t:'July, when nobody is giving',
+   b:'Holidays mean no school meals and no donations. This is the month your food bank shift is worth the most.'},
+  {m:11, t:'December is oversubscribed',
+   b:'Christmas shifts filled in early November. Book January now, when the volunteers have gone and the need has not.'},
+  {m:7, t:'August is quietly short-handed',
+   b:'Everyone is away. Care homes, shelters and food banks are running on skeleton staff and would take an hour gladly.'}
+];
+function daysUntil(y, m, d){
+  const now=new Date(); const t=new Date(now.getFullYear(), m, d);
+  if(t < new Date(now.getFullYear(), now.getMonth(), now.getDate()))
+    t.setFullYear(now.getFullYear()+1);
+  return Math.round((t - new Date(now.getFullYear(), now.getMonth(), now.getDate()))/864e5);
+}
+const DAYWORDS=['today','tomorrow'];
+function inDays(n){
+  if(n<2) return DAYWORDS[n];
+  if(n<14) return 'in '+n+' days';
+  return 'in '+Math.round(n/7)+' weeks';
+}
+function suggestion(){
+  const month=new Date().getMonth();
+  const y=new Date().getFullYear();
+  const float = FLOATERS.map(f=>{
+    let d=f.f(y);
+    const t0=new Date(); t0.setHours(0,0,0,0);
+    if(d<t0) d=f.f(y+1);
+    return {o:f, n:Math.round((d-t0)/864e5)};
+  });
+  const dated = OCCASIONS.map(o=>({o:o, n:daysUntil(0,o.m,o.d)}))
+                         .concat(float)
+                         .sort((a,b)=>a.n-b.n);
+  const pool = [];
+  if(dated.length) pool.push({tag:'Occasion \u00b7 '+inDays(dated[0].n),
+                              t:dated[0].o.t, b:dated[0].o.b});
+  dated.slice(1).filter(x=>x.n<=60).forEach(x=>
+    pool.push({tag:'Occasion \u00b7 '+inDays(x.n), t:x.o.t, b:x.o.b}));
+  QUIET.filter(q=>q.m===month).forEach(q=>
+    pool.push({tag:'Worth knowing', t:q.t, b:q.b}));
+  if(!pool.length) pool.push({tag:'Worth knowing', t:QUIET[0].t, b:QUIET[0].b});
+  return pool[Math.floor(IDEA_SEED/7) % pool.length];   // same seed as the ideas: one pick per session
+}
+
 /* ── home ── */
 function drawHome(){
   const done=S.acts.length;
@@ -1415,8 +1552,10 @@ function drawHome(){
   $('p-spend-all').textContent  = money(sp.all);
   $('p-spend-mine').textContent = money(sp.mine);
 
-  $('sug-title').textContent='Teacher Appreciation Week';
-  $('sug-body').textContent='Starts in nine days. A supply-bag act needs about a week, enough time to ask someone to split it with you.';
+  const sug = suggestion();
+  $('sug-tag').textContent   = sug.tag;
+  $('sug-title').textContent = sug.t;
+  $('sug-body').textContent  = sug.b;
 
   drawMonth();
   drawGrid();
@@ -1712,11 +1851,11 @@ function drawDate(){
    made of. Runs once per session on the first sight of Your year; any tap
    ends it. Nothing about it is required reading.                            */
 const TAB_TOUR = [
-  ['home',   'Everything so far'],
-  ['log',    'Plan it, log it'],
-  ['browse', 'Borrow an idea'],
-  ['people', "Who's in it with you"],
-  ['you',    'All about you']
+  ['home',   'Everything<br>so far'],
+  ['log',    'Plan it,<br>log it'],
+  ['browse', 'Borrow<br>an idea'],
+  ['people', "Who's in it<br>with you"],
+  ['you',    'All about<br>you']
 ];
 let TOUR_T = [];
 function tabTour(){
@@ -1735,7 +1874,7 @@ function tabTour(){
     const r = btn.getBoundingClientRect();
     ball.style.left = (r.left + r.width/2) + 'px';
     ball.style.bottom = (window.innerHeight - r.top + 10) + 'px';
-    cap.textContent = label;
+    cap.innerHTML = label;
     ball.classList.add('on');
     /* keep the caption on screen — the first and last tabs would push it off */
     cap.style.transform = 'translateX(-50%)';
@@ -1792,7 +1931,7 @@ function calNudge(){
     tip.classList.add('on');
     btn.classList.add('breathe');
   });
-  NUDGE_T.push(setTimeout(endNudge, 6600));
+  NUDGE_T.push(setTimeout(endNudge, 7500));
   document.addEventListener('pointerdown', endNudge, { once:true });
 }
 function endNudge(){
@@ -1860,7 +1999,7 @@ function drawMonth(){
   html += '<button id="calbtn" onclick="openCal()" aria-label="Month calendar" '+
     'style="position:absolute;top:12px;right:12px;padding:6px">'+
     '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" '+
-    'stroke="var(--muted)" stroke-width="1.6">'+
+    'stroke="var(--coral)" stroke-width="1.6">'+
     '<rect x="3" y="5" width="18" height="16" rx="2.5"/>'+
     '<path d="M3 10h18M8 3v4M16 3v4"/></svg></button>';
   box.innerHTML = html;
