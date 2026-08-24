@@ -264,12 +264,14 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
 .tabs button{flex:1;font-size:10.5px;font-weight:600;color:var(--muted);
   display:flex;flex-direction:column;align-items:center;gap:4px;padding:4px}
 .tabs button.on{color:var(--coral)}
-.tabs .ic{font-size:19px;line-height:1}
-/* the one drawn icon — a glyph for "people" that isn't a cartoon face.
-   Two overlapping discs, solid like the others, and the same circle motif
-   as the You icon. */
-.tabs .ics{display:block;width:21px;height:21px}
+.tabs .ic{line-height:1}
+/* One drawn set, all five, on a 24 grid at 1.5px with round caps: the same
+   line the balloon is drawn in. The four Unicode characters that used to sit
+   here came from four different typefaces and never looked related to
+   anything. Nothing here is filled; the selected tab changes colour only. */
+.tabs .ics{display:block;width:24px;height:24px}
 .tabs .ics svg{width:100%;height:100%;display:block}
+.tabs button{white-space:nowrap}
 
 
 /* ── the tab tour ───────────────────────────────────────────────────────────
@@ -310,6 +312,39 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
 #calnudge::after{content:"";position:absolute;top:100%;
   left:calc(50% + var(--tail,0px));
   transform:translateX(-50%);border:6px solid transparent;border-top-color:var(--ink)}
+
+/* ── the letter ─────────────────────────────────────────────────────────────
+   Before anything is asked of a new person, Jessica says why. It is set as a
+   piece of stationery rather than a screen: a warm sheet with a pressed rule,
+   ragged only at the top edge, the type sitting slightly into the paper the
+   way letterpress does. It appears once, and the X closes it for good.      */
+/* block, not centred flex: a sheet taller than the screen must start at its
+   top edge, or the first thing a new person sees is the middle of a letter */
+#letter{position:fixed;inset:0;z-index:70;background:#EDE7DC;
+  padding:22px 18px;overflow:auto;-webkit-overflow-scrolling:touch}
+#letter .sheet-paper{background:#FCFAF4;max-width:430px;width:100%;margin:0 auto;
+  padding:58px 34px 52px;position:relative;
+  box-shadow:0 1px 0 rgba(255,255,255,.9) inset,
+             0 18px 40px rgba(60,48,34,.16), 0 2px 6px rgba(60,48,34,.10);
+  background-image:radial-gradient(rgba(120,100,70,.045) 1px, transparent 1px);
+  background-size:3px 3px}
+/* a thin gold rule inset from the paper's edge, the way a plate is set on
+   stationery. The close sits on the corner so the two rules run into it and
+   cross behind the mark. */
+#letter .plate{position:absolute;inset:20px;border:1px solid #D9BC6B;
+  pointer-events:none}
+
+#letter .lmark{width:46px;display:block;margin:0 auto 20px}
+#letter .lrule{width:54px;height:1px;background:var(--gold);margin:0 auto 24px}
+#letter .body{font-size:15.5px;line-height:1.55;color:#3A342C;
+  text-shadow:0 1px 0 rgba(255,255,255,.65)}
+#letter .body p{margin:0 0 10px}
+#letter .body .ask{margin-top:18px;font-size:17px;font-weight:600;color:#231F1B}
+#letter .sign{font-family:var(--script);font-size:34px;color:var(--ink);
+  margin-top:24px;line-height:1}
+#letter .signrole{font-size:11px;letter-spacing:.09em;text-transform:uppercase;
+  color:#8C8272;margin-top:8px}
+#letter .go{margin-top:28px}
 .hide{display:none!important}
 .ph{font-size:10.5px;color:#B9B2A9;text-align:center;margin-top:10px;letter-spacing:.04em}
 .counter{font-size:12px;color:var(--muted);display:flex;justify-content:space-between;
@@ -608,6 +643,26 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
     id="pl-clear">Clear this slot</button>
 </div></div>
 
+<!-- ══════════ THE LETTER ══════════ -->
+<div id="letter" class="hide" role="dialog" aria-modal="true" aria-label="A letter from Jessica">
+  <div class="sheet-paper">
+    <div class="plate"></div>
+    <img class="lmark handimg" alt="">
+    <div class="lrule"></div>
+    <div class="body" id="letter-body">
+      <p>In April of 2025, I turned fifty, which is one of those giant, momentous birthdays (the kind for which they make specific greeting cards). In honor of being healthy and in gratitude for all of the struggles and joys that brought me to fifty, I wanted to mark the entire year as a significant one.</p>
+      <p>So, I took on a challenge: Fifty Acts of Good in Year 50. To hold myself accountable, I committed to documenting each act and sharing it on social media. My hope was that sharing would not only keep me on track, but also inspire others to take on small acts of their own. There&rsquo;s nothing quite like seeing someone post a simple gesture of kindness and thinking, &ldquo;Oh, I could do that.&rdquo;</p>
+      <p>I wanted to connect these acts with the people in my life, both those in my local circle and the people I love scattered across the country. The act itself would become the catalyst for spending time together. Some were small, while others required a fair amount of planning: delivering a home-baked loaf of banana nut bread to new neighbors, hosting a BINGO hour with prizes at a nursing home, or picking up trash along a neighborhood path with my firstborn.</p>
+      <p>Along the way, I kept a journal filled with brainstorming notes, potential ideas, and a running list of completed acts. I saved receipts, tracked expenses, and recorded who joined me on each adventure. I also learned a few things about myself. Leaning into your own love languages helps. For me, baking and assembling goodie bags turned out to be recurring themes.</p>
+      <p>This app is the framework of that journal, complete with the tracking tools and metrics that helped me organize my year. It can be easily tailored to your own journey and lives right on your phone. Nobody is keeping score. Choose a number that feels right for your life and begin whenever you&rsquo;re ready.</p>
+      <p class="ask">What good can you spread?</p>
+    </div>
+    <div class="sign">Jessica</div>
+    <div class="signrole">Savannah, Georgia</div>
+    <button class="btn go" onclick="closeLetter()">Start your year</button>
+  </div>
+</div>
+
 <!-- ══════════ LOG ══════════ -->
 <section id="s-log" class="hide">
   <div class="top"><button class="back" onclick="go('home')">‹</button>
@@ -657,7 +712,7 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
           id="l-tabbtn">Keep a tally</button>
       </div>
       <p class="note" id="l-spendnote" style="margin-top:8px">One number is fine. Or keep
-        a tally as you buy things. It adds up your share for you.</p></div>
+        a tally as you buy things. It adds up your share.</p></div>
 
     <button class="btn" id="l-save" onclick="saveAct()">Complete this act</button>
     <button class="btn ghost" id="l-save2" style="margin-top:10px" onclick="saveAct('later')">Save it, write it up later</button>
@@ -820,6 +875,7 @@ What you actually did. Why it mattered. Say the awkward parts."></textarea>
     <p class="note" style="margin-top:24px">Nothing here is required. The app works
       without any of it. These just save you typing later.</p>
 
+
     <div class="setgroup" style="margin-top:30px">
       <h3 class="seth">This device</h3>
       <p class="note" id="storagenote">Everything is saved on this phone.</p>
@@ -952,11 +1008,11 @@ What you actually did. Why it mattered. Say the awkward parts."></textarea>
 </div>
 
 <nav class="tabs hide" id="tabs">
-  <button data-t="home" onclick="go('home')"><span class="ic">▦</span>Your year</button>
-  <button data-t="log"  onclick="newAct()"><span class="ic" style="font-size:23px">＋</span>Log</button>
-  <button data-t="browse" onclick="go('browse')"><span class="ic">✦</span>Ideas</button>
-  <button data-t="people" onclick="go('people')"><span class="ic ics"><svg viewBox="0 0 24 24"><circle cx="8.6" cy="12" r="5.2" fill="currentColor"/><circle cx="15.4" cy="12" r="6.6" fill="var(--paper)"/><circle cx="15.4" cy="12" r="5.2" fill="currentColor"/></svg></span>People</button>
-  <button data-t="you" onclick="go('you')"><span class="ic">◍</span>You</button>
+  <button data-t="home" onclick="go('home')"><span class="ic ics"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3.7 4.6h16.6v14.9H3.6z"/><path d="M3.75 8.9h16.5"/><path d="M9.3 9v10.4"/><path d="M14.75 8.95v10.5"/><path d="M3.8 14.2h16.4"/></svg></span>Your year</button>
+  <button data-t="log"  onclick="newAct()"><span class="ic ics"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.4"/><path d="M12 8.1v7.9"/><path d="M8.05 12h7.9"/></svg></span>Plan &amp; Log</button>
+  <button data-t="browse" onclick="go('browse')"><span class="ic ics"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.6c-3.2 0-5.4 2.3-5.4 5.2 0 1.9 1 3 1.9 3.9.55.55.85 1.15.85 1.85h5.3c0-.7.3-1.3.85-1.85.9-.9 1.9-2 1.9-3.9 0-2.9-2.2-5.2-5.4-5.2z"/><path d="M9.6 17.5h4.8"/><path d="M10.6 20.1h2.8"/></svg></span>Ideas</button>
+  <button data-t="people" onclick="go('people')"><span class="ic ics"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="16.8" cy="7" r="2.4"/><path d="M16.4 12a5.1 5.1 0 0 1 4.3 4.6"/><circle cx="8.7" cy="9.1" r="3.2"/><path d="M3.1 19a5.8 5.8 0 0 1 11.3 0"/></svg></span>People</button>
+  <button data-t="you" onclick="go('you')"><span class="ic ics"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8.2" r="3.4"/><path d="M5.4 19.6a6.8 6.8 0 0 1 13.2 0"/></svg></span>You</button>
 </nav>
 
 <script>
@@ -1041,7 +1097,7 @@ function serialise(){
     name:S.name, bday:S.bday, why:S.why, email:S.email||'',
     start:S.start.toISOString(),
     people:S.people, platforms:S.platforms,
-    started:S.started, plans:S.plans||{}, handles:S.handles||{}, places:S.places||{},
+    started:S.started, letterSeen:!!S.letterSeen, tabToured:!!S.tabToured, opens:S.opens||0, plans:S.plans||{}, handles:S.handles||{}, places:S.places||{},
     acts:S.acts.map(a=>({ no:a.no, t:a.t, out:a.out, who:a.who, cost:a.cost, spends:a.spends||[],
                           story:a.story, half:!!a.half, d:a.d||'', captions:a.captions||{},
                           photos:(a.photos||[]).map(p=>p.id) }))
@@ -1065,7 +1121,8 @@ async function load(){
   S.name=o.name||''; S.bday=o.bday||''; S.why=o.why||''; S.email=o.email||'';
   S.start=o.start?new Date(o.start):new Date();
   S.people=o.people||[]; S.platforms=o.platforms||S.platforms;
-  S.started=!!o.started; S.plans=o.plans||{}; S.handles=o.handles||{}; S.places=o.places||{};
+  S.started=!!o.started; S.letterSeen=!!o.letterSeen;
+  S.tabToured=!!o.tabToured; S.opens=o.opens||0; S.plans=o.plans||{}; S.handles=o.handles||{}; S.places=o.places||{};
 
   S.acts=[];
   for(const a of (o.acts||[])){
@@ -1859,10 +1916,12 @@ const TAB_TOUR = [
 ];
 let TOUR_T = [];
 function tabTour(){
-  if(S.tabToured) return;
+  /* once, ever: the full tour is for the first launch after installing, and
+     never again. After that the balloon has one job, which is Ideas. */
+  if(S.tabToured){ ideasNudge(); return; }
   const bar=$('tabs');
   if(!bar || bar.classList.contains('hide')) return;
-  S.tabToured = true;
+  S.tabToured = true; save();
   const ball=$('tourball'), cap=$('tb-cap');
   ball.classList.remove('hide');
 
@@ -1898,6 +1957,35 @@ function endTabTour(){
   ball.classList.remove('on');
   setTimeout(()=>ball.classList.add('hide'), 350);
   setTimeout(calNudge, 700);
+}
+
+/* ── the Ideas nudge ────────────────────────────────────────────────────────
+   The tour runs once and is then gone, which leaves Ideas, the one tab whose
+   whole purpose is to be borrowed from, sitting unvisited. So on every other
+   opening the balloon drifts over it on its own and says what it is for. Every
+   second session rather than every one: often enough to become a habit, rare
+   enough that the app is not talking at you each time you pick up the phone.
+   It counts openings, so skipping one is not skipping the nudge for good.   */
+function ideasNudge(){
+  if(S.ideasNudged) return;            // once per session, whatever else happens
+  const bar=$('tabs');
+  if(!bar || bar.classList.contains('hide')) return;
+  if($('s-home').classList.contains('hide')) return;   // year screen only
+  S.ideasNudged = true;
+  S.opens = (S.opens||0) + 1; save();
+  if(S.opens % 2 !== 0) return;        // every other opening
+  const btn = bar.querySelector('[data-t="browse"]');
+  const ball=$('tourball'), cap=$('tb-cap');
+  if(!btn || !ball) return;
+  const r = btn.getBoundingClientRect();
+  ball.style.left = (r.left + r.width/2) + 'px';
+  ball.style.bottom = (window.innerHeight - r.top + 10) + 'px';
+  cap.innerHTML = 'Borrow<br>an idea';
+  cap.style.transform = 'translateX(-50%)';
+  ball.classList.remove('hide');
+  TOUR_T.push(setTimeout(()=>ball.classList.add('on'), 40));
+  TOUR_T.push(setTimeout(endTabTour, 3400));
+  document.addEventListener('pointerdown', endTabTour, { once:true });
 }
 
 /* ── the calendar nudge ─────────────────────────────────────────────────────
@@ -2335,13 +2423,6 @@ function drawPeople(){
     d.onclick=()=>openPerson(name);
     box.appendChild(d);
   });
-  if(list.length>2){
-    const more=document.createElement('p');
-    more.className='note'; more.style.textAlign='center'; more.style.marginTop='4px';
-    more.innerHTML='<a class="tlink" href="#" onclick="reshuffle();return false">'+
-      'Shuffle these</a>';
-    box.appendChild(more);
-  }
 }
 /* Handles are stored per person, per platform, because they don't match:
    Holly is "Holly Williams" on Facebook and @hollyyoungwilliamsarchitect on
@@ -2621,7 +2702,7 @@ function updateSpendNote(){
   btn.textContent = n ? (n + (n===1?' item':' items')) : 'Keep a tally';
   if(note) note.textContent = n
     ? 'From your tally, ' + money(tally(currentSpends()).all) + ' spent in all.'
-    : 'One number is fine. Or keep a tally as you buy things. It adds up your share for you.';
+    : 'One number is fine. Or keep a tally as you buy things. It adds up your share.';
 }
 
 /* what the whole year has cost, for the Progress screen */
@@ -3569,6 +3650,25 @@ function tourIfVisible(){
 }
 window.addEventListener('scroll', tourIfVisible, { passive:true });
 
+/* ── the letter ── */
+function openLetter(again){
+  const el=$('letter'); if(!el) return;
+  paintHands();
+  S.letterAgain = !!again;
+  el.classList.remove('hide');
+  el.scrollTop = 0;
+}
+document.addEventListener('keydown', e=>{
+  if(e.key==='Escape' && !$('letter').classList.contains('hide')) closeLetter();
+});
+function closeLetter(){
+  const el=$('letter'); if(!el) return;
+  el.classList.add('hide');
+  const again = S.letterAgain; S.letterAgain=false;
+  S.letterSeen = true; save();
+  if(!again && !S.started) setTimeout(()=>sheet('you'), 250);
+}
+
 /* ── boot ── */
 (async function(){
   const restored = await load();
@@ -3582,6 +3682,8 @@ window.addEventListener('scroll', tourIfVisible, { passive:true });
                 $('bday-year').value=S.bday.slice(0,4); }
     $('tabs').classList.remove('hide');
     go('home');
+  } else if(!S.letterSeen){
+    setTimeout(openLetter, 250);
   } else {
     setTimeout(()=>sheet('you'), 350);
   }
