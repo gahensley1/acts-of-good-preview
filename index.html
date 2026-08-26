@@ -324,7 +324,7 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
 #letter{position:fixed;inset:0;z-index:70;background:#EDE7DC;
   padding:16px 16px;overflow:auto;-webkit-overflow-scrolling:touch}
 #letter .sheet-paper{background:#FCFAF4;max-width:430px;width:100%;margin:0 auto;
-  padding:40px 30px 34px;position:relative;
+  padding:clamp(26px,8.5vw,40px) clamp(20px,7vw,30px) clamp(24px,8vw,34px);position:relative;
   box-shadow:0 1px 0 rgba(255,255,255,.9) inset,
              0 18px 40px rgba(60,48,34,.16), 0 2px 6px rgba(60,48,34,.10);
   background-image:radial-gradient(rgba(120,100,70,.045) 1px, transparent 1px);
@@ -332,23 +332,24 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
 /* a thin gold rule inset from the paper's edge, the way a plate is set on
    stationery. The close sits on the corner so the two rules run into it and
    cross behind the mark. */
-#letter .plate{position:absolute;inset:20px;border:1px solid #D9BC6B;
+#letter .plate{position:absolute;inset:clamp(12px,4.5vw,20px);border:1px solid #D9BC6B;
   pointer-events:none}
 
-#letter .lmark{width:38px;display:block;margin:0 auto 15px}
-#letter .lrule{width:48px;height:1px;background:#D9BC6B;margin:0 auto 18px}
-#letter .body{font-size:14px;line-height:1.5;color:#3A342C;
+#letter .lmark{width:clamp(28px,9vw,38px);display:block;margin:0 auto clamp(10px,3.5vw,15px)}
+#letter .lrule{width:clamp(36px,11vw,48px);height:1px;background:#D9BC6B;
+  margin:0 auto clamp(12px,4.5vw,18px)}
+#letter .body{font-size:clamp(12.4px,3.6vw,15px);line-height:1.5;color:#3A342C;
   text-shadow:0 1px 0 rgba(255,255,255,.65)}
-#letter .body p{margin:0 0 9px}
-#letter .body .ask{margin-top:14px;font-size:17px;font-weight:600;color:#231F1B}
+#letter .body p{margin:0 0 clamp(7px,2.4vw,10px)}
+#letter .body .ask{margin-top:clamp(10px,3.4vw,14px);font-size:clamp(13.5px,3.9vw,16.5px);font-weight:600;color:#231F1B}
 /* her actual signature, traced from a scan, so the letter is signed by her
    rather than by a licensed wedding font */
-#letter .sign{margin-top:18px;line-height:1;color:var(--ink);
-  font-family:'SigHand','Shadows Into Light',cursive;font-size:34px}
+#letter .sign{margin-top:clamp(12px,4vw,18px);line-height:1;color:var(--ink);
+  font-family:'SigHand','Shadows Into Light',cursive;font-size:clamp(26px,8vw,34px)}
 
 #letter .signrole{font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;
   color:#8C8272;margin-top:6px}
-#letter .go{margin-top:20px}
+#letter .go{margin-top:clamp(14px,4.5vw,20px)}
 .hide{display:none!important}
 .ph{font-size:10.5px;color:#B9B2A9;text-align:center;margin-top:10px;letter-spacing:.04em}
 .counter{font-size:12px;color:var(--muted);display:flex;justify-content:space-between;
