@@ -350,6 +350,12 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
 #letter .signrole{font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;
   color:#8C8272;margin-top:6px}
 #letter .go{margin-top:clamp(14px,4.5vw,20px)}
+/* the three ways an act can leave the app, drawn in the house line rather than
+   in anybody else's logos: a camera, a feed, and a note going to one person */
+.chip .glyph{width:17px;height:17px;display:inline-block;vertical-align:-3px;
+  margin-right:7px}
+.chip .glyph svg{width:100%;height:100%;display:block;fill:none;
+  stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
 .hide{display:none!important}
 .ph{font-size:10.5px;color:#B9B2A9;text-align:center;margin-top:10px;letter-spacing:.04em}
 .counter{font-size:12px;color:var(--muted);display:flex;justify-content:space-between;
@@ -808,11 +814,12 @@ What you actually did. Why it mattered. Say the awkward parts."></textarea>
     <div class="field"><label>Tagging</label>
       <div id="cm-tags"></div></div>
 
-    <button class="btn" onclick="copyCaption()">Copy the caption</button>
-    <button class="btn ghost" style="margin-top:10px" onclick="openApp()"
-      id="cm-open">Open Instagram</button>
-    <p class="note" style="margin-top:12px">The card and your photos are saved to your
-      camera roll in order, so they're the first thing in the picker.</p>
+    <div id="cm-state"></div>
+
+    <button class="btn" id="cm-go" onclick="handOff()"></button>
+    <button class="btn ghost" style="margin-top:10px" onclick="copyCaption()">
+      Just copy the caption</button>
+    <p class="note" style="margin-top:12px" id="cm-how"></p>
   </div>
 </section>
 
@@ -1102,7 +1109,8 @@ function serialise(){
     people:S.people, platforms:S.platforms,
     started:S.started, letterSeen:!!S.letterSeen, tabToured:!!S.tabToured, opens:S.opens||0, plans:S.plans||{}, handles:S.handles||{}, places:S.places||{},
     acts:S.acts.map(a=>({ no:a.no, t:a.t, out:a.out, who:a.who, cost:a.cost, spends:a.spends||[],
-                          story:a.story, half:!!a.half, d:a.d||'', captions:a.captions||{},
+                          story:a.story, note:a.note||'', half:!!a.half, d:a.d||'', captions:a.captions||{},
+                          posted:a.posted||{},
                           photos:(a.photos||[]).map(p=>p.id) }))
   };
 }
@@ -1136,6 +1144,7 @@ async function load(){
     }
     S.acts.push({ no:a.no, t:a.t, out:a.out, who:a.who||[], cost:a.cost||0, spends:a.spends||[],
                   half:!!a.half, d:a.d||'', captions:a.captions||{},
+                  posted:a.posted||{}, note:a.note||'',
                   story:a.story||'', photos });
   }
   return true;
@@ -2894,7 +2903,7 @@ function drawSlides(a){
    4. Whitespace costs characters. Facebook is set in short paragraphs;
       Instagram's are collapsed, because blank lines are expensive at 2,200.  */
 
-const LIMITS = { instagram:2200, facebook:63206, threads:500, x:280 };
+const LIMITS = { instagram:2200, facebook:63206, threads:500, x:280, private:100000 };
 let CM_PLAT = 'instagram';
 
 function openCompose(){
@@ -2926,17 +2935,20 @@ function buildCaption(force){
   if(a.captions[CM_PLAT] && !force){ drawCompose(); return; }
 
   const lines = [];
-  lines.push('Act '+a.no+' of '+S.n+':');            // the number, first, always
+  /* A private note is one person reading it, so it opens with the act rather
+     than with its number, and it carries no hashtag. */
+  if(CM_PLAT!=='private') lines.push('Act '+a.no+' of '+S.n+':');
+  else if(a.t) lines.push(a.t);
   const story = (a.story||'').trim();
   if(story) lines.push(story);
 
-  const tags = tagsFor(a, CM_PLAT).map(t=>t.tag||t.name);
+  const tags = (CM_PLAT==='private' ? (a.who||[]) : tagsFor(a, CM_PLAT).map(t=>t.tag||t.name));
   if(tags.length) lines.push('With '+listWords(tags)+'.');
 
   const t = tally(a.spends||[]);
   if(t.given) lines.push('');   // (kept deliberately blank, costs are private)
 
-  lines.push(defaultHashtag());
+  if(CM_PLAT!=='private') lines.push(defaultHashtag());
   a.captions[CM_PLAT] = lines.filter((l,i)=>l!=='' || i===0).join('\n\n');
   drawCompose();
 }
@@ -2959,20 +2971,65 @@ function composeEdited(){
   drawFit();
 }
 
+/* one name for a platform, including the one that is not a platform */
+function platLabel(k){
+  if(k==='private') return 'Text or email';
+  const row = PLATS.filter(([p])=>p===k)[0];
+  return row ? row[1] : k;
+}
+/* house-drawn marks for the three destinations. Deliberately not the platforms'
+   own logos: those are trademarks, they are drawn in four different styles, and
+   none of them belongs beside a hand-drawn balloon. The word underneath does the
+   identifying; the picture does the telling apart. */
+const SEND_GLYPH = {
+  instagram: '<path d="M4 8.2h3.1l1.5-2.1h6.8l1.5 2.1H20v10.1H4z"/>'+
+             '<circle cx="12" cy="13.1" r="3.3"/>',
+  facebook:  '<path d="M4.2 4.6h15.6v11.2H10l-4 3.6v-3.6H4.2z"/>'+
+             '<path d="M7.6 8.4h8.8M7.6 11.8h5.6"/>',
+  threads:   '<path d="M4.2 4.6h15.6v11.2H10l-4 3.6v-3.6H4.2z"/>',
+  private:   '<path d="M3.4 6.4h11.4v8.2H8.1l-3.2 2.7v-2.7H3.4z"/>'+
+             '<path d="M9.6 9.6h11v8.6H9.6z"/><path d="M9.6 9.9l5.5 4.2 5.5-4.2"/>'
+};
+function sendChip(label, key){
+  const g = SEND_GLYPH[key];
+  return (g ? '<span class="glyph"><svg viewBox="0 0 24 24">'+g+'</svg></span>' : '') + label;
+}
+
 function drawCompose(){
   const a = S.current || S.acts[S.acts.length-1];
   const on = PLATS.filter(([k])=>S.platforms[k].on);
   const list = on.length ? on : PLATS;
-  chips($('cm-plats'), list.map(([k,l])=>[l,k]), ()=>CM_PLAT, v=>{
+  /* Private sits with the platforms because it is the same decision: where is
+     this going. Roughly half of what the app makes was never meant for a feed,
+     and until now those acts had nowhere to go at all. */
+  const choices = list.map(([k,l])=>[sendChip(l,k),k])
+                       .concat([[sendChip('Text or email','private'),'private']]);
+  chips($('cm-plats'), choices, ()=>CM_PLAT, v=>{
     CM_PLAT=v; buildCaption(false);
   });
   if(!a.captions || !a.captions[CM_PLAT]){ buildCaption(true); return; }
   $('cm-text').value = a.captions[CM_PLAT];
-  $('cm-label').textContent = ', for ' + PLATS.filter(([k])=>k===CM_PLAT)[0][1];
-  $('cm-open').textContent = 'Open ' + PLATS.filter(([k])=>k===CM_PLAT)[0][1];
+  const platName = platLabel(CM_PLAT);
+  $('cm-label').textContent = ', for ' + platName;
+  $('cm-go').textContent = HAND_LABEL[CM_PLAT] || ('Open ' + platName);
+  $('cm-how').textContent = HAND_HOW[CM_PLAT] || '';
+
+  /* which platforms this act has already gone out on */
+  const st = $('cm-state'); const done = a.posted || {};
+  const up = Object.keys(done).filter(k=>done[k]);
+  st.innerHTML = up.length
+    ? '<p class="note" style="margin:0 0 14px">Already '+
+      (up.length===1 && up[0]==='private' ? 'texted or mailed' :
+       'up on '+listWords(up.filter(k=>k!=='private').map(platLabel))+
+       (up.indexOf('private')>-1 ? ', and sent privately' : ''))+'.</p>' : '';
 
   /* tagging: who's named, whether we have their handle for this platform */
   const tb = $('cm-tags'); tb.innerHTML='';
+  if(CM_PLAT==='private'){
+    tb.innerHTML = '<p class="note">Nobody is tagged in a private note. Names are '+
+      'written out in full.</p>';
+    drawFit(); return;
+  }
   const tags = tagsFor(a, CM_PLAT);
   if(!tags.length){
     tb.innerHTML = '<p class="note">Nobody named on this act.</p>';
@@ -3006,10 +3063,13 @@ function drawFit(){
   $('cm-count').innerHTML = '<b>'+n+'</b> / '+lim;
   $('cm-count').className = over>0 ? 'over' : '';
   $('cm-fit').innerHTML = over>0
-    ? '<div class="lab">Too long for '+PLATS.filter(([k])=>k===CM_PLAT)[0][1]+'</div>'+
+    ? '<div class="lab">Too long for '+platLabel(CM_PLAT)+'</div>'+
       '<div class="big" style="color:var(--coral)">'+over+' over</div>'
-    : '<div class="lab">Fits '+PLATS.filter(([k])=>k===CM_PLAT)[0][1]+'</div>'+
-      '<div class="big">'+(lim-n)+' spare</div>';
+    : (CM_PLAT==='private'
+        ? '<div class="lab">A note to one person</div>'+
+          '<div class="big">no limit</div>'
+        : '<div class="lab">Fits '+platLabel(CM_PLAT)+'</div>'+
+          '<div class="big">'+(lim-n)+' spare</div>');
 
   const box=$('cm-trim'); box.innerHTML='';
   if(over<=0) return;
@@ -3048,6 +3108,100 @@ function drawFit(){
     d.appendChild(b); box.appendChild(d);
   });
 }
+
+/* ── the hand-off ───────────────────────────────────────────────────────────
+   Neither Instagram nor Facebook will let an app pre-fill a caption, and
+   Instagram's feed takes one picture at a time. So the two platforms need two
+   different gestures, and pretending otherwise is what made this feel clunky.
+
+   Facebook accepts a set of images through the share sheet, so the card and the
+   photos go over together in one go.
+   Instagram takes the caption on the clipboard and the pictures from the camera
+   roll, which is three taps and no fewer, so the app says so plainly rather
+   than hiding it.                                                            */
+const HAND_HOW = {
+  instagram: 'Instagram will not let an app fill in a caption, so it goes on your '+
+             'clipboard. Your card and photos are in your camera roll, newest first. '+
+             'Pick them, then long press the caption box and paste.',
+  facebook:  'Facebook takes the card and your photos together. The caption is on '+
+             'your clipboard, so long press and paste when the post opens.',
+  threads:   'The caption is on your clipboard. Pick the card from your camera roll '+
+             'and paste.',
+  private:   'Your phone will ask whether to text it, mail it, or send it another '+
+             'way. The card, the photos and the words travel together, and nothing '+
+             'is posted anywhere.',
+  x:         'The caption is on your clipboard. Pick the card from your camera roll '+
+             'and paste.'
+};
+const HAND_LABEL = { instagram:'Copy and open Instagram', facebook:'Send to Facebook',
+                     threads:'Copy and open Threads', x:'Copy and open X',
+                     private:'Text or email it' };
+
+function copyToClip(text){
+  const t=$('cm-text');
+  try { t.select(); t.setSelectionRange(0,99999); document.execCommand('copy'); } catch(e){}
+  if(navigator.clipboard) return navigator.clipboard.writeText(text).catch(()=>{});
+  return Promise.resolve();
+}
+
+async function handOff(){
+  const a = S.current || S.acts[S.acts.length-1];
+  if(!a) return;
+  await copyToClip($('cm-text').value);
+  markLeaving(a);
+
+  /* Facebook and Private both hand over the whole set in one gesture. The
+     difference is that Private carries the words with it, because Messages and
+     Mail accept text where Facebook does not. */
+  if((CM_PLAT==='facebook' || CM_PLAT==='private') && navigator.canShare){
+    const files = [];
+    try {
+      if(CM_PLAT==='private'){
+        const note = await noteBlob(a);
+        if(note) files.push(new File([note], 'act-'+a.no+'-note.png', {type:'image/png'}));
+      } else {
+        const card = await cardBlob(a, 1080);
+        if(card) files.push(new File([card], 'act-'+a.no+'.png', {type:'image/png'}));
+      }
+    } catch(e){}
+    (a.photos||[]).forEach((p,i)=>{
+      if(p && p.data) files.push(dataToFile(p.data, 'act-'+a.no+'-'+(i+1)+'.jpg'));
+    });
+    const payload = { files:files };
+    if(CM_PLAT==='private') payload.text = $('cm-text').value;
+    if(files.length && navigator.canShare({files:files})){
+      try { await navigator.share(payload); return; } catch(e){ return; }
+    }
+    if(CM_PLAT==='private'){
+      try { await navigator.share({ text: payload.text }); return; } catch(e){ return; }
+    }
+  }
+  openApp();
+}
+
+/* photos are held as data URLs; the share sheet wants real files */
+function dataToFile(dataUrl, name){
+  const [head, b64] = dataUrl.split(',');
+  const mime = (head.match(/data:([^;]+)/)||[])[1] || 'image/jpeg';
+  const bin = atob(b64); const arr = new Uint8Array(bin.length);
+  for(let i=0;i<bin.length;i++) arr[i]=bin.charCodeAt(i);
+  return new File([arr], name, {type:mime});
+}
+
+/* When you come back, the app asks once whether it went up. That is the thing
+   people actually wanted: not fewer taps, but knowing it worked.            */
+let LEFT_FOR = null;
+function markLeaving(a){ LEFT_FOR = { act:a, plat:CM_PLAT, at:Date.now() }; }
+document.addEventListener('visibilitychange', ()=>{
+  if(document.hidden || !LEFT_FOR) return;
+  if(Date.now() - LEFT_FOR.at < 4000) return;      // never left, or came straight back
+  const { act, plat } = LEFT_FOR; LEFT_FOR = null;
+  if((act.posted||{})[plat]) return;
+  const label = (PLATS.filter(([k])=>k===plat)[0]||[,plat])[1];
+  dlg({ title:'Did it go up?', note:'Act '+act.no+' on '+label+'.',
+        ok:'Yes, it is up', cancel:'Not yet',
+        then:()=>{ act.posted = act.posted||{}; act.posted[plat]=true; save(); drawCompose(); } });
+});
 
 function copyCaption(){
   const t=$('cm-text');
@@ -3239,6 +3393,102 @@ async function renderInvite(a){
   }
   return c;
 }
+/* ── the note ───────────────────────────────────────────────────────────────
+   What goes out when an act is texted or mailed to one person. The invitation
+   card said "you're invited" before an act; this is its twin for after one, on
+   the same stationery: gold plate rule, the balloon as a letterhead, the act
+   in full, the date in script, and the mark at the foot.
+
+   It exists because a text message with a bare square card and no words looks
+   like an advert. This looks like a note, and it carries the story, which is
+   the part the person on the other end actually wants.                       */
+async function renderNote(a){
+  const W=1080, H=1350, k=W/100;
+  const c=document.createElement('canvas'); c.width=W; c.height=H;
+  const g=c.getContext('2d');
+  if(document.fonts){
+    try{ await Promise.all([
+      document.fonts.load('800 100px Montserrat'), document.fonts.load('700 100px Montserrat'),
+      document.fonts.load('600 100px Montserrat'), document.fonts.load('500 100px Montserrat'),
+      document.fonts.load('400 100px Montserrat'),
+      document.fonts.load('400 100px "Great Vibes"')]); await document.fonts.ready; }catch(e){}
+  }
+  const css = n => getComputedStyle(document.body).getPropertyValue(n).trim();
+  const gold = css('--gold')||'#E1BA52', gscr = css('--goldscript')||'#DDB44C',
+        ink = css('--ink')||'#231F1B', muted = css('--muted')||'#7A736B';
+  const centre = t => W/2 - g.measureText(t).width/2;
+
+  g.fillStyle='#FCFAF4'; g.fillRect(0,0,W,H);
+  g.strokeStyle='#D9BC6B'; g.lineWidth=2;
+  g.strokeRect(5*k, 5*k, W-10*k, H-10*k);
+
+  const svg = document.querySelector('#tourball .tb-art');
+  if(svg){
+    const src='data:image/svg+xml;charset=utf-8,'+
+      encodeURIComponent(new XMLSerializer().serializeToString(svg));
+    const img = await new Promise(res=>{const i=new Image();i.onload=()=>res(i);i.onerror=()=>res(null);i.src=src;});
+    if(img){ const h=19*k, w=h*(img.width/img.height); g.drawImage(img, W/2-w/2, 9*k, w, h); }
+  }
+
+  let y = 33*k;
+  g.font='600 '+(2.5*k)+'px "Montserrat", sans-serif'; g.fillStyle=muted;
+  const eyebrow = 'A C T   ' + String(a.no).toUpperCase() + '   O F   ' + S.n;
+  g.fillText(eyebrow, centre(eyebrow), y);
+  y += 8*k;
+
+  g.font='700 '+(6.2*k)+'px "Montserrat", sans-serif'; g.fillStyle=ink;
+  wrapLines(g, a.t || 'An act of good', W-20*k).slice(0,3)
+    .forEach(l=>{ g.fillText(l, centre(l), y); y += 7.2*k; });
+
+  if(a.d){
+    const when = longDate(a.d);
+    g.font='400 '+(8*k)+'px "Great Vibes", cursive'; g.fillStyle=gscr;
+    g.fillText(when, centre(when), y + 4.4*k);
+    y += 9.6*k;
+  }
+
+  if(a.who && a.who.length){
+    g.font='500 '+(3*k)+'px "Montserrat", sans-serif'; g.fillStyle=muted;
+    const who = 'with ' + listWords(a.who);
+    g.fillText(who, centre(who), y); y += 6*k;
+  }
+
+  /* the story, as much of it as fits above the mark */
+  const story = ((a.story||'').trim() || (a.note||'').trim());
+  if(story){
+    g.strokeStyle='#D9BC6B'; g.lineWidth=1.4;
+    g.beginPath(); g.moveTo(41*k, y-1*k); g.lineTo(59*k, y-1*k); g.stroke();
+    y += 5.4*k;
+    g.font='400 '+(3.5*k)+'px "Montserrat", sans-serif'; g.fillStyle=ink;
+    const room = Math.max(1, Math.floor((H - 24*k - y) / (5.2*k)));
+    const lines = wrapLines(g, story, W-24*k);
+    lines.slice(0, room).forEach((l,i)=>{
+      let t = l;
+      if(i === room-1 && lines.length > room) t = l.replace(/\s*\S*$/,'') + '\u2026';
+      g.fillText(t, centre(t), y); y += 5.2*k;
+    });
+  }
+
+  /* the mark at the foot, same lockup as the invitation */
+  const footY = H - 15*k;
+  g.font='700 '+(5*k)+'px "Montserrat", sans-serif'; g.fillStyle=gold;
+  const nline = String(S.n);
+  g.fillText(nline, centre(nline), footY-3*k);
+  g.font='600 '+(3.4*k)+'px "Montserrat", sans-serif'; g.fillStyle=ink;
+  const aog='acts of good';
+  g.fillText(aog, centre(aog), footY+1.8*k);
+  if(S.word){
+    let fs=5.4; const w2=(S.line?S.line+' ':'')+S.word;
+    do{ g.font='400 '+(fs*k)+'px "Great Vibes", cursive';
+        if(g.measureText(w2).width <= W-30*k) break; fs-=.3; } while(fs>3);
+    g.fillStyle=gscr; g.fillText(w2, centre(w2), footY+9*k);
+  }
+  return c;
+}
+function noteBlob(a){
+  return renderNote(a).then(c=>new Promise(res=>c.toBlob(res,'image/png',0.95)));
+}
+
 function inviteBlob(a){
   return renderInvite(a).then(c=>new Promise(res=>c.toBlob(res,'image/png',0.95)));
 }
@@ -3562,8 +3812,11 @@ function sheet(which){
   if(which==='done') drawDone();
   if(!which){ toTop(); setTimeout(tourIfVisible, 260); }  // sheet closed, is the picker showing?
 }
+/* X was in this list and never used. The audience for this is people sharing
+   warm personal news with people they know, and 280 characters turns an act
+   into a slogan. Threads stays available and unpromoted. */
 const PLATS=[['instagram','Instagram','@you'],['facebook','Facebook','Your name'],
-             ['threads','Threads','@you'],['x','X','@you']];
+             ['threads','Threads','@you']];
 function drawPlats(){
   const box=$('plats'); box.innerHTML='';
   PLATS.forEach(([k,label,ph])=>{
