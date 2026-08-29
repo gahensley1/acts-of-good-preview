@@ -6213,7 +6213,15 @@ function openLetter(again){
   const t=$('tabs'); if(t) t.inert = true;
   const inst=$('install'); if(inst) inst.inert = true;
   el.addEventListener('keydown', letterTrap);
-  setTimeout(()=>{ const btn = el.querySelector('button'); if(btn) btn.focus(); }, 80);
+  /* Focus moves into the modal for screen readers, but focusing the button at
+     the foot of the letter was scrolling the whole page down to it — the app
+     opened on the signature with the greeting cut off above. The letter starts
+     at its top, always. */
+  setTimeout(()=>{
+    const btn = el.querySelector('button');
+    if(btn) try { btn.focus({ preventScroll:true }); } catch(e){ btn.focus(); }
+    el.scrollTop = 0;
+  }, 80);
 }
 let LETTER_FROM = null;
 function letterTrap(e){
