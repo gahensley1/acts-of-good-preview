@@ -9,7 +9,11 @@
 <meta name="apple-mobile-web-app-title" content="Acts of Good">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="application-name" content="Acts of Good">
-<meta name="theme-color" content="#FFFFFF">
+<!-- iOS paints the status-bar strip from this AT LAUNCH, before any script
+     runs — flipping it after the letter opened was already too late, which is
+     why the white band came back. Launch cream (the letter opens first);
+     the boot script flips it to white when the app goes straight home. -->
+<meta name="theme-color" content="#EDE7DC">
 <!-- Without a manifest, Android's "Add to Home screen" makes a browser
      shortcut rather than a standalone app, so the iOS-only install hint was
      also the only install that worked. Inlined as a data URL because the
@@ -6307,6 +6311,7 @@ function closeLetter(){
                 $('bday-year').value=S.bday.slice(0,4); onBdayChange(); }
   }
   if(restored && S.started){
+    setThemeColor('#FFFFFF');   // no letter on this launch; the strip goes app-white
     $('tabs').classList.remove('hide');
     go('home');
     /* a half-written act survived the app being closed; offer it back rather
