@@ -84,7 +84,7 @@ input:focus,textarea:focus{border-color:var(--coral)}
 :focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 input:focus-visible,textarea:focus-visible,select:focus-visible{
   outline:2px solid var(--ink);outline-offset:1px;border-color:var(--coral)}
-textarea{resize:vertical;min-height:120px;line-height:1.55}
+textarea{resize:vertical;min-height:120px;line-height:1.55;overflow-y:hidden}
 label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
   margin:0 0 6px;letter-spacing:.03em;text-transform:uppercase}
 .field{margin-bottom:18px}
@@ -94,11 +94,13 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
    and every other check from inside a sheet was painted behind it and could
    never be pressed. */
 #dlg{z-index:78}
-.sheet{position:fixed;inset:0;z-index:60;background:rgba(20,20,20,.42);
+.sheet{position:fixed;inset:0;z-index:60;background:transparent;
   display:flex;align-items:flex-end;justify-content:center}
 .sheet .panel{background:var(--paper);width:100%;max-width:520px;
   border-radius:20px 20px 0 0;padding:26px 22px calc(26px + env(safe-area-inset-bottom));
-  max-height:92vh;overflow:auto}
+  max-height:92vh;overflow:auto;
+  /* no scrim, ruled 30 Aug — the panel carries its own edge instead */
+  box-shadow:0 -10px 30px rgba(60,50,35,.18);border-top:1px solid var(--line)}
 .sheet h3{font-size:20px;letter-spacing:-.02em;margin-bottom:6px}
 .privacy{background:var(--mist);border-radius:10px;padding:12px 14px;font-size:12.5px;
   color:var(--muted);line-height:1.55;margin:2px 0 20px}
@@ -185,7 +187,7 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
 .jpage h3{font-size:clamp(18px,5.2vw,22px);line-height:1.25;letter-spacing:-.01em;
   margin:0 0 4px}
 .jpage .jdate{font-family:'Great Vibes',cursive;font-size:clamp(19px,5.4vw,23px);
-  color:#8A8279;margin:0 0 2px}
+  color:#6E675E;margin:0 0 2px}
 .jpage .jwith{font-size:13px;color:#665F57;margin:0 0 12px}
 /* the dedication, regular type by rule — the only handwriting in this app is
    Jessica's actual signature on the letter */
@@ -197,7 +199,11 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
 .jpage .jphotos img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:4px;display:block}
 .jpage .jphotos.one{grid-template-columns:1fr}
 .jpage .jphotos.one img{aspect-ratio:4/3}
-.jpage .jout{font-size:12px;color:#8A8279;font-style:italic;margin-top:12px}
+.jpage .jout{font-size:12px;color:#6E675E;font-style:italic;margin-top:12px}
+.jpage .jenv{display:flex;align-items:center;gap:9px;margin:12px auto 0;border:1px dashed #C9A94F;
+  background:#FBF6E9;border-radius:10px;padding:12px;min-height:44px;font:inherit;font-size:11.5px;color:#6B5E3A;cursor:pointer}
+.jpage .jenv .flap{flex:none;width:26px;height:18px;position:relative;background:#F3E7C8;border:1px solid #C9A94F;border-radius:2px}
+.jpage .jenv .flap::after{content:"";position:absolute;left:0;top:0;border-left:12px solid transparent;border-right:12px solid transparent;border-top:8px solid #C9A94F;opacity:.55}
 .jpage .jedit{margin-top:16px;font-size:13px;font-weight:600;color:var(--coralink);
   background:none;border:0;padding:10px 4px;min-height:44px;cursor:pointer;
   text-decoration:underline}
@@ -211,7 +217,7 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
 .jpage.jclose .jbig{font-size:clamp(26px,8vw,34px);font-weight:700;color:var(--coralink);
   letter-spacing:-.02em}
 .jpage.jclose .jline{font-size:13.5px;color:#665F57;line-height:1.7;margin-top:10px}
-.jgap{font-size:12px;color:#8A8279;text-align:center;margin:0 0 18px;
+.jgap{font-size:12px;color:#6E675E;text-align:center;margin:0 0 18px;
   letter-spacing:.08em;text-transform:uppercase}
 
 /* header */
@@ -249,7 +255,7 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
   transition:transform .24s cubic-bezier(.2,.8,.3,1)}
 #pastebar.up{transform:translate(-50%,0)}
 #pastebar .msg{font-size:13.5px;line-height:1.45}
-#pastebar button{background:none;border:0;color:#F6C65B;font-weight:700;
+#pastebar button{background:none;border:0;color:#F6C65B;font-weight:700;min-height:44px;min-width:44px;
   font-size:13.5px;padding:6px 4px;min-height:36px;cursor:pointer;flex-shrink:0}
 #storagebar{position:fixed;left:0;right:0;top:0;z-index:80;background:var(--coralink);
   color:#fff;display:flex;align-items:center;gap:12px;justify-content:center;
@@ -293,7 +299,7 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
 /* the calendar sits inside the field, on the right, and opens the month */
 .datewrap{position:relative}
 .datewrap .calgo{position:absolute;right:8px;top:50%;transform:translateY(-50%);
-  padding:5px;line-height:0;border-radius:9px}
+  padding:5px;line-height:0;border-radius:9px;min-width:44px;min-height:44px;display:inline-flex;align-items:center;justify-content:center}
 .datewrap .calgo svg{display:block}
 .datebtn.empty{color:#B9B2A9;font-weight:400}
 /* the half — her act 2.5 treatment, measured off the card */
@@ -306,8 +312,9 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
 .struck .half{position:absolute;bottom:92%;left:50%;transform:translateX(-10%);
   font-size:.62em;line-height:1;white-space:nowrap;color:var(--coral)}
 .hashalf{padding-top:.62em}
-.chip{padding:9px 15px;border-radius:999px;border:1.5px solid var(--line);
-  font-size:13.5px;font-weight:500;background:var(--paper);transition:.15s}
+.chip{padding:12px 15px;border-radius:999px;border:1.5px solid var(--line);
+  font-size:13.5px;font-weight:500;background:var(--paper);transition:.15s;
+  min-height:44px;display:inline-flex;align-items:center;justify-content:center}
 .chip.on{border-color:var(--coralink);background:var(--coralink);color:#fff}
 .chip small{display:block;font-size:10.5px;opacity:.7;font-weight:400}
 
@@ -364,7 +371,7 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
    and is not now that each one is a button somebody has to aim at */
 .tile{aspect-ratio:1;border-radius:8px;background:var(--mist);border:1px solid var(--line);
   display:flex;align-items:center;justify-content:center;font-size:12.5px;
-  color:#8A8279;font-weight:600;transition:.15s;overflow:hidden;position:relative;
+  color:#6E675E;font-weight:600;transition:.15s;overflow:hidden;position:relative;
   font-family:inherit;padding:0;cursor:pointer}
 .tile:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 .tile.done{background:var(--coralink);border-color:var(--coralink);color:#fff}
@@ -376,6 +383,34 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
   text-shadow:0 1px 3px rgba(0,0,0,.7);font-weight:700}
 /* a planned act — present but not yet done */
 .tile.planned{background:#FBF7F2;border:1.5px solid var(--gold);color:var(--gold)}
+/* acts in the works: individual cards with air between them */
+.wkcard{--gold:#B8963E;position:relative;width:100%;text-align:left;background:#FCFAF4;border:1px solid #E4DCC8;
+  border-left:3px solid var(--gold);
+  border-radius:12px;padding:13px 15px;margin-bottom:10px;box-shadow:0 1px 3px rgba(60,50,30,.06);
+  font:inherit;color:var(--ink);cursor:pointer}
+/* the shelf itself sits on the journal's cream, so the paper cards read as
+   pages of the book becoming — colour ruling 1B, 30 Aug */
+#workslist{background:var(--bg,#EDE7DC);border-radius:16px;padding:12px 12px 3px;margin:0 -4px}
+.wkcard .t{font-size:14.5px;font-weight:600;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow-wrap:anywhere}
+.wkcard .dt{font-size:11px;color:var(--muted);margin-top:4px}
+.wkcard .dt b{color:var(--gold);font-weight:600}
+.wkcard .ripe{font-size:11px;color:#6B5E3A;margin-top:6px;font-style:italic}
+/* the envelope — the personal note as stationery */
+.envnote{display:flex;align-items:center;gap:12px;width:100%;text-align:left;margin-top:18px;
+  border:1px dashed #C9A94F;background:#FBF6E9;border-radius:12px;padding:12px 14px;
+  font:inherit;font-size:12.5px;line-height:1.5;color:#6B5E3A;cursor:pointer}
+.envnote.on{border-style:solid;box-shadow:0 0 0 2px rgba(184,150,62,.25)}
+.envnote .flap{flex:none;width:38px;height:27px;position:relative;background:#F3E7C8;
+  border:1px solid #C9A94F;border-radius:3px}
+.envnote .flap::after{content:"";position:absolute;left:0;top:0;border-left:18px solid transparent;
+  border-right:18px solid transparent;border-top:12px solid #C9A94F;opacity:.55}
+/* The COMPLETED sash — G's artwork, extracted from his reference 30 Aug 2026.
+   It drapes over the newest finished act only and moves forward with the year.
+   Tips overhang the tile, so the tile and the grid must not clip it. */
+.tile .sash{position:absolute;inset:0;pointer-events:none;line-height:0;
+  filter:drop-shadow(0 1px 2px rgba(90,50,35,.22));z-index:2}
+.tile .sash svg{width:100%;height:auto;display:block}
+#grid,.tile{overflow:visible}
 .tile.planned .tilenum{position:static;color:var(--gold);text-shadow:none;font-size:12.5px}
 .tile .tilewhen{position:absolute;left:0;right:0;bottom:3px;font-size:8.5px;
   font-weight:600;color:var(--gold);text-align:center;letter-spacing:0}
@@ -690,6 +725,7 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
     your own Messages or Mail with the words already there. Change anything
     you like before you send it.</p>
 
+  <div class="chips hide" id="ask-kind" style="margin-bottom:12px"></div>
   <div class="chips" id="ask-mode" style="margin-bottom:14px"></div>
 
   <div class="field" id="ask-subwrap"><label for="ask-subject">Subject</label>
@@ -939,6 +975,95 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
   </div>
 </section>
 
+<!-- ══════════ THE DOOR & THE WORKS (one pipeline, 30 Aug 2026) ══════════
+     Every act starts here, ripens as long as it likes, and finishes by
+     posting. The grid below on Home is the finished year only. -->
+<section id="s-works" class="hide" role="main" aria-label="Plan and log your acts">
+  <div class="top"><button class="back" onclick="go('home')">‹</button>
+    <h2>Plan it, log it</h2><div class="sub" id="works-sub"></div></div>
+  <div class="wrap">
+    <button class="btn" style="margin-top:0" onclick="startWork()">Start a new act</button>
+    <h3 class="seth" id="works-h" style="margin:20px 0 10px">Acts in the works</h3>
+    <div id="workslist"></div>
+  </div>
+</section>
+
+<section id="s-work" class="hide" role="main" aria-label="An act in the works">
+  <div class="top"><button class="back" onclick="go('works')">‹</button>
+    <h2>In the works</h2><div class="sub" id="wk-sub"></div></div>
+  <div class="wrap">
+    <div class="field"><label for="wk-t">The act <span style="text-transform:none;font-weight:400">(journal page &amp; post title)</span></label>
+      <input id="wk-t" oninput="wkEdited()" placeholder="Doughnuts for the vet clinic staff"></div>
+
+    <div style="display:flex;gap:10px">
+      <div class="field" style="flex:1"><label for="wk-exp">Expecting &middot; act no.</label>
+        <input id="wk-exp" oninput="wkEdited()" inputmode="decimal"></div>
+      <div class="field" style="flex:1.4"><label for="wk-when-btn">Aiming for</label>
+        <input id="wk-when" type="hidden" aria-hidden="true">
+        <div class="datewrap">
+          <button class="datebtn" id="wk-when-btn" onclick="openDate('wk-when')" aria-label="Aiming for, pick a day"></button>
+          <button class="calgo" onclick="workToCalendar()" aria-label="Hand the day to your phone's calendar"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--coral)" stroke-width="1.5"><rect x="3" y="5" width="18" height="16" rx="2.5"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></button>
+        </div></div>
+    </div>
+
+    <div class="field"><label>Add anyone to your act?</label>
+      <div class="chips" id="wk-who"></div>
+      <button type="button" class="tlink" id="wk-invite" style="display:none;margin-top:5px;font-size:13px;font-weight:600;background:none;border:0;color:var(--coralink);text-align:left;padding:12px 0;min-height:44px" onclick="openAsk('work')"></button></div>
+
+    <div class="field"><label for="wk-hon">In honor of <span style="text-transform:none;font-weight:400">(someone it was for &mdash; optional)</span></label>
+      <input id="wk-hon" oninput="wkEdited()" placeholder="someone it was for"></div>
+
+    <div class="field"><label for="wk-cost">What it cost <span style="text-transform:none;font-weight:400">(if anything)</span></label>
+      <div style="display:flex;align-items:center;gap:10px">
+        <input id="wk-cost" placeholder="$0" style="max-width:140px" oninput="wkCostTyped()">
+        <button class="calgo" onclick="openSpends()" id="wk-tabbtn" aria-label="Keep a tally"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="var(--coral)" stroke-width="1.5"><rect x="5" y="2.5" width="14" height="19" rx="2.5"/><rect x="8" y="5.5" width="8" height="3.4" rx="1"/><path d="M8.6 12.6h.01M12 12.6h.01M15.4 12.6h.01M8.6 16h.01M12 16h.01M15.4 16h.01M8.6 19.2h.01M12 19.2h.01M15.4 19.2h.01" stroke-linecap="round" stroke-width="2.1"/></svg></button>
+      </div>
+      <p class="note" id="wk-spendnote" style="margin-top:8px">One number is fine. Or the calculator keeps a tally as you buy things.</p></div>
+
+    <div class="field"><label for="wk-story">The story <span style="text-transform:none;font-weight:400">(becomes your post)</span></label>
+      <textarea id="wk-story" oninput="wkEdited()" placeholder="Whatever happened, as it happened. (The awkward parts are allowed too.)"></textarea></div>
+
+    <div class="field"><label>Photos <span style="text-transform:none;font-weight:400">(these ride on your post)</span></label>
+      <div class="photos" id="wk-photos"></div>
+      <input type="file" id="wk-file" accept="image/*" multiple hidden></div>
+
+    <button class="btn" onclick="finishWork(false)">It happened &mdash; post it</button>
+    <button class="btn ghost" style="margin-top:10px;border-width:2px" onclick="finishWork(true)">Anonymous act &mdash; just the card posts</button>
+    <p class="note" style="text-align:center;margin-top:8px">your story and photos stay in your journal</p>
+    <p class="note" style="text-align:center;margin-top:14px">Everything here keeps itself as you type &mdash; leave anytime and it&rsquo;ll be waiting.</p>
+    <button class="btn ghost" style="margin-top:14px" onclick="dropWork()" id="wk-drop">Let this one go</button>
+  </div>
+</section>
+
+<!-- the finish confirm: number and date lock in with one glance -->
+<div class="sheet hide" id="sheet-finish" role="dialog" aria-modal="true"><div class="panel">
+  <button class="sheetback" onclick="sheet(null)">‹ Back</button>
+  <h3>This becomes</h3>
+  <div style="display:flex;gap:10px;align-items:flex-end;margin-top:12px">
+    <div class="field" style="flex:.7;margin:0"><label for="fin-no">Act</label>
+      <input id="fin-no" inputmode="decimal" style="max-width:90px"></div>
+    <div class="field" style="flex:1.6;margin:0"><label for="fin-when-btn">On</label>
+      <input id="fin-when" type="hidden" aria-hidden="true">
+      <div class="datewrap"><button class="datebtn" id="fin-when-btn" onclick="openDate('fin-when')" aria-label="On, pick the day"></button></div></div>
+  </div>
+  <p class="note" style="margin-top:10px">of <span id="fin-of"></span>. Editable. Halves are allowed &mdash; act 2.5 is a real act.</p>
+  <p class="note" id="fin-ripe" style="margin-top:6px;font-style:italic;color:#6B5E3A"></p>
+  <button class="btn" onclick="finishGo()" id="fin-go">On to the post</button>
+</div></div>
+
+<!-- the post-evaluation: G's ruling 30 Aug — a popup survey after posting (or on
+     the next open), whose answers write straight into the journal. Asked once. -->
+<div class="sheet hide" id="sheet-eval" role="dialog" aria-modal="true"><div class="panel">
+  <h3 id="ev-h3">About act 21&hellip;</h3>
+  <div class="field" style="margin-top:14px"><label>How did it go?</label>
+    <div class="chips" id="ev-out"></div></div>
+  <div class="field"><label for="ev-note">A line for the journal <span style="text-transform:none;font-weight:400">(optional)</span></label>
+    <textarea id="ev-note" style="min-height:76px" placeholder="They said thanks and went back inside, which was plenty&hellip;"></textarea></div>
+  <button class="btn" onclick="evalDone(true)">Into the journal</button>
+  <button class="btn ghost" style="margin-top:10px" onclick="evalDone(false)">Skip</button>
+  <p class="note" style="margin-top:10px">Asked once, never twice. Everything stays editable on the act forever.</p>
+</div></div>
+
 <!-- ══════════ WRITE-UP ══════════ -->
 <section id="s-write" class="hide" role="main" aria-label="Write up an act">
   <div class="top"><button class="back" onclick="go('home')">‹</button>
@@ -1035,7 +1160,7 @@ What you actually did. Why it mattered. Say the awkward parts."></textarea>
 
 <!-- ══════════ COMPOSE ══════════ -->
 <section id="s-compose" class="hide" role="main" aria-label="Post an act">
-  <div class="top"><button class="back" onclick="go('card')">‹</button>
+  <div class="top"><button class="back" onclick="go(CM_BACK||'card')">‹</button>
     <h2>Post it</h2><div class="sub" id="cm-no"></div></div>
   <div class="wrap">
     <div class="chips" id="cm-plats" style="margin-bottom:16px"></div>
@@ -1047,7 +1172,7 @@ What you actually did. Why it mattered. Say the awkward parts."></textarea>
       <textarea id="cm-text" style="min-height:220px" oninput="composeEdited()"></textarea>
       <div class="counter"><span id="cm-count"></span>
         <button id="cm-reset" style="color:var(--coralink);font-weight:600;font-size:13px;
-          padding:0" onclick="buildCaption(true)">Rebuild from the diary</button></div>
+          padding:14px 0;min-height:44px" onclick="buildCaption(true)">Rebuild from the diary</button></div>
     </div>
 
     <div id="cm-trim"></div>
@@ -1066,6 +1191,14 @@ What you actually did. Why it mattered. Say the awkward parts."></textarea>
     <button class="btn ghost" style="margin-top:10px" onclick="copyCaption()">
       Just copy the caption</button>
     <p class="note" style="margin-top:12px" id="cm-how"></p>
+
+    <!-- the envelope: giving quietly gets an object, not a channel (ruled 2B) -->
+    <button type="button" class="envnote" id="cm-env" onclick="envNote()">
+      <span class="flap" aria-hidden="true"></span>
+      <span class="etxt"><b>Send it as a note to someone</b> — or send it later.<br>
+      <span style="opacity:.8">It awaits in your journal page. A text or an email to one
+      person — no act number, no hashtag, nothing posted.</span></span>
+    </button>
   </div>
 </section>
 
@@ -1283,7 +1416,7 @@ What you actually did. Why it mattered. Say the awkward parts."></textarea>
 
 <nav class="tabs hide" id="tabs" aria-label="Main">
   <button data-t="home" onclick="go('home')"><span class="ic ics"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3.7 4.6h16.6v14.9H3.6z"/><path d="M3.75 8.9h16.5"/><path d="M9.3 9v10.4"/><path d="M14.75 8.95v10.5"/><path d="M3.8 14.2h16.4"/></svg></span>Your year</button>
-  <button data-t="log"  onclick="newActChecked()"><span class="ic ics"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.4"/><path d="M12 8.1v7.9"/><path d="M8.05 12h7.9"/></svg></span>Plan &amp; Log</button>
+  <button data-t="works"  onclick="go('works')"><span class="ic ics"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.4"/><path d="M12 8.1v7.9"/><path d="M8.05 12h7.9"/></svg></span>Plan &amp; Log</button>
   <button data-t="browse" onclick="go('browse')"><span class="ic ics"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.6c-3.2 0-5.4 2.3-5.4 5.2 0 1.9 1 3 1.9 3.9.55.55.85 1.15.85 1.85h5.3c0-.7.3-1.3.85-1.85.9-.9 1.9-2 1.9-3.9 0-2.9-2.2-5.2-5.4-5.2z"/><path d="M9.6 17.5h4.8"/><path d="M10.6 20.1h2.8"/></svg></span>Ideas</button>
   <button data-t="people" onclick="go('people')"><span class="ic ics"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="16.8" cy="7" r="2.4"/><path d="M16.4 12a5.1 5.1 0 0 1 4.3 4.6"/><circle cx="8.7" cy="9.1" r="3.2"/><path d="M3.1 19a5.8 5.8 0 0 1 11.3 0"/></svg></span>People</button>
   <button data-t="you" onclick="go('you')"><span class="ic ics"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8.2" r="3.4"/><path d="M5.4 19.6a6.8 6.8 0 0 1 13.2 0"/></svg></span>You</button>
@@ -1459,10 +1592,13 @@ function serialise(){
     start:S.start.toISOString(),
     people:S.people, platforms:S.platforms,
     started:S.started, letterSeen:!!S.letterSeen, tabToured:!!S.tabToured, opens:S.opens||0, plans:slimPlans(), handles:S.handles||{}, places:S.places||{},
+    works:(S.works||[]).map(w=>({ pid:w.pid, t:w.t||'', d:w.d||'', who:w.who||[], hon:w.hon||'',
+                          cost:w.cost||0, spends:w.spends||[], story:w.story||'', exp:w.exp||'',
+                          startedAt:w.startedAt||'', photos:(w.photos||[]).map(p=>p&&p.id).filter(Boolean) })),
     acts:S.acts.map(a=>({ no:a.no, t:a.t, out:a.out, who:a.who, cost:a.cost, spends:a.spends||[],
-                          story:a.story, note:a.note||'', half:!!a.half, d:a.d||'', hon:a.hon||'', captions:a.captions||{},
+                          story:a.story, note:a.note||'', half:!!a.half, d:a.d||'', hon:a.hon||'', anon:!!a.anon, pipelined:!!a.pipelined, evalAsked:!!a.evalAsked, captions:a.captions||{},
                           posted:a.posted||{},
-                          photos:(a.photos||[]).map(p=>p.id) }))
+                          photos:(a.photos||[]).map(p=>p.id), offs:(a.photos||[]).map(p=>p&&p.off?1:0) }))
   };
 }
 function save(){
@@ -1555,6 +1691,30 @@ async function load(){
   if(S.cat==='Neighbours') S.cat='Neighbors';   // the library went American
   S.tabToured=!!o.tabToured; S.opens=o.opens||0; S.handles=o.handles||{}; S.places=o.places||{};
   S.plans = await fatPlans(o.plans||{});
+  /* The one-pipeline model, 30 Aug 2026: acts in the works. Photos rehydrate
+     from IndexedDB exactly as plans' do. */
+  S.works = [];
+  for(const w of (Array.isArray(o.works)?o.works:[])){
+    if(!w || typeof w!=='object') continue;
+    const photos=[];
+    for(const id of (w.photos||[])){
+      if(typeof id!=='string') continue;
+      const url=(await idbGet(THUMB(id)))||(await idbGet(id));
+      if(url) photos.push({id:id,url:url}); else LOAD_MISSED=true;
+    }
+    S.works.push({ pid:w.pid||newWorkId(), t:w.t||'', d:w.d||'', who:Array.isArray(w.who)?w.who:[],
+                   hon:w.hon||'', cost:+w.cost||0, spends:Array.isArray(w.spends)?w.spends:[],
+                   story:w.story||'', exp:String(w.exp||''), startedAt:w.startedAt||'', photos:photos });
+  }
+  /* Legacy square-bound plans become works: the grid is the finished year now,
+     and a plan's number was only ever an expectation anyway. One-way, once. */
+  Object.keys(S.plans||{}).forEach(k=>{
+    const pl=S.plans[k]; if(!pl) return;
+    S.works.push({ pid:pl.pid||newWorkId(), t:pl.t||'', d:pl.d||'', who:(pl.who||[]).slice(),
+                   hon:'', cost:+pl.cost||0, spends:(pl.spends||[]).slice(), story:pl.note||'',
+                   exp:String(k), startedAt:todayISO(), photos:(pl.photos||[]).slice() });
+  });
+  S.plans = {};
 
   S.acts=[];
   for(const a of (o.acts||[])){
@@ -1569,9 +1729,10 @@ async function load(){
     S.acts.push({ no:String(a.no==null?'':a.no), t:a.t, out:a.out,
                   who:Array.isArray(a.who)?a.who:[], cost:+a.cost||0,
                   spends:Array.isArray(a.spends)?a.spends:[],
-                  half:!!a.half, d:a.d||'', hon:a.hon||'', captions:a.captions||{},
+                  half:!!a.half, d:a.d||'', hon:a.hon||'', anon:!!a.anon, pipelined:!!a.pipelined, evalAsked:!!a.evalAsked, captions:a.captions||{},
                   posted:a.posted||{}, note:a.note||'',
                   story:a.story||'', photos });
+    (Array.isArray(a.offs)?a.offs:[]).forEach((v,i)=>{ if(v && photos[i]) photos[i].off=true; });
     /* ghost acts with no name, no number and no square are noise, not diary */
     if(!S.acts[S.acts.length-1].t && !slotOf(S.acts[S.acts.length-1]))
       S.acts.pop();
@@ -1603,7 +1764,7 @@ async function exportDiary(){
     const o = serialise();
     o.exported = new Date().toISOString();
     o.v = 1;
-    const head = Object.assign({}, o); delete head.acts; delete head.plans;
+    const head = Object.assign({}, o); delete head.acts; delete head.plans; delete head.works;
     const hj = JSON.stringify(head);
     parts.push(hj.slice(0, hj.length-1));      // open the object, hold it open
     parts.push(',"acts":[');
@@ -1627,6 +1788,28 @@ async function exportDiary(){
       }
       parts.push(']}');
       await new Promise(r=>setTimeout(r, 0));  // breathe between acts
+    }
+    /* acts in the works carry photos too — the lifeboat takes everyone */
+    parts.push('],"works":[');
+    for(let i=0;i<(S.works||[]).length;i++){
+      const w = S.works[i];
+      const slim = Object.assign({}, w); delete slim.photos;
+      if(i) parts.push(',');
+      const wj = JSON.stringify(slim);
+      parts.push(wj.slice(0, wj.length-1));
+      parts.push(',"photos":[');
+      const ph = (w.photos||[]);
+      for(let j=0;j<ph.length;j++){
+        const got = await fullPhoto(ph[j]);
+        if(!got.url) continue;
+        if(!got.full) lost++;
+        if(j) parts.push(',');
+        parts.push('{"id":'+JSON.stringify(ph[j].id)+',"data":"');
+        parts.push(got.url);
+        parts.push('"}');
+      }
+      parts.push(']}');
+      await new Promise(r=>setTimeout(r, 0));
     }
     parts.push('],"plans":{');
     const pks = Object.keys(S.plans||{});
@@ -1731,6 +1914,9 @@ function importDiary(input){
           slim.plans = {};
           for(const k of Object.keys(o.plans||{}))
             slim.plans[k] = Object.assign({}, o.plans[k], { photos: await stash(o.plans[k].photos) });
+          slim.works = [];
+          for(const w of (Array.isArray(o.works)?o.works:[]))
+            slim.works.push(Object.assign({}, w, { photos: await stash(w.photos) }));
 
           const olds = currentPhotoIds();
           localStorage.setItem(LS_KEY, JSON.stringify(slim));   // the point of no return
@@ -1840,6 +2026,7 @@ function heldPhotoIds(){
   const held = {};
   currentPhotoIds().forEach(id=>held[id]=1);
   (S.newPhotos||[]).forEach(p=>{ if(p&&p.id){ held[p.id]=1; held[THUMB(p.id)]=1; } });
+  (S.works||[]).forEach(w=>(w.photos||[]).forEach(p=>{ if(p&&p.id){ held[p.id]=1; held[THUMB(p.id)]=1; } }));
   try {
     const d = JSON.parse(localStorage.getItem(DRAFT_KEY)||'null');
     ((d && d.photos)||[]).forEach(id=>{ held[id]=1; held[THUMB(id)]=1; });
@@ -1861,7 +2048,7 @@ async function wipe(){
 /* ── state ── */
 const S = {
   n: 25, weeks: 52, reason: 'in year fifty', start: new Date(),
-  acts: [], people: [], chosen: [],
+  acts: [], people: [], chosen: [], works: [],
   outcome: 'Went to plan', lead: 'Today', cat: 'Anything', current: null,
   line: 'in year', word: '', lineTouched: false, wordTouched: false, tone: null, toneToured: false,
   name: '', bday: '', why: '',
@@ -2540,9 +2727,14 @@ const ALARM = { '0':'PT9H', '1':'-PT15H', '3':'-PT63H', '7':'-PT159H' };
 
    Nothing is sent from the app and no phone numbers are stored: it opens the
    person's own Messages or Mail with the words in place, recipient blank.   */
-let ASK_MODE = 'text', ASK_CTX = 'plan';
+let ASK_MODE = 'text', ASK_CTX = 'plan', ASK_KIND = 'along';
 
 function askDetails(){
+  /* The auto-written invite NEVER mentions money — standing rule, 30 Aug 2026.
+     Cost-sharing enters an invite only if the sender types it themselves. */
+  if(ASK_CTX==='work' && WK){
+    return { t:(WK.t||'').trim(), d:WK.d||'', no:String(WK.exp||nextSlot(true)), who:(WK.who||[]).slice() };
+  }
   if(ASK_CTX==='log'){
     return { t:$('l-title').value.trim(), d:$('l-when').value,
              no:$('l-num').value||'1', who:(S.chosen||[]).slice() };
@@ -2563,6 +2755,16 @@ function whenWords(iso){
 }
 function askDrafts(){
   const a = askDetails();
+  if(ASK_KIND==='part'){
+    const name=(S.name||'').trim();
+    const first=a.who.length ? listWords(a.who.map(n=>n.split(' ')[0])) : 'you';
+    const what=a.t || ('act '+a.no);
+    const text='Hello '+first+', I\u2019m putting together act '+a.no+' of my '+S.n+': '+what+'.\n\n'+
+      'You don\u2019t have to be there \u2014 but if you\u2019d like to be part of it, there\u2019s room. '+
+      'A hand beforehand, an idea, or just your name on the card with mine.'+
+      (name?'\n\n'+name:'')+'\n\n'+S.n+' acts of good'+(S.word?', '+S.line+' '+S.word:'')+'.';
+    return { text:text, email:text, subject:'Act '+a.no+' of '+S.n+' \u2014 be part of it?' };
+  }
   const name = (S.name||'').trim();
   const first = a.who.length ? listWords(a.who.map(n=>n.split(' ')[0])) : 'you';
   const what  = a.t || ('act '+a.no);
@@ -2586,10 +2788,10 @@ function askDrafts(){
     'Hello ' + (a.who.length ? first : 'there') + ',\n\n' +
     'I’m doing ' + S.n + ' acts of good over a ' + per + ', and number ' +
     a.no + ' is ' + when + '.\n\n' +
-    '  • What ,  ' + what + '\n' +
-    '  • When ,  ' + (a.d ? longDate(a.d) : 'still deciding') + '\n' +
+    '  • What — ' + what + '\n' +
+    '  • When — ' + (a.d ? longDate(a.d) : 'still deciding') + '\n' +
     '\nWould you like to come along? No obligation whatsoever, the offer is the\n' +
-    'point, and these things are always better with someone else in them.\n\n' +
+    'point, and it’d be nicer with you in it.\n\n' +
     'If this one doesn’t suit, there are ' + Math.max(1, S.n - S.acts.length - 1) +
     ' more to come.\n\n' +
     (name ? name + '\n' : '') +
@@ -2609,11 +2811,25 @@ function openAsk(ctx){
 }
 function drawAsk(){
   const d = askDrafts();
+  /* two invitations, ruled 30 Aug: come along on the day, or be part of it
+     without being there. The second never mentions money and never attaches a
+     calendar, because there is nothing to attend. */
+  const kindRow=$('ask-kind');
+  if(kindRow){
+    if(ASK_CTX==='work'){
+      kindRow.classList.remove('hide');
+      chips(kindRow, [['Come along on the day','along'],['Be part of it','part']], ()=>ASK_KIND, v=>{ ASK_KIND=v; drawAsk(); });
+    } else { kindRow.classList.add('hide'); ASK_KIND='along'; }
+  }
   chips($('ask-mode'), [['Text','text'],['Email','email']], ()=>ASK_MODE, v=>{ ASK_MODE=v; drawAsk(); });
   $('ask-subwrap').classList.toggle('hide', ASK_MODE!=='email');
   $('ask-subject').value = d.subject;
   $('ask-body').value    = ASK_MODE==='email' ? d.email : d.text;
   $('ask-send').textContent = ASK_MODE==='email' ? 'Open Mail' : 'Open Messages';
+  const noCal = (ASK_KIND==='part');
+  ['ask-invite'].forEach(id=>{ const el=$(id); if(el) el.classList.toggle('hide', noCal); });
+  document.querySelectorAll('#sheet-ask [onclick="shareInvite(true)"]').forEach(el=>el.classList.toggle('hide', noCal));
+  if(noCal){ const n=$('ask-invnote'); if(n) n.textContent='No calendar invitation with this one \u2014 there is nothing to attend, only something to be part of.'; }
   const a = askDetails();
   const known = (a.who||[]).filter(n=>(handlesOf(n)||{}).email);
   const note = $('ask-invnote');
@@ -2632,6 +2848,8 @@ function drawAsk(){
         'Without one it still attaches as an event they can add in one tap.'
       : 'Attaches the act as an event they can add in one tap.';
   }
+  /* the be-part-of-it opening has the last word on the note */
+  if(ASK_KIND==='part'){ const n=$('ask-invnote'); if(n) n.textContent='No calendar invitation with this one \u2014 there is nothing to attend, only something to be part of.'; }
 }
 function sendAsk(){
   const body = encodeURIComponent($('ask-body').value);
@@ -2854,7 +3072,7 @@ function drawDate(){
    ends it. Nothing about it is required reading.                            */
 const TAB_TOUR = [
   ['home',   'Everything<br>so far'],
-  ['log',    'Plan it,<br>log it'],
+  ['works',  'Plan it,<br>log it'],
   ['browse', 'Borrow<br>an idea'],
   ['people', "Who's in it<br>with you"],
   ['you',    'All about<br>you']
@@ -3134,7 +3352,8 @@ function drawCal(){
       const iso=el.getAttribute('data-d'), dd=+iso.slice(8);
       const existing = Object.keys(S.plans||{}).find(k=>(S.plans[k]||{}).d===iso);
       sheet(null);
-      openPlan(existing ? +existing : null, iso);
+      { const w=(S.works||[]).filter(x=>x.d===iso)[0];
+        if(w){ openWork(w); } else openPlan(existing ? +existing : null, iso); }
     };
   });
 
@@ -3191,7 +3410,7 @@ function drawJournal(){
     '<div class="jno">'+esc(S.n)+' acts of good</div>'+
     '<div class="jword">'+esc(reasonScript())+'</div>'+
     (S.why ? '<p class="jwhy">'+esc(S.why)+'</p>'
-           : '<p class="jwhy" style="color:#8A8279">Why you began is the first page '+
+           : '<p class="jwhy" style="color:#6E675E">Why you began is the first page '+
              'of the book. Put it in whenever the words come.</p>')+
     (S.name ? '<p class="jwith" style="margin-top:14px">'+esc(S.name)+'</p>' : '');
   const openEdit=document.createElement('button');
@@ -3230,7 +3449,7 @@ function drawJournal(){
       (a.d ? '<p class="jdate">'+esc(fmtLong(a.d))+'</p>' : '')+
       withWho+'<div class="jrule"></div>'+
       (a.story ? '<p class="jstory">'+esc(a.story)+'</p>'
-               : '<p class="jstory" style="color:#8A8279;font-style:italic">Not written '+
+               : '<p class="jstory" style="color:#6E675E;font-style:italic">Not written '+
                  'up yet. The story is the page.</p>')+
       shots+outLine;
     const ed=document.createElement('button');
@@ -3239,6 +3458,14 @@ function drawJournal(){
     ed.setAttribute('aria-label','Edit act '+a.no);
     ed.onclick=()=>openAct(a);
     pg.appendChild(ed);
+    /* the envelope awaits here forever — a personal note for the circles not
+       on social, long after the post */
+    const env=document.createElement('button');
+    env.type='button'; env.className='jenv';
+    env.innerHTML='<span class="flap" aria-hidden="true"></span><span>Send this one as a note to someone</span>';
+    env.setAttribute('aria-label','Send act '+a.no+' as a personal note');
+    env.onclick=()=>{ S.current=a; CM_PLAT='private'; openCompose(); };
+    pg.appendChild(env);
     box.appendChild(pg);
   });
 
@@ -3265,7 +3492,276 @@ function drawJournal(){
   }
 }
 
+/* ── acts in the works: the one pipeline ──────────────────────────────────
+   Ruled 30 Aug 2026. An act starts here, is edited for as long as it likes
+   (anticipated number and date shift freely), and finishes by posting — the
+   full story, or anonymously, just the card. The grid is the finished year. */
+let WK = null;            // the work open in the editor
+let FIN_ANON = false;     // which finish was chosen
+let _wkid = 1;
+function newWorkId(){ return 'wk'+(_wkid++)+Math.random().toString(36).slice(2,7); }
+
+/* a legacy half-written draft becomes an act in the works — nothing asks the
+   old log screen back onto the stage */
+async function draftToWork(d){
+  const photos=[];
+  for(const id of ((d&&d.photos)||[])){
+    if(typeof id!=='string') continue;
+    try{ const url=(await idbGet(THUMB(id)))||(await idbGet(id)); if(url) photos.push({id:id,url:url}); }catch(e){}
+  }
+  const w={ pid:newWorkId(), t:(d&&d.t)||'', d:(d&&d.d)||'', who:((d&&d.who)||[]).slice(),
+            hon:'', cost:+((d&&d.cost)||0)||0, spends:((d&&d.spends)||[]).slice(),
+            story:(d&&d.note)||'', exp:String((d&&d.no)||''), startedAt:todayISO(), photos:photos };
+  S.works=S.works||[]; S.works.push(w);
+  clearDraft(); save();
+  openWork(w);
+}
+function startWork(expect, aim){
+  /* the work only joins the shelf once it holds something — an abandoned tap
+     leaves nothing behind */
+  const w = { pid:newWorkId(), t:'', d:aim||'', who:[], hon:'', cost:0, spends:[],
+              story:'', exp:expect?String(expect):'', startedAt:todayISO(), photos:[],
+              _unsaved:true };
+  openWork(w);
+}
+function workKeep(){
+  if(!WK || !WK._unsaved) return;
+  if(!( (WK.t||'').trim() || (WK.story||'').trim() || WK.d || (WK.who||[]).length ||
+        (WK.photos||[]).length || (WK.spends||[]).length || (WK.hon||'').trim() || WK.cost )) return;
+  delete WK._unsaved;
+  S.works = S.works || [];
+  S.works.push(WK);
+}
+function openWork(w){
+  WK = w;
+  $('wk-t').value = w.t||'';
+  $('wk-exp').value = w.exp||'';
+  $('wk-exp').placeholder = 'auto ('+nextSlot(true)+')';
+  $('wk-when').value = w.d||''; syncDateBtn('wk-when');
+  $('wk-hon').value = w.hon||'';
+  $('wk-story').value = w.story||'';
+  const t = tally(w.spends||[]);
+  $('wk-cost').value = (w.spends||[]).length ? (t.mine?money(t.mine):'') : (w.cost ? money(w.cost) : '');
+  wkCostState();
+  drawWorkWho();
+  drawPhotos('wk-photos','wk-file', w.photos, ()=>drawPhotos('wk-photos','wk-file', WK.photos, ()=>openWork(WK)));
+  go('work');
+}
+function wkEdited(){
+  if(!WK) return;
+  workKeep();
+  WK.t = $('wk-t').value.trim();
+  WK.exp = $('wk-exp').value.trim();
+  WK.d = $('wk-when').value;
+  WK.hon = $('wk-hon').value.trim();
+  WK.story = $('wk-story').value;
+  workKeep(); save();
+}
+function wkCostTyped(){
+  if(!WK) return;
+  /* once a tally exists it owns the figure — same protection the old log
+     screen had; typing here must never be silently discarded */
+  if((WK.spends||[]).length) return;
+  const v = readMoney($('wk-cost').value);
+  if(v !== null) WK.cost = v;
+  workKeep(); save();
+}
+function wkCostState(){
+  if(!WK) return;
+  const f=$('wk-cost'), n=(WK.spends||[]).length, note=$('wk-spendnote');
+  if(!f) return;
+  f.readOnly = !!n;
+  if(note){
+    const t = n ? tally(WK.spends) : null;
+    note.textContent = !n
+      ? 'One number is fine. Or the calculator keeps a tally as you buy things.'
+      : (Math.abs(t.all - t.mine) < 0.005
+          ? 'From your tally of ' + n + (n===1?' item':' items') + '. Change it there.'
+          : 'Your share of ' + money(t.all) + ' spent in all. Change it in the tally.');
+  }
+}
+function drawWorkWho(){
+  const pc=$('wk-who'); pc.innerHTML='';
+  const names = S.people.slice();
+  (WK.who||[]).forEach(w=>{ if(names.indexOf(w)<0) names.push(w); });
+  names.forEach(p=>{
+    const b=document.createElement('button');
+    b.type='button';
+    const on=(WK.who||[]).indexOf(p)>-1;
+    b.className='chip'+(on?' on':'');
+    b.textContent=p;
+    b.setAttribute('aria-pressed', on?'true':'false');
+    b.onclick=()=>{
+      WK.who=WK.who||[];
+      const i=WK.who.indexOf(p);
+      if(i>-1) WK.who.splice(i,1); else WK.who.push(p);
+      workKeep(); save(); drawWorkWho();
+    };
+    pc.appendChild(b);
+  });
+  const add=document.createElement('button');
+  add.type='button'; add.className='chip'; add.textContent='+ someone new';
+  add.onclick=()=>askFor('Who?','Their name', v=>{
+    const name=v.trim(); if(!name) return;
+    if(S.people.indexOf(name)<0) S.people.push(name);
+    WK.who=WK.who||[]; if(WK.who.indexOf(name)<0) WK.who.push(name);
+    workKeep(); save(); drawWorkWho();
+  });
+  pc.appendChild(add);
+  /* the invite, right where the person was named — never mentions money */
+  const inv=$('wk-invite');
+  if((WK.who||[]).length){
+    inv.style.display='block';
+    inv.textContent='\u2709\uFE0E Invite '+listWords(WK.who)+' \u2014 the app writes the text'+(WK.d?', and a real calendar invite':'');
+  } else inv.style.display='none';
+}
+function workToCalendar(){
+  if(!WK) return;
+  wkEdited();
+  toCalendar(WK.t, WK.d, WK.exp||nextSlot(true), WK.who, '1');
+}
+function dropWork(){
+  if(!WK) return;
+  if(WK._unsaved){ WK=null; go('works'); return; }   // never joined the shelf
+  const w=WK;
+  checkFirst('Let this one go?',
+    (w.t?'\u201C'+w.t+'\u201D':'This act')+' leaves the works. Its photos go too.',
+    'Let it go', ()=>{
+      const i=S.works.indexOf(w);
+      if(i>-1) S.works.splice(i,1);
+      save();
+      releasePhotos(w.photos||[]);
+      WK=null; go('works');
+    });
+}
+function ripenWords(w){
+  const bits=[];
+  if(w.startedAt){
+    const days=Math.max(0, Math.round((new Date(todayISO()+'T00:00:00') - new Date(w.startedAt+'T00:00:00'))/864e5));
+    if(days>=14) bits.push('started '+Math.round(days/7)+' weeks ago');
+    else if(days>=7) bits.push('started a week ago');
+    else if(days>=2) bits.push('started '+days+' days ago');
+    else bits.push('started today');
+  }
+  if((w.who||[]).length) bits.push(listWords(w.who.map(n=>n.split(' ')[0]))+(w.who.length===1?' is in':' are in'));
+  const ph=(w.photos||[]).length;
+  if(ph) bits.push(ph+(ph===1?' photo already':' photos already'));
+  if((w.story||'').trim()) bits.push('the story has begun');
+  return bits.join(' \u00B7 ');
+}
+/* the post-evaluation survey: fires after a post lands, or greets the next
+   open if the app was closed first. One act at a time, dismiss counts as
+   answered, and the note writes straight into the story — which IS the
+   journal page. */
+let EVAL_ACT=null;
+function askEval(a){
+  if(!a || a.evalAsked) return;
+  EVAL_ACT=a;
+  const tt=(a.t||'').toLowerCase();
+  $('ev-h3').textContent='About act '+a.no+(tt?', '+(tt.length>34?tt.slice(0,34).trimEnd():tt):'')+'\u2026';
+  chips($('ev-out'),['Went to plan','Partly',"Didn't go to plan"],
+        ()=>a.out||'', v=>{ a.out=v; save(); });   // no default: nothing claimed until she says it
+  $('ev-note').value='';
+  sheet('eval');
+}
+function evalDone(keep){
+  const a=EVAL_ACT; EVAL_ACT=null;
+  if(a){
+    a.evalAsked=true;
+    if(keep){
+      const n=$('ev-note').value.trim();
+      if(n) a.story=(a.story?a.story+'\n\n':'')+n;   // straight into the journal
+    }
+    save();
+  }
+  sheet(null);
+}
+function pendingEval(){
+  for(let i=S.acts.length-1;i>=0;i--){
+    const a=S.acts[i];
+    if(a && a.pipelined && !a.evalAsked) return a;   // newest first, one only
+  }
+  return null;
+}
+function drawWork(){ if(!WK){ go('works'); return; } }
+function drawWorks(){
+  const box=$('workslist'); box.innerHTML='';
+  const list=(S.works||[]);
+  $('works-h').textContent = list.length ? 'Acts in the works \u2014 '+list.length : 'Acts in the works';
+  $('works-sub').textContent = S.acts.length ? (S.acts.length+' done') : '';
+  if(!list.length){
+    box.innerHTML='<p class="note">Nothing in the works yet. Start one \u2014 a name is enough, the rest ripens whenever it likes.</p>';
+    return;
+  }
+  list.forEach(w=>{
+    const c=document.createElement('button');
+    c.type='button'; c.className='wkcard';
+    const when = w.d ? '~ '+longDate(w.d) : 'no day yet';
+    const ripe = ripenWords(w);
+    c.innerHTML='<div class="t">'+esc(w.t||'An act, unnamed')+'</div>'+
+      '<div class="dt">'+esc(when)+(w.exp?' \u00B7 expecting act '+esc(w.exp):'')+'</div>'+
+      (ripe?'<div class="ripe">'+esc(ripe)+'</div>':'');
+    c.setAttribute('aria-label',(w.t||'An unnamed act')+', in the works. Open it.');
+    c.onclick=()=>openWork(w);
+    box.appendChild(c);
+  });
+}
+/* the finish: one confirming glance, then the card */
+function finishWork(anon){
+  if(!WK) return;
+  wkEdited();
+  if(!WK.t){ say('It needs a name','Everything else can wait. That bit can\u2019t.'); return; }
+  FIN_ANON = !!anon;
+  /* an expectation another act already fulfilled quietly steps aside */
+  const expTaken = WK.exp && S.acts.some(x=>slotOf(x)===Math.ceil(parseFloat(WK.exp)));
+  $('fin-no').value = (!WK.exp || expTaken) ? String(nextSlot(true)) : WK.exp;
+  $('fin-when').value = (WK.d && !isFuture(WK.d)) ? WK.d : todayISO();
+  syncDateBtn('fin-when');
+  $('fin-of').textContent = S.n;
+  /* the harvest acknowledges the ripening, once, as it becomes real */
+  const fr=$('fin-ripe'); if(fr){ const rw=ripenWords(WK); fr.textContent=rw; fr.style.display=rw?'':'none'; }
+  sheet('finish');
+}
+function finishGo(){
+  const w=WK; if(!w) return;
+  const noRaw = $('fin-no').value.trim() || String(nextSlot(true));
+  const no = noRaw.replace(',','.');
+  const slot = Math.ceil(parseFloat(no));
+  if(!(slot>=1)){ say('That is not an act number','A number like 21, or 2.5 \u2014 halves are real acts.'); return; }
+  if(slot > S.n){ say('That\u2019s past '+S.n,'Raise the goal on the You screen first, or pick a lower number.'); return; }
+  const clash = S.acts.filter(x=>slotOf(x)===slot)[0];
+  if(clash){ say('Act '+slot+' is already used','\u201C'+(clash.t||'')+'\u201D is in that square. Pick another number.'); return; }
+  const d = $('fin-when').value || todayISO();
+  const t = tally(w.spends||[]);
+  const a = { no:no, t:w.t, out:'', who:(w.who||[]).slice(), hon:w.hon||'',
+              cost: (w.spends||[]).length ? t.mine : (+w.cost||0), spends:(w.spends||[]).slice(),
+              story:w.story||'', d:d, half: no.indexOf('.')>-1,
+              anon: FIN_ANON, pipelined:true, captions:{}, posted:{}, note:'',
+              photos:(w.photos||[]).slice() };
+  S.acts.push(a); S.current=a;
+  workKeep();
+  const i=S.works.indexOf(w); if(i>-1) S.works.splice(i,1);
+  WK=null; save();
+  sheet(null);
+  CM_BACK='home';   // a first-time finisher has never seen the card screen
+  /* one posting page, ruled 30 Aug: the finish lands directly on Post it —
+     card, photos riding along, your post, where, share. The card screen stays
+     reachable from the act itself for halves, renumbering, do-it-again. */
+  openCompose();
+}
+
 /* ── grid ── */
+function sashSVG(txt){
+  /* G's chosen design (his Gemini reference, 30 Aug): a simple white band across
+     the top-right corner, clipped inside the tile's rounded corners, the date in
+     light coral letterspaced type. Nothing overhangs; it doesn't have to be hard. */
+  return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><defs><clipPath id="sashclip"><rect width="200" height="200" rx="24"/></clipPath></defs><g clip-path="url(#sashclip)"><defs><filter id="sashblur" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="2.2"/></filter></defs><line x1="34" y1="13" x2="196" y2="175" stroke="rgba(96,80,66,0.28)" stroke-width="8" filter="url(#sashblur)"/><polygon points="21.5,0 103.9,0 200,96.1 200,178.5" fill="#FFFDF7"/><text x="131" y="68" transform="rotate(45 131 68)" text-anchor="middle" dominant-baseline="central" font-family="Montserrat,-apple-system,sans-serif" font-weight="600" font-size="38" letter-spacing="1.5" fill="#EC9C90">'+txt+'</text></g></svg>';
+}
+function sashDate(a){
+  const p=((a&&a.d)||'').split('-');
+  if(p.length<3) return 'DONE';
+  return (+p[1])+'-'+(+p[2])+'-'+p[0].slice(2);
+}
 function drawGrid(){
   $('grid-title').textContent='The '+S.n;
   const g=$('grid'); g.innerHTML='';
@@ -3274,6 +3770,9 @@ function drawGrid(){
      act 2's square and it does not fall off the bottom of the grid, which is
      what flooring the number used to do to it. */
   const map={}; S.acts.forEach(a=>{ const s=slotOf(a); if(s>=1) map[s]=a; });
+  /* newest finished act = the last one logged, not the highest number */
+  let SASH_LAST=0;
+  for(let k=S.acts.length-1;k>=0;k--){ const s=slotOf(S.acts[k]); if(s>=1){ SASH_LAST=s; break; } }
   const plans=S.plans||{};
   const nextN = nextSlot();
   const f = S.filterPerson;
@@ -3312,6 +3811,13 @@ function drawGrid(){
       a  ? 'Act '+a.no+', '+(a.t||'logged')+'. Open it.'
     : pl ? 'Act '+i+', planned'+(pl.t?': '+pl.t:'')+(pl.d?', '+shortDate(pl.d):'')+'. Open it.'
          : 'Act '+i+', empty. Plan it.');
+    /* the sash rides the most recently logged act's square only */
+    if(a && SASH_LAST===i){
+      const s=document.createElement('div');
+      s.className='sash'; s.setAttribute('aria-hidden','true');
+      s.innerHTML=sashSVG(sashDate(a));   // live type, the act's own date
+      t.appendChild(s);
+    }
     g.appendChild(t);
   }
 
@@ -3365,26 +3871,14 @@ function forgetSourcePlan(){
   PLAN_SOURCE = null; PLAN_SOURCE_KEY = null;
 }
 function logSlot(i){
-  const pl = (S.plans||{})[i] || {};
-  fillLogFromPlan(i, pl, pl.d || todayISO());
+  /* one pipeline: an empty square starts an act in the works, expecting i */
+  startWork(i);
 }
 
 function openPlan(i, whenISO){
-  const slot = i || nextFreeSlot();
-  if(!slot){
-    say('Your year is full','Every square has an act or a plan in it already. '+
-        'Clear one, or raise the number of acts on the You screen.');
-    return;
-  }
-  S.planSlot = slot;
-  const pl=(S.plans||{})[S.planSlot]||{};
-  $('pl-title').value = pl.t||'';
-  $('pl-when').value  = whenISO || pl.d || '';
-  syncDateBtn('pl-when');
-  S.planWho = (pl.who||[]).slice();
-  S.planRemind = pl.r || '1';
-  drawPlan();
-  sheet('plan');
+  /* one pipeline: planning from the calendar or an occasion starts an act in
+     the works, aimed at that day — kept only once something is typed */
+  startWork(i, whenISO||'');
 }
 /* nextSlot() ignored plans and nextFreeSlot() counted them, so "Do it again"
    could offer a number a plan already held — and saving then deleted that plan,
@@ -3400,6 +3894,9 @@ function nextFreeSlot(){ const n = nextSlot(true); return n <= S.n ? n : 0; }
 function setGoal(v){
   const stranded = S.acts.filter(a=>slotOf(a) > v);
   const strandedPlans = Object.keys(S.plans||{}).filter(k=>+k > v);
+  /* works with an expectation above the new ceiling: the expectation simply
+     relaxes — it was only ever a guess, and the finish re-checks the ceiling */
+  (S.works||[]).forEach(w=>{ if(+w.exp > v) w.exp=''; });
   if(!stranded.length && !strandedPlans.length){ S.n=v; drawSetup(); save(); return; }
 
   /* Work out the free squares BEFORE offering anything. The old version called
@@ -4032,6 +4529,7 @@ function openSpends(){
    lines from it, and changed its recorded cost, all while she thought she was
    writing today's. The log screen always means the draft. */
 function currentSpends(){
+  if(SCREEN === 'work' && WK){ workKeep(); return (WK.spends = WK.spends || []); }
   if(SCREEN === 'log') return (S.draftSpends = S.draftSpends || []);
   return S.current ? spendsOf(S.current) : (S.draftSpends = S.draftSpends || []);
 }
@@ -4156,7 +4654,8 @@ function syncCost(){
   const list = currentSpends();
   const t = tally(list);
   if($('l-cost')){ $('l-cost').value = t.mine ? money(t.mine) : ''; COST_TYPED = false; }
-  if(SCREEN !== 'log' && S.current){ S.current.cost = t.mine; save(); }
+  if(SCREEN === 'work' && WK){ WK.cost = t.mine; const f=$('wk-cost'); if(f) f.value = t.mine?money(t.mine):''; wkCostState(); save(); }
+  else if(SCREEN !== 'log' && S.current){ S.current.cost = t.mine; save(); }
   else if(SCREEN === 'log') saveDraft();
   /* The tally is the one control the app tells her to use OVER DAYS — "add
      things as you buy them" — and nothing here ever wrote it down. Every line
@@ -4693,7 +5192,9 @@ function drawSlides(a){
 const LIMITS = { instagram:2200, facebook:63206, threads:500, private:100000 };
 let CM_PLAT = 'instagram';
 
+let CM_BACK='card';
 function openCompose(){
+  if(SCREEN==='card') CM_BACK='card';
   const a = S.current || S.acts[S.acts.length-1];
   if(!a){ say('Nothing to show yet','Log an act first.'); return; }
   const on = PLATS.filter(([k])=>S.platforms[k].on).map(([k])=>k);
@@ -4729,7 +5230,18 @@ function buildCaption(force){
      than with its number, and it carries no hashtag. */
   /* Her act-20 post is the pattern: "Act 20 of 50: In honor of Miss Judy
      Mabe's birthday …" — the honoree rides the opening line, not a footnote. */
-  if(CM_PLAT!=='private') lines.push('Act '+a.no+' of '+S.n+':'+(a.hon?' In honor of '+a.hon+'.':''));
+  /* an anonymous act posts the card and nothing else: the number is the
+     accountability, the story stays in the journal */
+  if(a.anon && CM_PLAT!=='private'){
+    a.captions[CM_PLAT] = 'Act '+a.no+' of '+S.n+'.\n\n'+defaultHashtag();
+    drawCompose(); return;
+  }
+  if(CM_PLAT!=='private'){
+    /* the colon promises more; an act with no story and no honoree ends the
+       line with a full stop instead of a dangling ':' */
+    const more = a.hon || (a.story||'').trim() || tagsFor(a, CM_PLAT).length;
+    lines.push('Act '+a.no+' of '+S.n+(more?':':'.')+(a.hon?' In honor of '+a.hon+'.':''));
+  }
   else{ if(a.t) lines.push(a.t); if(a.hon) lines.push('In honor of '+a.hon+'.'); }
   const story = (a.story||'').trim();
   if(story) lines.push(story);
@@ -4802,8 +5314,10 @@ function drawCompose(){
   /* Private sits with the platforms because it is the same decision: where is
      this going. Roughly half of what the app makes was never meant for a feed,
      and until now those acts had nowhere to go at all. */
-  const choices = list.map(([k,l])=>[sendChip(l,k),k])
-                       .concat([[sendChip('Text or email','private'),'private']]);
+  /* the personal note is not a channel among channels — it is stationery.
+     Two chips up here; the envelope waits below the share button. (Ruled 2B.) */
+  const choices = list.map(([k,l])=>[sendChip(l,k),k]);
+  if(CM_PLAT==='private' && !choices.some(c=>c[1]===CM_PLAT)){ /* envelope selected: no chip lights */ }
   chips($('cm-plats'), choices, ()=>CM_PLAT, v=>{
     CM_PLAT=v; buildCaption(false);
   });
@@ -4817,6 +5331,8 @@ function drawCompose(){
   const platName = platLabel(CM_PLAT);
   $('cm-label').textContent = ', for ' + platName;
   $('cm-go').textContent = HAND_LABEL[CM_PLAT] || ('Open ' + platName);
+  const env=$('cm-env'); if(env){ env.classList.toggle('on', CM_PLAT==='private');
+    env.setAttribute('aria-pressed', CM_PLAT==='private'?'true':'false'); }
   $('cm-how').textContent = HAND_HOW[CM_PLAT] || '';
   drawPreview(); prepack();
 
@@ -4975,7 +5491,8 @@ const HAND_HOW = {
              'is posted anywhere.'
 };
 const HAND_LABEL = { instagram:'Send to Instagram', facebook:'Send to Facebook',
-                     threads:'Send to Threads', private:'Text or email it' };
+                     threads:'Send to Threads', private:'Send it' };
+function envNote(){ CM_PLAT='private'; buildCaption(false); }
 
 /* Selecting the caption textarea focuses it, which on iOS throws the keyboard up
    at the same moment the share sheet is trying to open. Use the async clipboard
@@ -5021,9 +5538,9 @@ function smallNote(n){
 function packKey(a){
   /* by id: thumbnail lengths collide far more often than ids do, and two photos
      with equal-length previews used to leave the card undrawn */
-  const shot = (a.photos||[]).map(p=>(p&&p.id)||'').join(',');
+  const shot = (a.photos||[]).map(p=>(p&&p.id)+(p&&p.off?'!':'')||'').join(',');
   /* S.n is on the card — "act 1 of 50" — so changing the goal has to redraw it */
-  return [a.no, S.n, (CM_PLAT==='private'?'note':'card'), a.t||'', a.d||'', a.when||'',
+  return [a.no, S.n, (a.anon?'anon':''), (CM_PLAT==='private'?'note':'card'), a.t||'', a.d||'', a.when||'',
           (a.story||''), (a.who||[]).join('~'), a.out||'', shot].join('|');
 }
 async function prepack(){
@@ -5048,7 +5565,9 @@ async function prepack(){
      Each one is decoded on its own: a single corrupt photo used to throw out of
      the whole function, leaving PACK.busy true forever, which locked the Post it
      screen with no error and no way back. */
-  const shots = (a.photos||[]);
+  /* an anonymous act posts the card alone; otherwise only the photos still
+     marked as riding along go out — the journal keeps every one either way */
+  const shots = a.anon ? [] : (a.photos||[]).filter(p=>p && !p.off);
   for(let i=0;i<shots.length;i++){
     const p = shots[i];
     if(!p) continue;
@@ -5201,14 +5720,35 @@ function drawPreview(){
     return;
   }
   PREV_URL = URL.createObjectURL(files[0]);
-  const extra = files.length - 1;
+  const a = S.current||S.acts[S.acts.length-1]||{};
   box.innerHTML =
-    '<img src="'+PREV_URL+'" alt="The card for act '+
-      ((S.current||S.acts[S.acts.length-1]||{}).no||'')+'" '+
+    '<img src="'+PREV_URL+'" alt="The card for act '+(a.no||'')+'" '+
       'style="width:100%;max-width:260px;display:block;border-radius:12px;'+
-      'border:1px solid var(--line)">'+
-    (extra ? '<p class="note" style="margin:8px 0 0">and '+extra+' photo'+
-      (extra>1?'s':'')+' of your own</p>' : '');
+      'border:1px solid var(--line)">';
+  if(a.anon){
+    box.innerHTML += '<p class="note" style="margin:8px 0 0">An anonymous act — '+
+      'the card posts alone. Your story and photos stay in your journal.</p>';
+    return;
+  }
+  /* riding along: tap a photo to include it or leave it out of the post */
+  const ph=(a.photos||[]).filter(p=>p&&p.url);
+  if(ph.length && CM_PLAT!=='private'){
+    const off = ph.filter(p=>p.off).length;
+    box.innerHTML += '<p class="note" style="margin:10px 0 6px">Riding along — tap to '+
+      'include or leave out. The journal keeps them all.</p>';
+    const strip=document.createElement('div'); strip.className='photos';
+    ph.forEach((p,i)=>{
+      const t=document.createElement('button');
+      t.type='button'; t.className='ph-tile';
+      t.style.cssText='padding:0;border:0;background:none;position:relative;opacity:'+(p.off?'.35':'1');
+      t.innerHTML='<img src="'+esc(p.url)+'" alt="" style="outline:'+(p.off?'none':'2px solid var(--coralink)')+';outline-offset:1px;border-radius:6px">';
+      t.setAttribute('aria-pressed', p.off?'false':'true');
+      t.setAttribute('aria-label','Photo '+(i+1)+(p.off?', left out. Include it.':', riding along. Leave it out.'));
+      t.onclick=()=>{ p.off=!p.off; save(); drawPreview(); prepack(); };
+      strip.appendChild(t);
+    });
+    box.appendChild(strip);
+  }
 }
 
 /* photos are held as data URLs; the share sheet wants real files */
@@ -5240,7 +5780,8 @@ function askIfPosted(){
         note: 'Act '+act.no+(sent ? ', as a message.' : ' on '+platLabel(plat)+'.'),
         ok: sent ? 'Yes, sent' : 'Yes, it is up', cancel:'Not yet',
         then:()=>{ act.posted = act.posted||{}; act.posted[plat]=true;
-                   dropPasteBar(); save(); drawCompose(); } });
+                   dropPasteBar(); save(); drawCompose();
+                   setTimeout(()=>askEval(act), 350); } });
 }
 document.addEventListener('visibilitychange', ()=>{
   if(document.hidden || !LEFT_FOR) return;
@@ -5750,23 +6291,15 @@ function cardBlob(a, W){
    copies what's reusable, the title, the people, what it cost, and leaves the
    story, photos and outcome blank, because those belong to the day it happens. */
 function doItAgain(){
+  /* the same act, another day: reusable facts copy into a fresh act in the
+     works; story, photos and outcome belong to the day it happens */
   const a = S.current || S.acts[S.acts.length-1];
   if(!a) return;
-  const next = nextFreeSlot() || nextSlot();
-  newAct();
-  $('l-num').value = next;
-  $('log-no').textContent = 'act '+next+' of '+S.n;
-  $('l-title').value = a.t;
-  S.chosen = (a.who||[]).slice();
-  S.draftSpends = (a.spends||[]).map(sp=>({a:sp.a,w:sp.w,p:sp.p,n:sp.n}));
-  /* it left the cost field blank and read-only while the note said "from your
-     tally of 2 items" — the number was right underneath and nowhere on screen.
-     And an act whose cost was one typed figure carried nothing at all, though
-     this function's own description promises "what it cost". */
-  drawLog();
-  if(S.draftSpends.length) syncCost();
-  else if(a.cost){ $('l-cost').value = cents(a.cost); COST_TYPED = true; updateSpendNote(); }
-  else updateSpendNote();
+  const w = { pid:newWorkId(), t:a.t||'', d:'', who:(a.who||[]).slice(), hon:'',
+              cost:+a.cost||0, spends:[], story:'', exp:'', startedAt:todayISO(), photos:[] };
+  S.works = S.works || [];
+  S.works.push(w); save();
+  openWork(w);
 }
 
 /* ── browse ────────────────────────────────────────────────────────────────
@@ -6024,7 +6557,7 @@ function checkFirst(title, note, okLabel, then, cancelLabel){
 let SHEET_FROM = null;
 function sheet(which){
   dropUndo();      // an offer does not follow you into or out of a sheet
-  ['you','social','spend','plan','person','helpers','cal','date','ask','done'].forEach(x=>$('sheet-'+x).classList.add('hide'));
+  ['you','social','spend','plan','person','helpers','cal','date','ask','done','finish','eval'].forEach(x=>{ const el=$('sheet-'+x); if(el) el.classList.add('hide'); });
   if(which){ $('sheet-'+which).classList.remove('hide'); }
   if(which==='social') drawPlats();
   if(which==='helpers') drawHelpers();
@@ -6150,7 +6683,7 @@ function finishSetup(){
 }
 
 /* ── nav ── */
-const VIEWS=['setup','home','log','write','card','compose','browse','people','you','journal'];
+const VIEWS=['setup','home','log','write','card','compose','browse','people','you','journal','works','work'];
 let SCREEN = 'home';
 function go(v){
   if(v !== SCREEN) dropUndo();
@@ -6168,6 +6701,8 @@ function go(v){
   if(v==='compose') drawCompose();
   if(v==='browse') drawBrowse();
   if(v==='journal') drawJournal();
+  if(v==='works')  drawWorks();
+  if(v==='work')   drawWork();
   /* Nothing announced the change: focus stayed on the tab button and a screen
      reader heard silence. The new screen says its own name. */
   const main = $('s-'+v);
@@ -6334,6 +6869,9 @@ function closeLetter(){
     setThemeColor('#FFFFFF');   // no letter on this launch; the strip goes app-white
     $('tabs').classList.remove('hide');
     go('home');
+    /* the post-evaluation catches up here if the app was closed before it could
+       ask — newest unanswered act only, once */
+    setTimeout(()=>{ const pa=pendingEval(); if(pa && !document.querySelector('.sheet:not(.hide)')) askEval(pa); }, 900);
     /* a half-written act survived the app being closed; offer it back rather
        than leaving it to be swept away unmentioned */
     let held = null;
@@ -6347,7 +6885,7 @@ function closeLetter(){
               ok:'Carry on with it', cancel:'Throw it away',
               escapeSafe:true,          // Escape keeps it; every other dialog's
                                         // cancel is the safe half, this one's is not
-              then:()=>{ restoreDraft().then(()=>go('log')); },
+              then:()=>{ draftToWork(held); },
               no:()=>{ const ids=(held.photos||[]).slice(); clearDraft();
                        releaseIds(ids); } });
       }, 500);
@@ -6372,6 +6910,23 @@ function onBdayChange(){
     : "Used to work out which year you're marking. That's the word on your card.";
 }
 $('l-file').addEventListener('change', ()=>takeFiles($('l-file'), S.newPhotos, drawLog));
+/* the keyboard must never cover the field being typed in: when the visual
+   viewport shrinks (iOS keyboard), the open sheet's panel lifts above it and
+   the focused control scrolls into view */
+if(window.visualViewport){
+  const liftSheet=()=>{
+    const p=document.querySelector('.sheet:not(.hide) .panel');
+    if(!p) return;
+    const kb = Math.max(0, innerHeight - visualViewport.height - visualViewport.offsetTop);
+    p.style.transform = kb ? 'translateY(-'+kb+'px)' : '';
+    p.style.maxHeight = (visualViewport.height - 14) + 'px';
+    const ae=document.activeElement;
+    if(kb && ae && p.contains(ae)) setTimeout(()=>{ try{ ae.scrollIntoView({block:'center'}); }catch(e){} }, 60);
+  };
+  visualViewport.addEventListener('resize', liftSheet);
+  visualViewport.addEventListener('scroll', liftSheet);
+}
+$('wk-file').addEventListener('change', ()=>{ if(WK) takeFiles($('wk-file'), WK.photos, ()=>{ workKeep(); drawPhotos('wk-photos','wk-file', WK.photos, ()=>openWork(WK)); save(); }); });
 $('w-file').addEventListener('change', ()=>{
   const a=S.current; if(!a) return;
   if(!a.photos) a.photos=[];
@@ -6383,6 +6938,14 @@ $('bday-year').addEventListener('change',  onBdayChange);
 $('resetreason').addEventListener('click',()=>{
   S.lineTouched=false; S.wordTouched=false; drawSetup(); });
 $('w-story').addEventListener('input',count);
+/* 5B, ruled 30 Aug: the story box grows as you type — the box always fits the
+   whole story, like paper. Applies to every textarea; each keeps its CSS
+   min-height as the floor. Runs on input and again whenever a screen opens
+   (a textarea filled while hidden has no scrollHeight to measure). */
+function growBox(t){ if(!t) return; t.style.height='auto'; t.style.height=Math.max(t.scrollHeight, parseFloat(getComputedStyle(t).minHeight)||0)+'px'; }
+document.querySelectorAll('textarea').forEach(t=>{ t.addEventListener('input',()=>growBox(t)); });
+new MutationObserver(()=>{ document.querySelectorAll('textarea').forEach(t=>{ if(t.offsetParent) growBox(t); }); })
+  .observe(document.body,{attributes:true,subtree:true,attributeFilter:['class']});
 
 /* install hint — iOS Safari and Android, and only when not already installed */
 (function(){
