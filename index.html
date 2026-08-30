@@ -187,6 +187,9 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
 .jpage .jdate{font-family:'Great Vibes',cursive;font-size:clamp(19px,5.4vw,23px);
   color:#8A8279;margin:0 0 2px}
 .jpage .jwith{font-size:13px;color:#665F57;margin:0 0 12px}
+/* the dedication, regular type by rule — the only handwriting in this app is
+   Jessica's actual signature on the letter */
+.jpage .jhon{font-size:13px;font-style:italic;color:#6B5E3A;margin:0 0 6px}
 .jpage .jrule{width:44px;border-top:2px solid #D9BC6B;margin:0 0 14px}
 .jpage .jstory{font-size:clamp(13.5px,3.8vw,15px);line-height:1.65;color:#3A342C;
   white-space:pre-wrap;word-wrap:break-word;margin:0}
@@ -946,6 +949,11 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
 
     <div class="field"><label for="w-title">What you did</label>
       <input id="w-title" oninput="factEdited()"></div>
+    <!-- Act 20 taught this: Miss Judy asked for an act instead of a birthday
+         gift. Optional, and blank means it appears nowhere. Regular type only —
+         the app's one piece of handwriting is Jessica's real signature. -->
+    <div class="field"><label for="w-honor">In honor of <span style="text-transform:none;font-weight:400;color:var(--muted)">(if it was for someone — optional)</span></label>
+      <input id="w-honor" placeholder="Judy Mabe’s birthday" oninput="factEdited()"></div>
     <div class="field"><label for="w-when-btn">When</label>
       <input id="w-when" type="hidden" aria-hidden="true">
       <div class="datewrap">
@@ -1452,7 +1460,7 @@ function serialise(){
     people:S.people, platforms:S.platforms,
     started:S.started, letterSeen:!!S.letterSeen, tabToured:!!S.tabToured, opens:S.opens||0, plans:slimPlans(), handles:S.handles||{}, places:S.places||{},
     acts:S.acts.map(a=>({ no:a.no, t:a.t, out:a.out, who:a.who, cost:a.cost, spends:a.spends||[],
-                          story:a.story, note:a.note||'', half:!!a.half, d:a.d||'', captions:a.captions||{},
+                          story:a.story, note:a.note||'', half:!!a.half, d:a.d||'', hon:a.hon||'', captions:a.captions||{},
                           posted:a.posted||{},
                           photos:(a.photos||[]).map(p=>p.id) }))
   };
@@ -1561,7 +1569,7 @@ async function load(){
     S.acts.push({ no:String(a.no==null?'':a.no), t:a.t, out:a.out,
                   who:Array.isArray(a.who)?a.who:[], cost:+a.cost||0,
                   spends:Array.isArray(a.spends)?a.spends:[],
-                  half:!!a.half, d:a.d||'', captions:a.captions||{},
+                  half:!!a.half, d:a.d||'', hon:a.hon||'', captions:a.captions||{},
                   posted:a.posted||{}, note:a.note||'',
                   story:a.story||'', photos });
     /* ghost acts with no name, no number and no square are noise, not diary */
@@ -2032,6 +2040,8 @@ const IDEAS = [
   d:'Everyone brings a bag, everyone leaves with a bag, the rest goes to a shelter — washed, pockets checked.'},
 
  // ── Friends & family ──
+ {t:'Do an act in someone’s honor instead of a gift',l:'A week or two',s:'An hour',c:'Friends & family',
+  d:'For a birthday, a memory, a thank-you. Ask what they would want done in their name, then do it.'},
  {t:'Sponsor a friend’s fundraiser, and say why',l:'Today',s:'An hour',c:'Friends & family',
   d:'Money counts. Adding a sentence about why you gave is what they will remember.'},
  {t:'Girl Scout cookies, bought and given away',l:'Today',s:'An hour',c:'Friends & family',
@@ -3216,6 +3226,7 @@ function drawJournal(){
     pg.innerHTML='<div class="plate"></div>'+
       '<div class="jno">'+noLine+'</div>'+
       '<h3>'+esc(a.t||'An act of good')+'</h3>'+
+      (a.hon ? '<p class="jhon">In honor of '+esc(a.hon)+'</p>' : '')+
       (a.d ? '<p class="jdate">'+esc(fmtLong(a.d))+'</p>' : '')+
       withWho+'<div class="jrule"></div>'+
       (a.story ? '<p class="jstory">'+esc(a.story)+'</p>'
@@ -4570,6 +4581,7 @@ function openWrite(a){
   if(!a.story && a.note) a.story = a.note + '\n\n';
   $('w-story').value=a.story||'';
   $('w-title').value=a.t||'';
+  $('w-honor').value=a.hon||'';
   $('w-when').value=a.d||''; syncDateBtn('w-when');
   drawWriteFacts(a);
   drawWritePhotos(a);
@@ -4610,6 +4622,7 @@ function factEdited(){
   const a=S.current; if(!a) return;
   const t=$('w-title').value.trim();
   if(t) a.t=t;                      // an act keeps its name rather than losing it
+  a.hon=$('w-honor').value.trim();  // unlike the title, clearing it means it's gone
   save();
 }
 function count(){
@@ -4714,8 +4727,10 @@ function buildCaption(force){
   const lines = [];
   /* A private note is one person reading it, so it opens with the act rather
      than with its number, and it carries no hashtag. */
-  if(CM_PLAT!=='private') lines.push('Act '+a.no+' of '+S.n+':');
-  else if(a.t) lines.push(a.t);
+  /* Her act-20 post is the pattern: "Act 20 of 50: In honor of Miss Judy
+     Mabe's birthday …" — the honoree rides the opening line, not a footnote. */
+  if(CM_PLAT!=='private') lines.push('Act '+a.no+' of '+S.n+':'+(a.hon?' In honor of '+a.hon+'.':''));
+  else{ if(a.t) lines.push(a.t); if(a.hon) lines.push('In honor of '+a.hon+'.'); }
   const story = (a.story||'').trim();
   if(story) lines.push(story);
 
