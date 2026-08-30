@@ -486,9 +486,9 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
 /* block, not centred flex: a sheet taller than the screen must start at its
    top edge, or the first thing a new person sees is the middle of a letter */
 #letter{position:fixed;inset:0;z-index:70;background:#EDE7DC;
-  /* the paper runs up under the clock itself — the sheet's own blank top edge
-     is the clock's backing, exactly as a real letter under glass would sit */
-  padding:2px 16px 16px;
+  /* the paper's top edge lands just below the clock line — under it was too
+     far, the heart disappeared behind the time */
+  padding:max(6px, calc(env(safe-area-inset-top) - 10px)) 16px 16px;
   overflow:auto;-webkit-overflow-scrolling:touch}
 #letter .sheet-paper{background:#FCFAF4;max-width:430px;width:100%;margin:0 auto;
   padding:clamp(26px,8.5vw,40px) clamp(20px,7vw,30px) clamp(24px,8vw,34px);position:relative;
