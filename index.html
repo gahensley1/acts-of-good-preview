@@ -478,7 +478,8 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
 /* block, not centred flex: a sheet taller than the screen must start at its
    top edge, or the first thing a new person sees is the middle of a letter */
 #letter{position:fixed;inset:0;z-index:70;background:#EDE7DC;
-  padding:16px 16px;overflow:auto;-webkit-overflow-scrolling:touch}
+  padding:calc(4px + env(safe-area-inset-top)) 16px 16px;
+  overflow:auto;-webkit-overflow-scrolling:touch}
 #letter .sheet-paper{background:#FCFAF4;max-width:430px;width:100%;margin:0 auto;
   padding:clamp(26px,8.5vw,40px) clamp(20px,7vw,30px) clamp(24px,8vw,34px);position:relative;
   box-shadow:0 1px 0 rgba(255,255,255,.9) inset,
@@ -500,7 +501,7 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
    than the app's own small print, for the reader most likely to need it big */
 #letter .body{font-size:clamp(13.4px,3.6vw,15px);line-height:1.5;color:#3A342C;
   text-shadow:0 1px 0 rgba(255,255,255,.65)}
-#letter .body p{margin:0 0 clamp(7px,2.4vw,10px)}
+#letter .body p{margin:0 0 clamp(6px,2.1vw,9px)}
 #letter .body .ask{margin-top:clamp(5px,1.7vw,7px);font-size:clamp(13.5px,3.9vw,16.5px);font-weight:600;color:#231F1B}
 /* her actual signature, traced from a scan, so the letter is signed by her
    rather than by a licensed wedding font */
