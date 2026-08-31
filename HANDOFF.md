@@ -6,7 +6,7 @@ what is true right now. When they disagree, this file is newer — say so and fi
 the skill.
 
 Last updated: **30 August 2026**, end of the defect-fix session.
-Build in G's hands: **1H**.
+Build in G's hands: **1I**.
 
 ---
 
@@ -36,7 +36,7 @@ cache-buster and confirm the build tag bottom-right.
 
 ---
 
-## Shipped in 1G–1H
+## Shipped in 1G–1I
 
 8. **"Diary" is "journal" everywhere.** The letter has always said *journal* —
    *"I kept a journal filled with ideas, notes, expenses, and memories"* — and
@@ -49,8 +49,13 @@ cache-buster and confirm the build tag bottom-right.
    "calendar", say so — that is a different word, not this sweep.
 
 9. **The You screen names what is missing — ruled A **and** C.**
-   **A**, `#gapbar`: the app's own black bar, sharing `#undobar`'s CSS,
-   raised 260ms after arriving at You. It names the gaps in row order —
+   **A**, `#gapbar`: the app's own bar, sharing `#undobar`'s geometry but
+   **coral, ruled 1I** — Undo is black because it is the app being neutral about
+   something you did; this one asks for something. `--coralink` not `--coral`:
+   white on `--coral` is 3.4:1 and fails as body text, white on `--coralink` is
+   5.3:1 and passes. The action is white, not the gold the black bar uses.
+   Raised
+   260ms after arriving at You. It names the gaps in row order —
    *"Your card still needs a name and a birthday."* — carries **Add**, which
    opens the card sheet, and drops after 7s. **Once per session** (`GAPBAR_SHOWN`)
    and on no other screen: the dot on the tab is the standing reminder, this is

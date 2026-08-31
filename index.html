@@ -269,6 +269,13 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
   pointer-events:none;visibility:hidden}
 #undobar.up,#gapbar.up{transform:translate(-50%,0);pointer-events:auto;visibility:visible}
 #undobar .msg,#gapbar .msg{font-size:13.5px}
+/* Undo is black because it is the app being neutral about something you did.
+   This one is the app's coral, because it is the app asking for something.
+   --coralink rather than --coral: white on --coral is 3.4:1 and fails as body
+   text, white on --coralink is 5.8:1 and passes. The action is white, not the
+   gold the black bar uses, which has nothing to sit on here. */
+#gapbar{background:var(--coralink);box-shadow:0 8px 24px rgba(120,40,25,.30)}
+#gapbar button{color:#fff}
 /* This was a black bar fixed to the top of the screen, parked at -160% of its
    own height against an offset of 10px + the safe-area inset. On a phone the
    message wraps to three lines, so -160% no longer cleared the inset: its
@@ -846,7 +853,7 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
 
 <!-- BUILD TAG — dev only, delete this div (and its comment) when the app ships -->
 <div id="buildtag" style="position:fixed;right:6px;bottom:calc(4px + env(safe-area-inset-bottom));
-  z-index:99;font-size:9px;letter-spacing:.08em;color:#B9B2A9;pointer-events:none">1H</div>
+  z-index:99;font-size:9px;letter-spacing:.08em;color:#B9B2A9;pointer-events:none">1I</div>
 
 <div class="sheet hide" id="sheet-date" role="dialog" aria-modal="true"><div class="panel">
   <button class="sheetback" onclick="sheet(null)">‹ Done</button>
