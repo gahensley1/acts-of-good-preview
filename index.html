@@ -760,7 +760,7 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
       page. Everything in it can still be changed.</p>
 
     <!-- BUILD MARK — dev only, delete this div when the app ships -->
-    <div id="buildtag">BUILD 1K</div>
+    <div id="buildtag">BUILD 1L</div>
   </div>
 </section>
 
@@ -1060,7 +1060,7 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
       <input id="wk-t" oninput="wkEdited()" placeholder="Doughnuts for the vet clinic staff"></div>
 
     <div style="display:flex;gap:10px">
-      <div class="field" style="flex:1"><label for="wk-exp">Expecting &middot; act no.</label>
+      <div class="field" style="flex:1"><label for="wk-exp">Expected act</label>
         <input id="wk-exp" oninput="wkEdited()" inputmode="decimal"></div>
       <div class="field" style="flex:1.4"><label for="wk-when-btn">Aiming for</label>
         <input id="wk-when" type="hidden" aria-hidden="true">
@@ -3737,7 +3737,7 @@ function drawWorks(){
     const when = w.d ? '~ '+longDate(w.d) : 'no day yet';
     const ripe = ripenWords(w);
     c.innerHTML='<div class="t">'+esc(w.t||'An act, unnamed')+'</div>'+
-      '<div class="dt">'+esc(when)+(w.exp?' \u00B7 expecting act '+esc(w.exp):'')+'</div>'+
+      '<div class="dt">'+esc(when)+(w.exp?' \u00B7 expected act '+esc(w.exp):'')+'</div>'+
       (ripe?'<div class="ripe">'+esc(ripe)+'</div>':'');
     c.setAttribute('aria-label',(w.t||'An unnamed act')+', in the works. Open it.');
     c.onclick=()=>openWork(w);

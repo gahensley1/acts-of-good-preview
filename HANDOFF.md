@@ -6,7 +6,7 @@ what is true right now. When they disagree, this file is newer — say so and fi
 the skill.
 
 Last updated: **30 August 2026**, end of the defect-fix session.
-Build in G's hands: **1J**.
+Build in G's hands: **1L**.
 
 ---
 
@@ -33,6 +33,26 @@ mirror; keep the two identical. Repo `gahensley1/acts-of-good-preview`, branch
 <https://gahensley1.github.io/acts-of-good-preview/>. Push with `git add -A`,
 `git commit -m "…"`, `git push origin main`, then load the site with a `?v=<tag>`
 cache-buster and confirm the build tag bottom-right.
+
+---
+
+## Shipped in 1K–1L
+
+11. **The build mark sits at the foot of Your year.** Not a floating corner
+    label any more — a bordered box reading **BUILD 1L**, centred, in the page,
+    below "The journal, page by page" and clear of the tab bar. Measured
+    visible at both a 0px and a 34px bottom inset. Delete the div and the
+    `#buildtag` rule at ship.
+
+12. **"Expected act", one line.** The In the works field label was
+    *"Expecting · act no."* in a 126px column and wrapped to two lines.
+    *"Expected act no."* needs ~140px and still wrapped, so the **"no."** went
+    rather than the meaning — the number sits directly under the label anyway.
+    Now 105px in 126px, one line at 390px and up. The Plan & Log card line
+    follows it: *"· expecting act 4"* → *"· expected act 4"*.
+
+    **Known limit, same as the suggestion box:** at 320px the "Aiming for" date
+    button's min-content squeezes this column to ~79px and any label wraps.
 
 ---
 
