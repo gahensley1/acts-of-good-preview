@@ -6,7 +6,7 @@ what is true right now. When they disagree, this file is newer — say so and fi
 the skill.
 
 Last updated: **30 August 2026**, end of the defect-fix session.
-Build in G's hands: **1D**.
+Build in G's hands: **1F**.
 
 ---
 
@@ -33,6 +33,29 @@ mirror; keep the two identical. Repo `gahensley1/acts-of-good-preview`, branch
 <https://gahensley1.github.io/acts-of-good-preview/>. Push with `git add -A`,
 `git commit -m "…"`, `git push origin main`, then load the site with a `?v=<tag>`
 cache-buster and confirm the build tag bottom-right.
+
+---
+
+## Shipped in 1E–1F
+
+7. **The suggestion box is compacted.** G: *"I don't think we need those words"*
+   about the **"Worth knowing about"** heading — removed; the card's own first
+   line already says it. The full-width **Browse all ideas** button that closed
+   the box now sits **in the upper right, on the occasion line**, which is what
+   made the box shorter: *"that way the box gets smaller."*
+   `.sugbox` / `.sughead`. It was briefly restyled as a plain coral link; G
+   ruled it back to a box — *"just like it was, so it looks like we can click
+   it."* It is the same `.btn.mini.ghost` it always was, moved rather than
+   restyled, one step smaller (13px / 10x14) because at full size it pushed
+   "Occasion · in 11 weeks" onto a second line and put back the height this was
+   meant to save. Its words are unchanged.
+   **205px → 163px, and the grid starts ~75px higher.**
+
+   **Known limit:** at a 320px viewport (SE-era) the occasion line and the
+   button cannot share a row — the tag needs ~175px and the button ~149px in
+   246px of space — so the tag wraps to two lines there. One line holds at 390px
+   and up. Fixing 320 means either stacking the button under the tag below
+   ~360px, or dropping the tag to roughly 9px type. Not decided.
 
 ---
 
