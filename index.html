@@ -248,15 +248,16 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
   pointer-events:none;visibility:hidden}
 #undobar.up{transform:translate(-50%,0);pointer-events:auto;visibility:visible}
 #undobar .msg{font-size:13.5px}
-#pastebar{position:fixed;left:50%;top:calc(10px + env(safe-area-inset-top));
-  transform:translate(-50%,-160%);z-index:64;background:var(--ink);color:#fff;
-  border-radius:12px;padding:12px 14px;display:flex;align-items:center;gap:12px;
-  width:max-content;max-width:min(92vw,420px);box-shadow:0 8px 24px rgba(0,0,0,.22);
-  transition:transform .24s cubic-bezier(.2,.8,.3,1)}
-#pastebar.up{transform:translate(-50%,0)}
-#pastebar .msg{font-size:13.5px;line-height:1.45}
-#pastebar button{background:none;border:0;color:#F6C65B;font-weight:700;min-height:44px;min-width:44px;
-  font-size:13.5px;padding:6px 4px;min-height:36px;cursor:pointer;flex-shrink:0}
+/* This was a black bar fixed to the top of the screen, parked at -160% of its
+   own height against an offset of 10px + the safe-area inset. On a phone the
+   message wraps to three lines, so -160% no longer cleared the inset: its
+   bottom edge sat below the top of the screen on EVERY screen in the app, at a
+   z-index above the header and the sheets, and with no pointer-events:none to
+   stop it swallowing taps. It is a line in the layout now — on the one screen
+   it belongs to, under the button that caused it, after that button is used. */
+#pastenote{display:flex;gap:9px;align-items:flex-start;margin-top:10px;
+  font-size:13px;line-height:1.55;color:var(--coralink);font-weight:500}
+#pastenote .tick{flex:none;font-weight:700;line-height:1.45}
 #storagebar{position:fixed;left:0;right:0;top:0;z-index:80;background:var(--coralink);
   color:#fff;display:flex;align-items:center;gap:12px;justify-content:center;
   padding:calc(8px + env(safe-area-inset-top)) 14px 8px;font-size:13.5px;font-weight:600}
@@ -418,6 +419,12 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
 
 /* pace */
 .pace{background:var(--mist);border-radius:var(--r);padding:18px 20px;margin-bottom:22px}
+/* The year count and the month were two grey boxes with 12px of white between
+   them, saying two halves of one thing. They are one card now: the greys touch,
+   the corners square off where they meet, and the doubled padding at the seam
+   comes down to a single measure. Nothing moved and nothing was dropped. */
+.pace.joint-top{margin-bottom:0;border-radius:var(--r) var(--r) 0 0;padding-bottom:12px}
+.pace.joint-bot{margin-top:0;border-radius:0 0 var(--r) var(--r);padding-top:12px}
 .pace .row{display:flex;align-items:baseline;justify-content:space-between}
 /* 'August (2 to go)' wrapped onto two lines at 320 and pushed the card into
    the banner below it. Let the type give a little instead of the layout. */
@@ -465,24 +472,17 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
    short enough not to be a lecture.                                         */
 #tourball{position:fixed;z-index:41;pointer-events:none;
   transition:left .95s cubic-bezier(.4,0,.2,1);transform:translateX(-50%)}
-/* The balloon used to float over live content with nothing behind it, so on the
-   one launch that matters it covered the heading it was pointing past. A soft
-   wash lifts it off the page and puts it back when it goes. */
-#tourscrim{position:fixed;inset:0;z-index:39;background:rgba(255,255,255,.72);
-  opacity:0;pointer-events:none;transition:opacity .35s ease}
-#tourscrim.on{opacity:1}
 #tourball .tb-art{width:36px;height:auto;display:block;margin:0 auto;
   animation:bob 2.6s ease-in-out infinite}
 @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
 /* Reduce Motion is one of the most-used accessibility settings in this app's age
-   band, and the balloon bobbed forever while a 72% scrim washed the page out.
-   The nudges still appear and still say what they say; they just stop moving. */
+   band, and the balloon bobbed forever. The nudges still appear and still say
+   what they say; they just stop moving. */
 @media (prefers-reduced-motion: reduce){
   *,*::before,*::after{
     animation-duration:.001ms !important; animation-iteration-count:1 !important;
     transition-duration:.001ms !important; scroll-behavior:auto !important}
   #tourball{transition:none !important}
-  #tourscrim{background:rgba(255,255,255,.55)}
 }
 #tourball .tb-cap{position:absolute;bottom:100%;left:50%;transform:translateX(-50%);
   margin-bottom:8px;background:var(--ink);color:#fff;
@@ -603,7 +603,7 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
       style="color:var(--muted);font-size:14px;font-weight:600;padding:0 0 14px">‹ Done</button>
     <button id="setup-prev" onclick="sheet('you')"
       style="color:var(--muted);font-size:14px;font-weight:600;padding:0 0 14px">‹ Back</button>
-    <div class="steps" id="setup-step">Step 2 of 4</div>
+    <div class="steps" id="setup-step">Step 2 of 3</div>
     <div class="field">
       <label for="reason-line">The hand on your card</label>
       <div class="tones" id="tonechips" role="group" aria-label="The hand on your card"></div>
@@ -651,7 +651,7 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
 <section id="s-home" class="hide" role="main" aria-label="Your year">
   <div class="top"><h2 id="home-h2">Your year</h2><div class="sub" id="home-sub"></div></div>
   <div class="wrap">
-    <div class="pace">
+    <div class="pace joint-top">
       <div class="row">
         <div><div class="big" id="p-count">0 of 25</div>
              <div class="lab" id="p-week"></div></div>
@@ -671,7 +671,7 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
       </div>
     </div>
 
-    <div id="month" class="pace" style="margin-top:-10px;position:relative"></div>
+    <div id="month" class="pace joint-bot" style="position:relative"></div>
 
     <div id="todo" class="todo hide"></div>
 
@@ -796,11 +796,7 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
 
 <!-- BUILD TAG — dev only, delete this div (and its comment) when the app ships -->
 <div id="buildtag" style="position:fixed;right:6px;bottom:calc(4px + env(safe-area-inset-bottom));
-  z-index:99;font-size:9px;letter-spacing:.08em;color:#B9B2A9;pointer-events:none">1A</div>
-<div id="pastebar" role="status" aria-live="polite">
-  <span class="msg">Your caption is on the clipboard. In Instagram, long-press
-    the caption box and tap Paste.</span>
-  <button type="button" onclick="dropPasteBar()" aria-label="Got it">Got it</button></div>
+  z-index:99;font-size:9px;letter-spacing:.08em;color:#B9B2A9;pointer-events:none">1B</div>
 
 <div class="sheet hide" id="sheet-date" role="dialog" aria-modal="true"><div class="panel">
   <button class="sheetback" onclick="sheet(null)">‹ Done</button>
@@ -1191,6 +1187,10 @@ What you actually did. Why it mattered. Say the awkward parts."></textarea>
         of it.</p></div>
 
     <button class="btn" id="cm-go" onclick="handOff()"></button>
+    <div id="pastenote" class="hide" role="status" aria-live="polite">
+      <span class="tick" aria-hidden="true">&#10003;</span>
+      <span>Caption copied. In Instagram, long-press the caption box and choose Paste.</span>
+    </div>
     <button class="btn ghost" style="margin-top:10px" onclick="copyCaption()">
       Just copy the caption</button>
     <p class="note" style="margin-top:12px" id="cm-how"></p>
@@ -1318,7 +1318,7 @@ What you actually did. Why it mattered. Say the awkward parts."></textarea>
 
 <!-- ══ SHEET 1 — about you ══ -->
 <div class="sheet hide" id="sheet-you" role="dialog" aria-modal="true"><div class="panel">
-  <div class="steps">Step 1 of 4</div>
+  <div class="steps">Step 1 of 3</div>
   <h3>First, a bit about you</h3>
   <div class="privacy"><b>Your privacy comes first.</b> Everything happens right on
     your device to calculate your year and draft your posts, we don't collect,
@@ -1354,9 +1354,13 @@ What you actually did. Why it mattered. Say the awkward parts."></textarea>
 </div></div>
 
 <!-- ══ SHEET 2 — where you post ══ -->
+<!-- Setup used to have a fourth step, before act 1, asking who had already
+     offered to help. Removed on G's ruling, 30 Aug: an introduction should not
+     open by asking you to recruit. People are still added, with the same names
+     and places, from the People tab whenever someone actually offers. -->
 <div class="sheet hide" id="sheet-social" role="dialog" aria-modal="true"><div class="panel">
   <button class="sheetback" onclick="sheet(null); drawSetup();">‹ Back</button>
-  <div class="steps">Step 3 of 4</div>
+  <div class="steps">Step 3 of 3</div>
   <h3>Where do you post?</h3>
   <div class="privacy"><b>Handles are stored on your phone only.</b> The app never
     logs in or posts for you. It writes the caption with the right handles in it
@@ -1368,38 +1372,8 @@ What you actually did. Why it mattered. Say the awkward parts."></textarea>
     handle is optional. It's the people you tag that matter, and you'll add them
     as you go.</p>
 
-  <button class="btn" onclick="sheet('helpers')">Next</button>
-  <button class="btn ghost" style="margin-top:10px" onclick="finishSetup()">Skip for now</button>
-</div></div>
-
-<!-- ══ SHEET 4 — who's already offered ══════════════════════════════════════
-     Jessica's announcement drew six offers of help before a single act existed
-    , Pooja, Pat, Leisel, Amy, Rachel, Sam. They arrive in one burst and then
-     get buried in a comment thread. Catching them here, before act 1, is the
-     whole point; the People directory otherwise only fills in afterwards.  -->
-<div class="sheet hide" id="sheet-helpers" role="dialog" aria-modal="true"><div class="panel">
-  <button class="sheetback" onclick="sheet('social')">‹ Back</button>
-  <div class="steps">Step 4 of 4</div>
-  <h3>Has anyone offered to help?</h3>
-  <p class="note" style="margin-bottom:18px">When people hear what you're doing, some
-    of them offer. Put their names down now. They're easy to forget once
-    they're buried in a comment thread, and they turn into acts.</p>
-
-  <div class="chips" id="hp-list" style="margin-bottom:14px"></div>
-
-  <div class="field">
-    <div style="display:flex;gap:10px">
-      <input id="hp-name" aria-label="Their name" placeholder="A name" style="flex:1">
-      <button class="btn mini" style="margin:0" onclick="addHelper()">Add</button>
-    </div>
-    <input id="hp-where" aria-label="Where you know them from" placeholder="Where are they? (optional)" style="margin-top:10px">
-    <p class="note" style="margin-top:8px">A place is worth noting, a good few
-      acts happen while you're visiting somewhere.</p>
-  </div>
-
   <button class="btn" onclick="finishSetup()">Start</button>
-  <button class="btn ghost" style="margin-top:10px" onclick="finishSetup()">
-    Nobody yet, start anyway</button>
+  <button class="btn ghost" style="margin-top:10px" onclick="finishSetup()">Skip for now</button>
 </div></div>
 
 <div id="install" class="hide">
@@ -3094,7 +3068,6 @@ function tabTour(){
   S.tabToured = true; save();
   const ball=$('tourball'), cap=$('tb-cap');
   ball.classList.remove('hide');
-  scrim(true);
 
   const stop = i => {
     if(i>=TAB_TOUR.length){ endTabTour(); return; }
@@ -3122,14 +3095,12 @@ function tabTour(){
   document.addEventListener('pointerdown', endTabTour, { once:true });
   document.addEventListener('keydown', endTabTour, { once:true });
 }
-function scrim(on){
-  let el = $('tourscrim');
-  if(!el){ el=document.createElement('div'); el.id='tourscrim'; document.body.appendChild(el); }
-  requestAnimationFrame(()=>el.classList.toggle('on', !!on));
-}
+/* The balloon used to arrive behind a white wash over the whole screen. It was
+   added mid-build to lift the balloon off live content, and it reads as the app
+   greying itself out to make an announcement. The balloon runs over a clean
+   screen now; scrim() is gone rather than left switched off. */
 function endTabTour(){
   TOUR_T.forEach(clearTimeout); TOUR_T=[];
-  scrim(false);
   const ball=$('tourball');
   if(!ball) return;
   ball.classList.remove('on');
@@ -3163,7 +3134,6 @@ function ideasNudge(){
   cap.innerHTML = 'Borrow<br>an idea';
   cap.style.transform = 'translateX(-50%)';
   ball.classList.remove('hide');
-  scrim(true);
   /* the same keep-it-on-screen correction the tour does; without it the caption
      over the first tab hangs off the left edge */
   requestAnimationFrame(()=>{
@@ -3278,7 +3248,7 @@ function drawMonth(){
       MONTHS_LONG[now.getMonth()]+' yet.</p>';
   }
   html += '<button id="calbtn" onclick="openCal()" aria-label="Month calendar" '+
-    'style="position:absolute;top:12px;right:12px;padding:6px">'+
+    'style="position:absolute;top:6px;right:12px;padding:6px">'+
     '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" '+
     'stroke="var(--coral)" stroke-width="1.6">'+
     '<rect x="3" y="5" width="18" height="16" rx="2.5"/>'+
@@ -4235,44 +4205,6 @@ function deletePerson(){
 function addPerson(){ openPerson(null); }
 
 /* people captured at setup, before act 1 */
-function drawHelpers(){
-  const box=$('hp-list'); box.innerHTML='';
-  if(!S.people.length){
-    box.innerHTML='<p class="note">Nobody yet.</p>'; return;
-  }
-  S.people.forEach(name=>{
-    const where=(S.places||{})[name];
-    const b=document.createElement('button');
-    b.className='chip on';
-    b.innerHTML=esc(name)+(where?'<small>'+esc(where)+'</small>':'');
-    b.setAttribute('aria-label','Remove '+name);
-    b.onclick=()=>{
-      /* This looked exactly like every selectable chip in the app and removed
-         the person on one tap, with no confirmation and no undo — while the
-         People tab asks twice for the same thing. */
-      const at = S.people.indexOf(name);
-      const place = (S.places||{})[name];
-      S.people=S.people.filter(x=>x!==name);
-      if(S.places) delete S.places[name];
-      save(); drawHelpers();
-      undoBar(name+' removed.', ()=>{
-        if(S.people.indexOf(name)<0) S.people.splice(at<0?S.people.length:at, 0, name);
-        if(place){ S.places=S.places||{}; S.places[name]=place; }
-        save(); drawHelpers();
-      });
-    };
-    box.appendChild(b);
-  });
-}
-function addHelper(){
-  const n=$('hp-name').value.trim(), w=$('hp-where').value.trim();
-  if(!n) { $('hp-name').focus(); return; }
-  if(S.people.indexOf(n)<0) S.people.push(n);
-  if(w){ S.places=S.places||{}; S.places[n]=w; }
-  $('hp-name').value=''; $('hp-where').value='';
-  save(); drawHelpers();
-}
-
 function savePerson(){
   const name = $('per-name').value.trim();
   if(!name){ $('per-name').focus(); return; }
@@ -5337,6 +5269,9 @@ function drawCompose(){
   const env=$('cm-env'); if(env){ env.classList.toggle('on', CM_PLAT==='private');
     env.setAttribute('aria-pressed', CM_PLAT==='private'?'true':'false'); }
   $('cm-how').textContent = HAND_HOW[CM_PLAT] || '';
+  /* the reminder is Instagram's alone — picking another chip must not leave it
+     standing there telling her to paste into an app she is no longer using */
+  if(CM_PLAT!=='instagram') dropPasteBar();
   drawPreview(); prepack();
 
   /* which platforms this act has already gone out on */
@@ -5687,10 +5622,10 @@ function handOff(){
    until dismissed, answered, or the screen is left — a timed toast would be
    gone before she flips back. */
 function pasteBar(){
-  const bar = $('pastebar'); if(bar) bar.classList.add('up');
+  const n = $('pastenote'); if(n) n.classList.remove('hide');
 }
 function dropPasteBar(){
-  const bar = $('pastebar'); if(bar) bar.classList.remove('up');
+  const n = $('pastenote'); if(n) n.classList.add('hide');
 }
 
 /* A share that fails is not allowed to fail silently. */
@@ -6560,10 +6495,9 @@ function checkFirst(title, note, okLabel, then, cancelLabel){
 let SHEET_FROM = null;
 function sheet(which){
   dropUndo();      // an offer does not follow you into or out of a sheet
-  ['you','social','spend','plan','person','helpers','cal','date','ask','done','finish','eval'].forEach(x=>{ const el=$('sheet-'+x); if(el) el.classList.add('hide'); });
+  ['you','social','spend','plan','person','cal','date','ask','done','finish','eval'].forEach(x=>{ const el=$('sheet-'+x); if(el) el.classList.add('hide'); });
   if(which){ $('sheet-'+which).classList.remove('hide'); }
   if(which==='social') drawPlats();
-  if(which==='helpers') drawHelpers();
   if(which==='cal') drawCal();
   if(which==='done') drawDone();
   /* A sheet covers the whole screen but nothing told the platform so: Tab walked
@@ -6589,10 +6523,10 @@ function sheet(which){
 document.addEventListener('keydown', e=>{
   if(e.key !== 'Escape') return;
   if(!$('dlg').classList.contains('hide')) return;         // the dialog handles its own
-  const open = ['you','social','spend','plan','person','helpers','cal','date','ask','done']
+  const open = ['you','social','spend','plan','person','cal','date','ask','done']
     .filter(x=>!$('sheet-'+x).classList.contains('hide'))[0];
   if(!open) return;
-  if(!S.started && (open==='you' || open==='helpers' || open==='social')) return;
+  if(!S.started && (open==='you' || open==='social')) return;
   if(open==='plan'){ savePlan(); return; }
   if(open==='person'){ if(($('per-name').value||'').trim()) savePerson(); else sheet(null); return; }
   if(open==='you'){ saveYou(); return; }
@@ -6601,14 +6535,14 @@ document.addEventListener('keydown', e=>{
 /* Tapping the dimmed area is the gesture everybody tries first, and nothing was
    listening for it — which left the 28px 'Done' as the only way out. The plan
    sheet saves on the way, exactly as its own Done button does. */
-['you','social','spend','plan','person','helpers','cal','date','ask','done'].forEach(x=>{
+['you','social','spend','plan','person','cal','date','ask','done'].forEach(x=>{
   const el = $('sheet-'+x); if(!el) return;
   el.addEventListener('click', e=>{
     if(e.target !== el) return;             // a tap on the panel is not a tap outside it
     /* During first run the sheets ARE the flow — dismissing "about you" landed
        on a setup screen that had never been drawn, so its three questions had no
        answers underneath them. Mid-setup, a tap outside does nothing. */
-    if(!S.started && (x==='you' || x==='helpers' || x==='social')) return;
+    if(!S.started && (x==='you' || x==='social')) return;
     /* Every sheet that holds a form keeps what is in it, because that is what
        its own Done button does — and a gesture that silently threw away what
        somebody had just typed would be worse than one that keeps it. Three of
@@ -6748,7 +6682,7 @@ function readBday(){
    in the viewport AND with no sheet covering it. An IntersectionObserver alone
    can't tell: an element behind a full-screen overlay still 'intersects'. */
 function sheetOpen(){
-  return ['you','social','spend','plan','person','helpers','cal','date','ask','done'].some(x=>!$('sheet-'+x).classList.contains('hide'));
+  return ['you','social','spend','plan','person','cal','date','ask','done'].some(x=>!$('sheet-'+x).classList.contains('hide'));
 }
 function tourIfVisible(){
   if(S.toneToured || sheetOpen()) return;
