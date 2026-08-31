@@ -6,7 +6,7 @@ what is true right now. When they disagree, this file is newer — say so and fi
 the skill.
 
 Last updated: **30 August 2026**, end of the defect-fix session.
-Build in G's hands: **1I**.
+Build in G's hands: **1J**.
 
 ---
 
@@ -33,6 +33,26 @@ mirror; keep the two identical. Repo `gahensley1/acts-of-good-preview`, branch
 <https://gahensley1.github.io/acts-of-good-preview/>. Push with `git add -A`,
 `git commit -m "…"`, `git push origin main`, then load the site with a `?v=<tag>`
 cache-buster and confirm the build tag bottom-right.
+
+---
+
+## Shipped in 1J
+
+10. **The build mark is findable, and the gap bar is black.**
+    The mark sat at `bottom:calc(4px + env(safe-area-inset-bottom))` in 9px
+    `#B9B2A9`. On a notched phone that inset is ~34px, so it landed *inside the
+    tab bar*, pale grey beside the "You" label — perfectly visible in a desktop
+    browser where the inset is 0, invisible on the phone it exists to be read
+    on. It now sits at `bottom:calc(88px + var(--safebot))`, clear of the tabs,
+    in 11px `#3A342C` on an opaque white pill with a hairline border, so it
+    reads over any content. `--safebot` joins `--safetop` as a named inset.
+    The gap bar was tried in coral and **ruled back to black — "it reads
+    better"**; its **Add** now takes Undo's gold rather than inheriting white.
+
+    **Named, not built:** `.tabs` sets `padding-bottom:calc(9px +
+    env(safe-area-inset-bottom))` and then a `padding:9px 6px 24px` shorthand
+    later in the same rule overrides it to a flat 24px. The tab bar has never
+    actually paid the bottom inset.
 
 ---
 

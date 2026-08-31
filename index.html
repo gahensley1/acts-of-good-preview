@@ -42,6 +42,7 @@
   /* One name for the safe-area inset, so no two rules can disagree about who
      pays for it. Everything that has to clear the clock reads this. */
   --safetop:env(safe-area-inset-top);
+  --safebot:env(safe-area-inset-bottom);
   --script:"Great Vibes",cursive;
   --gold:#E1BA52; --goldscript:#DDB44C; --coral:#EA634F; --ink:#000000; --skin:#F9C78D; --paper:#ffffff;
   --mist:#F6F4F1; --line:#E4E0DA; --muted:#665F57;
@@ -269,13 +270,11 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
   pointer-events:none;visibility:hidden}
 #undobar.up,#gapbar.up{transform:translate(-50%,0);pointer-events:auto;visibility:visible}
 #undobar .msg,#gapbar .msg{font-size:13.5px}
-/* Undo is black because it is the app being neutral about something you did.
-   This one is the app's coral, because it is the app asking for something.
-   --coralink rather than --coral: white on --coral is 3.4:1 and fails as body
-   text, white on --coralink is 5.8:1 and passes. The action is white, not the
-   gold the black bar uses, which has nothing to sit on here. */
-#gapbar{background:var(--coralink);box-shadow:0 8px 24px rgba(120,40,25,.30)}
-#gapbar button{color:#fff}
+/* the same bar, so the same action colour Undo uses */
+#gapbar button{background:none;border:0;color:#F6C65B;font-weight:700;
+  font-size:13.5px;padding:6px 4px;min-height:36px;cursor:pointer;flex-shrink:0}
+/* Tried in coral and ruled back to black, 1J: it reads better. Both bars are
+   the app speaking in the same voice, so they look the same. */
 /* This was a black bar fixed to the top of the screen, parked at -160% of its
    own height against an offset of 10px + the safe-area inset. On a phone the
    message wraps to three lines, so -160% no longer cleared the inset: its
@@ -286,6 +285,11 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
 #pastenote{display:flex;gap:9px;align-items:flex-start;margin-top:10px;
   font-size:13px;line-height:1.55;color:var(--coralink);font-weight:500}
 #pastenote .tick{flex:none;font-weight:700;line-height:1.45}
+#buildtag{position:fixed;right:10px;z-index:99;pointer-events:none;
+  bottom:calc(88px + var(--safebot));
+  font-size:11px;font-weight:700;letter-spacing:.10em;color:#3A342C;
+  background:#fff;border:1px solid var(--line);border-radius:6px;
+  padding:3px 8px;box-shadow:0 1px 4px rgba(0,0,0,.10)}
 #storagebar{position:fixed;left:0;right:0;top:0;z-index:80;background:var(--coralink);
   color:#fff;display:flex;align-items:center;gap:12px;justify-content:center;
   padding:calc(8px + var(--safetop)) 14px 8px;font-size:13.5px;font-weight:600}
@@ -852,8 +856,12 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
   <span class="msg"></span><button type="button" onclick="sheet('you')">Add</button></div>
 
 <!-- BUILD TAG — dev only, delete this div (and its comment) when the app ships -->
-<div id="buildtag" style="position:fixed;right:6px;bottom:calc(4px + env(safe-area-inset-bottom));
-  z-index:99;font-size:9px;letter-spacing:.08em;color:#B9B2A9;pointer-events:none">1I</div>
+<!-- BUILD MARK. It used to sit 4px above the bottom safe-area inset, which on a
+     notched phone is ~34px — landing it inside the tab bar, in 9px #B9B2A9,
+     beside the "You" label. Findable in a desktop browser where the inset is 0,
+     invisible on the phone it is meant to be read on. It clears the tab bar
+     now and carries its own ground so it reads over anything. -->
+<div id="buildtag">1J</div>
 
 <div class="sheet hide" id="sheet-date" role="dialog" aria-modal="true"><div class="panel">
   <button class="sheetback" onclick="sheet(null)">‹ Done</button>
