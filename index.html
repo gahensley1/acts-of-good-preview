@@ -285,11 +285,15 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
 #pastenote{display:flex;gap:9px;align-items:flex-start;margin-top:10px;
   font-size:13px;line-height:1.55;color:var(--coralink);font-weight:500}
 #pastenote .tick{flex:none;font-weight:700;line-height:1.45}
-#buildtag{position:fixed;right:10px;z-index:99;pointer-events:none;
-  bottom:calc(88px + var(--safebot));
-  font-size:11px;font-weight:700;letter-spacing:.10em;color:#3A342C;
-  background:#fff;border:1px solid var(--line);border-radius:6px;
-  padding:3px 8px;box-shadow:0 1px 4px rgba(0,0,0,.10)}
+/* BUILD MARK — dev only, delete this rule and the div at the foot of Your year
+   when the app ships. It used to be a 9px pale-grey label pinned to the bottom
+   right corner, which on a notched phone landed inside the tab bar and could
+   not be read at all. It sits at the end of Your year now, in the page, where
+   there is room for it and nothing to read it against. */
+#buildtag{margin:30px auto 0;width:max-content;
+  font-size:12px;font-weight:700;letter-spacing:.12em;color:#6B6259;
+  background:var(--mist);border:1px solid var(--line);border-radius:7px;
+  padding:6px 12px}
 #storagebar{position:fixed;left:0;right:0;top:0;z-index:80;background:var(--coralink);
   color:#fff;display:flex;align-items:center;gap:12px;justify-content:center;
   padding:calc(8px + var(--safetop)) 14px 8px;font-size:13.5px;font-weight:600}
@@ -754,6 +758,9 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
       Read your year</button>
     <p class="note" style="margin-top:8px;text-align:center">The journal, page by
       page. Everything in it can still be changed.</p>
+
+    <!-- BUILD MARK — dev only, delete this div when the app ships -->
+    <div id="buildtag">BUILD 1K</div>
   </div>
 </section>
 
@@ -856,13 +863,6 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
   <span class="msg"></span><button type="button" onclick="sheet('you')">Add</button></div>
 
 <!-- BUILD TAG — dev only, delete this div (and its comment) when the app ships -->
-<!-- BUILD MARK. It used to sit 4px above the bottom safe-area inset, which on a
-     notched phone is ~34px — landing it inside the tab bar, in 9px #B9B2A9,
-     beside the "You" label. Findable in a desktop browser where the inset is 0,
-     invisible on the phone it is meant to be read on. It clears the tab bar
-     now and carries its own ground so it reads over anything. -->
-<div id="buildtag">1J</div>
-
 <div class="sheet hide" id="sheet-date" role="dialog" aria-modal="true"><div class="panel">
   <button class="sheetback" onclick="sheet(null)">‹ Done</button>
   <div style="display:flex;align-items:baseline;justify-content:space-between">
