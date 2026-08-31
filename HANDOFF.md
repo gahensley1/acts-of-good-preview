@@ -6,7 +6,7 @@ what is true right now. When they disagree, this file is newer — say so and fi
 the skill.
 
 Last updated: **30 August 2026**, end of the defect-fix session.
-Build in G's hands: **1B**.
+Build in G's hands: **1C**.
 
 ---
 
@@ -21,6 +21,33 @@ Build in G's hands: **1B**.
   load once in Safari, force-quit the Home Screen app.
 - Project docs (brief, voice, reviews, decisions, act library, the book) live in
   the Claude project, not in this folder.
+
+---
+
+## Where to edit and push from
+
+The git clone is **`C:\Users\tony\Documents\aog-push`** — that is the copy that
+ships, and the one to edit. `C:\Users\tony\Documents\acts of good` is kept as a
+mirror; keep the two identical. Repo `gahensley1/acts-of-good-preview`, branch
+`main`, served by GitHub Pages at
+<https://gahensley1.github.io/acts-of-good-preview/>. Push with `git add -A`,
+`git commit -m "…"`, `git push origin main`, then load the site with a `?v=<tag>`
+cache-buster and confirm the build tag bottom-right.
+
+---
+
+## Shipped in 1C
+
+5. **The "Your card is missing…" block is gone from the year screen.** G ruled it
+   out: *"that needs to go away, it's annoying."* It was ~100px of being told off
+   at the top of the screen, one screen below a letter promising nobody is
+   keeping score. In its place, a **coral dot on the You tab** (`.tabdot`,
+   `#youdot`, `var(--coral)`), shown **on every other opening** — *"it's not that
+   important"* — counted by `S.todoOpens`, once per session so tab-hopping does
+   not flip it. It clears itself the moment the card is complete, and the tab's
+   `aria-label` says what is missing so the dot is not colour alone.
+   If a gap ever genuinely blocks something, that is to be handled **at the
+   posting page, when the post comes up** — not on the year screen. Not built.
 
 ---
 
@@ -60,9 +87,6 @@ Verified with headless Chromium against the real file: 17 checks, no JS errors.
 
 ## Open
 
-- **The You-tab badge.** Replace the pink "Your card is missing…" block on the
-  year screen (`drawTodo()`) with a small red dot on the You tab, and move
-  everything up (~100px). Drawn, awaiting G's yes.
 - **The safe-area collision** — "your ear gets caught up into the numbers and
   phone and date." `body` carries `padding-top:env(safe-area-inset-top)` *and*
   the sticky `.top` header adds the same inset again in a

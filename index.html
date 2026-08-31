@@ -454,7 +454,15 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
   background:rgba(255,255,255,.96);backdrop-filter:blur(12px);
   border-top:1px solid var(--line);display:flex;padding:9px 6px 24px;z-index:30}
 .tabs button{flex:1;font-size:10.5px;font-weight:600;color:var(--muted);
-  display:flex;flex-direction:column;align-items:center;gap:4px;padding:4px}
+  display:flex;flex-direction:column;align-items:center;gap:4px;padding:4px;
+  position:relative}
+/* The card gaps used to be a pink paragraph on the year screen, under a letter
+   that says nobody is keeping score. It is a coral dot on the tab that opens
+   the card instead — and only on every other opening, because it is not that
+   important. It clears itself the moment the card is complete. */
+.tabdot{position:absolute;top:1px;right:calc(50% - 16px);width:9px;height:9px;
+  border-radius:50%;background:var(--coral);
+  box-shadow:0 0 0 2px rgba(255,255,255,.96)}
 .tabs button.on{color:var(--coralink)}
 .tabs .ic{line-height:1}
 /* One drawn set, all five, on a 24 grid at 1.5px with round caps: the same
@@ -673,7 +681,6 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
 
     <div id="month" class="pace joint-bot" style="position:relative"></div>
 
-    <div id="todo" class="todo hide"></div>
 
     <!-- said "This week" over a card that regularly reads "in 8 weeks" -->
     <h3 style="font-size:13px;color:var(--muted);text-transform:uppercase;
@@ -796,7 +803,7 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
 
 <!-- BUILD TAG — dev only, delete this div (and its comment) when the app ships -->
 <div id="buildtag" style="position:fixed;right:6px;bottom:calc(4px + env(safe-area-inset-bottom));
-  z-index:99;font-size:9px;letter-spacing:.08em;color:#B9B2A9;pointer-events:none">1B</div>
+  z-index:99;font-size:9px;letter-spacing:.08em;color:#B9B2A9;pointer-events:none">1C</div>
 
 <div class="sheet hide" id="sheet-date" role="dialog" aria-modal="true"><div class="panel">
   <button class="sheetback" onclick="sheet(null)">‹ Done</button>
@@ -1396,7 +1403,7 @@ What you actually did. Why it mattered. Say the awkward parts."></textarea>
   <button data-t="works"  onclick="go('works')"><span class="ic ics"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.4"/><path d="M12 8.1v7.9"/><path d="M8.05 12h7.9"/></svg></span>Plan &amp; Log</button>
   <button data-t="browse" onclick="go('browse')"><span class="ic ics"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.6c-3.2 0-5.4 2.3-5.4 5.2 0 1.9 1 3 1.9 3.9.55.55.85 1.15.85 1.85h5.3c0-.7.3-1.3.85-1.85.9-.9 1.9-2 1.9-3.9 0-2.9-2.2-5.2-5.4-5.2z"/><path d="M9.6 17.5h4.8"/><path d="M10.6 20.1h2.8"/></svg></span>Ideas</button>
   <button data-t="people" onclick="go('people')"><span class="ic ics"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="16.8" cy="7" r="2.4"/><path d="M16.4 12a5.1 5.1 0 0 1 4.3 4.6"/><circle cx="8.7" cy="9.1" r="3.2"/><path d="M3.1 19a5.8 5.8 0 0 1 11.3 0"/></svg></span>People</button>
-  <button data-t="you" onclick="go('you')"><span class="ic ics"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8.2" r="3.4"/><path d="M5.4 19.6a6.8 6.8 0 0 1 13.2 0"/></svg></span>You</button>
+  <button data-t="you" onclick="go('you')"><span class="ic ics"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8.2" r="3.4"/><path d="M5.4 19.6a6.8 6.8 0 0 1 13.2 0"/></svg></span><span class="tabdot hide" id="youdot"></span>You</button>
 </nav>
 
 <script>
@@ -1568,7 +1575,7 @@ function serialise(){
     name:S.name, bday:S.bday, why:S.why, email:S.email||'',
     start:S.start.toISOString(),
     people:S.people, platforms:S.platforms,
-    started:S.started, letterSeen:!!S.letterSeen, tabToured:!!S.tabToured, opens:S.opens||0, plans:slimPlans(), handles:S.handles||{}, places:S.places||{},
+    started:S.started, letterSeen:!!S.letterSeen, tabToured:!!S.tabToured, opens:S.opens||0, todoOpens:S.todoOpens||0, plans:slimPlans(), handles:S.handles||{}, places:S.places||{},
     works:(S.works||[]).map(w=>({ pid:w.pid, t:w.t||'', d:w.d||'', who:w.who||[], hon:w.hon||'',
                           cost:w.cost||0, spends:w.spends||[], story:w.story||'', exp:w.exp||'',
                           startedAt:w.startedAt||'', photos:(w.photos||[]).map(p=>p&&p.id).filter(Boolean) })),
@@ -1666,7 +1673,7 @@ async function load(){
   S.people=o.people||[]; S.platforms=o.platforms||S.platforms;
   S.started=!!o.started; S.letterSeen=!!o.letterSeen;
   if(S.cat==='Neighbours') S.cat='Neighbors';   // the library went American
-  S.tabToured=!!o.tabToured; S.opens=o.opens||0; S.handles=o.handles||{}; S.places=o.places||{};
+  S.tabToured=!!o.tabToured; S.opens=o.opens||0; S.todoOpens=o.todoOpens||0; S.handles=o.handles||{}; S.places=o.places||{};
   S.plans = await fatPlans(o.plans||{});
   /* The one-pipeline model, 30 Aug 2026: acts in the works. Photos rehydrate
      from IndexedDB exactly as plans' do. */
@@ -6371,28 +6378,40 @@ function backFromSetup(){
 }
 
 /* ── what's still unanswered — offered, never nagged ── */
-function drawTodo(){
-  /* Each gap used to carry its own explanation inside the item, and the items
-     were joined with commas — so the first one's clause ended up stapled to the
-     middle of the list: "your birthday, so the card says the right year, why
-     you're doing this". The names are names now; the reason is said once. */
-  const gaps=[];
-  if(!S.bday) gaps.push('your birthday');
-  if(!S.name) gaps.push('your name');
-  if(!S.why)  gaps.push('why you\'re doing this');
-  const box=$('todo');
-  if(!gaps.length){ box.classList.add('hide'); return; }
-  box.classList.remove('hide');
-  /* It led with what you had not done, in the second person, one screen below a
-     letter that says nobody is checking — and then apologised for itself. It
-     offers instead of accusing, and the app is the subject, not the person. */
-  const one = gaps.length===1;
-  box.innerHTML='<b>Your card is missing '+esc(listWords(gaps))+'.</b> '+
-    (!S.bday ? 'The birthday only works out which year your card names. ' : '')+
-    'Add '+(one?'it':'them')+' whenever you like.'+
-    '<br><button onclick="go(\'you\')">Add '+(one?'it':'them')+' →</button>';
-}
+/* The card's gaps, said once and quietly.
 
+   This was a pink block at the top of the year screen: "Your card is missing
+   your birthday and your name…", with a button. It sat one screen below a
+   letter promising nobody is keeping score, it was the first thing on the
+   screen every single time, and it was roughly a hundred pixels of being told
+   off. G ruled it out — "that needs to go away, it's annoying".
+
+   What is left is a coral dot on the You tab, which is where the card is
+   edited. It appears on every other opening, on the same rhythm as the Ideas
+   nudge, because a gap in the card is not urgent: "it's not that important".
+   It goes on its own the moment the card is complete. Nothing to dismiss and
+   nothing to apologise for.
+
+   If a gap ever genuinely blocks something, that belongs at the point it
+   blocks it — on the posting page, when the post comes up — not here.       */
+let TODO_COUNTED = false;
+function drawTodo(){
+  const dot = $('youdot'); if(!dot) return;
+  const gaps = [];
+  if(!S.bday) gaps.push('a birthday');
+  if(!S.name) gaps.push('a name');
+  if(!S.why)  gaps.push('a reason');
+
+  /* counted once per session, so moving between tabs does not flip it */
+  if(!TODO_COUNTED){ TODO_COUNTED = true; S.todoOpens = (S.todoOpens||0) + 1; save(); }
+
+  const show = gaps.length > 0 && S.todoOpens % 2 === 0;
+  dot.classList.toggle('hide', !show);
+
+  /* the dot is colour alone, which is nothing to a screen reader */
+  const btn = document.querySelector('.tabs [data-t="you"]');
+  if(btn) btn.setAttribute('aria-label', show ? 'You — your card still needs '+listWords(gaps) : 'You');
+}
 /* ── setup sheets ── */
 /* iOS keeps the scroll position when a full-screen step swaps out beneath a
    sheet, so the next screen can open already scrolled, putting the lockup
