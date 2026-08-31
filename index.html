@@ -39,6 +39,9 @@
 </style>
 <style>
 :root{
+  /* One name for the safe-area inset, so no two rules can disagree about who
+     pays for it. Everything that has to clear the clock reads this. */
+  --safetop:env(safe-area-inset-top);
   --script:"Great Vibes",cursive;
   --gold:#E1BA52; --goldscript:#DDB44C; --coral:#EA634F; --ink:#000000; --skin:#F9C78D; --paper:#ffffff;
   --mist:#F6F4F1; --line:#E4E0DA; --muted:#665F57;
@@ -58,9 +61,19 @@ html,body{margin:0;padding:0;background:var(--mist);color:var(--ink);
   -webkit-font-smoothing:antialiased}
 body{max-width:520px;margin:0 auto;min-height:100vh;background:var(--paper);
   padding-bottom:calc(88px + env(safe-area-inset-bottom));
-  padding-top:env(safe-area-inset-top);
   overscroll-behavior-y:contain}
-@media (display-mode:standalone){ .top{padding-top:calc(14px + env(safe-area-inset-top))} }
+/* The inset used to be paid twice and by the wrong people. `body` reserved it,
+   and the header added it again — but only when installed to the Home Screen.
+   The header is position:sticky, and sticky pins to the top of the VIEWPORT,
+   which under viewport-fit=cover with a translucent status bar begins at the
+   physical top of the screen. So the moment the page scrolled, the header left
+   the body's padding behind and parked itself under the clock and the battery,
+   and the title jumped up by the height of the inset on the way.
+
+   The header owns the inset now, always, in Safari and installed alike. Its
+   height is the same at rest as it is stuck, so nothing jumps and nothing
+   passes behind the clock. The letter is untouched by this: it is
+   position:fixed with its own padding and has never read either rule. */
 /* It sat over whatever was at the foot of the screen — on the card screen that
    was "Post this act", the app's first ever primary action, hidden behind an
    advert for the app. It reserves its own room now. */
@@ -223,7 +236,8 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
 /* header */
 .top{position:sticky;top:0;z-index:20;background:rgba(255,255,255,.94);
   backdrop-filter:blur(12px);border-bottom:1px solid var(--line);
-  padding:14px 20px;display:flex;align-items:center;gap:12px}
+  padding:calc(14px + var(--safetop)) 20px 14px;
+  display:flex;align-items:center;gap:12px}
 .top h2{font-size:17px;flex:1}
 .top .sub{font-size:12px;color:var(--muted);font-weight:500}
 /* the back control on every screen measured 15x30 */
@@ -260,7 +274,7 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
 #pastenote .tick{flex:none;font-weight:700;line-height:1.45}
 #storagebar{position:fixed;left:0;right:0;top:0;z-index:80;background:var(--coralink);
   color:#fff;display:flex;align-items:center;gap:12px;justify-content:center;
-  padding:calc(8px + env(safe-area-inset-top)) 14px 8px;font-size:13.5px;font-weight:600}
+  padding:calc(8px + var(--safetop)) 14px 8px;font-size:13.5px;font-weight:600}
 #storagebar button{background:#fff;color:var(--coralink);border:0;border-radius:8px;
   font-weight:700;font-size:13px;padding:8px 12px;min-height:36px;cursor:pointer}
 /* The bar is 64px plus the safe-area inset, and a fixed 44px of body padding did
@@ -534,7 +548,7 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
 #letter{position:fixed;inset:0;z-index:70;background:#EDE7DC;
   /* the paper's top edge lands just below the clock line — under it was too
      far, the heart disappeared behind the time */
-  padding:max(6px, calc(env(safe-area-inset-top) - 10px)) 16px 16px;
+  padding:max(6px, calc(var(--safetop) - 10px)) 16px 16px;
   overflow:auto;-webkit-overflow-scrolling:touch}
 #letter .sheet-paper{background:#FCFAF4;max-width:430px;width:100%;margin:0 auto;
   padding:clamp(26px,8.5vw,40px) clamp(20px,7vw,30px) clamp(24px,8vw,34px);position:relative;
@@ -596,7 +610,7 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
 
 <!-- ══════════ SETUP ══════════ -->
 <section id="s-setup" role="main" aria-label="Set up your year">
-  <div class="wrap" style="padding-top:calc(38px + env(safe-area-inset-top))">
+  <div class="wrap" style="padding-top:calc(38px + var(--safetop))">
     <div class="lockup" style="margin-bottom:34px"><div class="mark">
       <div class="txt">
         <div class="n" id="su-n">50</div>
@@ -803,7 +817,7 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
 
 <!-- BUILD TAG — dev only, delete this div (and its comment) when the app ships -->
 <div id="buildtag" style="position:fixed;right:6px;bottom:calc(4px + env(safe-area-inset-bottom));
-  z-index:99;font-size:9px;letter-spacing:.08em;color:#B9B2A9;pointer-events:none">1C</div>
+  z-index:99;font-size:9px;letter-spacing:.08em;color:#B9B2A9;pointer-events:none">1D</div>
 
 <div class="sheet hide" id="sheet-date" role="dialog" aria-modal="true"><div class="panel">
   <button class="sheetback" onclick="sheet(null)">‹ Done</button>

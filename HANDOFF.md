@@ -6,7 +6,7 @@ what is true right now. When they disagree, this file is newer — say so and fi
 the skill.
 
 Last updated: **30 August 2026**, end of the defect-fix session.
-Build in G's hands: **1C**.
+Build in G's hands: **1D**.
 
 ---
 
@@ -33,6 +33,43 @@ mirror; keep the two identical. Repo `gahensley1/acts-of-good-preview`, branch
 <https://gahensley1.github.io/acts-of-good-preview/>. Push with `git add -A`,
 `git commit -m "…"`, `git push origin main`, then load the site with a `?v=<tag>`
 cache-buster and confirm the build tag bottom-right.
+
+---
+
+## Shipped in 1D
+
+6. **The safe-area inset has one owner.** G's diagnosis was right: the whole app
+   had been pulled up to the physical top of the screen. `body` reserved the
+   inset, and `.top` added it again — but only inside
+   `@media (display-mode:standalone)`. `.top` is `position:sticky`, and sticky
+   pins to the top of the **viewport**, which under `viewport-fit=cover` with a
+   translucent status bar begins at the physical top of the screen. So on scroll
+   the header left the body's padding behind and parked under the clock.
+   Now: **`:root{--safetop:env(safe-area-inset-top)}`** is the single name;
+   `body` no longer reserves it; `.top` pays it unconditionally
+   (`padding:calc(14px + var(--safetop)) 20px 14px`); the standalone media query
+   is deleted. Every other rule that clears the clock — the letter, the storage
+   bar, the setup wrap — reads `--safetop` too, at the same computed value.
+
+   **The letter did not move**, which was G's condition. It is
+   `position:fixed;inset:0` with its own padding and never read either rule;
+   measured identical at a 0px and a 47px inset, before and after.
+
+   Measured at a simulated 47px inset, distance from the physical top of the
+   screen to the header text — under 47 is inside the clock and battery band:
+
+   | screen | before, Safari | before, installed | after, both |
+   |---|---|---|---|
+   | Your year | 61 → **14 on scroll** | 108 → 61 on scroll | 61, no jump |
+   | In the works | 73 | 120 | 73 |
+   | Ideas | **26** | 73 | 73 |
+   | People | 61 | 108 | 61 |
+   | You | **14** | 61 | 61 |
+   | Journal | **26** | 73 | 73 |
+
+   It showed on **Your year** first because that is the only screen long enough
+   to scroll in normal use, and its header is the shortest — it has no back
+   button, so it had the least accidental clearance to begin with.
 
 ---
 
@@ -87,15 +124,6 @@ Verified with headless Chromium against the real file: 17 checks, no JS errors.
 
 ## Open
 
-- **The safe-area collision** — "your ear gets caught up into the numbers and
-  phone and date." `body` carries `padding-top:env(safe-area-inset-top)` *and*
-  the sticky `.top` header adds the same inset again in a
-  `@media (display-mode:standalone)` rule. Sticky pins to the viewport, which
-  under `viewport-fit=cover` + `black-translucent` starts at the physical top of
-  the screen — so on first scroll the header leaves the body padding and parks
-  under the clock, and the title jumps by one inset. **Fix:** drop `padding-top`
-  from `body`, give `.top` the inset unconditionally. Diagnosed, awaiting
-  approval.
 - **X.** `HANDLE_KEYS` includes `'x'` and the person sheet asks for an X handle,
   but `PLATS` deliberately excludes X — the reason is in the file: *"280
   characters turns an act into a slogan."* Either drop X from the person form or
