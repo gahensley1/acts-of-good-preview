@@ -136,6 +136,12 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
 .setrow .t span{font-size:12.5px;color:var(--muted);display:block;
   overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .setrow .chev{color:var(--faint,#B9B2A9);font-size:20px}
+/* A gap says so on the row it belongs to: the same coral dot that sits on the
+   tab, and "Add" where the value would be. The dot on the tab said something
+   was missing; these say which. */
+.setrow .gapdot{flex:none;width:7px;height:7px;border-radius:50%;
+  background:var(--coral);margin-right:-3px}
+.setrow.gap .t span{color:var(--coralink);font-weight:600}
 .todo{background:#FFF6F4;border:1px solid #F6D5CE;border-radius:12px;padding:14px 16px;
   margin-bottom:18px;font-size:13.5px;line-height:1.55}
 .todo b{font-weight:600}
@@ -180,7 +186,8 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
   letter-spacing:.04em;text-transform:uppercase;font-weight:600}
 
 /* ── the journal ────────────────────────────────────────────────────────────
-   The letter says "at the end it is a diary", and until now the diary could be
+   The letter says "a journal filled with ideas, notes, expenses and memories",
+   and until now that journal could be
    written but not reread. These pages are laid out square-ish on the proportions
    of the printed book (the-book.md: 8.5x8.5, 0.5in safety margin), so the thing
    she reads on the phone and the thing that arrives from the printer are the
@@ -253,15 +260,15 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
 /* Above the sheets. At z-index 60 it tied with them and lost on DOM order, so
    the Undo button was visible and unpressable — and during setup the tap landed
    on "Start" underneath it, ending onboarding instead of undoing the delete. */
-#undobar{position:fixed;left:50%;bottom:calc(72px + env(safe-area-inset-bottom));
+#undobar,#gapbar{position:fixed;left:50%;bottom:calc(72px + env(safe-area-inset-bottom));
   transform:translate(-50%,140%);z-index:79;background:var(--ink);color:#fff;
   border-radius:12px;padding:11px 14px;display:flex;align-items:center;gap:14px;
   width:max-content;max-width:min(92vw,420px);box-shadow:0 8px 24px rgba(0,0,0,.28);
   transition:transform .22s cubic-bezier(.2,.8,.3,1);
   /* parked off screen it was still catching taps meant for the button beneath it */
   pointer-events:none;visibility:hidden}
-#undobar.up{transform:translate(-50%,0);pointer-events:auto;visibility:visible}
-#undobar .msg{font-size:13.5px}
+#undobar.up,#gapbar.up{transform:translate(-50%,0);pointer-events:auto;visibility:visible}
+#undobar .msg,#gapbar .msg{font-size:13.5px}
 /* This was a black bar fixed to the top of the screen, parked at -160% of its
    own height against an offset of 10px + the safe-area inset. On a phone the
    message wraps to three lines, so -160% no longer cleared the inset: its
@@ -734,7 +741,7 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
 
     <button class="btn ghost" style="margin-top:20px" onclick="go('journal')">
       Read your year</button>
-    <p class="note" style="margin-top:8px;text-align:center">The diary, page by
+    <p class="note" style="margin-top:8px;text-align:center">The journal, page by
       page. Everything in it can still be changed.</p>
   </div>
 </section>
@@ -832,9 +839,14 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
 <div id="undobar" role="status" aria-live="polite">
   <span class="msg"></span><button type="button">Undo</button></div>
 
+<!-- The same bar, saying what the card is still short of. It is only ever
+     raised by arriving at You, which is the one screen that can answer it. -->
+<div id="gapbar" role="status" aria-live="polite">
+  <span class="msg"></span><button type="button" onclick="sheet('you')">Add</button></div>
+
 <!-- BUILD TAG — dev only, delete this div (and its comment) when the app ships -->
 <div id="buildtag" style="position:fixed;right:6px;bottom:calc(4px + env(safe-area-inset-bottom));
-  z-index:99;font-size:9px;letter-spacing:.08em;color:#B9B2A9;pointer-events:none">1F</div>
+  z-index:99;font-size:9px;letter-spacing:.08em;color:#B9B2A9;pointer-events:none">1H</div>
 
 <div class="sheet hide" id="sheet-date" role="dialog" aria-modal="true"><div class="panel">
   <button class="sheetback" onclick="sheet(null)">‹ Done</button>
@@ -903,7 +915,7 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
   <!-- Done means done, not discarded: this is the control everyone reaches for. -->
   <button class="sheetback" onclick="savePlan()">‹ Done</button>
   <h3 id="plan-h3">Plan act 4</h3>
-  <p class="note" style="margin-bottom:18px">Put something in the diary. It sits in the
+  <p class="note" style="margin-bottom:18px">Put something in the journal. It sits in the
     grid until you do it. Nothing nags you, and any reminder comes from your own
     calendar, never from this app.</p>
   <div class="field"><label for="pl-title">What are you thinking?</label>
@@ -1106,7 +1118,7 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
   <div class="top"><button class="back" onclick="go('home')">‹</button>
     <h2>Write it up</h2><div class="sub" id="w-no"></div></div>
   <div class="wrap">
-    <p class="note" style="margin-bottom:18px">This is the diary entry. The post comes
+    <p class="note" style="margin-bottom:18px">This is the journal entry. The post comes
       out of it, not the other way round.</p>
 
     <div class="field"><label for="w-title">What you did</label>
@@ -1209,7 +1221,7 @@ What you actually did. Why it mattered. Say the awkward parts."></textarea>
       <textarea id="cm-text" style="min-height:220px" oninput="composeEdited()"></textarea>
       <div class="counter"><span id="cm-count"></span>
         <button id="cm-reset" style="color:var(--coralink);font-weight:600;font-size:13px;
-          padding:14px 0;min-height:44px" onclick="buildCaption(true)">Rebuild from the diary</button></div>
+          padding:14px 0;min-height:44px" onclick="buildCaption(true)">Rebuild from the journal</button></div>
     </div>
 
     <div id="cm-trim"></div>
@@ -1311,12 +1323,12 @@ What you actually did. Why it mattered. Say the awkward parts."></textarea>
       <p class="note" id="storagenote">Everything is saved on this phone.</p>
       <p class="note" style="margin-top:10px">Because it never leaves the phone, it
         can go with the phone. Keep a copy somewhere safe.</p>
-      <button class="btn ghost" style="margin-top:12px" onclick="exportDiary()">
-        Save a copy of my diary</button>
+      <button class="btn ghost" style="margin-top:12px" onclick="exportJournal()">
+        Save a copy of my journal</button>
       <button class="btn ghost" style="margin-top:10px" onclick="$('imp-file').click()">
         Bring a copy back</button>
-      <input type="file" id="imp-file" accept="application/json,.json" class="hide" aria-label="Choose a saved copy of your diary"
-        onchange="importDiary(this)">
+      <input type="file" id="imp-file" accept="application/json,.json" class="hide" aria-label="Choose a saved copy of your journal"
+        onchange="importJournal(this)">
       <button class="btn ghost" style="margin-top:10px" onclick="go('journal')">
         Read your year</button>
       <button class="btn ghost" style="margin-top:10px" onclick="openLetter(true)">
@@ -1458,7 +1470,7 @@ let _db=null, _dbOpening=null, _storageOK=true, LOAD_MISSED=false;
 /* Safari is famous for an IndexedDB open() that simply never answers — the
    "Connection to Indexed Database server lost" stall, worst on the first launch
    after an update. Without a deadline, boot awaited that answer forever and a
-   returning user with photos stared at the setup wizard while their whole diary
+   returning user with photos stared at the setup wizard while their whole journal
    sat invisible behind it. Five seconds, then the app carries on without
    pictures rather than not carrying on at all. */
 let _dbDeadUntil = 0;
@@ -1466,7 +1478,7 @@ function idb(){
   if(_db) return Promise.resolve(_db);
   /* one failed open makes the next attempts fail FAST for a while — retrying
      the full five-second wait per photo turned one stall into ten seconds of
-     blank boot for a two-photo diary */
+     blank boot for a two-photo journal */
   if(Date.now() < _dbDeadUntil) return Promise.reject(new Error('idb unavailable'));
   if(_dbOpening) return _dbOpening;
   _dbOpening = new Promise((res,rej)=>{
@@ -1629,17 +1641,17 @@ function save(){
 
 /* Said once, loudly, at the moment it happens, and then it stays on the screen
    as a bar until it is fixed. Offers the only thing that actually helps: get a
-   copy of the diary off the phone before it is lost. */
+   copy of the journal off the phone before it is lost. */
 let STORAGE_WARNED = false;
 /* Photos failing to write is its own condition: the words are still being
-   saved. Flipping _storageOK for it stopped the whole diary over a picture. */
+   saved. Flipping _storageOK for it stopped the whole journal over a picture. */
 let PHOTOS_WARNED = false;
 function photosBroke(){
   if(PHOTOS_WARNED) return;
   PHOTOS_WARNED = true;
   say('Photos are not saving',
       'Your phone refused to store the picture, so it was not added. Your words '+
-      'are still being saved. Free some space, or save a copy of your diary.');
+      'are still being saved. Free some space, or save a copy of your journal.');
 }
 function storageBroke(){
   try { showStorageBar(); } catch(e){}
@@ -1647,8 +1659,8 @@ function storageBroke(){
   STORAGE_WARNED = true;
   dlg({ title:'Your phone has stopped saving',
         note:'It has run out of room for the app, so nothing new is being kept. '+
-             'Save a copy of your diary now, then free some space and reopen it.',
-        ok:'Save a copy', cancel:'Not now', then:()=>exportDiary() });
+             'Save a copy of your journal now, then free some space and reopen it.',
+        ok:'Save a copy', cancel:'Not now', then:()=>exportJournal() });
 }
 function showStorageBar(){
   if($('storagebar')) return;
@@ -1657,7 +1669,7 @@ function showStorageBar(){
   d.innerHTML = '<span>Not saving. Your phone is out of room.</span>';
   const b = document.createElement('button');
   b.type='button'; b.textContent='Save a copy';
-  b.onclick = exportDiary; d.appendChild(b);
+  b.onclick = exportJournal; d.appendChild(b);
   document.body.appendChild(d);
   document.body.classList.add('hasbar');
   /* measure it rather than guess: the safe-area inset makes it much taller on a
@@ -1668,7 +1680,7 @@ function showStorageBar(){
 }
 
 /* The phones evict local storage under pressure. Asking to be exempt costs
-   nothing and is the difference between a diary and a cache. */
+   nothing and is the difference between a journal and a cache. */
 function askToPersist(){
   try {
     if(navigator.storage && navigator.storage.persist)
@@ -1685,9 +1697,9 @@ async function load(){
 
   /* A blob that PARSES can still throw INSIDE this function — one null entry in
      plans did — and the boot had no catch, so the app fell through to the setup
-     wizard as though brand new while the diary sat intact in storage. The very
+     wizard as though brand new while the journal sat intact in storage. The very
      next save() then wrote the empty state over it. Whatever else is broken,
-     the acts are kept: they are the diary. */
+     the acts are kept: they are the journal. */
   if(!Array.isArray(o.acts)) o.acts = [];          // "oops" iterated as characters
   if(typeof o.plans !== 'object' || Array.isArray(o.plans) || !o.plans) o.plans = {};
   Object.keys(o.plans).forEach(k=>{
@@ -1748,7 +1760,7 @@ async function load(){
                   posted:a.posted||{}, note:a.note||'',
                   story:a.story||'', photos });
     (Array.isArray(a.offs)?a.offs:[]).forEach((v,i)=>{ if(v && photos[i]) photos[i].off=true; });
-    /* ghost acts with no name, no number and no square are noise, not diary */
+    /* ghost acts with no name, no number and no square are noise, not journal */
     if(!S.acts[S.acts.length-1].t && !slotOf(S.acts[S.acts.length-1]))
       S.acts.pop();
   }
@@ -1760,14 +1772,14 @@ async function load(){
    promise is that the phone can lose it, so there has to be a way out. One
    file, readable without this app, carrying the photos too.                  */
 let EXPORTING = false;
-async function exportDiary(){
+async function exportJournal(){
   if(EXPORTING) return;         // one at a time; the button can be hammered
   EXPORTING = true;
   /* A year of real camera photos is hundreds of megabytes. Building that as ONE
      JSON.stringify string — plus the Blob copy — peaked at better than twice
      the file size in memory, which is exactly the profile iOS kills. And this
      is the lifeboat: the operation the red storage bar points at, on the full
-     diary that most needs it. So the file is assembled as Blob PARTS, one act
+     journal that most needs it. So the file is assembled as Blob PARTS, one act
      at a time — the photos' data URLs pass straight through as their own parts
      and no giant string ever exists — and the screen says it is working. */
   say('Making your copy…','This can take a moment with a year of photos. Keep '+
@@ -1883,7 +1895,7 @@ async function exportDiary(){
   }
 }
 
-function importDiary(input){
+function importJournal(input){
   const file = input.files && input.files[0];
   input.value = '';
   if(!file) return;
@@ -1896,7 +1908,7 @@ function importDiary(input){
        in the app with no undo. Ask for this app's own marker. */
     if(!o || !Array.isArray(o.acts) || typeof o.n !== 'number' || !o.v){
       say('That file will not open','It needs to be a copy this app saved. Use '+
-          '“Save a copy of my diary” to make one.'); return;
+          '“Save a copy of my journal” to make one.'); return;
     }
     checkFirst('Bring this copy back?',
       o.acts.length+' act'+(o.acts.length===1?'':'s')+', saved '+
@@ -1904,7 +1916,7 @@ function importDiary(input){
       '. It replaces what is on this phone now.', 'Replace it', async ()=>{
         /* Nothing old is destroyed until the new copy is safely written. This
            used to clear the photo store first, so an import that then failed
-           left the original diary intact and every one of its photos deleted. */
+           left the original journal intact and every one of its photos deleted. */
         const staged = [];
         let badIn = 0;
         try {
@@ -1916,7 +1928,7 @@ function importDiary(input){
               const id = newPhotoId();             // fresh ids, so nothing collides
               await idbPut(id, p.data);
               /* the file carries one picture; rebuild the screen-size copy from
-                 it so the restored diary draws as fast as the original did */
+                 it so the restored journal draws as fast as the original did */
               const t = await reThumb(p.data);
               if(t){ await idbPut(THUMB(id), t); }
               else { badIn++; }        // it is in the file but it will not open
@@ -1935,9 +1947,9 @@ function importDiary(input){
 
           const olds = currentPhotoIds();
           localStorage.setItem(LS_KEY, JSON.stringify(slim));   // the point of no return
-          /* and the half-written act belonged to the diary being replaced: kept,
+          /* and the half-written act belonged to the journal being replaced: kept,
              it was offered back over the imported one, and its stale plan
-             reference then deleted a plan out of the new diary */
+             reference then deleted a plan out of the new journal */
           try{ localStorage.removeItem(DRAFT_KEY); }catch(e){}
           for(const id of olds) if(staged.indexOf(id)<0) await idbDel(id);
           if(badIn){
@@ -2016,7 +2028,7 @@ function readMoney(v){
   return isFinite(n) && n < 1e7 ? n : null;
 }
 
-/* delete only the pictures nothing else in the diary still points at */
+/* delete only the pictures nothing else in the journal still points at */
 function releasePhotos(list){
   releaseIds((list||[]).map(p=>p && p.id).filter(Boolean));
 }
@@ -2050,7 +2062,7 @@ function heldPhotoIds(){
 }
 async function wipe(){
   try{ localStorage.removeItem(LS_KEY); }catch(e){}
-  /* it used to survive Start over and then be offered back, out of a diary the
+  /* it used to survive Start over and then be offered back, out of a journal the
      person had deliberately destroyed */
   try{ localStorage.removeItem(LS_KEY + '.draft'); }catch(e){}
   for(const a of S.acts) for(const p of (a.photos||[])) await idbDel(p.id);
@@ -3392,10 +3404,10 @@ function drawCal(){
 }
 
 /* ── the journal ────────────────────────────────────────────────────────────
-   Reading the year back is what a diary is FOR, and it is also the layout of
+   Reading the year back is what a journal is FOR, and it is also the layout of
    the printed book: one act per page, the opening page saying why the year
    began, the closing page saying what it added up to. Everything on every page
-   can be changed — a diary you cannot correct is somebody else's record. */
+   can be changed — a journal you cannot correct is somebody else's record. */
 /* the script line as it appears on the card: "in year fifty", or her word */
 function reasonScript(){
   const line=(S.line||'').trim(), word=(S.word||'').trim();
@@ -4209,7 +4221,7 @@ function openPerson(name){
   sheet('person');
 }
 /* Renaming was thought about and worked. Removing was not possible at all after
-   setup, so a typo, or somebody you would rather not have in your diary any
+   setup, so a typo, or somebody you would rather not have in your journal any
    more, was permanent. Acts they were part of keep their record of the day; it
    is the list of people that is being edited, not the past. */
 function deletePerson(){
@@ -4310,7 +4322,7 @@ function drawPhotos(boxId, fileId, list, onChange){
       '<button type="button" class="x" aria-label="Remove photo '+(i+1)+'">×</button>';
     t.querySelector('.x').onclick=e=>{
       e.stopPropagation();
-      /* A photo is the part of a diary you cannot write again, and this was the
+      /* A photo is the part of a journal you cannot write again, and this was the
          one destructive control in the app with neither a confirmation nor an
          undo — on a 22px dot sitting on the thumbnail you scroll past. The row
          is put back exactly where it was, and the file is only really deleted
@@ -4337,11 +4349,11 @@ function drawPhotos(boxId, fileId, list, onChange){
 async function takeFiles(input, list, onChange){
   const files=[...input.files];
   input.value='';            // so picking the same photo twice still fires
-  /* Adding photos while the phone has already refused to save is how a diary
+  /* Adding photos while the phone has already refused to save is how a journal
      fills up with pictures belonging to acts that were never written down. */
   if(!_storageOK){
     say('Not saving right now','Your phone is out of room, so a photo added now '+
-        'would be lost. Save a copy of your diary and free some space first.');
+        'would be lost. Save a copy of your journal and free some space first.');
     return;
   }
   /* Photos that would not decode used to vanish without a word, and so did
@@ -4356,10 +4368,10 @@ async function takeFiles(input, list, onChange){
     list.push({ id, url:got.thumb });
     /* A write failure is the phone being full, not the photo being broken, and
        saying the wrong one of those sends the person hunting for a fault in
-       their camera roll while their diary quietly stops being saved. */
+       their camera roll while their journal quietly stops being saved. */
     try { await idbPut(id, got.full); await idbPut(THUMB(id), got.thumb); }
     catch(e){ list.pop(); await idbDel(id); await idbDel(THUMB(id)); noRoom++; break; }
-    /* NOTE: photos failing is not the diary failing. localStorage may be fine,
+    /* NOTE: photos failing is not the journal failing. localStorage may be fine,
        so acts keep saving; only pictures are refused, and loudly. */
     onChange();
   }
@@ -4380,7 +4392,7 @@ async function takeFiles(input, list, onChange){
    them: fifty acts of trial and error left a hundred and fifty orphans and ten
    megabytes. This runs once at startup, against what is actually referenced. */
 /* A round trip through the real store, because "it worked last time" is not
-   evidence and the whole diary depends on the answer. */
+   evidence and the whole journal depends on the answer. */
 function proveStorage(){
   try { localStorage.setItem(LS_KEY+'.probe','1'); localStorage.removeItem(LS_KEY+'.probe'); }
   catch(e){ _storageOK = false; }
@@ -4388,7 +4400,7 @@ function proveStorage(){
 
 /* Photos stored by an earlier build have one record at 1000px, which load()
    reads into memory whole, every launch, forever — the boot-memory win of the
-   two-size split reaches nobody who already has a diary. Make the missing
+   two-size split reaches nobody who already has a journal. Make the missing
    thumbnails once, quietly, in the background. */
 async function backfillThumbs(){
   try {
@@ -4917,7 +4929,7 @@ function saveAct(writeNow){
     return;
   }
 
-  /* future date → this is a plan, not a diary entry */
+  /* future date → this is a plan, not a journal entry */
   if(isFuture($('l-when').value)){
     S.plans = S.plans || {};
     /* The past-dated path checks this; the future-dated one did not, so a plan
@@ -5044,7 +5056,7 @@ function grabDone(){
 function doneLater(){ grabDone(); sheet(null); drawHome(); }
 function doneWrite(){ grabDone(); sheet(null); openWrite(S.current); }
 function openAct(a){ S.current=a; openWrite(a); }
-/* Every part of an act stays changeable after the day: a diary you cannot
+/* Every part of an act stays changeable after the day: a journal you cannot
    correct is somebody else's record. The facts save as they are typed, exactly
    like the story always has. */
 function openWrite(a){
@@ -5188,7 +5200,7 @@ function tagsFor(a, plat){
   return out;
 }
 
-/* Build the caption from the diary entry. The entry is the thing; this is a
+/* Build the caption from the journal entry. The entry is the thing; this is a
    derivative of it, which is why it can always be rebuilt. */
 function buildCaption(force){
   const a = S.current || S.acts[S.acts.length-1];
@@ -5371,7 +5383,7 @@ function drawFit(){
   $('cm-count').innerHTML = '<b>'+n+'</b> / '+lim;
   $('cm-count').className = over>0 ? 'over' : '';
   /* "2123 spare" was the largest, boldest thing on the screen — a character
-     budget, in 27px, on the page that is supposed to be carrying a diary entry
+     budget, in 27px, on the page that is supposed to be carrying a journal entry
      out into the world. It matters only when it is a problem, so it is only
      loud when it is a problem. */
   $('cm-fit').innerHTML = over>0
@@ -6375,12 +6387,14 @@ function drawYou(){
   $('you-seth').textContent = 'Your ' + periodNoun();
   $('v-n').textContent = S.n+' acts over '+per+' · '+humanCadence(Math.round(S.weeks*7/S.n));
   $('v-reason').textContent = (S.line+' '+(S.word||'…')).trim();
-  $('v-name').textContent = S.name || 'Not set';
+  $('v-name').textContent = S.name || 'Add';
   $('v-bday').textContent = S.bday
     ? MONTHS[parseInt(S.bday.slice(5,7),10)-1]+' '+S.bday.slice(0,4)+
       ' · year '+(ORD[ageTurning(S.bday)]||ageTurning(S.bday))
-    : 'Not set, your card says "in year …"';
-  $('v-why').textContent = S.why || 'Not set';
+    : 'Add — your card says "in year …" without it';
+  $('v-why').textContent = S.why || 'Add';
+  /* the row wears the mark, so the dot on the tab has somewhere to land */
+  markGap('v-name', !S.name); markGap('v-bday', !S.bday); markGap('v-why', !S.why);
   $('storagenote').textContent = _storageOK
     ? 'Everything is saved on this phone, your acts, photos and settings. Nothing leaves it.'
     : 'Storage is unavailable in this browser, so nothing will be remembered after you close it.';
@@ -6409,6 +6423,42 @@ function backFromSetup(){
 }
 
 /* ── what's still unanswered — offered, never nagged ── */
+/* Which of the three the card is short of, in the order the rows sit in. */
+function cardGaps(){
+  const g=[];
+  if(!S.name) g.push('a name');
+  if(!S.bday) g.push('a birthday');
+  if(!S.why)  g.push('a reason');
+  return g;
+}
+/* C — the row says it itself. A dot before the label and "Add" in coral where
+   the value would be, so the eye lands on the gap rather than reading for it. */
+function markGap(id, missing){
+  const row = $(id) && $(id).closest('.setrow'); if(!row) return;
+  row.classList.toggle('gap', !!missing);
+  let dot = row.querySelector('.gapdot');
+  if(missing && !dot){ dot=document.createElement('span'); dot.className='gapdot';
+                       dot.setAttribute('aria-hidden','true'); row.prepend(dot); }
+  if(!missing && dot) dot.remove();
+}
+/* A — the app's own bar, raised once on arriving at You. It names the gaps
+   rather than announcing that gaps exist, and Add opens the card sheet, so
+   answering it is one tap. Once per session: the dot on the tab is the standing
+   reminder, this is only the greeting that follows acting on it. */
+let GAPBAR_SHOWN = false;
+function gapBar(){
+  const bar=$('gapbar'); if(!bar) return;
+  const gaps=cardGaps();
+  if(!gaps.length || GAPBAR_SHOWN){ bar.classList.remove('up'); return; }
+  GAPBAR_SHOWN = true;
+  bar.querySelector('.msg').textContent = 'Your card still needs '+listWords(gaps)+'.';
+  bar.classList.add('up');
+  clearTimeout(GAPBAR_T);
+  GAPBAR_T = setTimeout(()=>bar.classList.remove('up'), 7000);
+}
+let GAPBAR_T = null;
+function dropGapBar(){ const b=$('gapbar'); if(b) b.classList.remove('up'); clearTimeout(GAPBAR_T); }
+
 /* The card's gaps, said once and quietly.
 
    This was a pink block at the top of the year screen: "Your card is missing
@@ -6428,10 +6478,7 @@ function backFromSetup(){
 let TODO_COUNTED = false;
 function drawTodo(){
   const dot = $('youdot'); if(!dot) return;
-  const gaps = [];
-  if(!S.bday) gaps.push('a birthday');
-  if(!S.name) gaps.push('a name');
-  if(!S.why)  gaps.push('a reason');
+  const gaps = cardGaps();
 
   /* counted once per session, so moving between tabs does not flip it */
   if(!TODO_COUNTED){ TODO_COUNTED = true; S.todoOpens = (S.todoOpens||0) + 1; save(); }
@@ -6682,7 +6729,7 @@ function go(v){
   fitAllMarks();        // hidden elements measure zero, refit once visible
   if(v==='setup'){ drawSetup(); setTimeout(tourIfVisible, 260); }
   if(v==='home'){ drawHome(); drawTodo(); setTimeout(tabTour, 260); }
-  if(v==='you')    drawYou();
+  if(v==='you'){   drawYou(); setTimeout(gapBar, 260); } else dropGapBar();
   if(v==='people') drawPeople();
   if(v==='card')   drawCard();
   if(v==='compose') drawCompose();
@@ -6816,7 +6863,7 @@ function closeLetter(){
   try { restored = await load(); }
   catch(e){
     /* the one place this must never happen again: a throw mid-load looked like
-       a fresh install, and the next save wiped the real diary underneath it */
+       a fresh install, and the next save wiped the real journal underneath it */
     try {
       const raw = localStorage.getItem(LS_KEY);
       const o = raw && JSON.parse(raw);
@@ -6828,9 +6875,9 @@ function closeLetter(){
         S.n = parseInt(o.n,10)||25; S.name=o.name||''; S.started=true;
         S.letterSeen = true;
         restored = true;
-        setTimeout(()=>say('Something went wrong reading part of your diary',
+        setTimeout(()=>say('Something went wrong reading part of your journal',
           'Your acts are all here. A photo or a plan record could not be read, '+
-          'so save a copy of your diary now, just in case.'), 800);
+          'so save a copy of your journal now, just in case.'), 800);
       }
     } catch(e2){}
   }

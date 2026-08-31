@@ -6,7 +6,7 @@ what is true right now. When they disagree, this file is newer — say so and fi
 the skill.
 
 Last updated: **30 August 2026**, end of the defect-fix session.
-Build in G's hands: **1F**.
+Build in G's hands: **1H**.
 
 ---
 
@@ -36,7 +36,35 @@ cache-buster and confirm the build tag bottom-right.
 
 ---
 
-## Shipped in 1E–1F
+## Shipped in 1G–1H
+
+8. **"Diary" is "journal" everywhere.** The letter has always said *journal* —
+   *"I kept a journal filled with ideas, notes, expenses, and memories"* — and
+   the rest of the app had drifted to *diary*, contradicting Jessica's own
+   words. 43 occurrences swept, including `exportDiary` / `importDiary` →
+   `exportJournal` / `importJournal` so the code reads like the screen.
+   **Two left alone on purpose**, both about the *other* person's calendar
+   rather than this app's journal: the `.ics` comment, and
+   *"Nobody can put it in their diary without one."* If those should read
+   "calendar", say so — that is a different word, not this sweep.
+
+9. **The You screen names what is missing — ruled A **and** C.**
+   **A**, `#gapbar`: the app's own black bar, sharing `#undobar`'s CSS,
+   raised 260ms after arriving at You. It names the gaps in row order —
+   *"Your card still needs a name and a birthday."* — carries **Add**, which
+   opens the card sheet, and drops after 7s. **Once per session** (`GAPBAR_SHOWN`)
+   and on no other screen: the dot on the tab is the standing reminder, this is
+   only the greeting after acting on it.
+   **C**, `.gapdot` + `.setrow.gap`: the missing rows wear the same coral dot
+   the tab does, and grey **Not set** becomes coral **Add**. `cardGaps()` is the
+   single list all three readers use — the tab dot, the bar and the rows.
+
+   **Trap worth remembering:** the first build used `.mark` for the dot. `.mark`
+   is already the card artwork lockup, carrying `min-height:57.2cqw`, which
+   beats `height:7px` — the dot rendered as a 7×223px coral sliver and blew the
+   row to 252px. Every assertion passed, because they tested classes and colour
+   and not geometry. **The screenshot caught it, not the tests.** Assert size,
+   not just state.
 
 7. **The suggestion box is compacted.** G: *"I don't think we need those words"*
    about the **"Worth knowing about"** heading — removed; the card's own first
