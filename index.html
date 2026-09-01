@@ -760,7 +760,7 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
       page. Everything in it can still be changed.</p>
 
     <!-- BUILD MARK — dev only, delete this div when the app ships -->
-    <div id="buildtag">BUILD 1L</div>
+    <div id="buildtag">BUILD 1M</div>
   </div>
 </section>
 
@@ -1271,6 +1271,40 @@ What you actually did. Why it mattered. Say the awkward parts."></textarea>
 </section>
 
 <!-- ══════════ BROWSE ══════════ -->
+<!-- ══════════ ACT 0 — the declaration ══════════
+     The last step of the introduction, and the only compulsory one. It runs the
+     whole pipeline once on the act that needs no event, no photograph and
+     nobody else: card, post, "did it go up?", journal. By the time act 1 comes
+     round she has already been everywhere the app will ever take her.
+     The card here is the YEAR card — the lockup with no act line. That is what
+     Jessica's own announcement carried; every act card after this one is the
+     same lockup with "act n of N" added under the rule. -->
+<section id="s-zero" class="hide" role="main" aria-label="Act 0">
+  <div class="top"><h2>Act 0</h2><div class="sub">where the year starts</div></div>
+  <div class="wrap">
+    <p class="note" style="margin:0 0 4px">This is your card. Every act you log
+      makes one of these &mdash; this one is for the year itself.</p>
+
+    <div class="cardbox" id="zeroface" style="margin-top:14px">
+      <div class="lockup"><div class="mark">
+        <div class="txt">
+          <div class="n" id="z-n">50</div>
+          <div class="aog">acts of good</div>
+          <div class="iy" id="z-iy">in year</div>
+          <div class="scr" id="z-scr">fifty</div>
+        </div>
+        <div class="balloon"><img alt="" class="handimg" src=""></div>
+      </div></div>
+    </div>
+
+    <p class="note" style="margin-top:14px">Press and hold the card to save a copy.</p>
+
+    <button class="btn" style="margin-top:20px" onclick="zeroGo()">I&rsquo;m doing this</button>
+    <p class="note" style="margin-top:10px;text-align:center">Next: the words, already
+      written. You choose who sees them, and whether they go at all.</p>
+  </div>
+</section>
+
 <section id="s-browse" class="hide" role="main" aria-label="Ideas">
   <div class="top"><button class="back" onclick="go('home')">‹</button>
     <h2>Ideas</h2></div>
@@ -1633,7 +1667,7 @@ function serialise(){
     name:S.name, bday:S.bday, why:S.why, email:S.email||'',
     start:S.start.toISOString(),
     people:S.people, platforms:S.platforms,
-    started:S.started, letterSeen:!!S.letterSeen, tabToured:!!S.tabToured, opens:S.opens||0, todoOpens:S.todoOpens||0, plans:slimPlans(), handles:S.handles||{}, places:S.places||{},
+    started:S.started, letterSeen:!!S.letterSeen, zero:S.zero||null, tabToured:!!S.tabToured, opens:S.opens||0, todoOpens:S.todoOpens||0, plans:slimPlans(), handles:S.handles||{}, places:S.places||{},
     works:(S.works||[]).map(w=>({ pid:w.pid, t:w.t||'', d:w.d||'', who:w.who||[], hon:w.hon||'',
                           cost:w.cost||0, spends:w.spends||[], story:w.story||'', exp:w.exp||'',
                           startedAt:w.startedAt||'', photos:(w.photos||[]).map(p=>p&&p.id).filter(Boolean) })),
@@ -1731,7 +1765,7 @@ async function load(){
   S.people=o.people||[]; S.platforms=o.platforms||S.platforms;
   S.started=!!o.started; S.letterSeen=!!o.letterSeen;
   if(S.cat==='Neighbours') S.cat='Neighbors';   // the library went American
-  S.tabToured=!!o.tabToured; S.opens=o.opens||0; S.todoOpens=o.todoOpens||0; S.handles=o.handles||{}; S.places=o.places||{};
+  S.zero=o.zero||null; S.tabToured=!!o.tabToured; S.opens=o.opens||0; S.todoOpens=o.todoOpens||0; S.handles=o.handles||{}; S.places=o.places||{};
   S.plans = await fatPlans(o.plans||{});
   /* The one-pipeline model, 30 Aug 2026: acts in the works. Photos rehydrate
      from IndexedDB exactly as plans' do. */
@@ -2568,8 +2602,43 @@ function startYear(){
   S.line = $('reason-line').value.trim();
   S.word = $('reason-word').value.trim();
   S.started = true; save();
+  /* Act 0 first, and the tab bar does not exist until it is done. There is no
+     Skip: one escape hatch makes it optional, and an optional ceremony is a
+     form with nicer type. */
+  if(!S.zero){ go('zero'); return; }
   $('tabs').classList.remove('hide');
   go('home');
+}
+
+/* ── act 0 ──────────────────────────────────────────────────────────────────
+   It is a real act object so the whole pipeline carries it unchanged — card,
+   caption, share, "did it go up?" — but it lives in S.zero rather than S.acts,
+   so it never counts toward the year and never takes one of the N squares. */
+function drawZero(){
+  paintHands();
+  $('z-n').textContent   = S.n;
+  $('z-iy').textContent  = S.line;
+  $('z-scr').textContent = S.word;
+  fitAllMarks();
+}
+function zeroAct(){
+  if(!S.zero) S.zero = { no:'0', zero:true, d:todayISO(),
+                         t:'The year begins', posted:{}, captions:{} };
+  return S.zero;
+}
+function zeroGo(){
+  const z = zeroAct();
+  S.current = z; CM_BACK = 'home'; save();
+  const on = PLATS.filter(([k])=>S.platforms[k].on).map(([k])=>k);
+  CM_PLAT = on[0] || 'instagram';
+  $('cm-no').textContent = 'act 0';
+  go('compose'); drawCompose();
+}
+/* Whether act 0 is finished. Writing it is what completes it; sending it is
+   hers to choose, so "Not yet" is a real answer with no consequence. */
+function zeroDone(){
+  $('tabs').classList.remove('hide');
+  save(); go('home');
 }
 
 /* ── what is worth doing about now ─────────────────────────────────────────
@@ -2710,7 +2779,10 @@ function drawHome(){
   const target=Math.round(S.n*wk/S.weeks), ahead=done-target;
   $('home-h2').textContent = 'Your ' + periodNoun();
   $('home-sub').textContent='week '+wk+' of '+S.weeks;
-  $('p-count').textContent=done+' of '+S.n;
+  /* "0 of 25" on day one, one screen below a letter promising nobody is
+     keeping score. It says what is true instead, and becomes the count the
+     moment there is a count. */
+  $('p-count').textContent = (done===0 && S.zero) ? 'Begun' : done+' of '+S.n;
   $('p-week').textContent='week '+wk+' of '+S.weeks;
   /* This is the sentence sitting one screen below a letter that says nobody is
      keeping score, and it read like a scoreboard: "1 ahead", "3 to catch up",
@@ -3814,6 +3886,22 @@ function drawGrid(){
   const plans=S.plans||{};
   const nextN = nextSlot();
   const f = S.filterPerson;
+
+  /* Act 0 is the first tile, drawn like any other finished act. */
+  if(S.zero){
+    const z=document.createElement('button');
+    z.type='button'; z.className='tile done';
+    z.textContent='0';
+    z.setAttribute('aria-label','Act 0, the year declared'+(S.zero.d?', '+shortDate(S.zero.d):'')+'. Open it.');
+    z.onclick=()=>{ S.current=S.zero; go('card'); };
+    if(!SASH_LAST){
+      const sh=document.createElement('div');
+      sh.className='sash'; sh.setAttribute('aria-hidden','true');
+      sh.innerHTML=sashSVG(sashDate(S.zero));
+      z.appendChild(sh);
+    }
+    g.appendChild(z);
+  }
 
   for(let i=1;i<=S.n;i++){
     /* The app says "tap an empty one to plan it" and these were divs with
@@ -5232,6 +5320,18 @@ function buildCaption(force){
      Mabe's birthday …" — the honoree rides the opening line, not a footnote. */
   /* an anonymous act posts the card and nothing else: the number is the
      accountability, the story stays in the journal */
+  /* Act 0 opens on the decision, not on a number. "Act n of N" is settled for
+     every other act; act 0 has no n, so it says the thing instead. */
+  if(a.zero){
+    const every = humanCadence(Math.round(S.weeks*7/S.n));
+    a.captions[CM_PLAT] =
+      'I\u2019m doing this.\n\n'+
+      S.n+' acts of good over the next year \u2014 '+every+'. Starting now.\n\n'+
+      'I\u2019ll be asking some of you along. And if you\u2019re doing something '+
+      'good \u2014 ask me too.'+
+      (CM_PLAT==='private' ? '' : '\n\n'+defaultHashtag());
+    drawCompose(); return;
+  }
   if(a.anon && CM_PLAT!=='private'){
     a.captions[CM_PLAT] = 'Act '+a.no+' of '+S.n+'.\n\n'+defaultHashtag();
     drawCompose(); return;
@@ -5922,6 +6022,15 @@ function deleteAct(){
 }
 function drawActNo(a){
   const el = $('cd-act');
+  /* the year card carries no act number — that is the whole difference between
+     act 0's card and every other one */
+  const hr = el.previousElementSibling;
+  if(a && a.zero){
+    el.textContent = ''; el.style.display='none';
+    if(hr && hr.tagName==='HR') hr.style.display='none';
+    return;
+  }
+  el.style.display=''; if(hr && hr.tagName==='HR') hr.style.display='';
   if(a.half){
     /* Copied from her act 2.5 card, exactly: the line still reads "act 3 of
        50" at full size in coral; a single BLACK diagonal slash crosses the
@@ -6732,7 +6841,7 @@ function finishSetup(){
 }
 
 /* ── nav ── */
-const VIEWS=['setup','home','log','write','card','compose','browse','people','you','journal','works','work'];
+const VIEWS=['setup','zero','home','log','write','card','compose','browse','people','you','journal','works','work'];
 let SCREEN = 'home';
 function go(v){
   if(v !== SCREEN) dropUndo();
@@ -6746,6 +6855,7 @@ function go(v){
   if(v==='home'){ drawHome(); drawTodo(); setTimeout(tabTour, 260); }
   if(v==='you'){   drawYou(); setTimeout(gapBar, 260); } else dropGapBar();
   if(v==='people') drawPeople();
+  if(v==='zero')   drawZero();
   if(v==='card')   drawCard();
   if(v==='compose') drawCompose();
   if(v==='browse') drawBrowse();

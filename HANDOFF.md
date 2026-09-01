@@ -6,7 +6,7 @@ what is true right now. When they disagree, this file is newer — say so and fi
 the skill.
 
 Last updated: **30 August 2026**, end of the defect-fix session.
-Build in G's hands: **1L**.
+Build in G's hands: **1M**.
 
 ---
 
@@ -33,6 +33,55 @@ mirror; keep the two identical. Repo `gahensley1/acts-of-good-preview`, branch
 <https://gahensley1.github.io/acts-of-good-preview/>. Push with `git add -A`,
 `git commit -m "…"`, `git push origin main`, then load the site with a `?v=<tag>`
 cache-buster and confirm the build tag bottom-right.
+
+---
+
+## Shipped in 1M — act 0
+
+13. **Act 0 is built, and it is the last step of the introduction.**
+    Setup runs as it always did (all three steps); `startYear()` then routes to
+    a new `s-zero` screen instead of home, and **the tab bar stays hidden until
+    act 0 is done. There is no Skip** — one escape hatch makes it optional, and
+    an optional ceremony is a form with nicer type.
+
+    **The card is the YEAR card** — the same lockup, with **no act line** under
+    the rule. That is the entire difference between act 0's card and every other
+    one, and it is what Jessica's own announcement carried. `drawActNo()` hides
+    the `<hr>` and the act line when `a.zero`.
+
+    **It runs the real pipeline**, which is the point: it is a tutorial wearing
+    a ceremony. Card → the actual posting page with the declaration already
+    written → the same *"Did it go up?"* → the year screen. By act 1 she has
+    been everywhere the app will take her, having supplied nothing: the thing
+    that happened is the decision, the date is today, the story is written.
+
+    **The declaration**, generated, opening on the decision rather than a number
+    (§3's "Act n of N" does not fit an act with no n):
+    > I'm doing this.
+    > 25 acts of good over the next year — one every two weeks. Starting now.
+    > It began with … *(the blank)*
+    > I'll be asking some of you along. And if you're doing something good — ask me too.
+
+    **`S.zero`, never `S.acts`** — so act 0 never counts toward the year and
+    never takes one of the N squares. It gets its own tile at the head of the
+    grid, **coral-filled** (outline already means *planned* in this app, so a
+    hollow zero would have read as the zeroth empty box), set apart by a gap
+    rather than by being empty.
+
+    **The sash moves.** Act 0 wears it on day one — it genuinely is the newest
+    thing done — and it moves to act 1 the moment act 1 lands. Two permanent
+    sashes would collapse the word *newest* into decoration. The sash leaving
+    the zero is the argument without words: the declaration was real, then it
+    was overtaken by living.
+
+    **The year screen never opens on "0 of 25"** — `p-count` reads **Begun**
+    until there is a count.
+
+    24 checks pass. **Still open:** Jessica's actual act 0 card (uploads to
+    another chat do not reach a Cowork session — the project's `files/` folder
+    is empty; it must be attached in-session or added to the project's files),
+    and whether act 0 should set `S.start` so the year counts from the day it
+    was said out loud.
 
 ---
 
