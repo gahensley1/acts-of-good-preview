@@ -760,7 +760,7 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
       page. Everything in it can still be changed.</p>
 
     <!-- BUILD MARK — dev only, delete this div when the app ships -->
-    <div id="buildtag">BUILD 1M</div>
+    <div id="buildtag">BUILD 1N</div>
   </div>
 </section>
 
@@ -5327,8 +5327,11 @@ function buildCaption(force){
     a.captions[CM_PLAT] =
       'I\u2019m doing this.\n\n'+
       S.n+' acts of good over the next year \u2014 '+every+'. Starting now.\n\n'+
-      'I\u2019ll be asking some of you along. And if you\u2019re doing something '+
-      'good \u2014 ask me too.'+
+      /* Her own words, from act 21 recalling what act 0 said: "I told friends
+         I'd be reaching out to them to accompany me on some acts, but I also
+         asked my people to invite ME if they were up to some good good." */
+      'I\u2019ll be reaching out to some of you to come along. And if you\u2019re '+
+      'up to some good \u2014 invite me.'+
       (CM_PLAT==='private' ? '' : '\n\n'+defaultHashtag());
     drawCompose(); return;
   }

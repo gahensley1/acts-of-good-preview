@@ -6,7 +6,7 @@ what is true right now. When they disagree, this file is newer — say so and fi
 the skill.
 
 Last updated: **30 August 2026**, end of the defect-fix session.
-Build in G's hands: **1M**.
+Build in G's hands: **1N**.
 
 ---
 
@@ -36,7 +36,7 @@ cache-buster and confirm the build tag bottom-right.
 
 ---
 
-## Shipped in 1M — act 0
+## Shipped in 1M–1N — act 0
 
 13. **Act 0 is built, and it is the last step of the introduction.**
     Setup runs as it always did (all three steps); `startYear()` then routes to
@@ -60,13 +60,23 @@ cache-buster and confirm the build tag bottom-right.
     > I'm doing this.
     > 25 acts of good over the next year — one every two weeks. Starting now.
     > It began with … *(the blank)*
-    > I'll be asking some of you along. And if you're doing something good — ask me too.
+    > I'll be reaching out to some of you to come along. And if you're up to some good — invite me.
+
+    That last line is **hers**, not a paraphrase. Act 21 recalls act 0 verbatim:
+    *"When I started this challenge in April, I told friends I'd be reaching out
+    to them to accompany me on some acts, but I also asked my people to invite
+    ME if they were up to some good good."* (1N)
 
     **`S.zero`, never `S.acts`** — so act 0 never counts toward the year and
-    never takes one of the N squares. It gets its own tile at the head of the
-    grid, **coral-filled** (outline already means *planned* in this app, so a
-    hollow zero would have read as the zeroth empty box), set apart by a gap
-    rather than by being empty.
+    never takes one of the N squares.
+
+    **The tile is an ordinary tile.** `class="tile done"`, first in the grid,
+    no special class and no spacer. Two other treatments were tried and G ruled
+    both out: a gold outline (rejected because `.tile.planned` is *already* gold
+    outline, meaning "planned, not done" — a hollow zero would have read as the
+    zeroth empty box) and a separate line above the grid (rejected: *"just make
+    it normal"*). **Consequence, accepted:** 26 tiles do not divide by five, so
+    the last row ends on 25 alone.
 
     **The sash moves.** Act 0 wears it on day one — it genuinely is the newest
     thing done — and it moves to act 1 the moment act 1 lands. Two permanent
@@ -77,11 +87,28 @@ cache-buster and confirm the build tag bottom-right.
     **The year screen never opens on "0 of 25"** — `p-count` reads **Begun**
     until there is a count.
 
-    24 checks pass. **Still open:** Jessica's actual act 0 card (uploads to
-    another chat do not reach a Cowork session — the project's `files/` folder
-    is empty; it must be attached in-session or added to the project's files),
-    and whether act 0 should set `S.start` so the year counts from the day it
-    was said out loud.
+    24 checks pass.
+
+    **Act 0's card image does not exist to be matched.** `the-posts.md`, added
+    31 Aug, lists acts **0, 3, 4, 8, 14, 15, 19** as still missing entirely.
+    What survives of act 0 is a marked-up draft of its text — the source the
+    app's letter was adapted from. So the year card (lockup, no act line) stays
+    an inference until Jessica's Facebook download produces the original.
+
+    **Checked against the corpus and deliberately NOT changed:**
+    - Act 0's draft carries her strongest sentence — *"There's nothing quite
+      like seeing someone post a simple gesture of kindness and thinking, 'Oh, I
+      could do that.'"* It is **already in the letter**, three screens earlier.
+      Saying it twice in one sitting spends it.
+    - Act 21's caption reads "Act 21 of 30" against a card reading "act 21 of
+      50" — a hand-typed slip. The app generates that line from the goal, so it
+      cannot make the mistake. Confirms existing behaviour.
+
+    **Still open:** whether act 0 should set `S.start`, so the year counts from
+    the day it was said out loud rather than from setup. And a real mismatch —
+    **every dated post in the corpus is Facebook** (acts 6, 20, 21), while the
+    app ships Instagram first and the posting flow is built around Instagram's
+    paste problem. Not a bug; a question about the app's centre of gravity.
 
 ---
 
