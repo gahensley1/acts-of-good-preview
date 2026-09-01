@@ -335,6 +335,17 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
   text-overflow:ellipsis}
 /* the calendar sits inside the field, on the right, and opens the month */
 .datewrap{position:relative}
+/* The cost row. The tally is a named, bordered control rather than a bare
+   glyph, and it is pushed to the right so its edge lines up with the calendar
+   button sitting in the row above it — both stop 8px short of the wrap. */
+.costrow{display:flex;align-items:center;gap:10px}
+.costrow #wk-cost{max-width:140px}
+.tallybtn{margin-left:auto;margin-right:8px;display:inline-flex;align-items:center;gap:9px;
+  border:1.5px solid var(--line);border-radius:12px;background:var(--paper);
+  padding:6px 10px 6px 13px;min-height:44px;font-family:inherit;cursor:pointer}
+.tallybtn .tl{font-size:12.5px;font-weight:600;color:var(--muted);
+  letter-spacing:.02em;white-space:nowrap}
+.tallybtn svg{display:block}
 .datewrap .calgo{position:absolute;right:8px;top:50%;transform:translateY(-50%);
   padding:5px;line-height:0;border-radius:9px;min-width:44px;min-height:44px;display:inline-flex;align-items:center;justify-content:center}
 .datewrap .calgo svg{display:block}
@@ -760,7 +771,7 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
       page. Everything in it can still be changed.</p>
 
     <!-- BUILD MARK — dev only, delete this div when the app ships -->
-    <div id="buildtag">BUILD 1P</div>
+    <div id="buildtag">BUILD 1Q</div>
   </div>
 </section>
 
@@ -1078,9 +1089,15 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
       <input id="wk-hon" oninput="wkEdited()" placeholder="someone it was for"></div>
 
     <div class="field"><label for="wk-cost">Keep a tally of your costs <span style="text-transform:none;font-weight:400">(if anything)</span></label>
-      <div style="display:flex;align-items:center;gap:10px">
-        <input id="wk-cost" placeholder="$0" style="max-width:140px" oninput="wkCostTyped()">
-        <button class="calgo" onclick="openSpends()" id="wk-tabbtn" aria-label="Keep a tally"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="var(--coral)" stroke-width="1.5"><rect x="5" y="2.5" width="14" height="19" rx="2.5"/><rect x="8" y="5.5" width="8" height="3.4" rx="1"/><path d="M8.6 12.6h.01M12 12.6h.01M15.4 12.6h.01M8.6 16h.01M12 16h.01M15.4 16h.01M8.6 19.2h.01M12 19.2h.01M15.4 19.2h.01" stroke-linecap="round" stroke-width="2.1"/></svg></button>
+      <div class="costrow">
+        <input id="wk-cost" placeholder="$0" oninput="wkCostTyped()">
+        <!-- G, 31 Aug: the tally gets a box and a name, and its right edge
+             lines up with the calendar icon in the row above. It used to be a
+             bare icon with class="calgo" — which is position:absolute with no
+             positioned parent here, so it was placing itself against the page
+             rather than against this row. -->
+        <button type="button" class="tallybtn" onclick="openSpends()" id="wk-tabbtn"
+          aria-label="Act tally, keep a running total"><span class="tl">act tally</span><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="var(--coral)" stroke-width="1.5"><rect x="5" y="2.5" width="14" height="19" rx="2.5"/><rect x="8" y="5.5" width="8" height="3.4" rx="1"/><path d="M8.6 12.6h.01M12 12.6h.01M15.4 12.6h.01M8.6 16h.01M12 16h.01M15.4 16h.01M8.6 19.2h.01M12 19.2h.01M15.4 19.2h.01" stroke-linecap="round" stroke-width="2.1"/></svg></button>
       </div>
       <p class="note" id="wk-spendnote" style="margin-top:8px">One number is fine. Or the calculator keeps a tally as you buy things.</p></div>
 
