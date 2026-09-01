@@ -775,7 +775,7 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
       page. Everything in it can still be changed.</p>
 
     <!-- BUILD MARK — dev only, delete this div when the app ships -->
-    <div id="buildtag">BUILD 1S</div>
+    <div id="buildtag">BUILD 1T</div>
   </div>
 </section>
 
@@ -3907,9 +3907,12 @@ function sashSVG(txt){
      light coral letterspaced type. Nothing overhangs; it doesn't have to be hard. */
   return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><defs><clipPath id="sashclip"><rect width="200" height="200" rx="24"/></clipPath></defs><g clip-path="url(#sashclip)"><defs><filter id="sashblur" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="2.2"/></filter></defs><line x1="34" y1="13" x2="196" y2="175" stroke="rgba(96,80,66,0.28)" stroke-width="8" filter="url(#sashblur)"/><polygon points="21.5,0 103.9,0 200,96.1 200,178.5" fill="#FFFDF7"/><text x="131" y="68" transform="rotate(45 131 68)" text-anchor="middle" dominant-baseline="central" font-family="Montserrat,-apple-system,sans-serif" font-weight="600" font-size="38" letter-spacing="1.5" fill="#EC9C90">'+txt+'</text></g></svg>';
 }
+/* The sash carries the date and only the date. It used to fall back to the
+   word DONE when an act had none — G's ruling 31 Aug: that word belongs to an
+   older app of his and must never appear here. No date now means no sash. */
 function sashDate(a){
   const p=((a&&a.d)||'').split('-');
-  if(p.length<3) return 'DONE';
+  if(p.length<3) return '';
   return (+p[1])+'-'+(+p[2])+'-'+p[0].slice(2);
 }
 function drawGrid(){
@@ -3934,7 +3937,7 @@ function drawGrid(){
     z.textContent='0';
     z.setAttribute('aria-label','Act 0, the year declared'+(S.zero.d?', '+shortDate(S.zero.d):'')+'. Open it.');
     z.onclick=()=>{ S.current=S.zero; go('card'); };
-    if(!SASH_LAST){
+    if(!SASH_LAST && sashDate(S.zero)){
       const sh=document.createElement('div');
       sh.className='sash'; sh.setAttribute('aria-hidden','true');
       sh.innerHTML=sashSVG(sashDate(S.zero));
@@ -3978,7 +3981,7 @@ function drawGrid(){
     : pl ? 'Act '+i+', planned'+(pl.t?': '+pl.t:'')+(pl.d?', '+shortDate(pl.d):'')+'. Open it.'
          : 'Act '+i+', empty. Plan it.');
     /* the sash rides the most recently logged act's square only */
-    if(a && SASH_LAST===i){
+    if(a && SASH_LAST===i && sashDate(a)){
       const s=document.createElement('div');
       s.className='sash'; s.setAttribute('aria-hidden','true');
       s.innerHTML=sashSVG(sashDate(a));   // live type, the act's own date

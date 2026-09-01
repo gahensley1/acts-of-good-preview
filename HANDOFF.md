@@ -6,7 +6,7 @@ what is true right now. When they disagree, this file is newer — say so and fi
 the skill.
 
 Last updated: **30 August 2026**, end of the defect-fix session.
-Build in G's hands: **1R**.
+Build in G's hands: **1S**.
 
 ---
 
@@ -56,6 +56,31 @@ There are three copies of this app and they go stale in this order:
 This has already gone wrong twice: at 1Q the mirror was a build behind, and at
 1M–1N several builds sat undeployed while G was looking for changes he could not
 see. **A build that is not in all three places is not done.**
+
+---
+
+## Shipped in 1S — two defects and a button
+
+16. **Act 0 stranded first-run users — critical, found by the UX seat.**
+    `startYear()` hides the tab bar; the only function restoring it was
+    `zeroDone()`, which **nothing ever called**. Measured from empty storage:
+    after "I'm doing this", pressing back landed on Your year with `#tabs` at
+    `display:none`, height 0 — no Ideas, People, You or Plan & Log, and no route
+    to them. A reload rescued it; an installed Home Screen app has no reload.
+    The tab bar now returns inside `zeroGo()`, the moment act 0 exists.
+
+17. **Act 0 was asked how it went.** `askIfPosted` → `askEval` had no `a.zero`
+    guard, so "Yes, it is up" opened *"About act 0… How did it go?"* Guarded;
+    real acts unaffected.
+
+18. **"Save, complete later" nearly deleted your work.** The instruction was to
+    make the foot button say that. It called `dropWork()`, which **removes the
+    act from the shelf and releases its photos**. It now calls a new
+    non-destructive `saveForLater()` — everything there already auto-saves, so
+    it just leaves and the shelf holds it. The note above it is gone.
+    **Consequence: no way to delete an act in the works from that screen.**
+
+    10 checks pass.
 
 ---
 
@@ -142,11 +167,16 @@ see. **A build that is not in all three places is not done.**
 
     24 checks pass.
 
-    **Act 0's card image does not exist to be matched.** `the-posts.md`, added
-    31 Aug, lists acts **0, 3, 4, 8, 14, 15, 19** as still missing entirely.
-    What survives of act 0 is a marked-up draft of its text — the source the
-    app's letter was adapted from. So the year card (lockup, no act line) stays
-    an inference until Jessica's Facebook download produces the original.
+    **Act 0's card is CONFIRMED, 31 Aug.** G supplied it. It is the **year
+    card** — the lockup, gold numeral, "acts of good" in black, "in year", the
+    script word in gold, the balloon-heart-and-hand — **no act line, no rule**,
+    which is exactly what `s-zero` already draws. Verified against the live
+    build. **The same card for everyone**; only the number and the script word
+    change per person. Do not re-open this.
+
+    Jessica's Facebook "Download Your Information" is still wanted for the seven
+    acts with no post recovered (0, 3, 4, 8, 14, 15, 19), the text truncated at
+    "… See more", and print-resolution originals for the book.
 
     **Checked against the corpus and deliberately NOT changed:**
     - Act 0's draft carries her strongest sentence — *"There's nothing quite
