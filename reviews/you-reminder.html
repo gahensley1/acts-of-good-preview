@@ -1,0 +1,257 @@
+<title>The You Reminder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=Montserrat:wght@400;500;600;700;800&display=swap">
+
+<style>
+:root{
+  --ground:#E6E7E4;
+  --panel:#F2F2F0;
+  --edge:#D2D4CF;
+  --ink:#1B1D1A;
+  --dim:#5E6259;
+  --faint:#8A8E85;
+  --live:#3F6B4F;
+
+  /* the app's own tokens, used only inside the phone frames */
+  --a-paper:#FFFFFF;
+  --a-mist:#F6F4F1;
+  --a-line:#E4E0DA;
+  --a-ink:#000000;
+  --a-muted:#665F57;
+  --a-faint:#B9B2A9;
+  --a-coral:#EA634F;
+  --a-coralink:#C03F2B;
+  --a-bar-ink:#000000;
+  --a-bar-gold:#F6C65B;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ground:#191A18; --panel:#232522; --edge:#34372F;
+    --ink:#E9EAE5; --dim:#A0A498; --faint:#767B6E; --live:#7FB08D;
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#191A18; --panel:#232522; --edge:#34372F;
+  --ink:#E9EAE5; --dim:#A0A498; --faint:#767B6E; --live:#7FB08D;
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--ground); color:var(--ink);
+  font-family:"IBM Plex Sans",system-ui,-apple-system,sans-serif;
+  font-size:16px; line-height:1.55; -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:760px;margin:0 auto;padding:36px 20px 72px;display:flex;flex-direction:column;gap:44px}
+
+.eyebrow{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12px;
+  letter-spacing:.13em;text-transform:uppercase;color:var(--faint);margin:0 0 10px}
+h1{font-size:clamp(28px,6vw,38px);line-height:1.1;letter-spacing:-.02em;
+  margin:0 0 14px;font-weight:600;text-wrap:balance}
+h2{font-size:clamp(20px,4vw,25px);line-height:1.2;letter-spacing:-.015em;
+  margin:0 0 8px;font-weight:600;text-wrap:balance}
+p{margin:0 0 12px;max-width:62ch}
+p:last-child{margin-bottom:0}
+.lede{font-size:17px;color:var(--dim)}
+strong{font-weight:600}
+code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:.88em;
+  background:var(--panel);border:1px solid var(--edge);border-radius:4px;padding:1px 5px}
+.rule{height:1px;background:var(--edge);border:0;margin:0}
+section{display:flex;flex-direction:column;gap:22px}
+.sec-head{display:flex;flex-direction:column;gap:2px}
+
+.opts{display:flex;flex-direction:column;gap:26px}
+.opt{display:flex;flex-direction:column;gap:12px}
+.opt-head{display:flex;align-items:baseline;gap:11px;flex-wrap:wrap}
+.badge{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12px;font-weight:600;
+  letter-spacing:.06em;border:1px solid var(--edge);border-radius:5px;padding:2px 8px;
+  color:var(--dim);background:var(--panel);flex:none}
+.badge.now{border-style:dashed;color:var(--faint)}
+.opt-name{font-weight:600;font-size:17px;letter-spacing:-.01em}
+.opt-why{font-size:14.5px;color:var(--dim);max-width:58ch;margin:0}
+.spec{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;color:var(--faint);margin:0}
+
+/* ── the phone frame ─────────────────────────────────────── */
+.frame{width:100%;max-width:352px;background:var(--a-paper);
+  border:1px solid var(--edge);border-radius:16px;
+  font-family:Montserrat,system-ui,sans-serif;color:var(--a-ink);
+  box-shadow:0 1px 3px rgba(0,0,0,.06),0 10px 26px rgba(0,0,0,.06);
+  overflow:hidden;position:relative}
+.hdr{padding:13px 17px;display:flex;align-items:baseline;gap:11px;
+  border-bottom:1px solid var(--a-line)}
+.hdr h4{margin:0;font-size:17px;font-weight:700;letter-spacing:-.02em}
+.hdr .sub{font-size:12px;color:var(--a-muted);font-weight:500}
+.pad{padding:16px 17px 12px}
+
+.seth{font-size:12px;color:var(--a-muted);text-transform:uppercase;
+  letter-spacing:.06em;margin:0 0 8px;font-weight:600}
+.privacy{font-size:12px;color:var(--a-muted);margin:0 0 4px}
+.setrow{display:flex;align-items:center;gap:10px;padding:13px 0;
+  border-bottom:1px solid var(--a-line)}
+.setrow:last-child{border-bottom:none}
+.setrow .t{flex:1;min-width:0}
+.setrow .t b{display:block;font-size:14.5px;font-weight:600}
+.setrow .t span{font-size:12.5px;color:var(--a-muted);display:block}
+.setrow .chev{color:var(--a-faint);font-size:20px;line-height:1}
+.setrow.gap .t span{color:var(--a-coralink);font-weight:600}
+.setrow .mark{flex:none;width:7px;height:7px;border-radius:50%;background:var(--a-coral)}
+
+/* the app's own toast, the one Undo already uses */
+.toast{position:absolute;left:50%;transform:translateX(-50%);
+  bottom:64px;background:var(--a-bar-ink);color:#fff;border-radius:12px;
+  padding:11px 14px;display:flex;align-items:center;gap:14px;
+  font-size:13.5px;line-height:1.45;width:max-content;max-width:86%;
+  box-shadow:0 8px 24px rgba(0,0,0,.28)}
+.toast button{background:none;border:0;color:var(--a-bar-gold);font-weight:700;
+  font-size:13.5px;font-family:inherit;flex-shrink:0;padding:0}
+
+/* the quiet line, the pattern already ruled for the paste reminder */
+.quiet{display:flex;gap:9px;align-items:flex-start;margin:14px 17px 2px;
+  font-size:13px;line-height:1.55;color:var(--a-coralink);font-weight:500}
+.quiet .tick{flex:none;font-weight:700}
+
+.tabbar{display:flex;padding:9px 6px 12px;border-top:1px solid var(--a-line);margin-top:10px}
+.tabbar div{flex:1;font-size:10.5px;font-weight:600;color:var(--a-muted);
+  display:flex;flex-direction:column;align-items:center;gap:4px;position:relative}
+.tabbar div.on{color:var(--a-coralink)}
+.tabbar svg{width:24px;height:24px;display:block}
+.dotbadge{position:absolute;top:1px;right:calc(50% - 16px);width:9px;height:9px;
+  border-radius:50%;background:var(--a-coral);box-shadow:0 0 0 2px var(--a-paper)}
+
+.verdict{background:var(--panel);border:1px solid var(--edge);border-radius:12px;
+  padding:20px 22px;display:flex;flex-direction:column;gap:10px}
+.verdict h2{margin:0}
+.verdict ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:7px}
+.verdict li{font-size:15px;color:var(--dim)}
+.verdict li b{color:var(--ink);font-weight:600}
+</style>
+
+<div class="wrap">
+
+  <header>
+    <p class="eyebrow">Acts of Good &middot; build 1F</p>
+    <h1>The You reminder</h1>
+    <p class="lede">The dot on the You tab says <em>something</em> is missing. This is what should happen the moment she acts on it and taps through &mdash; drawn in the app&rsquo;s own tokens so it can be ruled by looking.</p>
+    <p style="margin-top:14px"><strong>Worth knowing first.</strong> The You screen is not silent today. The three rows under &ldquo;About you&rdquo; already read <strong>Not set</strong> in grey. So the question is not whether the screen says anything &mdash; it is whether arriving should be <em>greeted</em>, and how hard.</p>
+  </header>
+
+  <hr class="rule">
+
+  <section>
+    <div class="sec-head">
+      <p class="eyebrow">What happens now</p>
+      <h2>Nothing greets her</h2>
+    </div>
+
+    <div class="opt">
+      <div class="opt-head">
+        <span class="badge now">Now</span>
+        <span class="opt-name">Three grey &ldquo;Not set&rdquo; rows</span>
+      </div>
+      <div class="frame">
+        <div class="hdr"><h4>You</h4><span class="sub">change anything, any time</span></div>
+        <div class="pad">
+          <p class="seth">About you</p>
+          <p class="privacy">Stays on your phone. Never uploaded.</p>
+          <div class="setrow"><div class="t"><b>Your name</b><span>Not set</span></div><span class="chev">&rsaquo;</span></div>
+          <div class="setrow"><div class="t"><b>Your birthday</b><span>Not set</span></div><span class="chev">&rsaquo;</span></div>
+          <div class="setrow"><div class="t"><b>Why you&rsquo;re doing this</b><span>Not set</span></div><span class="chev">&rsaquo;</span></div>
+        </div>
+      </div>
+      <p class="opt-why">The information is there, in the same grey as everything else, below a group about the year. She has to read the screen to find what the dot meant. Nothing is wrong &mdash; it just makes her do the work of matching the dot to the gap.</p>
+      <p class="spec">three rows &middot; no colour &middot; roughly a screen down</p>
+    </div>
+  </section>
+
+  <hr class="rule">
+
+  <section>
+    <div class="sec-head">
+      <p class="eyebrow">Three ways</p>
+      <h2>What the tap could bring</h2>
+      <p class="opt-why" style="max-width:62ch">All three name the gaps exactly &mdash; a birthday and a name, or just a name &mdash; and all three clear themselves when the card is complete. They differ in how loudly they arrive and whether there is anything to dismiss.</p>
+    </div>
+
+    <div class="opts">
+
+      <div class="opt">
+        <div class="opt-head">
+          <span class="badge">A</span>
+          <span class="opt-name">The app&rsquo;s own toast</span>
+        </div>
+        <div class="frame">
+          <div class="hdr"><h4>You</h4><span class="sub">change anything, any time</span></div>
+          <div class="pad">
+            <p class="seth">About you</p>
+            <div class="setrow"><div class="t"><b>Your name</b><span>Not set</span></div><span class="chev">&rsaquo;</span></div>
+            <div class="setrow"><div class="t"><b>Your birthday</b><span>Not set</span></div><span class="chev">&rsaquo;</span></div>
+            <div class="setrow"><div class="t"><b>Why you&rsquo;re doing this</b><span>Not set</span></div><span class="chev">&rsaquo;</span></div>
+          </div>
+          <div class="toast"><span>Your card still needs a name and a birthday.</span><button>Add</button></div>
+          <div class="tabbar">
+            <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1z"/></svg>Your year</div>
+            <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h11l3 3v13a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1z"/><path d="M8 12h8M8 16h5"/></svg>Plan &amp; Log</div>
+            <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><path d="M12 8v8M8 12h8"/></svg>Ideas</div>
+            <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="9" r="3.2"/><path d="M3.5 19c.6-3 2.9-4.6 5.5-4.6s4.9 1.6 5.5 4.6"/></svg>People</div>
+            <div class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8.2" r="3.4"/><path d="M5.4 19.6a6.8 6.8 0 0 1 13.2 0"/></svg>You</div>
+          </div>
+        </div>
+        <p class="opt-why">Literally a toast, and one the app already owns &mdash; the same black bar that says &ldquo;removed&rdquo; with an Undo. It rises above the tabs, waits about seven seconds, and goes. <strong>Add</strong> opens the card sheet directly, so the whole thing is one tap.</p>
+        <p class="spec">reuses <code>#undobar</code> &middot; auto&#8209;dismiss &middot; one tap to fix</p>
+      </div>
+
+      <div class="opt">
+        <div class="opt-head">
+          <span class="badge">B</span>
+          <span class="opt-name">A quiet line under the header</span>
+        </div>
+        <div class="frame">
+          <div class="hdr"><h4>You</h4><span class="sub">change anything, any time</span></div>
+          <div class="quiet">
+            <span class="tick">&#8226;</span>
+            <span>Your card still needs a name and a birthday &mdash; both are under &ldquo;About you&rdquo;.</span>
+          </div>
+          <div class="pad">
+            <p class="seth">Your year</p>
+            <div class="setrow"><div class="t"><b>How many acts</b><span>25 acts over a year</span></div><span class="chev">&rsaquo;</span></div>
+            <div class="setrow"><div class="t"><b>Your reason</b><span>in year fifty</span></div><span class="chev">&rsaquo;</span></div>
+          </div>
+        </div>
+        <p class="opt-why">The same pattern already ruled for the paste reminder: in the layout, not over it, and nothing to dismiss. It says where to look, which the toast cannot do once it has gone. It stays until the card is complete, so a missed glance is not a missed message.</p>
+        <p class="spec">in flow &middot; ~40px &middot; nothing to tap, nothing to dismiss</p>
+      </div>
+
+      <div class="opt">
+        <div class="opt-head">
+          <span class="badge">C</span>
+          <span class="opt-name">The rows point at themselves</span>
+        </div>
+        <div class="frame">
+          <div class="hdr"><h4>You</h4><span class="sub">change anything, any time</span></div>
+          <div class="pad">
+            <p class="seth">About you</p>
+            <p class="privacy">Stays on your phone. Never uploaded.</p>
+            <div class="setrow gap"><span class="mark"></span><div class="t"><b>Your name</b><span>Add</span></div><span class="chev">&rsaquo;</span></div>
+            <div class="setrow gap"><span class="mark"></span><div class="t"><b>Your birthday</b><span>Add</span></div><span class="chev">&rsaquo;</span></div>
+            <div class="setrow"><div class="t"><b>Why you&rsquo;re doing this</b><span>in year fifty</span></div><span class="chev">&rsaquo;</span></div>
+          </div>
+        </div>
+        <p class="opt-why">No toast at all. The dot on the tab becomes the same dot on the exact rows it meant, and grey <strong>Not set</strong> becomes coral <strong>Add</strong>. The most literally intelligent of the three &mdash; it does not describe the gap, it points at it &mdash; and there is nothing to miss and nothing to dismiss.</p>
+        <p class="spec">no new chrome &middot; a 7px dot and one word per row</p>
+      </div>
+
+    </div>
+  </section>
+
+  <hr class="rule">
+
+  <div class="verdict">
+    <h2>To rule</h2>
+    <ul>
+      <li><b>A, B or C</b> &mdash; or a pair. <b>C</b> combines with either: the greeting names the gaps, the rows show which.</li>
+      <li><b>The words.</b> All three read <em>&ldquo;Your card still needs a name and a birthday.&rdquo;</em> It names the gap without naming her, and drops to <em>&ldquo;a name&rdquo;</em> alone when only one is missing. Say if you want it different before it lands.</li>
+      <li><b>A only:</b> whether the toast carries an <b>Add</b> button, or just says it and goes.</li>
+    </ul>
+  </div>
+
+</div>

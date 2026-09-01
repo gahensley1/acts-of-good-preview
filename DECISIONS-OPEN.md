@@ -89,12 +89,20 @@ it, or start posting to X?
 Instagram first, and the whole posting flow is built around working around
 Instagram's limitations. Is that the right way round?
 
-**15.** **Jessica's Facebook download.** This is the biggest thing waiting.
-Seven of her acts have no post saved at all — 0, 3, 4, 8, 14, 15 and 19 — most
-of what we do have is cut off at "… See more", and the printed book will need
-full-size originals. It's Settings → Your information → Download your
-information → Posts and Photos, high quality. It only gets harder the longer it
-waits.
+**15.** ~~Jessica's Facebook download~~ — **I was wrong about this and you
+were right.** The notes said seven of her acts had no post saved at all. That
+was true of our archive, not of Facebook. The posts are all there. I found act 0
+in two searches and pulled it in full — it's in `ACT-0-RECOVERED.md`, and it's
+the first time this project has had the whole thing.
+
+And I withdraw the offer I made with it. I said I'd read them all and write
+them down properly — that was the wrong shape. Her posts are reference, not
+content: they exist to keep the app's voice honest and to suggest ideas worth
+generalising. Building an archive of her personal writing isn't the job, and
+none of it belongs inside anyone's copy of the app.
+
+So nothing is needed here. If a question ever comes up about how she said
+something, I can go and look at that one thing.
 
 **16.** There's an old, dead version of the app still sitting inside the file —
 whole screens nobody can reach. It's where the colder wording survives, like
@@ -127,9 +135,8 @@ screen. Tell me if you want one back, and where it should go.
 
 ## If you only answer three
 
-**4**, **8**, and **15**.
+**4** and **8**.
 
 Number 4 because it's the app's own point, contradicted on the screen people see
 most. Number 8 because it's the settings screen and some people simply can't use
-it. Number 15 because everything about the missing acts and the printed book is
-waiting on it.
+it. And number 15 is closed — nothing needed.

@@ -1,0 +1,535 @@
+<title>The Easy One</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=Montserrat:wght@400;500;600;700;800&display=swap">
+
+<style>
+:root{
+  --ground:#E6E7E4; --panel:#F2F2F0; --edge:#D2D4CF;
+  --ink:#1B1D1A; --dim:#5E6259; --faint:#8A8E85;
+  --live:#3F6B4F; --stop:#9B3A28;
+
+  --a-paper:#FFFFFF; --a-line:#E4E0DA; --a-ink:#000000;
+  --a-muted:#665F57; --a-faint:#B9B2A9; --a-mist:#F6F4F1;
+  --a-coral:#EA634F; --a-coralink:#C03F2B;
+  --a-cream:#EDE7DC; --a-page:#FCFAF4; --a-gold:#C9A94F; --a-gold2:#DCC98F;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ground:#191A18; --panel:#232522; --edge:#34372F;
+    --ink:#E9EAE5; --dim:#A0A498; --faint:#767B6E;
+    --live:#7FB08D; --stop:#D98873;
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#191A18; --panel:#232522; --edge:#34372F;
+  --ink:#E9EAE5; --dim:#A0A498; --faint:#767B6E;
+  --live:#7FB08D; --stop:#D98873;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--ink);
+  font-family:"IBM Plex Sans",system-ui,-apple-system,sans-serif;
+  font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased}
+.wrap{max-width:940px;margin:0 auto;padding:36px 20px 72px;display:flex;flex-direction:column;gap:46px}
+
+.eyebrow{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12px;
+  letter-spacing:.13em;text-transform:uppercase;color:var(--faint);margin:0 0 10px}
+h1{font-size:clamp(30px,6.5vw,44px);line-height:1.04;letter-spacing:-.03em;
+  margin:0 0 16px;font-weight:600;text-wrap:balance}
+h2{font-size:clamp(20px,4vw,26px);line-height:1.2;letter-spacing:-.018em;
+  margin:0 0 8px;font-weight:600;text-wrap:balance}
+h3{font-size:16.5px;margin:0 0 6px;font-weight:600;letter-spacing:-.01em}
+p{margin:0 0 12px;max-width:64ch}
+p:last-child{margin-bottom:0}
+.lede{font-size:17.5px;color:var(--dim)}
+strong{font-weight:600}
+code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:.88em;
+  background:var(--panel);border:1px solid var(--edge);border-radius:4px;padding:1px 5px}
+.rule{height:1px;background:var(--edge);border:0;margin:0}
+section{display:flex;flex-direction:column;gap:22px}
+.sec-head{display:flex;flex-direction:column;gap:2px}
+.opt-why{font-size:14.5px;color:var(--dim);max-width:62ch;margin:0}
+.spec{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;color:var(--faint);margin:0}
+
+/* the five beats */
+.beats{display:grid;grid-template-columns:repeat(auto-fit,minmax(178px,1fr));gap:20px}
+.beat{display:flex;flex-direction:column;gap:9px}
+.beatno{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:11px;
+  font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--faint)}
+.beatname{font-weight:600;font-size:15px;letter-spacing:-.01em;margin:-4px 0 0}
+.beatwhy{font-size:12.5px;color:var(--dim);margin:0;line-height:1.5}
+.teach{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:11px;
+  color:var(--live);margin:2px 0 0;letter-spacing:.02em}
+
+.frame{width:100%;background:var(--a-paper);border:1px solid var(--edge);
+  border-radius:14px;overflow:hidden;font-family:Montserrat,system-ui,sans-serif;
+  color:var(--a-ink);box-shadow:0 1px 3px rgba(0,0,0,.06),0 8px 22px rgba(0,0,0,.06);
+  aspect-ratio:9/16;display:flex;flex-direction:column}
+.fbody{flex:1;padding:14px 13px;display:flex;flex-direction:column;min-height:0}
+.fhdr{padding:10px 13px;border-bottom:1px solid var(--a-line);font-size:13.5px;font-weight:700;letter-spacing:-.02em}
+.ask{font-size:13.5px;font-weight:700;letter-spacing:-.02em;line-height:1.25;margin:0}
+.sub{font-size:9.5px;color:var(--a-muted);line-height:1.5;margin:4px 0 0}
+.chips{display:flex;gap:4px;margin-top:9px;flex-wrap:wrap}
+.chip{border:1.5px solid var(--a-line);border-radius:7px;padding:4px 7px;
+  font-size:10px;font-weight:600;color:var(--a-muted)}
+.chip.on{border-color:var(--a-coralink);color:var(--a-coralink);background:#FFF6F4}
+.slate{flex:1;margin-top:10px;border:1.5px dashed var(--a-gold2);border-radius:10px;
+  background:var(--a-page);display:flex;align-items:center;justify-content:center;
+  position:relative;min-height:96px}
+.slate .hint{position:absolute;bottom:7px;left:0;right:0;text-align:center;
+  font-size:8.5px;color:var(--a-faint);letter-spacing:.04em}
+.slate svg{width:88px;height:auto;display:block}
+.ink{fill:none;stroke:var(--a-coralink);stroke-width:8.5;stroke-linecap:round;stroke-linejoin:round}
+
+/* the act 0 card */
+.cardface{background:var(--a-page);border:1px solid #E7DFCC;border-radius:8px;
+  padding:16px 12px;text-align:center;position:relative;margin-top:6px}
+.plate{position:absolute;inset:6px;border:1px solid var(--a-gold2);pointer-events:none}
+.cno{font-size:7.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--a-gold);font-weight:700}
+.chand{width:74px;display:block;margin:6px auto 3px}
+.cword{font-size:12.5px;font-weight:700;letter-spacing:-.02em}
+.cmeta{font-size:8px;color:var(--a-muted);margin-top:7px;line-height:1.55}
+.cnote{font-size:9px;color:var(--a-muted);margin:8px 0 0;line-height:1.5}
+
+/* posting page bits */
+.ta{background:var(--a-page);border:1px solid #E7DFCC;border-radius:8px;
+  padding:9px 10px;font-size:9px;line-height:1.6;color:#33302A;white-space:pre-wrap;flex:1;min-height:0;overflow:hidden}
+.ta .fill{background:#F6E8C9;border-bottom:1px solid var(--a-gold);padding:0 2px}
+.btn{background:var(--a-coralink);color:#fff;border-radius:8px;padding:9px;
+  text-align:center;font-weight:600;font-size:11px;margin-top:8px}
+.btn.ghost{background:var(--a-paper);color:var(--a-ink);border:1.5px solid var(--a-line)}
+.quiet{display:flex;gap:6px;align-items:flex-start;margin-top:7px;
+  font-size:9px;line-height:1.5;color:var(--a-coralink);font-weight:500}
+
+/* the dialog */
+.dlg{background:var(--a-paper);border:1px solid var(--a-line);border-radius:12px;
+  padding:14px 13px;box-shadow:0 8px 24px rgba(0,0,0,.14);margin:auto 0}
+.dlg .t{font-size:13px;font-weight:700;letter-spacing:-.02em}
+.dlg .n{font-size:9.5px;color:var(--a-muted);margin-top:5px;line-height:1.5}
+.dlg .row{display:flex;gap:7px;margin-top:11px}
+.dlg .row div{flex:1;text-align:center;border-radius:8px;padding:8px;font-size:10.5px;font-weight:600}
+.dlg .yes{background:var(--a-coralink);color:#fff}
+.dlg .no{border:1.5px solid var(--a-line);color:var(--a-muted)}
+
+/* the journal page */
+.jwrap{background:var(--a-cream);flex:1;padding:12px;display:flex;align-items:center}
+.jpage{background:var(--a-page);border:1px solid #E7DFCC;border-radius:7px;
+  padding:18px 12px;text-align:center;position:relative;width:100%}
+
+/* the year screen after */
+.pace{background:var(--a-mist);border-radius:11px;padding:12px 13px}
+.pbig{font-size:19px;font-weight:700;letter-spacing:-.03em}
+.plab{font-size:9.5px;color:var(--a-muted);font-weight:500}
+.bar{height:5px;background:#E8E3DC;border-radius:99px;margin-top:10px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--a-coral);border-radius:99px;width:2%}
+.grid{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin-top:11px}
+.tile{aspect-ratio:1;border-radius:7px;background:var(--a-mist);display:flex;
+  align-items:center;justify-content:center;font-size:9px;color:var(--a-muted);font-weight:600}
+.tile.zero{background:var(--a-page);border:1.5px solid var(--a-gold2);color:var(--a-gold)}
+.tile.on{background:var(--a-coralink);color:#fff}
+.tile.sashed{position:relative;overflow:hidden}
+.tile .sash{position:absolute;top:0;right:0;width:150%;
+  background:#fff;color:var(--a-coral);font-size:5.5px;font-weight:700;
+  letter-spacing:.10em;text-align:center;padding:1.5px 0;
+  transform:rotate(45deg) translate(24%,-140%);transform-origin:top right}
+
+/* flow */
+.flow{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:22px}
+.flowcol{display:flex;flex-direction:column;gap:8px}
+.flowh{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:11.5px;
+  font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--faint);margin:0 0 2px}
+.flowstep{background:var(--panel);border:1px solid var(--edge);border-radius:9px;
+  padding:10px 14px;font-size:13.5px;color:var(--dim)}
+.flowstep b{color:var(--ink);font-weight:600}
+.flowstep.act{border-color:var(--live);background:color-mix(in srgb,var(--live) 8%,var(--panel))}
+.flowstep.keep{opacity:.72}
+
+.ev{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:1px;
+  background:var(--edge);border:1px solid var(--edge);border-radius:12px;overflow:hidden}
+.ev > div{background:var(--panel);padding:16px 18px}
+.ev h4{margin:0 0 5px;font-size:14px;font-weight:600}
+.ev p{margin:0;font-size:13.5px;color:var(--dim);max-width:none}
+.ev cite{display:block;margin-top:7px;font-family:"IBM Plex Mono",ui-monospace,monospace;
+  font-size:11px;color:var(--faint);font-style:normal}
+
+.never{border:1px solid var(--edge);border-radius:12px;overflow:hidden;background:var(--panel)}
+.never > div{padding:14px 20px;border-bottom:1px solid var(--edge);display:flex;gap:14px;align-items:flex-start}
+.never > div:last-child{border-bottom:0}
+.never .k{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:11.5px;
+  font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--stop);
+  flex:none;width:88px;padding-top:2px}
+.never .v{font-size:14.5px;color:var(--dim);margin:0;max-width:none}
+.never .v b{color:var(--ink);font-weight:600}
+
+.callout{background:var(--panel);border:1px solid var(--edge);
+  border-left:3px solid var(--live);border-radius:0 12px 12px 0;padding:19px 22px}
+.callout.warn{border-left-color:var(--stop)}
+.copy{border:1px solid var(--edge);border-radius:12px;overflow:hidden;background:var(--panel)}
+.copy > div{padding:14px 20px;border-bottom:1px solid var(--edge);display:flex;gap:16px;align-items:flex-start}
+.copy > div:last-child{border-bottom:0}
+.copy .ck{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:11.5px;
+  font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--faint);
+  flex:none;width:96px;padding-top:3px}
+.copy .cv{font-size:14.5px;color:var(--dim);line-height:1.6}
+.copy .cv b{color:var(--ink);font-weight:600}
+.copy .cv em{color:var(--faint);font-style:italic}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:26px}
+.badge{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12px;font-weight:600;
+  letter-spacing:.06em;border:1px solid var(--edge);border-radius:5px;padding:2px 8px;
+  color:var(--dim);background:var(--panel);flex:none}
+.opt-head{display:flex;align-items:baseline;gap:11px;flex-wrap:wrap;margin-bottom:2px}
+.opt-name{font-weight:600;font-size:16px;letter-spacing:-.01em}
+
+.verdict{background:var(--panel);border:1px solid var(--edge);border-radius:12px;
+  padding:20px 22px;display:flex;flex-direction:column;gap:10px}
+.verdict h2{margin:0}
+.verdict ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:8px}
+.verdict li{font-size:15px;color:var(--dim)}
+.verdict li b{color:var(--ink);font-weight:600}
+</style>
+
+<div class="wrap">
+
+  <header>
+    <p class="eyebrow">Acts of Good &middot; act zero</p>
+    <h1>The easy one</h1>
+    <p class="lede">Act 0 is not a gate in front of the app. It is <strong>the introduction to it</strong> &mdash; the whole pipeline run once, end to end, on the only act that needs no event, no photograph and nobody else&rsquo;s diary. You declare it, you are proud of it, and one is already down.</p>
+  </header>
+
+  <hr class="rule">
+
+  <section>
+    <div class="sec-head">
+      <p class="eyebrow">The correction</p>
+      <h2>Setup stays. Act 0 is what it was leading to.</h2>
+    </div>
+    <div class="callout warn">
+      <p style="margin-bottom:0">I had this as a gate that <em>replaced</em> the three setup steps. Wrong. All the intro things happen first &mdash; they are how the app knows what your card says. Act 0 is the <strong>last</strong> step, and it is the one where the app stops asking you things and shows you what it is for.</p>
+    </div>
+
+    <div class="flow">
+      <div class="flowcol">
+        <p class="flowh">The intro, end to end</p>
+        <div class="flowstep keep">Jessica&rsquo;s letter &rarr; <b>Begin</b></div>
+        <div class="flowstep keep">Step 1 &mdash; how many, your reason, the hand on your card</div>
+        <div class="flowstep keep">Step 2 &mdash; your name, birthday, why</div>
+        <div class="flowstep keep">Step 3 &mdash; where you post</div>
+        <div class="flowstep act"><b>Act 0 &mdash; declare it</b><br><span style="font-size:12.5px">the whole pipeline, once, on the easy one</span></div>
+        <div class="flowstep">The app &mdash; with one already done</div>
+      </div>
+      <div class="flowcol">
+        <p class="flowh">Why it belongs last</p>
+        <p class="opt-why">Setup <em>collects</em>. The ceremony <em>commits</em>. Every field the three steps gathered &mdash; the number, the reason, the hand, your name &mdash; is exactly what act 0&rsquo;s card is made of, so by the time you arrive there is something real to declare, with your own words already on it.</p>
+        <p class="opt-why">And it answers the question every setup wizard leaves hanging: <em>what happens now?</em> Instead of being dropped on an empty grid, you are walked through the thing you will do twenty-five more times &mdash; on the one occasion where getting it wrong costs nothing.</p>
+      </div>
+    </div>
+  </section>
+
+  <hr class="rule">
+
+  <section>
+    <div class="sec-head">
+      <p class="eyebrow">The thesis</p>
+      <h2>It is a tutorial wearing a ceremony</h2>
+    </div>
+    <p>The pipeline has five stations, and a first act normally has to supply all of them at once: something that happened, a date, people, a photo, a story, a number. That is a lot to ask of someone on day one, and it is why first acts do not get logged.</p>
+    <p><strong>Act 0 supplies all of it for free.</strong> The thing that happened is the decision. The date is today. The story is already written. The card is the one setup just built. So the person walks the entire route &mdash; write, card, post, confirm, journal &mdash; carrying nothing. They arrive at act 1 already knowing where everything is.</p>
+    <p class="spec">and the evidence for &ldquo;one already down&rdquo; is not soft: a commitment that has produced an artefact resists abandonment far better than one that has not.</p>
+  </section>
+
+  <hr class="rule">
+
+  <section>
+    <div class="sec-head">
+      <p class="eyebrow">The five beats</p>
+      <h2>Every station, once, on the easy one</h2>
+      <p class="opt-why">Green tells you what each screen is quietly teaching.</p>
+    </div>
+
+    <div class="beats">
+
+      <div class="beat">
+        <p class="beatno">Beat 1</p>
+        <p class="beatname">Write the number</p>
+        <div class="frame">
+          <div class="fbody">
+            <p class="ask">The first one is saying it.</p>
+            <p class="sub">Write your number below in your own hand. That is all act 0 is.</p>
+            <div class="chips"><span class="chip on">25 acts</span><span class="chip">in year fifty</span></div>
+            <div class="slate">
+              <svg viewBox="0 0 160 100" aria-label="the numeral 25, drawn by finger">
+                <path class="ink" d="M18 34c1-16 12-22 22-19s10 15 2 25c-7 9-20 19-25 32h34"/>
+                <path class="ink" d="M96 22h38M96 22c-2 10-3 18-4 26 14-7 34-3 34 13 0 15-16 21-30 18-5-1-9-3-12-6"/>
+              </svg>
+              <span class="hint">your number, with your finger</span>
+            </div>
+          </div>
+        </div>
+        <p class="beatwhy">The one gesture. Setup collected the number; this commits it. Nothing is validated &mdash; any mark counts.</p>
+        <p class="teach">teaches: this book is yours</p>
+      </div>
+
+      <div class="beat">
+        <p class="beatno">Beat 2</p>
+        <p class="beatname">It becomes a card</p>
+        <div class="frame">
+          <div class="fhdr">Your card</div>
+          <div class="fbody">
+            <div class="cardface">
+              <div class="plate"></div>
+              <div class="cno">acts of good</div>
+              <svg class="chand" viewBox="0 0 160 100" aria-label="your numeral">
+                <path class="ink" style="stroke-width:7" d="M18 34c1-16 12-22 22-19s10 15 2 25c-7 9-20 19-25 32h34"/>
+                <path class="ink" style="stroke-width:7" d="M96 22h38M96 22c-2 10-3 18-4 26 14-7 34-3 34 13 0 15-16 21-30 18-5-1-9-3-12-6"/>
+              </svg>
+              <div class="cword">in year fifty</div>
+              <hr style="border:0;border-top:1px solid #E7DFCC;margin:9px 10px 7px">
+              <div class="cmeta" style="margin:0;font-weight:600;color:#4A443B">31 August 2026</div>
+            </div>
+            <p class="cnote">Press and hold the card to save a copy. Every act after this one makes a card too.</p>
+          </div>
+        </div>
+        <p class="beatwhy">The same card object every act gets, built from what setup collected. The first time she sees the thing the year produces.</p>
+        <p class="teach">teaches: every act makes a card</p>
+      </div>
+
+      <div class="beat">
+        <p class="beatno">Beat 3</p>
+        <p class="beatname">The posting page</p>
+        <div class="frame">
+          <div class="fhdr">Tell people</div>
+          <div class="fbody">
+            <div class="chips" style="margin:0 0 8px"><span class="chip on">Instagram</span><span class="chip">Facebook</span></div>
+            <div class="ta">I&rsquo;m doing this.
+
+25 acts of good over the next year &mdash; about one every two weeks. Starting now.
+
+It began with <span class="fill">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>, and it&rsquo;s been in my head ever since.
+
+I&rsquo;ll be asking some of you along. And if you&rsquo;re doing something good &mdash; ask me too.</div>
+            <div class="btn">Send to Instagram</div>
+            <div class="quiet"><span>&#10003;</span><span>Caption copied. Long-press the caption box and choose Paste.</span></div>
+          </div>
+        </div>
+        <p class="beatwhy">The real posting page, pre-written. One blank to fill, and the last line is the ask &mdash; the 31 August ruling, said plainly.</p>
+        <p class="teach">teaches: how a post gets out</p>
+      </div>
+
+      <div class="beat">
+        <p class="beatno">Beat 4</p>
+        <p class="beatname">Did it go up?</p>
+        <div class="frame">
+          <div class="fhdr">Post it</div>
+          <div class="fbody" style="background:rgba(0,0,0,.03)">
+            <div class="dlg">
+              <div class="t">Did it go up?</div>
+              <div class="n">Act 0 &mdash; the one where you said you&rsquo;re doing it.</div>
+              <div class="row"><div class="no">Not yet</div><div class="yes">Yes, it is up</div></div>
+            </div>
+          </div>
+        </div>
+        <p class="beatwhy">The same question every act gets, and the same one-tap undo. This is where the accountability her letter names actually lives.</p>
+        <p class="teach">teaches: the app keeps the record, not the score</p>
+      </div>
+
+      <div class="beat">
+        <p class="beatno">Beat 5</p>
+        <p class="beatname">The first page</p>
+        <div class="frame">
+          <div class="fhdr">Your journal</div>
+          <div class="jwrap">
+            <div class="jpage">
+              <div class="plate" style="inset:5px"></div>
+              <div class="cno">acts of good</div>
+              <svg class="chand" viewBox="0 0 160 100" aria-label="your numeral">
+                <path class="ink" style="stroke-width:7" d="M18 34c1-16 12-22 22-19s10 15 2 25c-7 9-20 19-25 32h34"/>
+                <path class="ink" style="stroke-width:7" d="M96 22h38M96 22c-2 10-3 18-4 26 14-7 34-3 34 13 0 15-16 21-30 18-5-1-9-3-12-6"/>
+              </svg>
+              <div class="cword">in year fifty</div>
+              <div class="cmeta" style="font-weight:600;color:#4A443B">31 August 2026</div>
+            </div>
+          </div>
+        </div>
+        <p class="beatwhy">It lands where every act lands. The book is open, and it is not empty &mdash; page one is in her own ink, and it stays there all year.</p>
+        <p class="teach">teaches: this is where it all ends up</p>
+      </div>
+
+    </div>
+  </section>
+
+  <hr class="rule">
+
+  <section>
+    <div class="sec-head">
+      <p class="eyebrow">Ruled A &mdash; with a correction</p>
+      <h2>The zero square, and where the sash goes</h2>
+    </div>
+
+    <div class="callout warn">
+      <p><strong>What I drew was wrong, and the build says why.</strong> I showed the zero as a gold outlined tile. But <code>.tile.planned</code> is <em>already</em> gold outline on cream &mdash; in this app&rsquo;s existing vocabulary, <strong>gold outline means intended, not yet done.</strong> A gold-outlined 0 at the head of the grid would have read as the zeroth empty box: precisely the thing on the list of what would embarrass Jessica.</p>
+      <p style="margin-bottom:0"><strong>Fill is the property that decides it.</strong> Outline is a promise; fill is a fact. So act 0 takes the <em>done</em> treatment &mdash; coral fill, white numeral &mdash; and is distinguished from the twenty-five by <em>position</em>, sitting out at the head of the grid, never by being hollowed out.</p>
+    </div>
+
+    <div class="two">
+      <div>
+        <div class="opt-head"><span class="opt-name">Day one &mdash; act 0 wears the sash</span></div>
+        <div class="frame" style="aspect-ratio:9/13">
+          <div class="fhdr">Your year</div>
+          <div class="fbody">
+            <div class="pace">
+              <div class="pbig">Begun</div>
+              <div class="plab">31 August &middot; 25 acts</div>
+              <div class="bar"><i></i></div>
+            </div>
+            <p class="sub" style="margin:9px 0 0">The year is open. Nothing else is due today.</p>
+            <div class="grid" style="grid-template-columns:repeat(6,1fr)">
+              <div class="tile on sashed">0<span class="sash">8-31-26</span></div>
+              <div class="tile" style="opacity:.35"></div>
+              <div class="tile">1</div><div class="tile">2</div><div class="tile">3</div><div class="tile">4</div>
+            </div>
+          </div>
+        </div>
+        <p class="beatwhy" style="margin-top:10px">Coral fill, white zero, set apart from the twenty-five by a gap rather than by being empty. It wears the sash <em>honestly</em>, because on day one it genuinely is the newest thing you did.</p>
+      </div>
+
+      <div>
+        <div class="opt-head"><span class="opt-name">Act 1 lands &mdash; the sash moves on</span></div>
+        <div class="frame" style="aspect-ratio:9/13">
+          <div class="fhdr">Your year</div>
+          <div class="fbody">
+            <div class="pace">
+              <div class="pbig">1 of 25</div>
+              <div class="plab">week 1 of 52</div>
+              <div class="bar"><i style="width:5%"></i></div>
+            </div>
+            <p class="sub" style="margin:9px 0 0">&nbsp;</p>
+            <div class="grid" style="grid-template-columns:repeat(6,1fr)">
+              <div class="tile on">0</div>
+              <div class="tile" style="opacity:.35"></div>
+              <div class="tile on sashed">1<span class="sash">9-04-26</span></div>
+              <div class="tile">2</div><div class="tile">3</div><div class="tile">4</div>
+            </div>
+          </div>
+        </div>
+        <p class="beatwhy" style="margin-top:10px">The sash means <strong>newest</strong>, and it moves. Two permanent sashes would collapse the word into decoration; a sash frozen on act 0 would still be claiming in March to be the most recent thing you did.</p>
+      </div>
+    </div>
+
+    <div class="callout">
+      <p><strong>The sash moving off the zero and onto the one is the argument stated without words:</strong> the declaration was real, and then it was overtaken by living. It is the only moment in the whole year where the sash&rsquo;s motion is <em>felt</em> rather than noticed. Worth protecting.</p>
+      <p style="margin-bottom:0"><strong>And the square is not pre-drawn.</strong> Through the whole intro the grid starts at 1. After &ldquo;Did it go up?&rdquo;, she lands on the year screen and the zero <em>arrives</em>, into a gap that opens for it. Granted things are already there when you get there. Earned things appear because you did something.</p>
+    </div>
+
+    <p class="spec">and the pace card never says <b>0 of 25</b> &mdash; it reads <b>Begun</b> until act 1 lands, then becomes the count it always was.</p>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <p class="eyebrow">Why these choices</p>
+      <h2>What the evidence supports</h2>
+    </div>
+    <div class="ev">
+      <div>
+        <h4>The gesture must be performed, not watched</h4>
+        <p>Ritualised gestures raised valuation and savouring; <em>random</em> gestures did not, and <em>watching</em> someone else&rsquo;s ritual did not. Hence a finger-drawn numeral, and no animation to admire.</p>
+        <cite>Vohs, Wang, Gino &amp; Norton, Psychological Science, 2013</cite>
+      </div>
+      <div>
+        <h4>Written and kept beats held in the head</h4>
+        <p>Commitments written down and retained resisted revision far better than those merely thought &mdash; even with no audience. You need an artefact. Act 0 produces three: a card, a post, a page.</p>
+        <cite>Deutsch &amp; Gerard, 1955</cite>
+      </div>
+      <div>
+        <h4>Landmarks beat raw dates</h4>
+        <p>Commitments spike after temporal landmarks &mdash; a new month, a birthday &mdash; because the landmark closes the previous period. If act 0 sets the start date, offer <em>Today / The 1st / My birthday</em>.</p>
+        <cite>Dai, Milkman &amp; Riis, Management Science, 2014</cite>
+      </div>
+      <div>
+        <h4>A pledge can forgive and still bind</h4>
+        <p>NaNoWriMo&rsquo;s agreement pre-forgives bad writing while holding the number. Same move: act 0 holds the number and the date, and forgives everything about how the acts turn out.</p>
+        <cite>NaNoWriMo, Month-Long Novelist Agreement</cite>
+      </div>
+    </div>
+    <p class="spec">Checked and discarded: the &ldquo;sign at the top makes people honest&rdquo; finding was <strong>retracted by PNAS in 2021</strong> after failed replications, so nothing here rests on it. And the much-cited Duolingo &ldquo;pinky-swear&rdquo; commitment screen could not be verified in any source &mdash; folklore.</p>
+  </section>
+
+  <hr class="rule">
+
+  <section>
+    <div class="sec-head">
+      <p class="eyebrow">The copy, before it lands</p>
+      <h2>Written to sit beside what is already there</h2>
+      <p class="opt-why">Matched to the setup&rsquo;s register &mdash; plain, second person, no exclamation, and it says why it is asking. Options where there is a real choice.</p>
+    </div>
+
+    <div class="copy">
+      <div><span class="ck">Declaration</span>
+        <div class="cv"><b>&ldquo;The first one is saying it.&rdquo;</b><br>
+          Write your number below in your own hand. That is all act 0 is.
+          <em>Or:</em> &ldquo;Now write it down&rdquo; / Confirm your number and put it there yourself, because a thing you write is harder to drift away from.</div></div>
+      <div><span class="ck">The hint</span>
+        <div class="cv">your number, with your finger &nbsp;<em>or</em>&nbsp; here, with your finger</div></div>
+      <div><span class="ck">The button</span>
+        <div class="cv"><b>&ldquo;This is my number&rdquo;</b> &nbsp;<em>or</em>&nbsp; &ldquo;I&rsquo;m doing this&rdquo; &nbsp;<em>or</em>&nbsp; &ldquo;Begin the year&rdquo;<br>
+          First person, so it reads as a decision rather than a form submission. <em>Continue</em> belongs to the setup steps; changing register here carries the weight without raising the volume.</div></div>
+      <div><span class="ck">The card</span>
+        <div class="cv">Press and hold the card to save a copy. Every act after this one makes a card too.<br>
+          Keeps the existing sentence verbatim and adds the one thing act 0 is for &mdash; teaching &mdash; rather than admiring the card.</div></div>
+      <div><span class="ck">Posting</span>
+        <div class="cv">Heading: <b>Tell people</b> &nbsp;<em>or</em>&nbsp; Say it out loud. The plainest parallel to <em>Post it</em>, naming the act rather than the mechanism.</div></div>
+      <div><span class="ck">Confirm</span>
+        <div class="cv"><b>Did it go up?</b> / Act 0 &mdash; the one where you said you&rsquo;re doing it. / <em>Yes, it is up</em> &middot; <em>Not yet</em><br>
+          Title and buttons stay identical to the existing dialog on purpose &mdash; act 0 is a rehearsal of the real pipeline, and changing the words here would teach the wrong ones.</div></div>
+      <div><span class="ck">Year screen</span>
+        <div class="cv"><b>&ldquo;The year is open. Nothing else is due today.&rdquo;</b><br>
+          <em>Or:</em> &ldquo;Your year starts here. Act 0 is behind you; the rest fills in as it happens.&rdquo; <em>Or:</em> &ldquo;Act 0 is in. The squares fill at whatever pace your life allows.&rdquo;<br>
+          The first states the fact and removes the pressure in the same breath, which is the app&rsquo;s whole posture.</div></div>
+      <div><span class="ck">If not now</span>
+        <div class="cv">Act 0 is yours either way. The card is saved, and the app won&rsquo;t ask again.<br>
+          Two facts and no absolution &mdash; offering absolution would imply a fault.</div></div>
+    </div>
+
+    <div class="callout warn">
+      <p><strong>The voice rejects one thing in the brief, and it is worth hearing.</strong> Pride has to come from the object &mdash; the card in her hand, her own handwriting on it &mdash; <em>never</em> from a line of app copy. Any sentence that names the feeling (&ldquo;a good start&rdquo;, &ldquo;one down&rdquo;, &ldquo;nicely done&rdquo;) gets cut. The easy win is something she notices, not something she is told.</p>
+      <p style="margin-bottom:0"><strong>And one collision to rule before any of it is drafted.</strong> Working-rule &sect;3 keeps <em>&ldquo;Act n of N&rdquo;</em> opening every caption &mdash; settled, never relitigated. An act 0 caption reading <em>&ldquo;Act 0 of 25&rdquo;</em> is a different sentence from the settled one. Does act 0&rsquo;s post carry the act line at all?</p>
+    </div>
+  </section>
+
+  <hr class="rule">
+
+  <section>
+    <div class="sec-head">
+      <p class="eyebrow">Guardrails</p>
+      <h2>Where the easy win turns sour</h2>
+    </div>
+    <div class="never">
+      <div><span class="k">No way past</span>
+        <p class="v"><b>No Skip, no Later, no Maybe.</b> The ruling is that this must be done; one escape hatch makes it optional, and an optional ceremony is a form with nicer type. It is the last step of an intro she has already chosen to walk.</p></div>
+      <div><span class="k">Not a lesson</span>
+        <p class="v"><b>It teaches by being real, never by explaining.</b> No coach marks, no &ldquo;this is where your acts go&rdquo;, no tour. If a screen has to narrate itself, it is a tutorial pretending to be a ceremony rather than the other way round.</p></div>
+      <div><span class="k">Nothing fails</span>
+        <p class="v"><b>No validation, no greyed-out button, no red message.</b> The instant something here can be <em>wrong</em>, the easy win stops being easy.</p></div>
+      <div><span class="k">Posting optional</span>
+        <p class="v"><b>Writing it completes act 0; sending it is hers to choose.</b> Requiring the post makes the app depend on an audience she may not have. <em>Not yet</em> must be a real answer with no consequence.</p></div>
+      <div><span class="k">No reproach</span>
+        <p class="v"><b>The app records that it went out and never brings it up.</b> No count of days since, no reminder anyone is waiting. Her numbers kept; the app&rsquo;s judgements about them never built.</p></div>
+      <div><span class="k">No funnel</span>
+        <p class="v"><b>It recruits helpers for her year, never users for the app.</b> No app name in the message, no &ldquo;start your own&rdquo; line.</p></div>
+    </div>
+  </section>
+
+  <hr class="rule">
+
+  <div class="verdict">
+    <h2>To rule</h2>
+    <ul>
+      <li><b>Jessica&rsquo;s own act 0 card.</b> You asked for it and I do not have it &mdash; the docs record what her announcement <em>did</em> (66 likes, 51 comments, six volunteers) but the image is not in the project. Send it and I will match act 0&rsquo;s card to it rather than assuming it is the standard lockup with a date under the rule.</li>
+      <li><b>&ldquo;Act 0 of 25&rdquo; versus &sect;3.</b> The settled rule opens every caption with <em>Act n of N</em>. Act 0 breaks that sentence. Does its post carry an act line at all, or open straight on <em>&ldquo;I&rsquo;m doing this&rdquo;</em>?</li>
+      <li><b>The button:</b> &ldquo;This is my number&rdquo; / &ldquo;I&rsquo;m doing this&rdquo; / &ldquo;Begin the year&rdquo;.</li>
+      <li><b>The year-screen line:</b> the three options above; I would take <em>&ldquo;The year is open. Nothing else is due today.&rdquo;</em></li>
+      <li><b>Does act 0 set the start date,</b> or does setup keep doing it? If act 0 does, the year counts from the day you said it out loud &mdash; and <em>Today / The 1st / My birthday</em> beats a date wheel.</li>
+      <li><b>Five beats or four.</b> The card and the posting page could be one screen. Five teaches more; four is faster.</li>
+    </ul>
+  </div>
+
+</div>

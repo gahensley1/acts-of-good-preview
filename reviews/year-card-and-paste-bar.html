@@ -1,0 +1,734 @@
+<title>Year Card and Paste Bar</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=Montserrat:wght@400;500;600;700;800&display=swap">
+
+<style>
+:root{
+  --ground:#E6E7E4;
+  --panel:#F2F2F0;
+  --edge:#D2D4CF;
+  --ink:#1B1D1A;
+  --dim:#5E6259;
+  --faint:#8A8E85;
+  --live:#3F6B4F;
+
+  /* the app's own tokens, used only inside the phone frames */
+  --a-paper:#FFFFFF;
+  --a-mist:#F6F4F1;
+  --a-line:#E4E0DA;
+  --a-ink:#000000;
+  --a-muted:#665F57;
+  --a-coral:#EA634F;
+  --a-coralink:#C03F2B;
+  --a-gold:#E1BA52;
+  --a-goldscript:#DDB44C;
+  --a-cream:#EDE7DC;
+  --a-env-line:#C9A94F;
+  --a-env-fill:#FBF6E9;
+  --a-env-ink:#6B5E3A;
+  --a-bar-ink:#000000;
+  --a-bar-gold:#F6C65B;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ground:#191A18;
+    --panel:#232522;
+    --edge:#34372F;
+    --ink:#E9EAE5;
+    --dim:#A0A498;
+    --faint:#767B6E;
+    --live:#7FB08D;
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#191A18;
+  --panel:#232522;
+  --edge:#34372F;
+  --ink:#E9EAE5;
+  --dim:#A0A498;
+  --faint:#767B6E;
+  --live:#7FB08D;
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:var(--ground);
+  color:var(--ink);
+  font-family:"IBM Plex Sans",system-ui,-apple-system,sans-serif;
+  font-size:16px;
+  line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:760px;margin:0 auto;padding:36px 20px 72px;display:flex;flex-direction:column;gap:44px}
+
+.eyebrow{
+  font-family:"IBM Plex Mono",ui-monospace,monospace;
+  font-size:12px;letter-spacing:.13em;text-transform:uppercase;
+  color:var(--faint);margin:0 0 10px;
+}
+h1{
+  font-size:clamp(28px,6vw,38px);line-height:1.1;letter-spacing:-.02em;
+  margin:0 0 14px;font-weight:600;text-wrap:balance;
+}
+h2{
+  font-size:clamp(20px,4vw,25px);line-height:1.2;letter-spacing:-.015em;
+  margin:0 0 8px;font-weight:600;text-wrap:balance;
+}
+p{margin:0 0 12px;max-width:62ch}
+p:last-child{margin-bottom:0}
+.lede{font-size:17px;color:var(--dim)}
+strong{font-weight:600}
+code{
+  font-family:"IBM Plex Mono",ui-monospace,monospace;
+  font-size:.88em;background:var(--panel);border:1px solid var(--edge);
+  border-radius:4px;padding:1px 5px;
+}
+
+.rule{height:1px;background:var(--edge);border:0;margin:0}
+
+section{display:flex;flex-direction:column;gap:22px}
+.sec-head{display:flex;flex-direction:column;gap:2px}
+
+/* ── option blocks ───────────────────────────────────────── */
+.opts{display:flex;flex-direction:column;gap:26px}
+.opt{display:flex;flex-direction:column;gap:12px}
+.opt-head{display:flex;align-items:baseline;gap:11px;flex-wrap:wrap}
+.badge{
+  font-family:"IBM Plex Mono",ui-monospace,monospace;
+  font-size:12px;font-weight:600;letter-spacing:.06em;
+  border:1px solid var(--edge);border-radius:5px;
+  padding:2px 8px;color:var(--dim);background:var(--panel);
+  flex:none;
+}
+.badge.now{border-style:dashed;color:var(--faint)}
+.opt-name{font-weight:600;font-size:17px;letter-spacing:-.01em}
+.opt-why{font-size:14.5px;color:var(--dim);max-width:58ch;margin:0}
+.spec{
+  font-family:"IBM Plex Mono",ui-monospace,monospace;
+  font-size:12.5px;color:var(--faint);margin:0;
+}
+
+/* ── the phone frame ─────────────────────────────────────── */
+.frame{
+  width:100%;max-width:352px;
+  background:var(--a-paper);
+  border:1px solid var(--edge);
+  border-radius:16px;
+  padding:16px 16px 18px;
+  font-family:Montserrat,system-ui,sans-serif;
+  color:var(--a-ink);
+  box-shadow:0 1px 3px rgba(0,0,0,.06),0 10px 26px rgba(0,0,0,.06);
+  overflow:hidden;
+}
+.frame.dim-top{padding-top:0}
+
+/* fake status bar, so "over the status bar" is visible */
+.status{
+  display:flex;align-items:center;justify-content:space-between;
+  height:26px;margin:0 -16px 10px;padding:0 18px;
+  font-size:11px;font-weight:600;color:var(--a-ink);
+  font-variant-numeric:tabular-nums;
+  position:relative;
+}
+.status .dots{letter-spacing:1px;color:var(--a-muted)}
+
+/* ── app: pace / month cards ─────────────────────────────── */
+.pace{
+  background:var(--a-mist);border-radius:14px;padding:17px 19px;position:relative;
+}
+.pace + .pace{margin-top:12px}
+.pace.top{border-radius:14px 14px 0 0}
+.pace.bot{border-radius:0 0 14px 14px}
+.pace.top + .pace.bot{margin-top:0}
+.pace.top.tight{padding-bottom:12px}
+.pace.bot.tight{padding-top:12px}
+
+/* ── the tab bar, for the You badge ──────────────────────── */
+.tabbar{
+  display:flex;margin:14px -16px -18px;padding:9px 6px 12px;
+  border-top:1px solid var(--a-line);background:var(--a-paper);
+}
+.tabbar button{
+  flex:1;background:none;border:0;font-family:inherit;
+  font-size:10.5px;font-weight:600;color:var(--a-muted);
+  display:flex;flex-direction:column;align-items:center;gap:4px;padding:4px 0;
+  position:relative;
+}
+.tabbar button.on{color:var(--a-coralink)}
+.tabbar svg{width:24px;height:24px;display:block}
+.dotbadge{
+  position:absolute;top:1px;right:calc(50% - 16px);
+  width:9px;height:9px;border-radius:50%;
+  background:var(--a-coralink);border:1.5px solid var(--a-paper);
+}
+.todobox{
+  background:#FFF6F4;border:1px solid #F6D5CE;border-radius:12px;
+  padding:14px 16px;font-size:13.5px;line-height:1.55;color:var(--a-ink);
+}
+.todobox b{font-weight:600}
+.todobox .go{
+  display:block;background:none;border:0;padding:8px 0 0;font-family:inherit;
+  color:var(--a-coralink);font-weight:600;font-size:13.5px;
+}
+
+/* ── the sticky-header collision ─────────────────────────── */
+.phone{
+  width:100%;max-width:352px;border:1px solid var(--edge);border-radius:16px;
+  overflow:hidden;background:var(--a-paper);font-family:Montserrat,system-ui,sans-serif;
+  color:var(--a-ink);box-shadow:0 1px 3px rgba(0,0,0,.06),0 10px 26px rgba(0,0,0,.06);
+}
+.inset{
+  height:30px;display:flex;align-items:center;justify-content:space-between;
+  padding:0 18px;font-size:11.5px;font-weight:600;
+  font-variant-numeric:tabular-nums;position:relative;z-index:3;
+}
+.inset .dots{letter-spacing:1.5px;color:var(--a-muted)}
+.inset.over{margin-bottom:-30px;color:var(--a-ink)}
+.hdr{
+  padding:13px 18px;display:flex;align-items:baseline;gap:11px;
+  background:rgba(255,255,255,.94);border-bottom:1px solid var(--a-line);
+  position:relative;z-index:2;
+}
+.hdr h4{margin:0;font-size:17px;font-weight:700;letter-spacing:-.02em}
+.hdr .sub{font-size:12px;color:var(--a-muted);font-weight:500}
+.hdr.pad{padding-top:36px}
+.body-strip{padding:14px 18px 18px;font-size:13px;color:var(--a-muted);line-height:1.6}
+.clash{
+  position:absolute;inset:0;background:rgba(192,63,43,.14);
+  border-bottom:1px solid rgba(192,63,43,.4);pointer-events:none;
+}
+
+/* ── platform rows ───────────────────────────────────────── */
+.plat{
+  display:flex;align-items:center;gap:11px;padding:11px 13px;
+  border:1.5px solid var(--a-line);border-radius:11px;font-size:14px;
+}
+.plat + .plat{margin-top:8px}
+.plat.on{border-color:var(--a-coralink)}
+.plat .box{
+  width:21px;height:21px;border-radius:6px;border:1.5px solid var(--a-line);
+  flex:none;display:flex;align-items:center;justify-content:center;
+  font-size:12px;color:#fff;
+}
+.plat.on .box{background:var(--a-coralink);border-color:var(--a-coralink)}
+.plat .nm{font-weight:600;flex:none;min-width:82px}
+.plat .hd{font-size:12.5px;color:var(--a-muted);flex:1;min-width:0}
+.fieldrow{
+  display:flex;align-items:baseline;gap:12px;padding:9px 0;
+  border-bottom:1px solid var(--a-line);font-size:13.5px;
+}
+.fieldrow:last-child{border-bottom:0}
+.fieldrow b{font-weight:600;min-width:78px;font-size:12.5px}
+.fieldrow span{color:var(--a-muted);font-size:12.5px}
+.fieldrow.gone{opacity:.34;text-decoration:line-through}
+.chosen{
+  font-family:"IBM Plex Mono",ui-monospace,monospace;
+  font-size:11.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--live);border:1px solid currentColor;border-radius:5px;
+  padding:2px 8px;flex:none;
+}
+.settled{opacity:.42}
+.pace .row{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.big{font-size:25px;font-weight:700;letter-spacing:-.03em;line-height:1.15;text-wrap:balance}
+.lab{font-size:12.5px;color:var(--a-muted);font-weight:500}
+.state{color:var(--a-muted);font-size:12.5px;font-weight:500;text-align:right;line-height:1.4;max-width:52%}
+.bar{height:6px;background:#E8E3DC;border-radius:99px;margin-top:14px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--a-coral);border-radius:99px}
+.calbtn{
+  position:absolute;top:12px;right:12px;padding:6px;line-height:0;
+  background:none;border:0;
+}
+.mrow{
+  display:flex;gap:10px;align-items:baseline;padding:5px 0;
+  border-top:1px solid var(--a-line);
+}
+.mrow b{font-size:12.5px;color:var(--a-muted);min-width:52px;font-weight:600}
+.mrow span{font-size:14.5px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mrow em{font-size:12.5px;color:var(--a-muted);font-style:normal}
+.mhead{margin-top:16px;padding-top:14px;border-top:1px solid var(--a-line)}
+
+/* ── app: post-page furniture ────────────────────────────── */
+.btn{
+  display:block;width:100%;text-align:center;padding:15px;border-radius:12px;
+  font-weight:600;font-size:15.5px;background:var(--a-coralink);color:#fff;
+  border:0;font-family:inherit;
+}
+.btn.ghost{background:var(--a-paper);color:var(--a-ink);border:1.5px solid var(--a-line)}
+.stack{display:flex;flex-direction:column;gap:10px}
+.note{font-size:13px;color:var(--a-muted);line-height:1.6;margin:0}
+.envnote{
+  display:flex;align-items:center;gap:12px;text-align:left;
+  border:1px dashed var(--a-env-line);background:var(--a-env-fill);border-radius:12px;
+  padding:12px 14px;font-size:12.5px;line-height:1.5;color:var(--a-env-ink);
+}
+.flap{
+  flex:none;width:38px;height:27px;position:relative;background:#F3E7C8;
+  border:1px solid var(--a-env-line);border-radius:3px;
+}
+.flap::after{
+  content:"";position:absolute;left:0;top:0;
+  border-left:18px solid transparent;border-right:18px solid transparent;
+  border-top:12px solid var(--a-env-line);opacity:.55;
+}
+
+/* the current toast */
+.toast{
+  background:var(--a-bar-ink);color:#fff;border-radius:12px;padding:12px 14px;
+  display:flex;align-items:center;gap:12px;font-size:13.5px;line-height:1.45;
+}
+.toast button{
+  background:none;border:0;color:var(--a-bar-gold);font-weight:700;font-size:13.5px;
+  font-family:inherit;flex-shrink:0;padding:6px 4px;
+}
+.toast-clip{
+  margin:0 -16px;padding:0 16px;height:22px;overflow:hidden;position:relative;
+}
+.toast-clip .toast{
+  position:absolute;left:16px;right:16px;top:-62px;
+}
+
+/* option A — the button becomes the message */
+.done-panel{
+  border:1.5px solid var(--a-coralink);border-radius:12px;
+  padding:14px 16px;display:flex;flex-direction:column;gap:8px;
+  background:#FFF6F4;
+}
+.done-panel .t{font-size:15px;font-weight:600;color:var(--a-coralink);letter-spacing:-.01em}
+.done-panel .d{font-size:13px;color:var(--a-muted);line-height:1.55}
+.done-panel .k{
+  display:inline-block;font-size:12px;font-weight:600;color:var(--a-ink);
+  background:#fff;border:1px solid var(--a-line);border-radius:5px;padding:1px 6px;
+}
+.linky{
+  background:none;border:0;padding:0;font:inherit;color:var(--a-coralink);
+  font-weight:600;text-decoration:underline;font-size:13px;align-self:flex-start;
+}
+
+/* option B — the quiet line */
+.quiet{
+  display:flex;gap:9px;align-items:flex-start;
+  font-size:13px;line-height:1.55;color:var(--a-coralink);font-weight:500;
+}
+.tick{flex:none;font-weight:700;line-height:1.45}
+
+/* option C — stationery */
+.paper-note{
+  border:1px solid var(--a-env-line);background:var(--a-env-fill);
+  border-radius:12px;padding:14px 16px;display:flex;gap:13px;align-items:flex-start;
+}
+.clipglyph{flex:none;margin-top:1px}
+.paper-note .t{font-size:14px;font-weight:600;color:#4E4530;letter-spacing:-.005em}
+.paper-note .d{font-size:12.5px;color:var(--a-env-ink);line-height:1.55;margin-top:3px}
+
+/* ── verdict strip ───────────────────────────────────────── */
+.verdict{
+  background:var(--panel);border:1px solid var(--edge);border-radius:12px;
+  padding:20px 22px;display:flex;flex-direction:column;gap:10px;
+}
+.verdict h2{margin:0}
+.verdict ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:7px}
+.verdict li{font-size:15px;color:var(--dim)}
+.verdict li b{color:var(--ink);font-weight:600}
+
+.caption{
+  font-family:"IBM Plex Mono",ui-monospace,monospace;
+  font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--faint);margin:0 0 8px;
+}
+</style>
+
+<div class="wrap">
+
+  <header>
+    <p class="eyebrow">Acts of Good · 30 August</p>
+    <h1>Five fixes, drawn</h1>
+    <p class="lede">Your whole list, to rule on by looking. Everything below is drawn with the app&rsquo;s own tokens &mdash; the same coral, gold, cream and Montserrat &mdash; on a neutral ground so the mockups read as objects rather than blending into the page. Every measurement is taken from build 1A, not estimated.</p>
+    <p style="margin-top:14px"><strong>One correction first.</strong> The scrim isn&rsquo;t the toast&rsquo;s. That white wash belongs to the balloon nudge that drifts over the Ideas tab, added mid-build; it fires on every second opening of the year screen. The paste bar has never had a scrim and never draws one. If the wash is unwanted, that&rsquo;s a separate ruling on the balloon &mdash; say the word and it goes.</p>
+  </header>
+
+  <hr class="rule">
+
+  <!-- ══════════ 1. the merged card ══════════ -->
+  <section>
+    <div class="sec-head">
+      <p class="eyebrow">Ruling 1</p>
+      <h2>Two cards become one</h2>
+      <p class="opt-why" style="max-width:62ch">The grey areas touch. Nothing moves, nothing is dropped &mdash; the white gap between the two cards closes, the corners square off where they meet, and what was two boxes becomes one continuous card from the top of &ldquo;3 of 25&rdquo; to the bottom of the month list.</p>
+    </div>
+
+    <div class="opts">
+
+      <div class="opt">
+        <div class="opt-head">
+          <span class="badge now">Now</span>
+          <span class="opt-name">Two cards</span>
+        </div>
+        <div class="frame">
+          <div class="pace">
+            <div class="row">
+              <div>
+                <div class="big">3 of 25</div>
+                <div class="lab">week 7 of 52</div>
+              </div>
+              <div class="state">3 so far, plenty of room</div>
+            </div>
+            <div class="bar"><i style="width:12%"></i></div>
+          </div>
+          <div class="pace">
+            <div class="lab">This month</div>
+            <div class="big" style="margin-bottom:10px">August <span style="color:var(--a-muted);font-weight:500">&middot; 2 acts</span></div>
+            <div class="mrow"><b>4 Aug</b><span>Doughnuts for the vet clinic</span><em>act 2</em></div>
+            <div class="mrow"><b>19 Aug</b><span>Blankets to the shelter</span><em>act 3</em></div>
+            <button class="calbtn" aria-label="Month calendar">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#EA634F" stroke-width="1.6"><rect x="3" y="5" width="18" height="16" rx="2.5"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+            </button>
+          </div>
+        </div>
+        <p class="spec">12px of white between them · 36px of padding either side of it</p>
+      </div>
+
+      <div class="opt">
+        <div class="opt-head">
+          <span class="badge">A</span>
+          <span class="opt-name">Joined, padding as it is</span>
+        </div>
+        <div class="frame">
+          <div class="pace top">
+            <div class="row">
+              <div>
+                <div class="big">3 of 25</div>
+                <div class="lab">week 7 of 52</div>
+              </div>
+              <div class="state">3 so far, plenty of room</div>
+            </div>
+            <div class="bar"><i style="width:12%"></i></div>
+          </div>
+          <div class="pace bot">
+            <div class="lab">This month</div>
+            <div class="big" style="margin-bottom:10px">August <span style="color:var(--a-muted);font-weight:500">&middot; 2 acts</span></div>
+            <div class="mrow"><b>4 Aug</b><span>Doughnuts for the vet clinic</span><em>act 2</em></div>
+            <div class="mrow"><b>19 Aug</b><span>Blankets to the shelter</span><em>act 3</em></div>
+            <button class="calbtn" aria-label="Month calendar">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#EA634F" stroke-width="1.6"><rect x="3" y="5" width="18" height="16" rx="2.5"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+            </button>
+          </div>
+        </div>
+        <p class="opt-why">Exactly as described. The white gap closes, the corners square off where they meet, and every line stays where it sits today. The calendar icon and its breathing animation are untouched.</p>
+        <p class="spec">the 12px of white goes · 36px of grey at the seam</p>
+      </div>
+
+      <div class="opt">
+        <div class="opt-head">
+          <span class="badge">B</span>
+          <span class="opt-name">Joined, seam tightened</span>
+        </div>
+        <div class="frame">
+          <div class="pace top tight">
+            <div class="row">
+              <div>
+                <div class="big">3 of 25</div>
+                <div class="lab">week 7 of 52</div>
+              </div>
+              <div class="state">3 so far, plenty of room</div>
+            </div>
+            <div class="bar"><i style="width:12%"></i></div>
+          </div>
+          <div class="pace bot tight">
+            <div class="lab">This month</div>
+            <div class="big" style="margin-bottom:10px">August <span style="color:var(--a-muted);font-weight:500">&middot; 2 acts</span></div>
+            <div class="mrow"><b>4 Aug</b><span>Doughnuts for the vet clinic</span><em>act 2</em></div>
+            <div class="mrow"><b>19 Aug</b><span>Blankets to the shelter</span><em>act 3</em></div>
+            <button class="calbtn" aria-label="Month calendar">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#EA634F" stroke-width="1.6"><rect x="3" y="5" width="18" height="16" rx="2.5"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+            </button>
+          </div>
+        </div>
+        <p class="opt-why">The same join. Nothing is removed &mdash; only the two paddings that now meet in the middle, brought down so the card reads as one surface instead of two stuck together.</p>
+        <p class="spec">the 12px of white goes · 24px of grey at the seam · 24px shorter overall</p>
+      </div>
+
+    </div>
+  </section>
+
+  <hr class="rule">
+
+  <!-- ══════════ 2. the paste reminder ══════════ -->
+  <section>
+    <div class="sec-head">
+      <p class="eyebrow">Ruling 2</p>
+      <h2>The paste reminder</h2>
+      <p class="opt-why" style="max-width:62ch">Instagram will not let the app fill in a caption, so the app copies it and has to say so. All three options live on the post page, appear only after you send, and sit in the layout rather than floating over it.</p>
+    </div>
+
+    <div class="opts">
+
+      <div class="opt">
+        <div class="opt-head">
+          <span class="badge now">Now</span>
+          <span class="opt-name">Toast, stuck at the top</span>
+        </div>
+        <div class="frame dim-top">
+          <div class="status">
+            <span>9:41</span>
+            <span class="dots">&#9679;&#9679;&#9679; &#9724;</span>
+          </div>
+          <div class="toast-clip">
+            <div class="toast">
+              <span>Your caption is on the clipboard. In Instagram, long-press the caption box and tap Paste.</span>
+              <button>Got it</button>
+            </div>
+          </div>
+          <div style="padding-top:8px">
+            <div class="lab" style="font-size:12.5px;color:var(--a-muted);margin-bottom:8px">Your year</div>
+            <div class="pace">
+              <div class="big">3 of 25</div>
+              <div class="lab">week 7 of 52</div>
+              <div class="bar"><i style="width:12%"></i></div>
+            </div>
+          </div>
+        </div>
+        <p class="opt-why">Parked at &minus;160% of its own height against a top offset of <code>10px + safe-area-inset</code>. The message wraps to three lines on a phone, so &minus;160% no longer clears the inset and the bottom edge lands below the top of the screen &mdash; on every screen in the app, at a z-index above the header and the sheets, with no <code>pointer-events:none</code> to stop it swallowing taps.</p>
+      </div>
+
+      <div class="opt settled">
+        <div class="opt-head">
+          <span class="badge">A</span>
+          <span class="opt-name">The button becomes the message</span>
+        </div>
+        <div class="frame">
+          <div class="stack">
+            <div class="done-panel">
+              <div class="t">Sent to Instagram</div>
+              <div class="d">Your caption is copied. In Instagram, long-press the caption box and choose <span class="k">Paste</span>.</div>
+              <button class="linky">Send it again</button>
+            </div>
+            <button class="btn ghost">Just copy the caption</button>
+            <p class="note">Your phone will ask whether to text it, mail it, or send it another way.</p>
+            <div class="envnote">
+              <span class="flap" aria-hidden="true"></span>
+              <span><b>Send it as a note to someone</b> &mdash; or send it later.</span>
+            </div>
+          </div>
+        </div>
+        <p class="opt-why">No new chrome at all. The Send button is where her thumb already is, so the answer appears exactly where the question was asked, and the layout never shifts under her.</p>
+        <p class="spec">in flow · replaces the button until she leaves the screen</p>
+      </div>
+
+      <div class="opt">
+        <div class="opt-head">
+          <span class="badge">B</span>
+          <span class="opt-name">A quiet line under the button</span>
+          <span class="chosen">Ruled</span>
+        </div>
+        <div class="frame">
+          <div class="stack">
+            <button class="btn">Send to Instagram</button>
+            <div class="quiet">
+              <span class="tick">&#10003;</span>
+              <span>Caption copied. In Instagram, long-press the caption box and choose Paste.</span>
+            </div>
+            <button class="btn ghost">Just copy the caption</button>
+            <p class="note">Your phone will ask whether to text it, mail it, or send it another way.</p>
+            <div class="envnote">
+              <span class="flap" aria-hidden="true"></span>
+              <span><b>Send it as a note to someone</b> &mdash; or send it later.</span>
+            </div>
+          </div>
+        </div>
+        <p class="opt-why">The lightest thing that could work. One coral line, no box, no dismissing. The button stays put so sending again needs no thought.</p>
+        <p class="spec">in flow · adds ~40px · nothing to tap</p>
+      </div>
+
+      <div class="opt settled">
+        <div class="opt-head">
+          <span class="badge">C</span>
+          <span class="opt-name">Stationery, like the envelope</span>
+        </div>
+        <div class="frame">
+          <div class="stack">
+            <button class="btn">Send to Instagram</button>
+            <div class="paper-note">
+              <svg class="clipglyph" width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#C9A94F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3.5" width="14" height="17.5" rx="2.4"/><rect x="8.6" y="1.9" width="6.8" height="3.4" rx="1.2"/><path d="M8.8 11h6.4M8.8 14.6h4.6"/></svg>
+              <div>
+                <div class="t">Your caption is copied</div>
+                <div class="d">In Instagram, long-press the caption box and choose Paste.</div>
+              </div>
+            </div>
+            <button class="btn ghost">Just copy the caption</button>
+            <p class="note">Your phone will ask whether to text it, mail it, or send it another way.</p>
+            <div class="envnote">
+              <span class="flap" aria-hidden="true"></span>
+              <span><b>Send it as a note to someone</b> &mdash; or send it later.</span>
+            </div>
+          </div>
+        </div>
+        <p class="opt-why">Borrows the gold envelope already sitting further down the same screen, so the reminder reads as part of the app&rsquo;s paper vocabulary rather than as a system alert dropped on top of it.</p>
+        <p class="spec">in flow · adds ~62px · matches the envelope on this screen</p>
+      </div>
+
+    </div>
+  </section>
+
+  <hr class="rule">
+
+  <!-- ══════════ 3. the You badge ══════════ -->
+  <section>
+    <div class="sec-head">
+      <p class="eyebrow">Ruling 3</p>
+      <h2>The missing-card nudge</h2>
+      <p class="opt-why" style="max-width:62ch">A pink block on the year screen, one screen below a letter that says nobody is keeping score. Replacing it with a mark on the tab it is pointing at says the same thing without spending a paragraph on it &mdash; and everything below moves up by 100 pixels.</p>
+    </div>
+
+    <div class="opts">
+
+      <div class="opt">
+        <div class="opt-head">
+          <span class="badge now">Now</span>
+          <span class="opt-name">A block on the year screen</span>
+        </div>
+        <div class="frame">
+          <div class="todobox">
+            <b>Your card is missing your birthday and your name.</b>
+            The birthday only works out which year your card names. Add them whenever you like.
+            <button class="go">Add them &rarr;</button>
+          </div>
+          <div class="lab" style="margin-top:14px;font-size:13px;text-transform:uppercase;letter-spacing:.05em">Worth knowing about</div>
+        </div>
+        <p class="spec">~100px, above the fold, on every visit until it is answered</p>
+      </div>
+
+      <div class="opt">
+        <div class="opt-head">
+          <span class="badge">A</span>
+          <span class="opt-name">A dot on the You tab</span>
+        </div>
+        <div class="frame">
+          <div class="lab" style="font-size:13px;text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px">Worth knowing about</div>
+          <div class="note" style="padding-bottom:6px">Everything that used to sit under the pink block now starts here.</div>
+          <div class="tabbar">
+            <button class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1z"/></svg>Your year</button>
+            <button><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h11l3 3v13a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1z"/><path d="M8 12h8M8 16h5"/></svg>In the works</button>
+            <button><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><path d="M12 8v8M8 12h8"/></svg>Ideas</button>
+            <button><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="9" r="3.2"/><path d="M3.5 19c.6-3 2.9-4.6 5.5-4.6s4.9 1.6 5.5 4.6"/><path d="M16 7.2a3 3 0 0 1 0 5.6M17.6 19c-.3-1.7-1-3-2-3.9"/></svg>People</button>
+            <button><span class="dotbadge"></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8.5" r="3.6"/><path d="M4.8 20c.7-3.7 3.6-5.7 7.2-5.7s6.5 2 7.2 5.7"/></svg>You</button>
+          </div>
+        </div>
+        <p class="opt-why">The dot is the app&rsquo;s coral, 9px, on the tab that opens the card. It stays until the card is complete, then it goes on its own &mdash; nothing to dismiss, nothing to apologise for.</p>
+        <p class="spec">the block goes · everything below moves up ~100px</p>
+      </div>
+
+    </div>
+  </section>
+
+  <hr class="rule">
+
+  <!-- ══════════ 4. the status bar ══════════ -->
+  <section>
+    <div class="sec-head">
+      <p class="eyebrow">Ruling 4</p>
+      <h2>The header climbing into the clock</h2>
+      <p class="opt-why" style="max-width:62ch">Found it in the file, so this one needs no photograph. The safe-area inset is being paid for twice, in two places that disagree about who owns it.</p>
+    </div>
+
+    <div class="opts">
+
+      <div class="opt">
+        <div class="opt-head">
+          <span class="badge now">Now</span>
+          <span class="opt-name">Scrolled down, in Safari</span>
+        </div>
+        <div class="phone">
+          <div class="inset over"><span>9:41</span><span class="dots">&#9679;&#9679;&#9679; &#9724;</span></div>
+          <div class="hdr"><span class="clash"></span><h4>Your year</h4><span class="sub">act 3 of 25</span></div>
+          <div class="body-strip">The page scrolls under a header that is 94% white and blurred, so the clock and the battery show through it.</div>
+        </div>
+        <p class="opt-why"><code>body</code> carries <code>padding-top:env(safe-area-inset-top)</code>, and the header is <code>position:sticky; top:0</code>. Sticky pins to the top of the <em>viewport</em>, and under <code>viewport-fit=cover</code> with a translucent status bar the viewport starts at the physical top of the screen. So the moment you scroll, the header leaves the padding behind and parks itself under the clock. Installed to the Home Screen a media query adds the inset back to the header&rsquo;s own padding &mdash; which is why at rest the gap looks too big, and why the title jumps up by the height of the inset on the first scroll.</p>
+        <p class="spec">the inset is paid twice at rest, and not at all once stuck</p>
+      </div>
+
+      <div class="opt">
+        <div class="opt-head">
+          <span class="badge">A</span>
+          <span class="opt-name">The header owns the inset</span>
+          <span class="chosen">Only sane fix</span>
+        </div>
+        <div class="phone">
+          <div class="inset"><span>9:41</span><span class="dots">&#9679;&#9679;&#9679; &#9724;</span></div>
+          <div class="hdr"><h4>Your year</h4><span class="sub">act 3 of 25</span></div>
+          <div class="body-strip">The header keeps the same height at rest and stuck, so nothing jumps and nothing passes behind the clock.</div>
+        </div>
+        <p class="opt-why">Drop <code>padding-top</code> from <code>body</code>, and give the header <code>padding-top:calc(14px + env(safe-area-inset-top))</code> always instead of only when installed. One rule owns the inset, at rest and stuck, in Safari and on the Home Screen. No jump, no overlap.</p>
+        <p class="spec">two lines · every screen with a header</p>
+      </div>
+
+    </div>
+  </section>
+
+  <hr class="rule">
+
+  <!-- ══════════ 5. X ══════════ -->
+  <section>
+    <div class="sec-head">
+      <p class="eyebrow">Ruling 5</p>
+      <h2>Three lists, one disagreement</h2>
+      <p class="opt-why" style="max-width:62ch">The posting page is not wrong. It shows the platforms that are switched on, and Threads ships off, which is why you saw two there and three elsewhere. The genuine drift is X: the person form asks for an X handle that nothing in the app can ever use, because X was deliberately taken off the posting list &mdash; the reason is still in the file. <em>&ldquo;280 characters turns an act into a slogan.&rdquo;</em></p>
+    </div>
+
+    <div class="opts">
+
+      <div class="opt">
+        <div class="opt-head">
+          <span class="badge">A</span>
+          <span class="opt-name">Honour the ruling &mdash; drop X</span>
+        </div>
+        <div class="frame">
+          <p class="caption" style="color:var(--a-muted)">A person&rsquo;s handles</p>
+          <div class="fieldrow"><b>Email</b><span>them@example.com</span></div>
+          <div class="fieldrow"><b>Instagram</b><span>@handle</span></div>
+          <div class="fieldrow"><b>Facebook</b><span>Their name</span></div>
+          <div class="fieldrow"><b>Threads</b><span>@handle</span></div>
+          <div class="fieldrow gone"><b>X</b><span>@handle</span></div>
+        </div>
+        <p class="opt-why">The form stops asking for something the app cannot act on. Handles already typed stay in the data and are simply not shown &mdash; nothing is deleted.</p>
+        <p class="spec">one line in HANDLE_KEYS · one field in the person sheet</p>
+      </div>
+
+      <div class="opt">
+        <div class="opt-head">
+          <span class="badge">B</span>
+          <span class="opt-name">Reopen it &mdash; X comes back</span>
+        </div>
+        <div class="frame">
+          <div class="plat on"><span class="box">&#10003;</span><span class="nm">Instagram</span><span class="hd">@you</span></div>
+          <div class="plat on"><span class="box"></span><span class="nm">Facebook</span><span class="hd">Your name</span></div>
+          <div class="plat"><span class="box"></span><span class="nm">Threads</span><span class="hd">@you</span></div>
+          <div class="plat"><span class="box"></span><span class="nm">X</span><span class="hd">@you</span></div>
+        </div>
+        <p class="opt-why">X returns to the posting list, off by default like Threads, and the person form is left alone. This reopens something the file records as closed &mdash; worth saying out loud before it happens.</p>
+        <p class="spec">one line in PLATS · reverses an earlier ruling</p>
+      </div>
+
+    </div>
+  </section>
+
+  <hr class="rule">
+
+  <div class="verdict">
+    <h2>In build 1B</h2>
+    <ul>
+      <li><b>1B</b> &mdash; the greys touch, corners squared, seam at 24px. Nothing dropped, calendar icon and its animation untouched.</li>
+      <li><b>2B</b> &mdash; the floating bar is gone from the file. A quiet coral line sits under the Send button, on the post page, after sending, and clears itself if another platform is picked.</li>
+      <li><b>The scrim</b> &mdash; gone. The balloon runs over a clean screen.</li>
+      <li><b>The fourth setup step</b> &mdash; &ldquo;Has anyone offered to help?&rdquo; is out of the introduction. Setup is three steps. Names and places are still added from the People tab.</li>
+    </ul>
+    <h2 style="margin-top:14px">Still to rule</h2>
+    <ul>
+      <li><b>3 &mdash; A, to confirm.</b> The dot replaces the pink block. Say yes and the block goes.</li>
+      <li><b>4 &mdash; A.</b> Nothing to choose, only to approve: one rule owns the safe-area inset.</li>
+      <li><b>5 &mdash; A or B.</b> Drop X from the person form, or put X back on the posting page.</li>
+    </ul>
+  </div>
+
+</div>

@@ -1,0 +1,338 @@
+<title>Act Zero</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=Montserrat:wght@400;500;600;700;800&display=swap">
+
+<style>
+:root{
+  --ground:#E6E7E4; --panel:#F2F2F0; --edge:#D2D4CF;
+  --ink:#1B1D1A; --dim:#5E6259; --faint:#8A8E85;
+  --live:#3F6B4F; --stop:#9B3A28;
+
+  --a-paper:#FFFFFF; --a-mist:#F6F4F1; --a-line:#E4E0DA;
+  --a-ink:#000000; --a-muted:#665F57; --a-faint:#B9B2A9;
+  --a-coral:#EA634F; --a-coralink:#C03F2B;
+  --a-cream:#EDE7DC; --a-page:#FCFAF4; --a-gold:#C9A94F;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ground:#191A18; --panel:#232522; --edge:#34372F;
+    --ink:#E9EAE5; --dim:#A0A498; --faint:#767B6E;
+    --live:#7FB08D; --stop:#D98873;
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#191A18; --panel:#232522; --edge:#34372F;
+  --ink:#E9EAE5; --dim:#A0A498; --faint:#767B6E;
+  --live:#7FB08D; --stop:#D98873;
+}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--ink);
+  font-family:"IBM Plex Sans",system-ui,-apple-system,sans-serif;
+  font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased}
+.wrap{max-width:780px;margin:0 auto;padding:36px 20px 72px;display:flex;flex-direction:column;gap:44px}
+
+.eyebrow{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12px;
+  letter-spacing:.13em;text-transform:uppercase;color:var(--faint);margin:0 0 10px}
+h1{font-size:clamp(28px,6vw,40px);line-height:1.06;letter-spacing:-.025em;
+  margin:0 0 14px;font-weight:600;text-wrap:balance}
+h2{font-size:clamp(20px,4vw,25px);line-height:1.2;letter-spacing:-.015em;
+  margin:0 0 8px;font-weight:600;text-wrap:balance}
+h3{font-size:16px;margin:0 0 6px;font-weight:600;letter-spacing:-.01em}
+p{margin:0 0 12px;max-width:64ch}
+p:last-child{margin-bottom:0}
+.lede{font-size:17.5px;color:var(--dim)}
+strong{font-weight:600}
+em{font-style:italic}
+code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:.88em;
+  background:var(--panel);border:1px solid var(--edge);border-radius:4px;padding:1px 5px}
+.rule{height:1px;background:var(--edge);border:0;margin:0}
+section{display:flex;flex-direction:column;gap:22px}
+.sec-head{display:flex;flex-direction:column;gap:2px}
+
+/* the finding */
+.finding{background:var(--panel);border:1px solid var(--edge);
+  border-left:3px solid var(--live);border-radius:0 12px 12px 0;padding:20px 22px}
+.finding p{max-width:60ch}
+
+.opts{display:flex;flex-direction:column;gap:28px}
+.opt{display:flex;flex-direction:column;gap:12px}
+.opt-head{display:flex;align-items:baseline;gap:11px;flex-wrap:wrap}
+.badge{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12px;font-weight:600;
+  letter-spacing:.06em;border:1px solid var(--edge);border-radius:5px;padding:2px 8px;
+  color:var(--dim);background:var(--panel);flex:none}
+.opt-name{font-weight:600;font-size:17px;letter-spacing:-.01em}
+.opt-why{font-size:14.5px;color:var(--dim);max-width:60ch;margin:0}
+.spec{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;color:var(--faint);margin:0}
+.tag{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:11.5px;font-weight:600;
+  letter-spacing:.08em;text-transform:uppercase;border:1px solid currentColor;
+  border-radius:5px;padding:2px 8px;flex:none}
+.tag.yes{color:var(--live)} .tag.no{color:var(--stop)}
+
+/* phone frames */
+.frame{width:100%;max-width:352px;background:var(--a-paper);
+  border:1px solid var(--edge);border-radius:16px;overflow:hidden;
+  font-family:Montserrat,system-ui,sans-serif;color:var(--a-ink);
+  box-shadow:0 1px 3px rgba(0,0,0,.06),0 10px 26px rgba(0,0,0,.06)}
+.hdr{padding:13px 17px;display:flex;align-items:baseline;gap:11px;border-bottom:1px solid var(--a-line)}
+.hdr h4{margin:0;font-size:17px;font-weight:700;letter-spacing:-.02em}
+.hdr .sub{font-size:12px;color:var(--a-muted);font-weight:500}
+.pad{padding:16px 17px 18px}
+.btn{display:block;width:100%;text-align:center;padding:15px;border-radius:12px;
+  font-weight:600;font-size:15.5px;background:var(--a-coralink);color:#fff;border:0;font-family:inherit}
+.btn.ghost{background:var(--a-paper);color:var(--a-ink);border:1.5px solid var(--a-line)}
+.seth{font-size:12px;color:var(--a-muted);text-transform:uppercase;
+  letter-spacing:.06em;margin:16px 0 8px;font-weight:600}
+.note{font-size:13px;color:var(--a-muted);line-height:1.6;margin:0}
+
+/* the paper card in the works shelf */
+.shelf{background:var(--a-cream);border-radius:16px;padding:12px 12px 3px;margin-top:10px}
+.wkcard{background:var(--a-page);border:1px solid #E4DCC8;border-left:3px solid #B8963E;
+  border-radius:12px;padding:13px 15px;margin-bottom:10px}
+.wkcard .t{font-size:14.5px;font-weight:600}
+.wkcard .dt{font-size:12.5px;color:var(--a-muted);margin-top:3px}
+.wkcard.zero{border-left-color:var(--a-coralink);background:#FFF8F6;border-color:#F0D6CF}
+.wkcard.zero .t{color:var(--a-coralink)}
+
+/* the journal opening page */
+.jpage{background:var(--a-page);border:1px solid #E7DFCC;border-radius:10px;
+  padding:26px 22px;text-align:center;position:relative;margin-top:4px}
+.jplate{position:absolute;inset:9px;border:1px solid #DCC98F;pointer-events:none;border-radius:5px}
+.jno{font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:var(--a-gold);font-weight:700}
+.jword{font-size:23px;font-weight:700;letter-spacing:-.02em;margin-top:7px}
+.jwhy{font-size:13.5px;color:#4A443B;line-height:1.6;margin:11px 0 0}
+.jwith{font-size:12.5px;color:var(--a-muted);margin-top:13px}
+.jact{margin-top:14px;display:inline-block;font-size:13px;font-weight:600;
+  color:var(--a-coralink);border:1.5px solid var(--a-line);border-radius:10px;
+  padding:9px 14px;background:var(--a-paper)}
+
+/* draft copy block */
+.draft{background:var(--a-page);border:1px solid #E7DFCC;border-radius:10px;
+  padding:16px 18px;font-family:Montserrat,system-ui,sans-serif;font-size:13.5px;
+  line-height:1.65;color:#33302A;white-space:pre-wrap}
+.draft .fill{background:#F6E8C9;border-bottom:1px solid var(--a-gold);padding:0 3px;border-radius:2px}
+
+/* the never list */
+.never{display:flex;flex-direction:column;gap:0;border:1px solid var(--edge);
+  border-radius:12px;overflow:hidden;background:var(--panel)}
+.never > div{padding:15px 20px;border-bottom:1px solid var(--edge);display:flex;gap:14px;align-items:flex-start}
+.never > div:last-child{border-bottom:0}
+.never .k{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:11.5px;
+  font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--stop);
+  flex:none;width:96px;padding-top:2px}
+.never .v{font-size:14.5px;color:var(--dim);margin:0}
+.never .v b{color:var(--ink);font-weight:600}
+
+.verdict{background:var(--panel);border:1px solid var(--edge);border-radius:12px;
+  padding:20px 22px;display:flex;flex-direction:column;gap:10px}
+.verdict h2{margin:0}
+.verdict ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:8px}
+.verdict li{font-size:15px;color:var(--dim)}
+.verdict li b{color:var(--ink);font-weight:600}
+blockquote{margin:0;padding-left:16px;border-left:2px solid var(--edge);
+  color:var(--dim);font-size:15px;max-width:60ch}
+</style>
+
+<div class="wrap">
+
+  <header>
+    <p class="eyebrow">Acts of Good &middot; the declaration</p>
+    <h1>Act zero</h1>
+    <p class="lede">Her announcement drew 66 likes and 51 comments &mdash; more than any act since &mdash; recruited six helpers, and started two other people&rsquo;s years. The app has never had one. Here is what it actually is, where it belongs, and what it must never become.</p>
+  </header>
+
+  <hr class="rule">
+
+  <section>
+    <div class="sec-head">
+      <p class="eyebrow">What I found first</p>
+      <h2>Act 0 is already half-built</h2>
+    </div>
+    <div class="finding">
+      <p>The journal already opens on it. The first page of the book is titled, in the code&rsquo;s own comment, <em>&ldquo;the opening page: why the year began. Act 0, in her words.&rdquo;</em> It carries the count, the reason line, and your name, and it is driven by <code>S.why</code> &mdash; a field the setup already asks for.</p>
+      <p style="margin-bottom:0"><strong>So the missing piece is not the act. It is that the app never offers to send it.</strong> Every other page in that journal can become a post. This one, the one with the most evidence behind it, cannot.</p>
+    </div>
+    <p class="opt-why" style="max-width:64ch">That changes the size of the job. This is not a new screen, a new number, or a new kind of thing in the year. It is the posting pipeline, pointed at a page that already exists.</p>
+  </section>
+
+  <hr class="rule">
+
+  <section>
+    <div class="sec-head">
+      <p class="eyebrow">The reading</p>
+      <h2>What it is actually declaring</h2>
+    </div>
+    <p>Two things at once, and it has to do both. It <strong>declares</strong> &mdash; <em>I am doing this</em>, said out loud, with a date on it. And it declares <strong>availability</strong> &mdash; a permission slip issued to everyone who reads it: <em>for the next year I am reachable, and you may ask.</em> Not <em>&ldquo;I am going to be good.&rdquo;</em></p>
+    <p>The first half is why it should feel like a start rather than a form. This is the only screen in the app where announcing <em>is</em> the point &mdash; everywhere else the app deliberately keeps its voice down, because everywhere else it is watching you work. Here it should sound like you have decided something.</p>
+    <p>The evidence is in the ratio, not the totals. 66 likes and <strong>51 comments</strong> is not the shape of a brag post; a brag post gets clapped at and scrolled past. It is the shape of an opening. People replied because they had been given something to reply <em>to</em>. That is why six volunteered and two started their own years.</p>
+    <p>Which means act 0 is not the year&rsquo;s first entry. It is the year&rsquo;s <strong>recruiting instrument</strong>, and it works because it asks for something rather than promising something. It also lines up exactly with the ruling already on the books from 31 August: act 0 carries <em>the ask</em>.</p>
+  </section>
+
+  <hr class="rule">
+
+  <section>
+    <div class="sec-head">
+      <p class="eyebrow">Three placements</p>
+      <h2>Where the app raises it</h2>
+      <p class="opt-why" style="max-width:64ch">None of these is a gate, and none of them is a popup on first launch &mdash; the letter is already speaking at that threshold, and you do not stack two voices there.</p>
+    </div>
+
+    <div class="opts">
+
+      <div class="opt">
+        <div class="opt-head">
+          <span class="badge">A</span>
+          <span class="opt-name">The opening page declares itself</span>
+        </div>
+        <div class="frame">
+          <div class="hdr"><h4>Your journal</h4><span class="sub">the year, as a book</span></div>
+          <div class="pad" style="background:var(--a-cream)">
+            <div class="jpage">
+              <div class="jplate"></div>
+              <div class="jno">25 acts of good</div>
+              <div class="jword">in year fifty</div>
+              <p class="jwhy">It started with Beth Howells&rsquo; Fifty Walks with 50 Friends. It sat in my head for two years.</p>
+              <p class="jwith">Jessica</p>
+              <div class="jact">Declare it &rarr;</div>
+            </div>
+          </div>
+        </div>
+        <p class="opt-why">Nothing new is invented. The page that already says why you began gets the same button every other page has. Truest to the app, and the smallest build &mdash; but the quietest: she has to open the journal to find it, and on day one the journal is the emptiest room in the app.</p>
+        <p class="spec">no new screen &middot; discoverable only if she looks</p>
+      </div>
+
+      <div class="opt">
+        <div class="opt-head">
+          <span class="badge">B</span>
+          <span class="opt-name">Once, under the first planned act</span>
+          <span class="tag yes">Recommended</span>
+        </div>
+        <div class="frame">
+          <div class="hdr"><h4>Plan it, log it</h4><span class="sub"></span></div>
+          <div class="pad">
+            <button class="btn">Start a new act</button>
+            <p class="seth">Acts in the works</p>
+            <div class="shelf">
+              <div class="wkcard">
+                <div class="t">Doughnuts for the vet clinic</div>
+                <div class="dt">~ 12 September &rsquo;26 &middot; expected act 1</div>
+              </div>
+              <div class="wkcard zero">
+                <div class="t">Declare your year</div>
+                <div class="dt">say it out loud &mdash; this is the post that found Jessica six helpers</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <p class="opt-why">It appears the moment there is one real plan behind it, and only then. A declaration with nothing behind it is a resolution; a declaration with one act and one person&rsquo;s name behind it is an invitation. That is Jessica&rsquo;s own order &mdash; two years in her head, then Kate&rsquo;s patch, then she posted, already knowing what it was. <strong>Dismissed once, gone for good.</strong> A second offer is a nag.</p>
+        <p class="spec">one card on the shelf &middot; never returns once dismissed</p>
+      </div>
+
+      <div class="opt">
+        <div class="opt-head">
+          <span class="badge">C</span>
+          <span class="opt-name">The door says it, on an empty shelf</span>
+        </div>
+        <div class="frame">
+          <div class="hdr"><h4>Plan it, log it</h4><span class="sub"></span></div>
+          <div class="pad">
+            <button class="btn">Start a new act</button>
+            <button class="btn ghost" style="margin-top:10px">Declare your year</button>
+            <p class="note" style="margin-top:12px">Nothing in the works yet. Start one &mdash; a name is enough, the rest ripens whenever it likes.</p>
+          </div>
+        </div>
+        <p class="opt-why">Two doors on the empty shelf, the announcement second. Impossible to miss, which is the ask you actually made. The cost is that it offers announcing before there is anything to announce &mdash; the resolution problem &mdash; and it puts a second button beside the app&rsquo;s one primary action on the screen where that action matters most.</p>
+        <p class="spec">unmissable &middot; competes with Start a new act</p>
+      </div>
+
+    </div>
+  </section>
+
+  <hr class="rule">
+
+  <section>
+    <div class="sec-head">
+      <p class="eyebrow">The copy, before it lands</p>
+      <h2>What it writes for her</h2>
+    </div>
+    <p>Prefilled, fully editable. It opens on the decision, not on an explanation &mdash; the first four words are the whole point of the post, and everything after them is detail.</p>
+    <div class="draft">I&rsquo;m doing this.
+
+25 acts of good over the next year &mdash; about one every two weeks. Starting now.
+
+It began with <span class="fill">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>, and it has been sitting in my head ever since.
+
+I&rsquo;ll be asking some of you along. And if you&rsquo;re doing something good &mdash; ask me too.</div>
+    <p class="opt-why" style="margin-top:14px">Four beats: <strong>the decision</strong>, the shape of it, where it came from, and the ask. <em>&ldquo;I&rsquo;m doing this&rdquo;</em> leads because a declaration that opens by explaining itself is not a declaration &mdash; and <em>&ldquo;starting now&rdquo;</em> is what puts a date on it. The last line is the 31 August ruling, said plainly.</p>
+    <p class="opt-why">The blank is the design. Hers reads <em>Beth Howells&rsquo; Fifty Walks with 50 Friends</em>. A generic app asks &ldquo;why are you doing this?&rdquo;; this one asks <strong>who gave you the idea</strong> &mdash; which is exactly the sentence that made two readers start their own year.</p>
+  </section>
+
+  <hr class="rule">
+
+  <section>
+    <div class="sec-head">
+      <p class="eyebrow">A correction</p>
+      <h2>Accountability is the point, not the risk</h2>
+    </div>
+    <div class="finding" style="border-left-color:var(--stop)">
+      <p>I had a guardrail here saying the app must never know whether you posted it &mdash; that a witness is a scorekeeper in a warm coat. <strong>That was wrong, and the file says so twice.</strong></p>
+      <p style="margin-bottom:0">The letter&rsquo;s own first paragraph, in Jessica&rsquo;s words: <em>&ldquo;To hold myself accountable, I logged each act and shared it on social media.&rdquo;</em> Accountability is not a side effect of this project. It is the stated reason the logging exists at all.</p>
+    </div>
+    <p>And the app already does it. Every act carries <code>posted</code>, per platform. After you hand a post off it asks <strong>&ldquo;Did it go up?&rdquo;</strong>, stores the answer, shows it back on the posting page, and lets you take it back. A receipt already exists for acts 1&ndash;25. Making act 0 the one thing the app deliberately forgets would have been both inconsistent and against the point.</p>
+
+    <h3 style="margin-top:10px">So the line moves &mdash; and it is the line the project already holds</h3>
+    <p>Not <em>record vs. don&rsquo;t record</em>. It is <strong>her numbers, kept &mdash; the app&rsquo;s judgements about her numbers, never built.</strong> The same ruling that kept the crossed-out half-act and killed &ldquo;one to catch up&rdquo;. The app writes down that the declaration went out on the 12th. It never counts the days since, never mentions the people still waiting, never opens a screen with what you owe.</p>
+
+    <h3 style="margin-top:10px">What accountability act 0 actually buys</h3>
+    <p><strong>It starts the clock honestly.</strong> Before you declare, this is an idea; after, it is a commitment with a date and witnesses. That is an argument for act 0 optionally setting the year&rsquo;s start &mdash; the year begins when you said it out loud, not when you first opened an app.</p>
+    <p><strong>It makes the witnesses real, and the app already catches them.</strong> Six people volunteered in her comments. The People directory exists precisely so those names do not get buried in a thread.</p>
+    <p><strong>It gets the same &ldquo;Did it go up?&rdquo; as everything else</strong> &mdash; no special case, no new mechanism, and the same one-tap undo if you change your mind.</p>
+  </section>
+
+  <hr class="rule">
+
+  <section>
+    <div class="sec-head">
+      <p class="eyebrow">Guardrails</p>
+      <h2>What it must never become</h2>
+      <p class="opt-why" style="max-width:62ch">Four of the five stand. The first one is the rewritten version.</p>
+    </div>
+    <div class="never">
+      <div>
+        <span class="k">No reproach</span>
+        <p class="v"><b>The app records that it went out. It never brings it up against you.</b> No later line that says &ldquo;you said you&rsquo;d&hellip;&rdquo;, no count of days since, no reminder that the 51 people are still waiting. The record is hers; the judgement about the record is the thing that is never built. Same line as the settled three.</p>
+      </div>
+      <div>
+        <span class="k">No zero box</span>
+        <p class="v"><b>Act 0 never takes a square in the grid.</b> If she doesn&rsquo;t write one, it does not exist and was never mentioned again. The forty-nine-empty-boxes problem is at its worst at position zero.</p>
+      </div>
+      <div>
+        <span class="k">No branding</span>
+        <p class="v"><b>The app&rsquo;s name appears nowhere in the output.</b> Hers was her own words in her own feed. A designed template makes her the subject of an advertisement, and breaks the rule that the app is the subject, not the person.</p>
+      </div>
+      <div>
+        <span class="k">No gate</span>
+        <p class="v"><b>It never blocks act 1.</b> Gating would assert that announcing matters more than doing. It doesn&rsquo;t.</p>
+      </div>
+      <div>
+        <span class="k">No funnel</span>
+        <p class="v"><b>It recruits helpers for her year, never users for the app.</b> &ldquo;Two people started their own year&rdquo; is an outcome, not a feature to chase. The tip is the moment a line invites a friend to <em>start theirs</em>.</p>
+      </div>
+    </div>
+  </section>
+
+  <hr class="rule">
+
+  <div class="verdict">
+    <h2>To rule</h2>
+    <ul>
+      <li><b>Placement &mdash; A, B or C</b>, or B with A behind it: the shelf card raises it once, and the journal&rsquo;s opening page keeps the door open forever after.</li>
+      <li><b>The copy.</b> Three lines above, shown before it lands per &sect;2. Say if the ask should be blunter, or if &ldquo;This started with&hellip;&rdquo; should be a prompt rather than a prefill.</li>
+      <li><b>The name.</b> Nothing on screen says &ldquo;act 0&rdquo; in any of these &mdash; it is <em>&ldquo;declare your year&rdquo;</em>. Confirm, or say you want the number said out loud.</li>
+      <li><b>Does act 0 start the clock?</b> If the year begins when you say it out loud, act 0 can set the start date rather than the setup screen. Real accountability, one field, and it changes what &ldquo;week 7 of 52&rdquo; counts from.</li>
+      <li><b>Not proposed, and I would still argue against these two:</b> a designed announcement card carrying the app&rsquo;s name, and a zeroth square in the grid. The announced-state I withdraw &mdash; the app should record it like every other post.</li>
+    </ul>
+  </div>
+
+</div>
