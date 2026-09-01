@@ -6,7 +6,7 @@ what is true right now. When they disagree, this file is newer — say so and fi
 the skill.
 
 Last updated: **30 August 2026**, end of the defect-fix session.
-Build in G's hands: **1N**.
+Build in G's hands: **1Q**.
 
 ---
 
@@ -33,6 +33,31 @@ mirror; keep the two identical. Repo `gahensley1/acts-of-good-preview`, branch
 <https://gahensley1.github.io/acts-of-good-preview/>. Push with `git add -A`,
 `git commit -m "…"`, `git push origin main`, then load the site with a `?v=<tag>`
 cache-buster and confirm the build tag bottom-right.
+
+---
+
+## Shipped in 1O–1Q — copy and the act tally
+
+14. **Three labels, on G's wording.**
+    | before | after |
+    |---|---|
+    | Add anyone to your act? | **Invite someone to join you** |
+    | What it cost *(if anything)* | **Keep a tally of your costs** *(if anything)* |
+
+    Both hold one line at 390px and 430px.
+
+15. **The act tally is a named, bordered control.** It was a bare icon carrying
+    `class="calgo"` — which is `position:absolute; right:8px`. That works for the
+    calendar because `.datewrap` is `position:relative`; the cost row had **no
+    positioned parent**, so the icon was placing itself against the page rather
+    than its own row. It is now `.tallybtn`: in flow, bordered, 44px, reading
+    **act tally** to the left of the glyph, pushed right so its edge lines up
+    with the calendar button above it. **Measured Δ0 at both 390px and 430px.**
+
+    **Named, not changed:** the note under it still reads *"One number is fine.
+    Or the calculator keeps a tally as you buy things."* — which now says
+    "tally" twice and calls the control a calculator. Trimming it to *"One
+    number is fine."* is G's call.
 
 ---
 
