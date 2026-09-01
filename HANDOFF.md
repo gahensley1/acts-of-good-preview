@@ -6,7 +6,7 @@ what is true right now. When they disagree, this file is newer — say so and fi
 the skill.
 
 Last updated: **30 August 2026**, end of the defect-fix session.
-Build in G's hands: **1Q**.
+Build in G's hands: **1R**.
 
 ---
 
@@ -34,9 +34,32 @@ mirror; keep the two identical. Repo `gahensley1/acts-of-good-preview`, branch
 `git commit -m "…"`, `git push origin main`, then load the site with a `?v=<tag>`
 cache-buster and confirm the build tag bottom-right.
 
+### Standing rule — the three copies must never drift
+
+**G's instruction, 31 Aug: save the current HTML into the folder every time.**
+There are three copies of this app and they go stale in this order:
+
+| copy | what it is | goes stale when |
+|---|---|---|
+| `aog-push/index.html` | what git pushes | never — it is where edits land |
+| `acts of good/index.html` | the mirror | an edit is made and not copied across |
+| the Pages site | what G's phone loads | the push has not happened yet |
+
+**After EVERY edit**, without being asked:
+1. `cp aog-push/index.html "acts of good/"` and `cmp -s` the two.
+2. Bump the build mark, and update this file's "Build in G's hands" line.
+
+**After G says he has pushed**, without being asked:
+3. Fetch `https://gahensley1.github.io/acts-of-good-preview/index.html?cb=$RANDOM`
+   and read its build mark. Say plainly which build is live and which are not.
+
+This has already gone wrong twice: at 1Q the mirror was a build behind, and at
+1M–1N several builds sat undeployed while G was looking for changes he could not
+see. **A build that is not in all three places is not done.**
+
 ---
 
-## Shipped in 1O–1Q — copy and the act tally
+## Shipped in 1O–1R — copy and the act calculator
 
 14. **Three labels, on G's wording.**
     | before | after |
@@ -53,6 +76,11 @@ cache-buster and confirm the build tag bottom-right.
     than its own row. It is now `.tallybtn`: in flow, bordered, 44px, reading
     **act tally** to the left of the glyph, pushed right so its edge lines up
     with the calendar button above it. **Measured Δ0 at both 390px and 430px.**
+
+    **1R, on G's markup:** it reads **act calculator**, and both boxes run out to
+    fill the row — 95% of it, near-equal halves at 390px (167px + 166px) —
+    rather than a small field beside a floating glyph. The right edge still
+    lands on the calendar's, Δ0.
 
     **Named, not changed:** the note under it still reads *"One number is fine.
     Or the calculator keeps a tally as you buy things."* — which now says
