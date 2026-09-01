@@ -775,7 +775,7 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
       page. Everything in it can still be changed.</p>
 
     <!-- BUILD MARK — dev only, delete this div when the app ships -->
-    <div id="buildtag">BUILD 1R</div>
+    <div id="buildtag">BUILD 1S</div>
   </div>
 </section>
 
@@ -1115,8 +1115,12 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
     <button class="btn" onclick="finishWork(false)">It happened &mdash; post it</button>
     <button class="btn ghost" style="margin-top:10px;border-width:2px" onclick="finishWork(true)">Anonymous act &mdash; just the card posts</button>
     <p class="note" style="text-align:center;margin-top:8px">your story and photos stay in your journal</p>
-    <p class="note" style="text-align:center;margin-top:14px">Everything here keeps itself as you type &mdash; leave anytime and it&rsquo;ll be waiting.</p>
-    <button class="btn ghost" style="margin-top:14px" onclick="dropWork()" id="wk-drop">Let this one go</button>
+    <!-- G, 31 Aug: "Let this one go" is gone from the foot of this screen, and
+         so is the note above it. This button does NOT call dropWork() — that
+         deletes the act and releases its photos, which is the opposite of what
+         "Save" says. Everything on this screen already keeps itself as you
+         type, so this just leaves, and the shelf holds it until she returns. -->
+    <button class="btn ghost" style="margin-top:18px" onclick="saveForLater()" id="wk-drop">Save, complete later</button>
   </div>
 </section>
 
@@ -2649,14 +2653,20 @@ function zeroAct(){
 }
 function zeroGo(){
   const z = zeroAct();
+  /* The tab bar comes back HERE, the moment act 0 exists — not after the post.
+     It used to wait for zeroDone(), which nothing ever called, so a first-run
+     user who pressed back from the posting page landed on Your year with no
+     tabs and no way to reach Ideas, People or You. Only a reload rescued it,
+     and an installed app has no reload. Writing the declaration is what
+     completes act 0; sending it is hers to choose. */
   S.current = z; CM_BACK = 'home'; save();
+  $('tabs').classList.remove('hide');
   const on = PLATS.filter(([k])=>S.platforms[k].on).map(([k])=>k);
   CM_PLAT = on[0] || 'instagram';
   $('cm-no').textContent = 'act 0';
   go('compose'); drawCompose();
 }
-/* Whether act 0 is finished. Writing it is what completes it; sending it is
-   hers to choose, so "Not yet" is a real answer with no consequence. */
+/* Kept as the explicit exit for anything that finishes act 0 from elsewhere. */
 function zeroDone(){
   $('tabs').classList.remove('hide');
   save(); go('home');
@@ -3751,6 +3761,11 @@ function workToCalendar(){
   wkEdited();
   toCalendar(WK.t, WK.d, WK.exp||nextSlot(true), WK.who, '1');
 }
+/* Leaves the act on the shelf exactly as typed. Non-destructive by design:
+   the old button here deleted it. */
+function saveForLater(){
+  wkEdited(); save(); go('works');
+}
 function dropWork(){
   if(!WK) return;
   if(WK._unsaved){ WK=null; go('works'); return; }   // never joined the shelf
@@ -3785,7 +3800,11 @@ function ripenWords(w){
    answered, and the note writes straight into the story — which IS the
    journal page. */
 let EVAL_ACT=null;
+/* Act 0 is a declaration, not an outing. "About act 0… How did it go? Went to
+   plan / Partly / Didn't go to plan" is the app asking whether deciding
+   something went to plan. */
 function askEval(a){
+  if(arguments[0] && arguments[0].zero) return;
   if(!a || a.evalAsked) return;
   EVAL_ACT=a;
   const tt=(a.t||'').toLowerCase();
