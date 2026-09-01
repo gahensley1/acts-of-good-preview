@@ -339,10 +339,14 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
    glyph, and it is pushed to the right so its edge lines up with the calendar
    button sitting in the row above it — both stop 8px short of the wrap. */
 .costrow{display:flex;align-items:center;gap:10px}
-.costrow #wk-cost{max-width:140px}
-.tallybtn{margin-left:auto;margin-right:8px;display:inline-flex;align-items:center;gap:9px;
+/* G's markup, 31 Aug: both boxes run out to fill the row rather than sitting as
+   a small field and a floating glyph. The amount grows into the space it has;
+   the calculator keeps its content width and stops 8px short of the wrap, so
+   its right edge still lines up with the calendar button in the row above. */
+.costrow #wk-cost{flex:1;min-width:0;max-width:none}
+.tallybtn{flex:none;margin-right:8px;display:inline-flex;align-items:center;gap:10px;
   border:1.5px solid var(--line);border-radius:12px;background:var(--paper);
-  padding:6px 10px 6px 13px;min-height:44px;font-family:inherit;cursor:pointer}
+  padding:6px 12px 6px 15px;min-height:44px;font-family:inherit;cursor:pointer}
 .tallybtn .tl{font-size:12.5px;font-weight:600;color:var(--muted);
   letter-spacing:.02em;white-space:nowrap}
 .tallybtn svg{display:block}
@@ -771,7 +775,7 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
       page. Everything in it can still be changed.</p>
 
     <!-- BUILD MARK — dev only, delete this div when the app ships -->
-    <div id="buildtag">BUILD 1Q</div>
+    <div id="buildtag">BUILD 1R</div>
   </div>
 </section>
 
@@ -1097,7 +1101,7 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
              positioned parent here, so it was placing itself against the page
              rather than against this row. -->
         <button type="button" class="tallybtn" onclick="openSpends()" id="wk-tabbtn"
-          aria-label="Act tally, keep a running total"><span class="tl">act tally</span><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="var(--coral)" stroke-width="1.5"><rect x="5" y="2.5" width="14" height="19" rx="2.5"/><rect x="8" y="5.5" width="8" height="3.4" rx="1"/><path d="M8.6 12.6h.01M12 12.6h.01M15.4 12.6h.01M8.6 16h.01M12 16h.01M15.4 16h.01M8.6 19.2h.01M12 19.2h.01M15.4 19.2h.01" stroke-linecap="round" stroke-width="2.1"/></svg></button>
+          aria-label="Act calculator, keep a running total"><span class="tl">act calculator</span><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="var(--coral)" stroke-width="1.5"><rect x="5" y="2.5" width="14" height="19" rx="2.5"/><rect x="8" y="5.5" width="8" height="3.4" rx="1"/><path d="M8.6 12.6h.01M12 12.6h.01M15.4 12.6h.01M8.6 16h.01M12 16h.01M15.4 16h.01M8.6 19.2h.01M12 19.2h.01M15.4 19.2h.01" stroke-linecap="round" stroke-width="2.1"/></svg></button>
       </div>
       <p class="note" id="wk-spendnote" style="margin-top:8px">One number is fine. Or the calculator keeps a tally as you buy things.</p></div>
 
