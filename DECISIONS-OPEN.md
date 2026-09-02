@@ -1,7 +1,64 @@
 # Questions for you
 
-31 August 2026. Nothing here gets built until you answer.
+31 August–2 September 2026. Nothing here gets built until you answer.
 Answer by number — "1 yes, 4 show me" is plenty.
+
+---
+
+## FIRST — the end of the year
+
+A full 25-act year was played through the app on 2 September. It never crashed
+once. But **the year cannot end**: finish everything and the screen says
+*"27 of 25 — plenty of room"*, because half acts are being added up as whole
+ones, and there is no finishing state anywhere in the app.
+
+You asked for confetti, a card about putting good back into the world, and a
+reaffirming message. All of it is drawn — the confetti actually runs on the
+page — here:
+
+**https://claude.ai/code/artifact/4fdec46e-58ab-459e-9154-d4f308085279**
+(also saved as `reviews/the-finish.html`)
+
+Where it stands after your rulings:
+
+1. **The counting** — **RULED: half acts are removed entirely.** That closes four
+   of the eight defects on its own: the count can't overshoot, there's no slash to
+   get wrong, act 1 can't become "act 0.5", and the card stops disagreeing with the
+   caption. What comes out: the "Mark as half an act" button, the struck numeral,
+   the small coral "2.5", the diagonally-split square, and the journal's version of
+   all of it. **Note:** Jessica's own year had a half act; the app will no longer
+   be able to draw one. Any half already saved becomes a whole act.
+2. **The moment** — confetti, the message and the card, once, on the day you finish.
+   Still open, though nothing about it is contested.
+3. **The card** — **RULED: 3E, in capitals, punctuated.** It reads
+   **PUT A LITTLE / MORE GOOD INTO / THE WORLD.** across three lines, filling the
+   space under the rule. Only one thing left: full stop (3E·1) or exclamation
+   (3E·2).
+4. **The words above it** — three, all about the people now, because the card
+   already says the line in capitals and the two must not repeat each other.
+5. **The year screen afterwards** — "the year is complete" (5A), "all of them"
+   (5B), or "a full year of good" (5C).
+6. **The repairs** — 6A (what you did never reaches your post) and 6C (act 0's
+   posting page contradicts its own card). **6B is withdrawn** — no half acts, no
+   slash. Say **6 all** for the two that remain.
+7. **Not building it, just asking** — should the app offer a second year?
+8. **The closing post** — the card needs a caption and I had not drawn one.
+   Three, all with the names stripped out, none repeating the line on the card:
+   *I did it.* (8A), *That's 25.* (8B), or *25 of 25 ... invite me.* (8C).
+   Numbered 8 so nothing already given to you changed number.
+
+**Names, corrected.** One of the stand-in names I used in a mockup — Beth — was
+not invented. It came from Jessica's act 0. It is gone, and the page now says
+plainly that the names are made up.
+
+Checking for the same mistake elsewhere: **her friends' real names are in the
+app file's own notes** — Judy and Mabe, Ginger, Leigh, Holly, baked4good, twenty
+mentions. Nobody using the app can see them; anyone opening the file can. The
+automated check now reports them every run instead of skipping them.
+**Still waiting on you: strip those names out of the notes?** The reasoning stays,
+only whose act it was goes.
+
+Nothing here is built yet.
 
 ---
 

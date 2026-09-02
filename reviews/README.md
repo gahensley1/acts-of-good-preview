@@ -14,10 +14,11 @@ links stay put when a page is updated.
 | `you-reminder.html` | Three ways the You screen could say what the card is still missing. G ruled **A and C** — the bar and the row marks. | https://claude.ai/code/artifact/4811aafe-c7b3-48e7-af20-71f8d163bf81 |
 | `act-zero.html` | What the declaration post actually is, where it belongs, and what it must never become. Includes the accountability correction. | https://claude.ai/code/artifact/323fd961-5273-434a-9c38-0bd34993d020 |
 | `the-ceremony.html` | **The main one.** Act 0 as the last step of the introduction — the five beats, the zero square, the sash, the copy, and the evidence behind each choice. | https://claude.ai/code/artifact/161601c8-8f42-4409-9b9b-e52d17f92311 |
+| `the-finish.html` | **Open, awaiting rulings.** How the year ends and how halfway is marked: half acts removed, two bursts of confetti falling off the bottom, the closing card in capitals, the closing post, the halfway note, and the repairs. Every line of copy is also written out plainly in `../THE-WORDS.md` for editing. | https://claude.ai/code/artifact/4fdec46e-58ab-459e-9154-d4f308085279 |
 
 ## For another chat picking this up
 
-These are **settled arguments, not proposals**. What was ruled is marked on each
+These are **settled arguments, not proposals** — with one exception: `the-finish.html` is open and waiting on G. What was ruled is marked on each
 page. Before re-opening anything drawn here, read `../HANDOFF.md` — it records
 what was decided and why, including several things G ruled out that look like
 good ideas on paper.

@@ -775,7 +775,7 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
       page. Everything in it can still be changed.</p>
 
     <!-- BUILD MARK — dev only, delete this div when the app ships -->
-    <div id="buildtag">BUILD 1T</div>
+    <div id="buildtag">BUILD 1V</div>
   </div>
 </section>
 
@@ -1167,7 +1167,9 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
          gift. Optional, and blank means it appears nowhere. Regular type only —
          the app's one piece of handwriting is Jessica's real signature. -->
     <div class="field"><label for="w-honor">In honor of <span style="text-transform:none;font-weight:400;color:var(--muted)">(if it was for someone — optional)</span></label>
-      <input id="w-honor" placeholder="Judy Mabe’s birthday" oninput="factEdited()"></div>
+      <!-- was "Judy Mabe's birthday" — a real person, shown to everyone as an
+           example. The idea survives; whose birthday it was does not. -->
+      <input id="w-honor" placeholder="someone’s birthday" oninput="factEdited()"></div>
     <div class="field"><label for="w-when-btn">When</label>
       <input id="w-when" type="hidden" aria-hidden="true">
       <div class="datewrap">
@@ -1224,7 +1226,7 @@ What you actually did. Why it mattered. Say the awkward parts."></textarea>
         <div class="balloon"><img alt="" class="handimg" src=""></div>
       </div></div>
       <hr>
-      <div class="actno" id="cd-act">act 1 of 50</div>
+      <div class="actno" id="cd-act">act 1 of 25</div>
     </div>
 
     <div id="slides" style="margin-top:18px"></div>
@@ -1354,7 +1356,7 @@ What you actually did. Why it mattered. Say the awkward parts."></textarea>
         <span class="chev">›</span>
       </div>
       <div class="setrow" onclick="editYear()">
-        <div class="t"><b>Your reason</b><span id="v-reason">in year fifty</span></div>
+        <div class="t"><b>Your reason</b><span id="v-reason">in year …</span></div>
         <span class="chev">›</span>
       </div>
       <div class="setrow" onclick="editYear()">
@@ -2148,7 +2150,10 @@ async function wipe(){
 
 /* ── state ── */
 const S = {
-  n: 25, weeks: 52, reason: 'in year fifty', start: new Date(),
+  /* 'reason' was a leftover from an older shape and read 'in year fifty' —
+     hers. Nothing has used it for a long time; the live pair is line + word,
+     and word stays blank until a birthday makes it theirs. */
+  n: 25, weeks: 52, start: new Date(),
   acts: [], people: [], chosen: [], works: [],
   outcome: 'Went to plan', lead: 'Today', cat: 'Anything', current: null,
   line: 'in year', word: '', lineTouched: false, wordTouched: false, tone: null, toneToured: false,
@@ -2303,7 +2308,9 @@ const IDEAS = [
 
  // ── Animals ──
  {t:'Treats for an animal shelter, flowers for the staff',l:'This weekend',s:'A weekend',c:'Animals',
-  d:'Call ahead about homemade — some shelters take them happily, Charlottesville did for act 16.'},
+  /* was: "…Charlottesville did for act 16." Generalised 31 Aug — the library
+     may carry what was learned, never whose act it was learned on. */
+  d:'Call ahead about homemade — some shelters take them happily, some cannot.'},
  {t:'Old towels and blankets to a shelter',l:'Today',s:'An hour',c:'Animals',
   d:'The one place your worn textiles are genuinely wanted. February is the cold month.'},
  {t:"Pay the adoption fee for the longest wait",l:'Today',s:'An hour',c:'Animals',

@@ -377,6 +377,142 @@ Verified with headless Chromium against the real file: 17 checks, no JS errors.
 
 ---
 
+## The 25-act test run — 2 September, build 1V
+
+An agent played a complete year in headless Chromium at 390x844@2x: setup, act 0,
+25 acts across Apr 2026 - Apr 2027, two halves, two anonymous, one honoree, three
+carrying costs, the journal, the works list. **Zero JS errors across the whole
+run.**
+
+Card geometry is immovable: all 27 cards measured identical to within 0.01% -
+numeral top 12.31%, "acts of good" 25.21%, "in year" 30.88%, script 34.54%, rule
+left 11.22% / width 77.55%, act line top 73.17%. The act line is one line on
+every card. Act 0 correctly hides the rule and the act line. Sash rules hold.
+Journal renders 29 pages with no overflow. The composer is sound: per-platform
+handles, honoree on the opening line, anonymous withholding correctly.
+
+Eight defects found, worst first:
+
+1. **The year cannot end.** `drawHome()` uses `const done = S.acts.length`, so
+   halves count as whole acts; 23 numbered + 2 halves reads "25 of 25" at 100%
+   while acts 24 and 25 never happened, and 25 logged reads "27 of 25 - 27 so
+   far, plenty of room". `p-state` has no branch for `done >= S.n`. **There is no
+   end-of-year state anywhere in the app.** The journal's closing page repeats it
+   ("so far - 27 acts").
+2. **`.struck::after` misses every two-digit numeral.** It is a fixed stroke
+   (`left:50%; width:.030em`). On "12" it clips the edge; on "25" it lands in the
+   gap between the glyphs and crosses neither. Affects acts 10-25, sixteen of
+   twenty-five. The journal's own rule (`left:-8%;right:-8%;top:56%`) is correct -
+   the two renderings disagree with each other.
+3. **`a.t` never reaches a public caption.** `buildCaption()` pushes `a.story`
+   for public platforms; `a.t` appears only in the `private` branch. The quick Log
+   flow has no story field, so an act can post without saying what was done.
+4. **`openCompose()` sets `cm-no` to "act 0 of 25"** with no zero branch, while
+   `drawActNo()` deliberately hides the number on the card.
+5. **`halfNo('1')` returns 0.5**, colliding with act 0.
+6. A half act's caption says "Act 2.5 of 25" while its card says "act 3 of 25".
+7. "week N of 52" printed twice on one screen (already logged as question 5).
+8. The newest tile's number is occluded by its sash.
+
+**MISTAKE, 2 Sept — caught by G, worth not repeating.** A mockup used
+"Holly, Marcus, Beth" as stand-in names. Holly/Marcus/Mrs Ellery were invented by
+the test agent; **Beth was not** - Beth Howells is in `ACT-0-RECOVERED.md`, the
+friend whose Fifty Walks started the idea. Pulled across without noticing. This is
+the reference-not-content rule failing in the smallest possible way, which is how
+it will always fail. Replaced with "Priya", and the page now states outright that
+the names are invented. **Lesson: before using any example name, check it against
+`ACT-0-RECOVERED.md` and `the-posts.md`.**
+
+Sweeping for the same leak found her circle inside `index.html`'s own code
+comments: Judy (5), Holly (5), Mabe (3), Leigh (3), Ginger (2), baked4good (1) -
+20 mentions. **Outside comments the only occurrence of anything of hers is
+"Jessica" x2, which is her letter signature and is intended.** So no user-visible
+leak. `check-nothing-of-hers.py` reported CLEAN because it deliberately skips
+comments; that rule had a hole. The script now runs a **second pass over `/* */`
+and `<!-- -->` blocks** and prints what it finds under "IN THE CODE NOTES", never
+as a failure. Offered to G to strip them; **not yet answered.**
+
+**Section 8 added to the proposal page: the closing post.** G: *"YOU DO NEED TO
+CREATE A POST WITH THIS CARD SO MAYBE JUST USE THIS AND STRIP THE NAMES."* Three
+captions drawn on a faithful `s-compose` mockup, all nameless, none repeating the
+card's line. Numbered 8 rather than inserted, so letters he has already been given
+do not shift. Section 4's 4A is now split 4A·1 (named) / 4A·2 (unnamed) - the
+private on-screen message is the one open name question.
+
+**RULING: the confetti is TWO bursts and runs off the bottom.** G: *"CONFETTI NEEDS
+TO 2 BURSTS AND RUN OFF THE BOTTOM OF THE PAGE."* Implemented on the proposal page
+and measured: burst one at t=0, burst two at +780ms, 95 pieces each, every piece
+spawned above the top edge, gravity 48px/s^2, and culled only once `y - h` clears
+`height + 24`. **No opacity fade at any point** - the pieces leave by falling past
+the bottom. Clears in about four seconds. Reduced-motion still settles in place.
+
+**RULING, 2 September: HALF ACTS ARE REMOVED.** G: *"REMOVE 1/2 ACTS THIS WILL FIX
+SOME HOLES."* This overturns a previously settled design (skill s3 listed the
+crossed-out 2.5 as closed). It is his call and it is correct: it closes defects 1,
+2, 5 and 6 from the test run at a stroke.
+
+Touch points, all in `index.html`: `.struck` / `.struck .half` / `.hashalf` (~358-366),
+`.jpage .jno .struck` + `.half` (~204-207), `.tile.half` (446), `halfNo()` /
+`wholeNo()` (6014-6015), `toggleHalf` (~6034-6035), `setNo` (~6060), `drawActNo`'s
+half branch (6087-6099), the menu button label (6102-6104), the journal's `noLine`
+(3580-3581), `a.no = a.half ? String(slot-0.5)` (4109), the card/export path
+(6417, 6431), and `half:!!a.half` in the three state serialisers (1702, 1835, 7050).
+Keep reading `a.half` on load so old data migrates: **a saved half becomes a whole
+act and keeps its square.** `wholeNo()` may still be wanted; `halfNo()` goes.
+
+**RULING: the closing card's line is 3E in capitals, punctuated.** Three lines,
+`PUT A LITTLE / MORE GOOD INTO / THE WORLD.` in the `.actno` slot with the rule
+restored. Drawn at `font-size:7.2cqw; line-height:1.20; top:69.4cqw;
+letter-spacing:.02em; font-weight:700`, which runs 69.3%-95.1% of the card height
+and leaves 4.9% below - G asked for the white space filled and the type made
+bigger, and that is the measured result. Open: full stop or exclamation.
+Consequence handled: the reaffirming message above the card was rewritten so it no
+longer repeats the line.
+
+**Two rulings landed 2 September, both on the proposal page:**
+
+1. **The half-act slash is now TWO rules, not one.** G: *"the journal's slash is
+   correct... note the slash will be different for a single number and 2 digits."*
+   A single numeral keeps `.struck::after` as it stands (steep upright stroke,
+   `left:50%; top:.05em; height:1.09em; width:.030em; rotate(30deg)`) — that is her
+   act 2.5 exactly and was never wrong. A two-digit numeral takes the journal's
+   rule (`left:-8%; right:-8%; top:56%; border-top; rotate(-14deg)`) drawn across
+   both glyphs. Implement by branching on `wholeNo(a.no).length` in `drawActNo()`
+   and adding the matching class; do the same in the journal so single numerals
+   there pick up the stroke. Both renderings must agree on both cases.
+2. **The closing card carries a line at the bottom.** G: *"there needs to be words
+   saying I DID IT! or COMPLETED! something inspirational."* The rule (`<hr>`)
+   comes back and the words take the `.actno` slot in coral. The no-line "bookend"
+   option is RETIRED — do not propose it again. Six wordings are drawn (3A-3F);
+   only the choice of words is open. G then sent **"put a little more good into
+   the world"**, which is drawn as 3E (two lines at ~5.1cqw, half the act-number
+   size) and 3F (that line in the message, "I did it." on the card). He has been
+   told plainly that the phrase is close to Jessica's own sentence in her act 0
+   and that choosing it must be deliberate.
+
+**None of this is fixed.** 1 through 5 are drawn as proposals in
+`reviews/the-finish.html` (live at
+https://claude.ai/code/artifact/4fdec46e-58ab-459e-9154-d4f308085279) and
+summarised in plain English at the top of `DECISIONS-OPEN.md`. Do not build any
+of it until G rules by letter.
+
+**The counting is a design question, not just a bug.** `slotOf()` rounds a half
+UP, so act 2.5 owns square 3 - a half consumes a whole square while the count
+treats it as a whole act. Either a square is an act (recommended: the number on
+screen becomes the number of filled squares, so it can never disagree with the
+grid) or a half adds a half (truer, but the grid can be full while the count is
+short). G has both, as 1A and 1B.
+
+**The proposed finish**, all unbuilt: confetti on the year screen once, when the
+last square fills - canvas, coral/gold/cream, ~3s, reduced-motion falls back to a
+static settle; a reaffirming message beneath it built from Jessica's own act 0
+("put a little more good out into the world", "nothing grand required... small
+intentional acts that add up") generalised, with three wordings offered; the year
+card again as the closing card, with three treatments; and a permanent finished
+state on the year screen and the journal's closing page.
+
+---
+
 ## Open
 
 - **X.** `HANDLE_KEYS` includes `'x'` and the person sheet asks for an X handle,
