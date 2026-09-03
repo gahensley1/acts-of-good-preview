@@ -364,6 +364,17 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
 .struck .half{position:absolute;bottom:92%;left:50%;transform:translateX(-10%);
   font-size:.62em;line-height:1;white-space:nowrap;color:var(--coral)}
 .hashalf{padding-top:.62em}
+/* The double-tap delete under "Save, complete later" (G, 2 Sept: 10B + 10.1).
+   The only thing in the app set in capitals — deliberately, because it is the
+   only control that destroys something. First tap arms, second does it; there
+   is no confirm sheet, and the undo bar catches it for seven seconds. */
+.killer{display:block;width:100%;margin-top:13px;padding:12px 8px;min-height:44px;
+  border:0;background:none;font-family:inherit;cursor:pointer;
+  text-align:center;font-size:11.5px;font-weight:600;letter-spacing:.06em;
+  text-transform:uppercase;color:var(--coralink);border-radius:10px;transition:.14s}
+.killer:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.killer.armed{background:var(--coralink);color:#fff;letter-spacing:.02em;
+  text-transform:none;font-size:13px}
 .chip{padding:12px 15px;border-radius:999px;border:1.5px solid var(--line);
   font-size:13.5px;font-weight:500;background:var(--paper);transition:.15s;
   min-height:44px;display:inline-flex;align-items:center;justify-content:center}
@@ -775,7 +786,7 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
       page. Everything in it can still be changed.</p>
 
     <!-- BUILD MARK — dev only, delete this div when the app ships -->
-    <div id="buildtag">BUILD 1V</div>
+    <div id="buildtag">BUILD 1W</div>
   </div>
 </section>
 
@@ -1121,6 +1132,9 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
          "Save" says. Everything on this screen already keeps itself as you
          type, so this just leaves, and the shelf holds it until she returns. -->
     <button class="btn ghost" style="margin-top:18px" onclick="saveForLater()" id="wk-drop">Save, complete later</button>
+    <!-- G, 2 Sept: a way back to deleting, without the sheet. Ruled 10B (capitals)
+         and 10.1 ("Tap again to delete"). -->
+    <button type="button" class="killer" id="wk-kill" onclick="killTap()">Delete, remove this act</button>
   </div>
 </section>
 
@@ -3773,6 +3787,46 @@ function workToCalendar(){
 function saveForLater(){
   wkEdited(); save(); go('works');
 }
+
+/* ── the double-tap delete ────────────────────────────────────────────────
+   Ruled by G, 2 Sept. One control, two taps, no sheet. It disarms itself after
+   four seconds and on leaving the screen, so a stray tap can never sit there
+   primed. The delete itself is soft: the act is spliced out immediately so the
+   list is honest, and the undo bar holds the photos for seven seconds before
+   releasing them — which is the only reason releasePhotos is the COMMIT and not
+   done here. */
+let KILL_ARMED = false, KILL_T = null;
+const KILL_REST = 'Delete, remove this act';
+function killDisarm(){
+  clearTimeout(KILL_T); KILL_T = null; KILL_ARMED = false;
+  const el = $('wk-kill'); if(!el) return;
+  el.classList.remove('armed'); el.textContent = KILL_REST;
+}
+function killTap(){
+  if(!WK) return;
+  const el = $('wk-kill'); if(!el) return;
+  if(!KILL_ARMED){
+    KILL_ARMED = true;
+    el.classList.add('armed');
+    el.textContent = 'Tap again to delete';
+    clearTimeout(KILL_T);
+    KILL_T = setTimeout(killDisarm, 4000);
+    return;
+  }
+  killDisarm();
+  const w = WK;
+  /* never joined the shelf — nothing to undo, and no photos of its own yet */
+  if(w._unsaved){ WK = null; go('works'); return; }
+  const i = S.works.indexOf(w);
+  if(i > -1) S.works.splice(i, 1);
+  save();
+  WK = null;
+  go('works');
+  undoBar((w.t ? '\u201C' + w.t + '\u201D' : 'That act') + ' is gone.',
+    ()=>{ S.works.splice(Math.min(i < 0 ? S.works.length : i, S.works.length), 0, w);
+          save(); if(SCREEN==='works') drawWorks(); },
+    ()=>{ releasePhotos(w.photos || []); });
+}
 function dropWork(){
   if(!WK) return;
   if(WK._unsaved){ WK=null; go('works'); return; }   // never joined the shelf
@@ -3840,7 +3894,7 @@ function pendingEval(){
   }
   return null;
 }
-function drawWork(){ if(!WK){ go('works'); return; } }
+function drawWork(){ if(!WK){ go('works'); return; } killDisarm(); }
 function drawWorks(){
   const box=$('workslist'); box.innerHTML='';
   const list=(S.works||[]);
@@ -6898,6 +6952,7 @@ const VIEWS=['setup','zero','home','log','write','card','compose','browse','peop
 let SCREEN = 'home';
 function go(v){
   if(v !== SCREEN) dropUndo();
+  if(v !== 'work') killDisarm();   // a primed delete never survives the screen
   if(SCREEN==='compose' && v!=='compose') leaveCompose();
   SCREEN = v;
   VIEWS.forEach(x=>$('s-'+x).classList.add('hide'));

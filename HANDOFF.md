@@ -414,6 +414,50 @@ Eight defects found, worst first:
 7. "week N of 52" printed twice on one screen (already logged as question 5).
 8. The newest tile's number is occluded by its sash.
 
+## BUILD 1W — the double-tap delete (BUILT, 3 September)
+
+Ruled 10B + 10.1 and shipped. The first thing built from this whole session; the
+finish and the halfway note are still unbuilt and still waiting on G.
+
+- **CSS** `.killer` / `.killer.armed`, added after `.hashalf`. Name checked free
+  before use. Resting: transparent, `--coralink`, 11.5px, `text-transform:uppercase`,
+  `letter-spacing:.06em`, full width, `min-height:44px`. Armed: solid `--coralink`,
+  white, 13px, `text-transform:none`.
+- **Markup** `<button id="wk-kill" class="killer" onclick="killTap()">` directly
+  under `#wk-drop` in `s-work`.
+- **JS** `KILL_ARMED` / `KILL_T` / `KILL_REST`, `killDisarm()`, `killTap()`, placed
+  after `saveForLater()`. Disarm is wired into `go()` (`if(v !== 'work')`) and into
+  `drawWork()`, so a primed delete cannot survive leaving or re-entering.
+- **The delete is soft.** `S.works.splice` and `save()` happen at once so the list
+  is honest, then `undoBar()` holds it: UNDO re-splices at the original index,
+  COMMIT calls `releasePhotos()`. **`releasePhotos` is deliberately the commit, not
+  inline** — otherwise undo would restore an act whose photographs were gone.
+- `dropWork()` and its `checkFirst()` sheet are now unreachable from this screen.
+  Left in place; flagged for the dead-code pass (open question 16).
+
+**Verified** in headless Chromium at 390x844@2x, zero JS errors: resting reads
+"Delete, remove this act" in rgb(192,63,43), uppercase, 350x44; arming gives white
+on rgb(192,63,43) reading "Tap again to delete" on one line; it self-disarms after
+4s; two taps delete, land on `works`, drop `S.works` to 0 and raise the undo bar
+reading '"Take soup to the Harpers" is gone.'; tapping undo restores the act
+intact. Screenshots taken and looked at, both states.
+
+**Note for whoever is next: there is a FOURTH copy of the app.**
+`aog-push/50-acts-of-good.html`, 1,024,736 bytes, last written 30 August, no build
+mark. It is not `index.html`, nothing serves it, and it has been drifting since.
+Not touched. Worth asking G whether it can go.
+
+**REQUEST, 2 Sept: a double-tap delete on the works page.** G: *"UNDER THE SAVE
+COMPLETE LATER BUTTON PUT A DOUBLE TAP DELETE OPTION TEXT IN CORAL 'DELETE, REMOVE
+THIS ACT'."* Drawn as section 10. This reopens decision **C** in
+`DECISIONS-OPEN.md` - saveForLater() was made non-destructive at 1S and left no way
+to delete a half-finished act from that screen. `dropWork()` already exists and
+already does the right thing (splices `S.works`, calls `releasePhotos`), and it
+already carries a `checkFirst()` confirm sheet - **the double tap replaces that
+sheet, it does not sit alongside it.** Not built; two wording choices are with G
+(case, and the armed label). Behaviour proposed and stated to him: disarms after
+~4s, disarms on leaving the screen, and the existing undo bar catches the delete.
+
 **MISTAKE, 2 Sept — caught by G, worth not repeating.** A mockup used
 "Holly, Marcus, Beth" as stand-in names. Holly/Marcus/Mrs Ellery were invented by
 the test agent; **Beth was not** - Beth Howells is in `ACT-0-RECOVERED.md`, the

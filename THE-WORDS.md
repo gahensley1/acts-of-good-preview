@@ -199,6 +199,24 @@ above it still says "act 0 of 25". It would say:
 
 ---
 
+# 7 · THE DOUBLE-TAP DELETE
+
+Sits under *Save, complete later* on the works page, in coral. First tap arms it,
+second tap does it. No pop-up.
+
+**RULED 10B + 10·1, and BUILT — this one is in the app now, build 1W.**
+
+    Resting:   DELETE, REMOVE THIS ACT
+    Armed:     Tap again to delete
+
+## What it does without being told
+
+- Disarms itself after about four seconds.
+- Disarms if you leave the screen.
+- The black undo bar catches it, so there is still one way back.
+
+---
+
 # DECISIONS LEFT TO MAKE
 
 Answer by number and letter. `3E·1 4A·1 5A 6 all 9A yes yes strip 7 later`

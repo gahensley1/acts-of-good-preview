@@ -157,7 +157,20 @@ section{display:flex;flex-direction:column;gap:20px}
 .pcard{width:46%;margin:12px 0 0}
 .namechip{background:#F6E8C9;border-bottom:1px solid var(--a-gold);padding:0 3px}
 
-/* fix rows *//* fix rows */
+/* the works foot */
+.foot{background:var(--a-paper);border:1px solid var(--a-line);border-radius:11px;
+  padding:15px 14px 16px;font-family:Montserrat,sans-serif}
+.foot .ghostbtn{border:1.5px solid var(--a-line);border-radius:10px;padding:12px;
+  text-align:center;font-weight:600;font-size:13px;color:var(--a-ink)}
+.killer{display:block;width:100%;text-align:center;margin-top:13px;
+  font-size:12.5px;font-weight:600;color:var(--a-coralink);letter-spacing:.01em}
+.killer.armed{color:#fff;background:var(--a-coralink);border-radius:9px;padding:11px 8px;
+  margin-top:11px;letter-spacing:.005em}
+.killer.caps{text-transform:uppercase;letter-spacing:.06em;font-size:11.5px}
+.state{font-family:"IBM Plex Mono",monospace;font-size:9.5px;letter-spacing:.09em;
+  text-transform:uppercase;color:var(--faint);margin:0 0 6px}
+
+/* fix rows *//* fix rows *//* fix rows */
 .fix{background:var(--panel);border:1px solid var(--edge);border-radius:12px;padding:15px 16px}
 .fix h3{margin:0 0 5px;font-size:16px;font-weight:600;letter-spacing:-.012em}
 .fix p{font-size:14px;color:var(--dim);margin:0 0 11px}
@@ -739,12 +752,102 @@ With Holly Williams and Marcus Reed.
 
 <hr class="rule">
 
+<!-- ============ 10 (delete) ============ -->
+<section>
+  <div class="sec-head">
+    <span class="kicker">10 · the works page &nbsp;·&nbsp; <span style="color:var(--faint)">not part of the finish</span></span>
+    <h2>Getting rid of an act</h2>
+    <p class="why">You asked for a double‑tap delete in coral under <em>Save, complete later</em>.
+    Here it is. First tap arms it, second tap does it — no pop‑up, no extra screen.
+    <strong>Two things I can't decide for you:</strong> whether it wears capitals, and what it
+    says once it's armed.</p>
+  </div>
+
+  <div class="opts two">
+    <div class="opt">
+      <div class="opt-h"><span class="tag">10A</span><span class="opt-n">The app's own case</span></div>
+      <p class="state">resting</p>
+      <div class="foot">
+        <div class="ghostbtn">Save, complete later</div>
+        <span class="killer">Delete, remove this act</span>
+      </div>
+      <p class="opt-p">Matches every other button in the app — <em>Save, complete later</em>,
+      <em>Let it go</em>, <em>Post it</em>. Nothing on any screen is currently set in capitals.</p>
+      <p class="rec">↳ my recommendation</p>
+    </div>
+    <div class="opt">
+      <div class="opt-h"><span class="tag">10B</span><span class="opt-n">Capitals</span></div>
+      <p class="state">resting</p>
+      <div class="foot">
+        <div class="ghostbtn">Save, complete later</div>
+        <span class="killer caps">Delete, remove this act</span>
+      </div>
+      <p class="opt-p">Exactly as you typed it. Louder, and it reads more like a warning —
+      which for the one control that destroys things may be the point.</p>
+    </div>
+  </div>
+
+  <div class="sec-head" style="margin-top:8px">
+    <span class="kicker">and what the second tap says</span>
+  </div>
+
+  <div class="opts three">
+    <div class="opt">
+      <div class="opt-h"><span class="tag">10·1</span><span class="opt-n">Plain</span></div>
+      <p class="state">after the first tap</p>
+      <div class="foot">
+        <div class="ghostbtn">Save, complete later</div>
+        <span class="killer armed">Tap again to delete</span>
+      </div>
+      <p class="opt-p">Says only what happens next. Shortest, and it fits on one line on any
+      phone.</p>
+      <p class="rec">↳ my recommendation</p>
+    </div>
+    <div class="opt">
+      <div class="opt-h"><span class="tag">10·2</span><span class="opt-n">With the warning</span></div>
+      <p class="state">after the first tap</p>
+      <div class="foot">
+        <div class="ghostbtn">Save, complete later</div>
+        <span class="killer armed">Tap again — this cannot be undone</span>
+      </div>
+      <p class="opt-p">Tells the truth about it. Slightly long; on a narrow phone it may take
+      two lines, which I'd check before building.</p>
+    </div>
+    <div class="opt">
+      <div class="opt-h"><span class="tag">10·3</span><span class="opt-n">With the photos</span></div>
+      <p class="state">after the first tap</p>
+      <div class="foot">
+        <div class="ghostbtn">Save, complete later</div>
+        <span class="killer armed">Tap again — the photos go too</span>
+      </div>
+      <p class="opt-p">Deleting an act also deletes its photographs, and that is the part
+      somebody would actually miss. This only appears when the act <em>has</em> photos; with
+      none it falls back to 10·1.</p>
+    </div>
+  </div>
+
+  <div class="ask">
+    <h3>Three things I'll do unless you say otherwise</h3>
+    <p><strong>It disarms itself.</strong> If you don't tap again within about four seconds it
+    goes quietly back to resting, so an accidental tap can't sit there waiting.</p>
+    <p style="margin-top:9px"><strong>Leaving the screen disarms it too</strong> — you can't come
+    back to a primed delete.</p>
+    <p style="margin-top:9px"><strong>The undo bar catches it.</strong> Delete an act and the
+    black bar appears the way it does elsewhere in the app, so there is still one way back.
+    Say if you'd rather a delete were truly final.</p>
+  </div>
+</section>
+
+<hr class="rule">
+
 <div class="answer">
   <h2>How to answer</h2>
-  <p>One line does it — <code>1A 3F 4A 5A 6 all 7 later</code>, or however you'd rather
-  have it. <strong>3</strong> and <strong>6B</strong> are already ruled — 3 only needs its words
-  picked. If none of the wordings are right, tell me which is closest and what's wrong with it,
-  and I'll redraw rather than guess.</p>
+  <p>One line does it — <code>3E·1 4A·1 5A 6 all 9A 10A 10·1 7 later</code>, or however
+  you'd rather have it. Already ruled and needing nothing from you: <strong>1</strong> (half acts
+  removed), <strong>3</strong> (the card's line), <strong>8C</strong> (the closing post).
+  If a wording is wrong, tell me which is closest and what's wrong with it — I'll redraw rather
+  than guess. Every line is also written out plainly in <code>THE-WORDS.md</code> in your folder,
+  if you'd rather type over the top of them.</p>
 </div>
 
 </div>
