@@ -414,6 +414,20 @@ Eight defects found, worst first:
 7. "week N of 52" printed twice on one screen (already logged as question 5).
 8. The newest tile's number is occluded by its sash.
 
+**`50-acts-of-good.html` DELETED, 3 September, on G's instruction.** A fourth copy
+of the app, 1,024,736 bytes, last written 30 August, no build mark, referenced by
+nothing. A backup sits at `/tmp/50-acts-of-good.30aug.bak` for this session only.
+It was tracked by git, so the commit will show it as a deletion - that is correct.
+**There are now three copies and only three: `aog-push/index.html`,
+`acts of good/index.html`, and the Pages site.**
+
+**`THE-IDEAS.md` written, both folders.** Every one of the 89 ideas extracted
+straight out of `IDEAS` in the built file, in full, grouped by the nine `CATS`
+in screen order and sorted within each by `LEADS` order then title. Carries each
+idea's lead time, size and d-line verbatim, plus the screen's own copy and the
+empty-state message. Generated - do not hand-edit it; if G rewrites an idea there,
+change `IDEAS` in `index.html` and regenerate.
+
 ## BUILD 1W — the double-tap delete (BUILT, 3 September)
 
 Ruled 10B + 10.1 and shipped. The first thing built from this whole session; the
