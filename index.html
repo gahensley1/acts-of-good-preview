@@ -201,10 +201,6 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
   border:1px solid #D9BC6B;border-radius:3px;pointer-events:none}
 .jpage .jno{font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--coralink);
   text-transform:uppercase;margin-bottom:8px}
-.jpage .jno .struck{position:relative;display:inline-block}
-.jpage .jno .struck::after{content:"";position:absolute;left:-8%;right:-8%;top:56%;
-  border-top:1.6px solid var(--ink);transform:rotate(-14deg)}
-.jpage .jno .half{color:var(--coralink);font-size:.9em;margin-right:2px}
 .jpage h3{font-size:clamp(18px,5.2vw,22px);line-height:1.25;letter-spacing:-.01em;
   margin:0 0 4px}
 .jpage .jdate{font-family:'Great Vibes',cursive;font-size:clamp(19px,5.4vw,23px);
@@ -354,16 +350,33 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
   padding:5px;line-height:0;border-radius:9px;min-width:44px;min-height:44px;display:inline-flex;align-items:center;justify-content:center}
 .datewrap .calgo svg{display:block}
 .datebtn.empty{color:#B9B2A9;font-weight:400}
-/* the half — her act 2.5 treatment, measured off the card */
-.struck{position:relative;display:inline-block}
-.struck::after{content:"";position:absolute;left:50%;top:.05em;height:1.09em;
-  width:.030em;background:var(--ink);transform:translateX(-50%) rotate(30deg);
-  border-radius:.02em}
-/* the half sits above the struck numeral, so the line needs headroom for it —
-   without it the "0.5" of a half act 1 ran into the rule above */
-.struck .half{position:absolute;bottom:92%;left:50%;transform:translateX(-10%);
-  font-size:.62em;line-height:1;white-space:nowrap;color:var(--coral)}
-.hashalf{padding-top:.62em}
+/* The half act was removed entirely on G's instruction, 6 Sept 2026. See HANDOFF. */
+/* the year, finished — the one line on Your year that is not a measurement */
+#p-state{color:var(--muted);font-weight:500}
+#p-state.complete{color:var(--coralink);font-weight:600}
+
+/* ── the moment ───────────────────────────────────────────────────────────
+   Two of these: the finish (two bursts) and halfway (one). It sits OVER the
+   year screen rather than replacing it — G, 6 Sept: "not a wall you have to
+   tap through". The confetti canvas is above the words and ignores taps. */
+#moment{position:fixed;inset:0;z-index:70;display:none;
+  background:var(--paper);overflow-y:auto;overscroll-behavior:contain;
+  padding:calc(18px + var(--safetop)) 20px calc(24px + var(--safebot))}
+#moment.up{display:flex;align-items:center;justify-content:center}
+#momentcf{position:fixed;inset:0;z-index:71;pointer-events:none;display:none}
+#momentcf.up{display:block}
+#moment .inner{max-width:520px;width:100%;margin:auto;position:relative;z-index:72;text-align:center}
+#moment .mtitle{font-size:26px;font-weight:700;letter-spacing:-.03em;line-height:1.1;margin:6px 0 0}
+#moment .mline{font-size:14.5px;line-height:1.6;color:var(--muted);margin:11px auto 0;max-width:31ch}
+#moment .mline b{color:var(--ink);font-weight:600}
+#moment .mcard{width:70%;max-width:300px;margin:20px auto 0}
+#moment .btn{margin-top:18px}
+#moment .btn.ghost{margin-top:10px}
+
+/* the closing card's line: three lines of capitals filling the space that an
+   act number leaves empty. Measured — it runs 69.3% to 95.1% of the card. */
+.cardface .actno.caps{font-size:7.2cqw;line-height:1.20;top:69.4cqw;
+  letter-spacing:.02em;font-weight:700}
 /* The double-tap delete under "Save, complete later" (G, 2 Sept: 10B + 10.1).
    The only thing in the app set in capitals — deliberately, because it is the
    only control that destroys something. First tap arms, second does it; there
@@ -429,19 +442,19 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
 .sugbox #sug-title{font-size:16px;display:block;margin-bottom:5px;line-height:1.3}
 .sugbox #sug-body{margin:0}
 /* the shareable card — square, and sized to the real artwork's proportions */
-#cardface{container-type:inline-size;padding:0;border-radius:var(--r);overflow:hidden;
+.cardface{container-type:inline-size;padding:0;border-radius:var(--r);overflow:hidden;
   aspect-ratio:1;display:flex;flex-direction:column;justify-content:flex-start}
 /* no side padding: every cqw in the mark is then exactly 1% of the card,
    which is how the measurements off her artwork are expressed */
-#cardface .lockup{padding:12.1cqw 0 0}
+.cardface .lockup{padding:12.1cqw 0 0}
 /* the type sits 12.1 down, the artwork starts at 6.4 — so pull the art back
    up out of that padding */
-#cardface .balloon{top:-6cqw}
-#cardface hr{border:none;border-top:.5px solid var(--ink);opacity:.9;
+.cardface .balloon{top:-6cqw}
+.cardface hr{border:none;border-top:.5px solid var(--ink);opacity:.9;
   width:78cqw;margin:0 auto;position:absolute;top:65.9cqw;left:11cqw}
-#cardface .actno{position:absolute;top:73.3cqw;left:0;right:0;
+.cardface .actno{position:absolute;top:73.3cqw;left:0;right:0;
   color:var(--coral);font-size:10.4cqw;font-weight:700;letter-spacing:-.01em}
-#cardface{position:relative}
+.cardface{position:relative}
 .cardbox .ded{font-size:12px;color:var(--muted);margin-top:6px}
 
 /* grid */
@@ -454,7 +467,6 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
   font-family:inherit;padding:0;cursor:pointer}
 .tile:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 .tile.done{background:var(--coralink);border-color:var(--coralink);color:#fff}
-.tile.half{background:linear-gradient(135deg,var(--coralink) 50%,var(--mist) 50%);
   border-color:var(--coralink);color:#fff}
 .tile.next{border:1.5px dashed var(--coralink);color:var(--coralink);background:#FFF6F4}
 .tile img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
@@ -743,7 +755,7 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
              <div class="lab" id="p-week"></div></div>
         <!-- no longer shouted in the accent colour: it is a note, not a score -->
         <div style="text-align:right;max-width:52%"><div id="p-state"
-             style="color:var(--muted);font-size:12.5px;font-weight:500;
+             style="font-size:12.5px;
              line-height:1.4"></div></div>
       </div>
       <div class="bar"><i id="p-bar" style="width:0%"></i><u id="p-mark"></u></div>
@@ -786,7 +798,7 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
       page. Everything in it can still be changed.</p>
 
     <!-- BUILD MARK — dev only, delete this div when the app ships -->
-    <div id="buildtag">BUILD 1W</div>
+    <div id="buildtag">BUILD 1X</div>
   </div>
 </section>
 
@@ -1144,7 +1156,7 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
   <h3>This becomes</h3>
   <div style="display:flex;gap:10px;align-items:flex-end;margin-top:12px">
     <div class="field" style="flex:.7;margin:0"><label for="fin-no">Act</label>
-      <input id="fin-no" inputmode="decimal" style="max-width:90px"></div>
+      <input id="fin-no" inputmode="numeric" style="max-width:90px"></div>
     <div class="field" style="flex:1.6;margin:0"><label for="fin-when-btn">On</label>
       <input id="fin-when" type="hidden" aria-hidden="true">
       <div class="datewrap"><button class="datebtn" id="fin-when-btn" onclick="openDate('fin-when')" aria-label="On, pick the day"></button></div></div>
@@ -1177,11 +1189,11 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
 
     <div class="field"><label for="w-title">What you did</label>
       <input id="w-title" oninput="factEdited()"></div>
-    <!-- Act 20 taught this: Miss Judy asked for an act instead of a birthday
+    <!-- Act 20 taught this: the honoree asked for an act instead of a birthday
          gift. Optional, and blank means it appears nowhere. Regular type only —
          the app's one piece of handwriting is Jessica's real signature. -->
     <div class="field"><label for="w-honor">In honor of <span style="text-transform:none;font-weight:400;color:var(--muted)">(if it was for someone — optional)</span></label>
-      <!-- was "Judy Mabe's birthday" — a real person, shown to everyone as an
+      <!-- was "a named person's birthday" — a real person, shown to everyone as an
            example. The idea survives; whose birthday it was does not. -->
       <input id="w-honor" placeholder="someone’s birthday" oninput="factEdited()"></div>
     <div class="field"><label for="w-when-btn">When</label>
@@ -1229,7 +1241,7 @@ What you actually did. Why it mattered. Say the awkward parts."></textarea>
   <div class="top"><button class="back" onclick="go('home')">‹</button>
     <h2>Your card</h2><div class="sub">drawn for this act</div></div>
   <div class="wrap">
-    <div class="cardbox" id="cardface">
+    <div class="cardbox cardface" id="cardface">
       <div class="lockup"><div class="mark">
         <div class="txt">
           <div class="n" id="cd-n">50</div>
@@ -1248,11 +1260,7 @@ What you actually did. Why it mattered. Say the awkward parts."></textarea>
     <div style="margin-top:22px">
       <button class="btn" onclick="openCompose()">Post this act</button>
       <button class="btn ghost" style="margin-top:10px" onclick="doItAgain()">Do it again</button>
-      <button class="btn ghost" style="margin-top:10px" onclick="toggleHalf()"
-        id="mk-btn">Mark as half an act</button>
-      <p class="note" style="margin-top:10px">Like act 3, the plan was to give
-        blood together, they wouldn't take hers, her son gave and she didn't. The number
-        gets crossed out and the half written in.</p>
+      <!-- "Mark as half an act" removed 6 Sept 2026 (G). -->
 
       <div style="margin-top:18px;border-top:1px solid var(--line);padding-top:16px">
         <button class="btn ghost" onclick="renumberAct()">Change its number</button>
@@ -1320,6 +1328,23 @@ What you actually did. Why it mattered. Say the awkward parts."></textarea>
      The card here is the YEAR card — the lockup with no act line. That is what
      Jessica's own announcement carried; every act card after this one is the
      same lockup with "act n of N" added under the rule. -->
+<!-- ══════════ THE MOMENT ══════════
+     Halfway, and the end of the year. Never both at once. -->
+<div id="momentcf" aria-hidden="true"><canvas id="momentcanvas"></canvas></div>
+<div id="moment" role="dialog" aria-modal="true" aria-labelledby="m-title">
+  <div class="inner">
+    <p class="mtitle" id="m-title"></p>
+    <p class="mline" id="m-line"></p>
+    <div class="mcard" id="m-card" style="display:none">
+      <div class="cardbox" style="padding:0;overflow:hidden">
+        <div class="cardface" id="m-face"></div>
+      </div>
+    </div>
+    <button class="btn" id="m-go"></button>
+    <button class="btn ghost" id="m-no"></button>
+  </div>
+</div>
+
 <section id="s-zero" class="hide" role="main" aria-label="Act 0">
   <div class="top"><h2>Act 0</h2><div class="sub">where the year starts</div></div>
   <div class="wrap">
@@ -1713,7 +1738,7 @@ function serialise(){
                           cost:w.cost||0, spends:w.spends||[], story:w.story||'', exp:w.exp||'',
                           startedAt:w.startedAt||'', photos:(w.photos||[]).map(p=>p&&p.id).filter(Boolean) })),
     acts:S.acts.map(a=>({ no:a.no, t:a.t, out:a.out, who:a.who, cost:a.cost, spends:a.spends||[],
-                          story:a.story, note:a.note||'', half:!!a.half, d:a.d||'', hon:a.hon||'', anon:!!a.anon, pipelined:!!a.pipelined, evalAsked:!!a.evalAsked, captions:a.captions||{},
+                          story:a.story, note:a.note||'', d:a.d||'', hon:a.hon||'', anon:!!a.anon, pipelined:!!a.pipelined, evalAsked:!!a.evalAsked, captions:a.captions||{},
                           posted:a.posted||{},
                           photos:(a.photos||[]).map(p=>p.id), offs:(a.photos||[]).map(p=>p&&p.off?1:0) }))
   };
@@ -1846,7 +1871,7 @@ async function load(){
     S.acts.push({ no:String(a.no==null?'':a.no), t:a.t, out:a.out,
                   who:Array.isArray(a.who)?a.who:[], cost:+a.cost||0,
                   spends:Array.isArray(a.spends)?a.spends:[],
-                  half:!!a.half, d:a.d||'', hon:a.hon||'', anon:!!a.anon, pipelined:!!a.pipelined, evalAsked:!!a.evalAsked, captions:a.captions||{},
+                  d:a.d||'', hon:a.hon||'', anon:!!a.anon, pipelined:!!a.pipelined, evalAsked:!!a.evalAsked, captions:a.captions||{},
                   posted:a.posted||{}, note:a.note||'',
                   story:a.story||'', photos });
     (Array.isArray(a.offs)?a.offs:[]).forEach((v,i)=>{ if(v && photos[i]) photos[i].off=true; });
@@ -2667,6 +2692,198 @@ function drawZero(){
   $('z-scr').textContent = S.word;
   fitAllMarks();
 }
+/* ── confetti ─────────────────────────────────────────────────────────────
+   G, 2 Sept: two bursts at the finish, one at halfway, and every piece falls
+   all the way off the bottom rather than fading out in mid-air. Nothing here
+   ever changes opacity for that reason. Canvas, no library, ~4 seconds.
+   Reduced motion settles the pieces in place instead of dropping them.       */
+const CONF_COLS = ['#EA634F','#E1BA52','#EDE7DC','#DDB44C','#C03F2B'];
+let CONF_BITS = [], CONF_RAF = null, CONF_LAST = 0, CONF_DUE = [];
+function confStop(){
+  if(CONF_RAF) cancelAnimationFrame(CONF_RAF);
+  CONF_RAF = null; CONF_BITS = []; CONF_DUE = [];
+  const w = $('momentcf'); if(w) w.classList.remove('up');
+}
+function confSize(){
+  const c = $('momentcanvas'); if(!c) return null;
+  const d = window.devicePixelRatio || 1;
+  const w = window.innerWidth, h = window.innerHeight;
+  c.width = Math.max(1, w*d); c.height = Math.max(1, h*d);
+  c.style.width = w+'px'; c.style.height = h+'px';
+  c.getContext('2d').setTransform(d,0,0,d,0,0);
+  return {w:w, h:h};
+}
+function confSpawn(n){
+  const r = { w:window.innerWidth, h:window.innerHeight };
+  for(let i=0;i<n;i++){
+    CONF_BITS.push({
+      x:Math.random()*r.w,
+      y:-14-Math.random()*r.h*0.55,
+      w:5+Math.random()*7, h:7+Math.random()*10,
+      vy:70+Math.random()*130, vx:(Math.random()-0.5)*46,
+      a:Math.random()*Math.PI*2, va:(Math.random()-0.5)*5.4,
+      c:CONF_COLS[(Math.random()*CONF_COLS.length)|0],
+      sw:0.35+Math.random()*0.65
+    });
+  }
+}
+function confFrame(ts){
+  const c = $('momentcanvas'); if(!c){ confStop(); return; }
+  const g = c.getContext('2d');
+  const r = { w:window.innerWidth, h:window.innerHeight };
+  const dt = CONF_LAST ? Math.min(0.05,(ts-CONF_LAST)/1000) : 1/60;
+  CONF_LAST = ts;
+  while(CONF_DUE.length && ts >= CONF_DUE[0]){ CONF_DUE.shift(); confSpawn(95); }
+  g.clearRect(0,0,r.w,r.h);
+  const alive = [];
+  for(let i=0;i<CONF_BITS.length;i++){
+    const b = CONF_BITS[i];
+    b.y += b.vy*dt; b.x += b.vx*dt; b.a += b.va*dt; b.vy += 48*dt;
+    /* kept until it is genuinely past the bottom edge — never faded out */
+    if(b.y - b.h < r.h + 24) alive.push(b);
+    g.save(); g.globalAlpha = .92; g.translate(b.x, b.y); g.rotate(b.a);
+    g.fillStyle = b.c;
+    g.fillRect(-b.w/2, -b.h/2, b.w, b.h*Math.abs(Math.cos(b.a))*b.sw + 1.6);
+    g.restore();
+  }
+  CONF_BITS = alive;
+  if(CONF_BITS.length || CONF_DUE.length) CONF_RAF = requestAnimationFrame(confFrame);
+  else { g.clearRect(0,0,r.w,r.h); confStop(); }
+}
+function confetti(bursts){
+  const wrap = $('momentcf'), c = $('momentcanvas');
+  if(!wrap || !c) return;
+  confStop();
+  wrap.classList.add('up');
+  const r = confSize(); if(!r) return;
+  const g = c.getContext('2d');
+  if(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+    CONF_BITS = []; confSpawn(90);
+    g.clearRect(0,0,r.w,r.h);
+    CONF_BITS.forEach(b=>{
+      b.y = Math.random()*r.h;
+      g.save(); g.globalAlpha=.85; g.translate(b.x,b.y); g.rotate(b.a);
+      g.fillStyle=b.c; g.fillRect(-b.w/2,-b.h/2,b.w,b.h*b.sw+2); g.restore();
+    });
+    CONF_BITS = [];
+    return;
+  }
+  CONF_BITS = []; CONF_LAST = 0; CONF_DUE = [];
+  confSpawn(95);
+  for(let k=1;k<(bursts||1);k++) CONF_DUE.push(performance.now() + 780*k);
+  CONF_RAF = requestAnimationFrame(confFrame);
+}
+
+/* ── the moment ───────────────────────────────────────────────────────────
+   Halfway, and the end of the year. It sits over Your year, which is still
+   there behind it. Each fires once and is remembered in state, so renumbering
+   an act afterwards can never make it happen twice.                          */
+let MOMENT_KIND = null;
+function hideMoment(){
+  MOMENT_KIND = null;
+  confStop();
+  const m = $('moment'); if(m) m.classList.remove('up');
+  document.body.style.overflow = '';
+}
+function momentPeople(){
+  const seen = {};
+  S.acts.forEach(a=>(a.who||[]).forEach(w=>{ if(w) seen[w]=1; }));
+  return Object.keys(seen);
+}
+function showMoment(kind){
+  const m = $('moment'); if(!m) return;
+  MOMENT_KIND = kind;
+  const people = momentPeople(), n = people.length;
+  if(kind === 'half'){
+    /* 9A — says where you are and then gets out of the way */
+    $('m-title').textContent = 'Halfway.';
+    const left = S.n - doneCount();
+    $('m-line').innerHTML = doneCount()+' done, '+left+' to go.<br>'+
+      'Whatever you have been doing — keep doing it.';
+    $('m-card').style.display = 'none';
+    $('m-go').textContent = 'Carry on';
+    $('m-go').onclick = hideMoment;
+    $('m-no').style.display = 'none';
+  } else {
+    /* 4A·1 — names before numbers, which is the app's whole argument.
+       Nobody but the owner ever sees this screen. */
+    $('m-title').textContent = 'That’s the year.';
+    const acts = doneCount();
+    let who;
+    if(!n) who = 'and it was yours alone, which counts just the same.';
+    else if(n <= 3) who = 'and <b>'+esc(listWords(people))+'</b> '+(n===1?'was':'were')+' in it with you.';
+    else who = 'and <b>'+esc(listWords(people.slice(0,3)))+'</b>, and '+
+               numWord(n-3)+' others were in it with you.';
+    $('m-line').innerHTML = capWord(acts)+' acts of good — '+who+
+      '<br>It was never really about the number.';
+    $('m-card').style.display = '';
+    drawMomentCard();
+    $('m-go').textContent = 'Post it';
+    $('m-go').onclick = finPost;
+    $('m-no').style.display = '';
+    $('m-no').textContent = 'Not now';
+    $('m-no').onclick = hideMoment;
+  }
+  m.classList.add('up');
+  m.scrollTop = 0;
+  confetti(kind === 'half' ? 1 : 2);
+}
+/* the closing card is the year card, plus the line G chose */
+function drawMomentCard(){
+  const f = $('m-face'); if(!f) return;
+  f.innerHTML =
+    '<div class="lockup"><div class="mark">'+
+      '<div class="txt">'+
+        '<div class="n">'+esc(String(S.n))+'</div>'+
+        '<div class="aog">acts of good</div>'+
+        '<div class="iy">'+esc(S.line||'in year')+'</div>'+
+        '<div class="scr">'+esc(S.word||'')+'</div>'+
+      '</div>'+
+      '<div class="balloon"><img alt="" class="handimg" src=""></div>'+
+    '</div></div>'+
+    '<hr>'+
+    '<div class="actno caps">PUT A LITTLE<br>MORE GOOD INTO<br>THE WORLD.</div>';
+  paintHands();
+  fitAllMarks();
+}
+function numWord(n){
+  const W = ['no','one','two','three','four','five','six','seven','eight','nine','ten',
+             'eleven','twelve','thirteen','fourteen','fifteen','sixteen','seventeen',
+             'eighteen','nineteen','twenty'];
+  return W[n] || String(n);
+}
+function capWord(n){ const w = numWord(n); return w.charAt(0).toUpperCase()+w.slice(1); }
+
+/* The closing post. Its own pseudo-act, exactly as act 0 is — it never enters
+   S.acts and never counts toward the year. */
+function finAct(){
+  if(!S.fin) S.fin = { no:'', fin:true, d:todayISO(),
+                       t:'The year is complete', posted:{}, captions:{} };
+  return S.fin;
+}
+function finPost(){
+  const a = finAct();
+  hideMoment();
+  S.current = a; CM_BACK = 'home'; save();
+  const on = PLATS.filter(([k])=>S.platforms[k].on).map(([k])=>k);
+  CM_PLAT = on[0] || 'instagram';
+  $('cm-no').textContent = 'the year';   // drawCompose does not set it; openCompose does
+  go('compose'); drawCompose();
+}
+
+/* Called wherever an act joins the year. Fires at most once each. */
+function checkMilestones(){
+  if(!S.n) return;
+  const done = doneCount();
+  if(!S.finShown && done >= S.n){
+    S.finShown = true; save(); showMoment('fin'); return;
+  }
+  /* the act that takes you PAST halfway — act 13 of 25, act 25 of 50 */
+  if(!S.halfShown && done >= Math.ceil(S.n/2) && done < S.n){
+    S.halfShown = true; save(); showMoment('half');
+  }
+}
+
 function zeroAct(){
   if(!S.zero) S.zero = { no:'0', zero:true, d:todayISO(),
                          t:'The year begins', posted:{}, captions:{} };
@@ -2684,7 +2901,7 @@ function zeroGo(){
   $('tabs').classList.remove('hide');
   const on = PLATS.filter(([k])=>S.platforms[k].on).map(([k])=>k);
   CM_PLAT = on[0] || 'instagram';
-  $('cm-no').textContent = 'act 0';
+  $('cm-no').textContent = 'your declaration';
   go('compose'); drawCompose();
 }
 /* Kept as the explicit exit for anything that finishes act 0 from elsewhere. */
@@ -2824,8 +3041,20 @@ function suggestion(){
 }
 
 /* ── home ── */
+/* How many squares are coloured in. With half acts gone this is simply the
+   number of logged acts — but it is counted off the GRID, not off the array,
+   so the number on screen and the picture under it can never disagree again.
+   The old `S.acts.length` let two halves add two and carried the count past
+   the goal: "27 of 25 · plenty of room". */
+function doneCount(){
+  const used = {};
+  S.acts.forEach(a=>{ const n = slotOf(a); if(n>=1 && n<=S.n) used[n]=1; });
+  return Object.keys(used).length;
+}
+function yearDone(){ return S.n>0 && doneCount() >= S.n; }
+
 function drawHome(){
-  const done=S.acts.length;
+  const done=doneCount();
   /* clamped: an old clock or a long year read "week 191 of 52" */
   const wk=Math.min(S.weeks, Math.max(1, Math.ceil((Date.now()-S.start.getTime())/6.048e8)));
   const target=Math.round(S.n*wk/S.weeks), ahead=done-target;
@@ -2835,6 +3064,7 @@ function drawHome(){
      keeping score. It says what is true instead, and becomes the count the
      moment there is a count. */
   $('p-count').textContent = (done===0 && S.zero) ? 'Begun' : done+' of '+S.n;
+  $('p-count').classList.toggle('finished', yearDone());
   $('p-week').textContent='week '+wk+' of '+S.weeks;
   /* This is the sentence sitting one screen below a letter that says nobody is
      keeping score, and it read like a scoreboard: "1 ahead", "3 to catch up",
@@ -2845,11 +3075,18 @@ function drawHome(){
      read 0 of 25 · not started yet · August (1 to go) · things left blank —
      four scores and a telling-off, one screen below a letter promising nobody is
      keeping score. It says where you are in the year now, and nothing about you. */
+  /* The year had no ending. Finish everything and it still said "plenty of
+     room" — the last thing the app ever told you was that you had not done
+     enough. G ruled 5A: "the year is complete", in coral, so it reads as the
+     one line on that screen that is not a measurement. */
+  const fin = yearDone();
   $('p-state').textContent =
-      done===0   ? 'nothing logged yet'
+      fin        ? 'the year is complete'
+    : done===0   ? 'nothing logged yet'
     : done===1   ? 'one so far'
     : ahead >= 0 ? done+' so far, plenty of room'
     : 'taking your time';
+  $('p-state').classList.toggle('complete', fin);
   $('p-bar').style.width=Math.min(100,done/S.n*100)+'%';
   /* the tick was a target line you could fall short of, on the one screen the
      letter's "nobody is keeping score" is answering. The bar still shows how far
@@ -3590,10 +3827,7 @@ function drawJournal(){
   acts.forEach(a=>{
     const pg=document.createElement('div');
     pg.className='jpage';
-    /* as on her card: the whole number crossed out, the half written beside it */
-    const noLine = a.half
-      ? 'act <span class="half">'+esc(a.no)+'</span> <span class="struck">'+esc(wholeNo(a.no))+'</span> of '+S.n
-      : 'act '+esc(a.no)+' of '+S.n;
+    const noLine = 'act '+esc(a.no)+' of '+S.n;
     const withWho = (a.who&&a.who.length) ? '<p class="jwith">with '+esc(listWords(a.who))+'</p>' : '';
     const outLine = a.out && a.out!=='Went to plan'
       ? '<p class="jout">'+esc(a.out==='Partly' ? 'It half went to plan, which is its own kind of story.'
@@ -3640,8 +3874,11 @@ function drawJournal(){
     const sp=yearSpend();
     const close=document.createElement('div');
     close.className='jpage jclose';
+    /* the closing page had no ending either — it said "so far" over a full
+       year. It now matches Your year: 5A when the year is done. */
+    const fin = yearDone();
     close.innerHTML='<div class="plate"></div>'+
-      '<div class="jno">so far</div>'+
+      '<div class="jno">'+(fin ? 'the year is complete' : 'so far')+'</div>'+
       '<div class="jbig">'+acts.length+(acts.length===1?' act':' acts')+'</div>'+
       '<p class="jline">'+
       (names.length ? esc(listWords(names.slice(0,8)))+
@@ -3865,7 +4102,7 @@ let EVAL_ACT=null;
    plan / Partly / Didn't go to plan" is the app asking whether deciding
    something went to plan. */
 function askEval(a){
-  if(arguments[0] && arguments[0].zero) return;
+  if(arguments[0] && (arguments[0].zero || arguments[0].fin)) return;
   if(!a || a.evalAsked) return;
   EVAL_ACT=a;
   const tt=(a.t||'').toLowerCase();
@@ -3936,9 +4173,9 @@ function finishWork(anon){
 function finishGo(){
   const w=WK; if(!w) return;
   const noRaw = $('fin-no').value.trim() || String(nextSlot(true));
-  const no = noRaw.replace(',','.');
-  const slot = Math.ceil(parseFloat(no));
-  if(!(slot>=1)){ say('That is not an act number','A number like 21, or 2.5 \u2014 halves are real acts.'); return; }
+  const no = String(Math.round(parseFloat(noRaw.replace(',','.'))));
+  const slot = parseInt(no,10);
+  if(!(slot>=1)){ say('That is not an act number','A whole number between 1 and '+S.n+'.'); return; }
   if(slot > S.n){ say('That\u2019s past '+S.n,'Raise the goal on the You screen first, or pick a lower number.'); return; }
   const clash = S.acts.filter(x=>slotOf(x)===slot)[0];
   if(clash){ say('Act '+slot+' is already used','\u201C'+(clash.t||'')+'\u201D is in that square. Pick another number.'); return; }
@@ -3946,7 +4183,7 @@ function finishGo(){
   const t = tally(w.spends||[]);
   const a = { no:no, t:w.t, out:'', who:(w.who||[]).slice(), hon:w.hon||'',
               cost: (w.spends||[]).length ? t.mine : (+w.cost||0), spends:(w.spends||[]).slice(),
-              story:w.story||'', d:d, half: no.indexOf('.')>-1,
+              story:w.story||'', d:d,
               anon: FIN_ANON, pipelined:true, captions:{}, posted:{}, note:'',
               photos:(w.photos||[]).slice() };
   S.acts.push(a); S.current=a;
@@ -4160,7 +4397,7 @@ function setGoal(v){
       let i = 0;
       stranded.forEach(a=>{
         const slot = free[i++];
-        a.no = a.half ? String(slot-0.5) : String(slot);
+        a.no = String(slot);
       });
       strandedPlans.forEach(k=>{
         const slot = free[i++];
@@ -4410,8 +4647,8 @@ function drawPeople(){
   });
 }
 /* Handles are stored per person, per platform, because they don't match:
-   Holly is "Holly Williams" on Facebook and @hollyyoungwilliamsarchitect on
-   Instagram, and Leigh is "Leigh Vinson Halabi" and @leigh_halabi. That can't
+   a friend is "a friend Williams" on Facebook and @hollyyoungwilliamsarchitect on
+   Instagram, and another is "another Vinson Halabi" and @leigh_halabi. That can't
    be derived, so it has to be kept. The composer substitutes the right one. */
 const HANDLE_KEYS = ['email','instagram','facebook','threads','x'];
 function handlesOf(name){ return (S.handles||(S.handles={}))[name] || {}; }
@@ -4650,11 +4887,11 @@ async function sweepOrphans(){
    list you can add to as you buy things, because the spending happens over
    days, before the act is finished.
 
-   The field that earns its place is WHO PAID. In the corpus, Ginger bought the
-   items for act 3, Holly bought and shipped the gift cards for act 18, act 2's
+   The field that earns its place is WHO PAID. In the corpus, one friend bought the
+   items for act 3, a friend bought and shipped the gift cards for act 18, act 2's
    supplies were split with a friend. Without it the app would report that an
    act cost $100 when the person's own share was $30, and their share is the
-   number that decides whether they can keep going. baked4good stopped for two
+   number that decides whether they can keep going. one of the projects that inspired this stopped for two
    and a half years over exactly this.                                        */
 const PAYERS = [['me','I paid'],['split','Split it'],
                 ['them','Someone else paid'],['gave','Someone chipped in']];
@@ -4663,7 +4900,7 @@ let SP_WHO = 'me';
 function spendsOf(a){ if(!a.spends) a.spends=[]; return a.spends; }
 
 /* a split can be any number of ways. The names are what the person actually
-   knows, "Ginger and Leigh", so the count comes from them: everyone named,
+   knows, "two friends", so the count comes from them: everyone named,
    plus you. No names typed means the common case, straight down the middle. */
 function names(sp){
   return (sp.n||'').split(/,| and /).map(x=>x.trim()).filter(Boolean);
@@ -5375,8 +5612,8 @@ function drawSlides(a){
       tagged name is protected, and only connective tissue is offered for
       cutting. If it still won't fit with every credit in, the app says so out
       loud rather than quietly dropping someone.
-   3. The same person needs a different identifier per platform, Holly is
-      "Holly Williams" on Facebook and @hollyyoungwilliamsarchitect on
+   3. The same person needs a different identifier per platform, a friend is
+      "a friend Williams" on Facebook and @hollyyoungwilliamsarchitect on
       Instagram. That can't be derived, so it comes from the People directory.
    4. Whitespace costs characters. Facebook is set in short paragraphs;
       Instagram's are collapsed, because blank lines are expensive at 2,200.  */
@@ -5391,7 +5628,11 @@ function openCompose(){
   if(!a){ say('Nothing to show yet','Log an act first.'); return; }
   const on = PLATS.filter(([k])=>S.platforms[k].on).map(([k])=>k);
   CM_PLAT = on.indexOf(CM_PLAT)>-1 ? CM_PLAT : (on[0] || 'instagram');
-  $('cm-no').textContent = 'act '+a.no+' of '+S.n;
+  /* the card for act 0 and the closing card both carry no number — the page
+     above them used to say "act 0 of 25" anyway (G, 6C). */
+  $('cm-no').textContent = a.zero ? 'your declaration'
+                         : a.fin  ? 'the year'
+                         : 'act '+a.no+' of '+S.n;
   a.captions = a.captions || {};
   go('compose');
   drawCompose();
@@ -5420,8 +5661,8 @@ function buildCaption(force){
   const lines = [];
   /* A private note is one person reading it, so it opens with the act rather
      than with its number, and it carries no hashtag. */
-  /* Her act-20 post is the pattern: "Act 20 of 50: In honor of Miss Judy
-     Mabe's birthday …" — the honoree rides the opening line, not a footnote. */
+  /* Her act-20 post is the pattern: the honoree rides the opening line —
+     "Act 20 of 50: In honor of ___'s birthday …" — not a footnote. */
   /* an anonymous act posts the card and nothing else: the number is the
      accountability, the story stays in the journal */
   /* Act 0 opens on the decision, not on a number. "Act n of N" is settled for
@@ -5439,6 +5680,19 @@ function buildCaption(force){
       (CM_PLAT==='private' ? '' : '\n\n'+defaultHashtag());
     drawCompose(); return;
   }
+  /* The closing post, chosen by G as 8C. It ends where act 0 ended — on
+     "invite me" — so the last post hands the year on rather than closing it.
+     It names nobody: the count of people, never their names. And it does not
+     repeat the line already on the card in capitals. */
+  if(a.fin){
+    a.captions[CM_PLAT] =
+      S.n+' of '+S.n+'.\n\n'+
+      'A year of small things, done on purpose, alongside people I love. '+
+      'That was the whole idea.\n\n'+
+      'It doesn\u2019t stop here \u2014 if you\u2019re up to some good, invite me.'+
+      (CM_PLAT==='private' ? '' : '\n\n'+defaultHashtag());
+    drawCompose(); return;
+  }
   if(a.anon && CM_PLAT!=='private'){
     a.captions[CM_PLAT] = 'Act '+a.no+' of '+S.n+'.\n\n'+defaultHashtag();
     drawCompose(); return;
@@ -5446,11 +5700,15 @@ function buildCaption(force){
   if(CM_PLAT!=='private'){
     /* the colon promises more; an act with no story and no honoree ends the
        line with a full stop instead of a dangling ':' */
-    const more = a.hon || (a.story||'').trim() || tagsFor(a, CM_PLAT).length;
+    const more = a.hon || (a.story||'').trim() || (a.t||'').trim() || tagsFor(a, CM_PLAT).length;
     lines.push('Act '+a.no+' of '+S.n+(more?':':'.')+(a.hon?' In honor of '+a.hon+'.':''));
   }
   else{ if(a.t) lines.push(a.t); if(a.hon) lines.push('In honor of '+a.hon+'.'); }
-  const story = (a.story||'').trim();
+  /* 6A — the title never reached a public caption. It was only ever pushed in
+     the private branch, and the quick Log flow has no story field at all, so an
+     act could post saying who was there and never what was done. The story is
+     still preferred where there is one; the title stands in where there isn't. */
+  const story = (a.story||'').trim() || (a.t||'').trim();
   if(story) lines.push(story);
 
   const tags = (CM_PLAT==='private' ? (a.who||[]) : tagsFor(a, CM_PLAT).map(t=>t.tag||t.name));
@@ -6065,7 +6323,6 @@ const STANDALONE = (window.matchMedia && window.matchMedia('(display-mode: stand
    So this isn't a drawing tool. It's one decision, "it only half happened",
    and the card does the crossing out for you. A free scribble layer would let
    you write anything; what's actually needed is the half.                    */
-function halfNo(n){ return (Math.ceil(parseFloat(n)) - 0.5).toString(); }
 function wholeNo(n){ return Math.ceil(parseFloat(n)).toString(); }
 /* Which square on the grid this act owns. A half rounds UP, because 2.5 is the
    third act, not the second. Everything that lays acts out in order uses this,
@@ -6082,24 +6339,17 @@ function nextSlot(countPlans){
   return S.n+1;
 }
 
-function toggleHalf(){
-  const a = S.current || S.acts[S.acts.length-1];
-  if(!a) return;
-  a.half = !a.half;
-  a.no = a.half ? halfNo(a.no) : wholeNo(a.no);
-  save(); drawCard(); drawGrid();
-}
 
 /* A logged act used to be unreachable and uncorrectable: no renumber, no delete.
    One mistyped number stranded it forever. */
 function renumberAct(){
   const a = S.current; if(!a) return;
-  askFor('Which act is this?', 'e.g. 7, or 6.5', v=>{
-    const n = parseFloat(String(v).trim());
+  askFor('Which act is this?', 'e.g. 7', v=>{
+    const n = Math.round(parseFloat(String(v).trim()));
     if(!isFinite(n) || n<=0 || n>S.n){
-      say('That will not work','A number between 1 and '+S.n+'. Halves are fine.'); return;
+      say('That will not work','A whole number between 1 and '+S.n+'.'); return;
     }
-    const slot = Math.ceil(n);
+    const slot = n;
     const clash = S.acts.filter(x=>x!==a && slotOf(x)===slot)[0];
     if(clash){ say('Act '+slot+' is taken','“'+clash.t+'” is already in that square.'); return; }
     /* a plan in that square would still exist but have no tile, so it becomes
@@ -6111,7 +6361,7 @@ function renumberAct(){
         'that plan first, or pick another number.');
       return;
     }
-    a.no = String(n); a.half = (n % 1 !== 0);
+    a.no = String(n);
     save(); drawCard(); drawGrid();
   });
 }
@@ -6138,24 +6388,14 @@ function drawActNo(a){
     return;
   }
   el.style.display=''; if(hr && hr.tagName==='HR') hr.style.display='';
-  if(a.half){
-    /* Copied from her act 2.5 card, exactly: the line still reads "act 3 of
-       50" at full size in coral; a single BLACK diagonal slash crosses the
-       numeral, bottom-left to top-right, overshooting it top and bottom; and
-       "2.5" sits above in the same coral and the same face, about 58% size,
-       tucked under the rule and nudged slightly right of centre. */
-    el.innerHTML = 'act <span class="struck">' +
-      '<span class="half">' + esc(a.no) + '</span>' + wholeNo(a.no) +
-      '</span> of ' + S.n;
-    el.classList.add('hashalf');
-  } else {
-    el.textContent = 'act ' + a.no + ' of ' + S.n;
-    el.classList.remove('hashalf');
+  /* the closing card: the year card, and the one line G chose for it */
+  if(a && a.fin){
+    el.className = 'actno caps';
+    el.innerHTML = 'PUT A LITTLE<br>MORE GOOD INTO<br>THE WORLD.';
+    return;
   }
-  const b = $('mk-btn');
-  if(b) b.textContent = a.half
-    ? 'Put it back to act ' + wholeNo(a.no)
-    : 'Mark to ' + halfNo(a.no) + ', as half an act';
+  el.className = 'actno';
+  el.textContent = 'act ' + a.no + ' of ' + S.n;
 }
 
 
@@ -6467,9 +6707,8 @@ async function renderCard(a, W){
   g.beginPath(); g.moveTo(11*k, CARD.ruleY*k); g.lineTo(89*k, CARD.ruleY*k); g.stroke();
   g.globalAlpha = 1;
 
-  /* act N of N — with the half treatment when it applies */
-  const whole = a.half ? wholeNo(a.no) : a.no;
-  const parts = ['act ', whole, ' of ' + S.n];
+  /* act N of N */
+  const parts = ['act ', String(a.no), ' of ' + S.n];
   g.font = f(CARD.actSize, 700);
   const wA = g.measureText(parts[0]).width, wB = g.measureText(parts[1]).width,
         wC = g.measureText(parts[2]).width;
@@ -6478,25 +6717,9 @@ async function renderCard(a, W){
   const base = CARD.actTop*k + (g.measureText('act').actualBoundingBoxAscent || CARD.actSize*k*0.72);
   g.fillStyle = coral;
   g.fillText(parts[0], x, base); x += wA;
-  const digitX = x;
   g.fillText(parts[1], x, base); x += wB;
   g.fillText(parts[2], x, base);
 
-  if(a.half){
-    /* the slash, at the angle measured off her act 2.5 card */
-    const h = CARD.actSize*k*0.72, cxd = digitX + wB/2;
-    const len = h*1.28, ang = 30*Math.PI/180;
-    g.strokeStyle = '#000000'; g.lineWidth = Math.max(1, 0.040*CARD.actSize*k);
-    g.beginPath();
-    g.moveTo(cxd + Math.sin(ang)*len/2, base - h/2 - Math.cos(ang)*len/2);
-    g.lineTo(cxd - Math.sin(ang)*len/2, base - h/2 + Math.cos(ang)*len/2);
-    g.stroke();
-    /* and the half itself, above and slightly right */
-    g.font = f(CARD.actSize*0.58, 700);
-    g.fillStyle = coral;
-    const hm = g.measureText(a.no);
-    g.fillText(a.no, cxd - hm.width*0.36, CARD.actTop*k - 1.5*k);
-  }
   return c;
 }
 
@@ -6960,7 +7183,11 @@ function go(v){
   toTop();
   fitAllMarks();        // hidden elements measure zero, refit once visible
   if(v==='setup'){ drawSetup(); setTimeout(tourIfVisible, 260); }
-  if(v==='home'){ drawHome(); drawTodo(); setTimeout(tabTour, 260); }
+  if(v==='home'){ drawHome(); drawTodo(); setTimeout(tabTour, 260);
+                  /* halfway and the finish land HERE, on Your year, whatever
+                     route the act took to get logged — the confetti falls
+                     across the year, which is the screen it is about */
+                  setTimeout(checkMilestones, 420); }
   if(v==='you'){   drawYou(); setTimeout(gapBar, 260); } else dropGapBar();
   if(v==='people') drawPeople();
   if(v==='zero')   drawZero();
@@ -7102,7 +7329,7 @@ function closeLetter(){
       const o = raw && JSON.parse(raw);
       if(o && Array.isArray(o.acts) && o.acts.length){
         S.acts = o.acts.map(a=>({ no:String(a.no||''), t:a.t||'', out:a.out,
-          who:a.who||[], cost:+a.cost||0, spends:a.spends||[], half:!!a.half,
+          who:a.who||[], cost:+a.cost||0, spends:a.spends||[],
           d:a.d||'', captions:a.captions||{}, posted:a.posted||{},
           note:a.note||'', story:a.story||'', photos:[] }));
         S.n = parseInt(o.n,10)||25; S.name=o.name||''; S.started=true;

@@ -217,37 +217,36 @@ second tap does it. No pop-up.
 
 ---
 
+# BUILT — 6 September, build 1X
+
+You said "all of it go", so everything above is now in the app, using the
+wording I had marked as my recommendation. **Any of these changes with one
+line from you:**
+
+| | what went in | say this to change it |
+|---|---|---|
+| The card | PUT A LITTLE MORE GOOD INTO THE WORLD**.** | `3E·2` for the exclamation |
+| The finish screen | names the people — *"and Ada, Ben and Cleo, and five others were in it with you"* | `4A·2`, `4B` or `4C` |
+| Your year, finished | the year is complete | `5B` or `5C` |
+| Halfway | *"13 done, 12 to go. Whatever you have been doing — keep doing it."* | `9B` or `9C` |
+| The closing post | 8C, as you chose | — |
+| Both repairs | done | — |
+| Her friends' names | out of the code notes | — |
+
+Halfway lands on act 13 of 25 and fires once, ever. Half acts are gone.
+
+---
+
 # DECISIONS LEFT TO MAKE
 
-Answer by number and letter. `3E·1 4A·1 5A 6 all 9A yes yes strip 7 later`
-would clear the whole list.
+Only one is left from the finish work.
 
-## From the finish work
+**1.** Should the app offer a **second year** when the first one ends? Right now
+when it's over it's over — the grid is full, every screen still works, and there
+is nothing further to do. I am not building it either way until you say, because
+it changes the shape of the whole app.
 
-**1.** Full stop or exclamation on the closing card? → **3E·1** or **3E·2**
-
-**2.** The line on the finish screen? → **4A·1** (names them), **4A·2** (doesn't),
-**4B**, or **4C**
-
-**3.** What the year screen says once it's finished? → **5A**, **5B** or **5C**
-
-**4.** Do the two repairs? → **6 all**, or name the ones you want
-
-**5.** The halfway wording? → **9A**, **9B** or **9C**
-
-**6.** Halfway lands on the act that takes you *past* halfway — act 13 of 25,
-act 25 of 50. Right?
-
-**7.** Halfway fires once and never again, even if you renumber acts afterwards.
-Right, or should it be able to come back?
-
-**8.** Should the app offer a **second year** when the first one ends? I'm not
-building it either way until you say — it changes the shape of the whole app.
-
-**9.** Her friends' real names — Judy, Mabe, Ginger, Leigh, Holly, baked4good —
-are in the app file's own notes. Twenty mentions. Nobody using the app can see
-them; anyone who opens the file can. **Strip them?** The reasoning stays, only
-whose act it was goes.
+Everything else above is built. Change any of it with one line.
 
 ## Still waiting from before
 

@@ -428,6 +428,77 @@ idea's lead time, size and d-line verbatim, plus the screen's own copy and the
 empty-state message. Generated - do not hand-edit it; if G rewrites an idea there,
 change `IDEAS` in `index.html` and regenerate.
 
+## BUILD 1X — THE YEAR CAN END (BUILT, 6 September)
+
+G: *"all of it go."* Built against his own marked recommendations because the
+eleven questions in `THE-WORDS.md` were still unanswered — **3E·1, 4A·1, 5A,
+6 all, 9A** — and he was told exactly which words went in so he can overrule any
+of them in one line. Documented default, not a guess.
+
+**1. Half acts are gone.** Every touchpoint removed: `.struck` / `.struck .half`
+/ `.hashalf` / `.jpage .jno .struck` / `.tile.half`, the "Mark as half an act"
+button and its note, `toggleHalf()`, `halfNo()`, the `a.half` branches in
+`drawActNo()`, the journal's `noLine`, both canvas branches in `renderCard()`,
+`half:!!a.half` in all three serialisers, and `a.half` in `finishGo` /
+`renumberAct` / the stranded-renumber path. `fin-no` is now `inputmode="numeric"`
+and rounds. `wholeNo()` kept (still used); `halfNo()` gone. **Old data migrates
+silently** — a saved `a.half` is simply ignored and the act keeps its square.
+
+**2. The count is the filled squares.** New `doneCount()` counts distinct
+occupied slots between 1 and `S.n`, and `yearDone()` is `doneCount() >= S.n`.
+`drawHome()` reads `doneCount()`, not `S.acts.length`. The number on screen and
+the grid under it now cannot disagree. **"27 of 25" is impossible.**
+
+**3. The year has an ending.** `p-state` gains a `fin` branch reading
+**"the year is complete"** (5A) in `--coralink` at weight 600. NOTE: the muted
+colour and weight were **inline styles** on `#p-state`, which beat any
+stylesheet rule — both moved into `#p-state{}` so `.complete` can win. The
+journal's closing page swaps "so far" for the same words.
+
+**4. The moment.** `#moment` (fixed, over Your year) + `#momentcf` canvas.
+`confetti(bursts)`: 95 pieces per burst, second at +780ms, gravity 48px/s^2,
+**no opacity fade at any point** — pieces are culled only once `y - h` clears
+`height + 24`. Reduced motion settles them in place. `showMoment('fin'|'half')`,
+`hideMoment()`, `checkMilestones()`. **One hook only**, in `go()` under
+`v==='home'` at +420ms, so the moment lands on Your year whatever route the act
+took. `S.finShown` / `S.halfShown` make each fire exactly once — renumbering
+afterwards cannot replay them. Halfway is `doneCount() >= Math.ceil(S.n/2)`.
+
+**5. The closing card and post.** `S.fin` is a pseudo-act like `S.zero` — never
+in `S.acts`, never counted. `drawActNo()` gains a `fin` branch giving the
+`.actno.caps` line **PUT A LITTLE / MORE GOOD INTO / THE WORLD.** at 7.2cqw.
+`buildCaption()` gains the 8C caption. `askEval()` skips it.
+**`#cardface` became `.cardface`** (7 rules) so `#m-face` can wear the same
+container-query geometry — the element keeps its id; only `renderCard`'s
+`querySelector('#cardface .handimg')` still uses it.
+
+**6. The two repairs.** 6A: `buildCaption` now falls back to `a.t` when there is
+no story, so a quick-logged act finally says what was done — and `more` counts
+the title too. 6C: `cm-no` reads **"your declaration"** for act 0 and
+**"the year"** for the closing post; `finPost()` sets it explicitly because
+`drawCompose()` does not.
+
+**7. Her friends' names are out of the code notes.** Judy, Mabe, Ginger, Leigh,
+Holly, baked4good — 20 mentions, all generalised in place ("the honoree", "one
+friend", "two friends"). The reasoning survives; whose act it was does not.
+`check-nothing-of-hers.py` now reports zero in notes and zero outside them, with
+"Jessica" x2 remaining as her letter signature, which is intended.
+
+**Verified** by playing a whole year in headless Chromium at 390x844@2x, **zero
+JS errors**: 12 of 25 shows no moment; logging 13 fires halfway once and never
+again after dismissal; filling to 25 fires the finish with the card, the caps
+line and both buttons; Your year then reads "25 of 25 · the year is complete" in
+rgb(192,63,43) at weight 600 with the bar at 100%; mid-year still reads muted;
+the journal's 27 pages close on "the year is complete · 25 acts"; the closing
+post carries the 8C caption under the subtitle "the year"; and a normal act's
+caption now contains its title. Screenshots taken and looked at for halfway, the
+finish, the year screen and the post.
+
+**Still G's to rule** (built to my recommendation, one line changes any of them):
+full stop vs exclamation on the card; 4A·1 naming people on the private finish
+screen vs 4A·2 not; 5A vs 5B vs 5C; 9A vs 9B vs 9C. And **question 8 is still
+open and unbuilt: does the app offer a second year?**
+
 ## BUILD 1W — the double-tap delete (BUILT, 3 September)
 
 Ruled 10B + 10.1 and shipped. The first thing built from this whole session; the
