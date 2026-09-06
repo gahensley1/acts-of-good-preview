@@ -5,8 +5,10 @@ The skill carries the standing rules and the working method; this one carries
 what is true right now. When they disagree, this file is newer — say so and fix
 the skill.
 
-Last updated: **30 August 2026**, end of the defect-fix session.
-Build in G's hands: **1S**.
+Last updated: **6 September 2026**.
+Build in G's hands: **1Z** — pushed and live. **The sign-up sheet in it cannot
+publish until `npx wrangler deploy` is run from `aog-sheets`** (see the CORS
+entry below).
 
 ---
 
@@ -427,6 +429,312 @@ in screen order and sorted within each by `LEADS` order then title. Carries each
 idea's lead time, size and d-line verbatim, plus the screen's own copy and the
 empty-state message. Generated - do not hand-edit it; if G rewrites an idea there,
 change `IDEAS` in `index.html` and regenerate.
+
+## BUILD 2L — TICK ONLY WHAT YOU NEED (6 September)
+
+G, on seeing the filled form: *"how do you know all this information? You're
+gonna have to type it in... if you don't need the who, what, when and where,
+then you don't click that."* He was right — the form had become a wall of boxes,
+and worse, **the labels were only placeholders, so they vanished the moment you
+typed.** Four detail lines sat bare with nothing saying which was which.
+
+Every optional line is now a **tick**: circle, permanent label, and the field
+only once it is on. `askOpt(key,label,placeholder)` renders one; `askTick()`
+toggles `sh.on[key]` and focuses the new field. Same circle, same `pointerdown`
++ `preventDefault` as the notes list, so there is ONE gesture in this app for
+"include this".
+
+**Unticking keeps the words.** `sh[key]` is never cleared; only `sh.on[key]`
+flips. Verified: typed an address into Where, unticked it — gone from the form
+AND from the printed sheet — ticked it back, address intact.
+
+**Printing reads the ticks, not the values:** `pick(k)` returns the value only
+when `on[k]` is set, and `facts`, the greeting, the signature and the contact
+line all go through it. The load-aware size step counts ticked lines only.
+
+**Defaults on a new sheet:** greeting, When (from the act's date, as text now,
+not an ISO date) and your name. Everything else off.
+
+**Also fixed here:** the greeting moved above the narrative, so the form runs in
+the order the printed page reads.
+
+## BUILDS 2F-2K — THE POSTER BECOMES A LETTER (6 September, NOT PUSHED)
+
+G showed Jessica's own door-to-door handout for the September 11 firefighters
+dinner and said *"this is for our neighbors"*. Taken wholesale.
+
+**2F — the parts lifted from hers.** New optional fields on `w.sheet`, all
+printing only when filled: `greet`, `time`, `where`, `who`, `drop`, `sign`,
+`phone` (`when` already existed and was never printed). They render as a
+labelled facts block (`.pfx`) exactly as hers does — **When / What time / Where /
+Who's involved / Drop off** — plus a greeting, and a footer line offering the
+phone as an alternative to the code. No serialiser change needed: `sheet` is
+stored and restored as a whole object.
+
+**2G — the head stays centred.** G: the eyebrow, the gold rule and the bold title
+stay centred; only the body sits left. `.pgt.letter` now left-aligns just
+`.pgr`, `.ps` and the signature. Also moved *"Take whichever is easiest"* back to
+directly after the list — it had ended up stranded after "Drop off", reading as
+another fact.
+
+**2H — the signature moved up**, tabbed behind an em-dash, and everything below
+it (code, caption, mark) became the footer.
+
+**2I — a REAL BUG that only measuring caught.** With the greeting, five detail
+lines and a signature all filled, the content came to **881px inside an 874px
+plate — 8px over**. `space-between` then had negative free space, the gaps
+collapsed and the gold rule sat on top of the eyebrow text. Two fixes:
+`row-gap` (0.12in full / 0.07in half) so nothing can ever touch, and the size
+step now counts **the whole load** — `items + facts + greeting + signature` —
+not just the items. Same sheet now has 143px of slack and drops to two columns
+on its own.
+
+**2J/2K — where the name goes. RULED by G from two rendered options.** Declined:
+folding it into the details as a `Contact:` line — it read as another fact.
+**Chosen: the name signs the paragraph**, `— Jessica Hensley` directly under
+what was written, before the list. The number stays in the footer as *"or just
+call or text"*, so the practical detail is where somebody scanning for it will
+look, and the personal one is where it is personal. The declined branch was
+**removed, not left in** — `signpos` is gone entirely.
+
+**STILL OPEN, and the next thing to build:**
+- **The friendly / anonymous split.** G's framing, and it is the right one. A =
+  people you know (your street, your congregation, your friends): signed, with
+  the number and the details. B = a public board: no name, no number, no
+  address, code only. Two questions before printing — who it is for, and what
+  size — with no middle ground. Proposed and awaiting his go.
+- **Tick-and-write lines** on the friendly version, for people who will not scan.
+- **A place for a graphic** under the eyebrow and rule. G: *"we're not gonna do
+  that... we'll have to create a catalog, but that's a future item."*
+- An explicit **Edit** affordance on the pre-filled fields.
+- **Per-sheet keys** — still the blocker for anyone but G publishing.
+
+## BUILD 2E — THE POSTER FILLS ITS PLATE (6 September, NOT PUSHED)
+
+G: *"too much white space to the top and bottom... whatever is at the top of the
+page should be the margin on the bottom."*
+
+`.pgt` was `justify-content:center`, which centred the block and left an equal
+dead band above and below it whatever was on the sheet. Now
+**`justify-content:space-between`**, and **every fixed vertical margin inside the
+panel was zeroed** (`.pr .pt .pd .ps .pq .pf .pm`, plus the `n4` and `half`
+overrides) so they stop fighting the distribution. The list keeps its own
+internal rhythm via `li` margins; everything else is spaced by the flex.
+
+**Measured, all four cases:** the gap from the plate to the first line and the
+gap from the last line to the plate are **identical** — 64px on the full page,
+38px on the handout — with 3 items and with 12, on both paper shapes. Nothing
+overflows. Screenshotted and looked at: three items now fill the sheet without
+reading sparse.
+
+## BUILDS 2C + 2D — THE HANDOUT ROTATED, AND THE LIST SCALED (6 Sept, NOT PUSHED)
+
+**2C — the handouts are portrait, side by side on a landscape sheet.** G:
+*"they're all reading horizontal on a portrait page. They all need to read
+portrait on a horizontal page."* Correct — a door handout is portrait.
+
+- `.pgt.half` is now **5.5in wide x 8.5in tall**, two inside `.psheet`
+  (`display:flex; 11in x 8.5in`), dashed rule **down the middle** for the cut.
+- **The paper rotates too.** One document cannot be both shapes, so
+  `askPoster()` writes `@page{size:letter landscape}` into a `#postersize`
+  style element before printing handouts, and plain `letter` for the full page.
+- More vertical room in the taller panel, so the handout type came back up:
+  needs 14pt, code 1.7in.
+
+**2D — the list scales with how long it is.** G: *"if you're doing a potluck,
+you need, like, twelve items."* Right — 19pt x 12 runs straight off the page.
+`posterPanel()` counts the needs and adds a step class:
+
+| items | class | full page | handout |
+|---|---|---|---|
+| 1-5 | *(none)* | 19pt, one column | 14pt, one column |
+| 6-9 | `n2` | 15pt | 11.5pt |
+| 10-14 | `n3` | 12.5pt, **two columns** | 10pt, one column |
+| 15+ | `n4` | 11pt, two columns, smaller code | 9pt |
+
+`break-inside:avoid` on every item so a line never splits across columns.
+
+**Verified** headless in print media at both paper shapes, four cases —
+full/3, full/12, handout/3, handout/12. Full page measures 816x1056 every time;
+each handout measures 528x816 (5.5 x 8.5) with two on a 1056x816 sheet. Twelve
+items on the full page go to two columns at 12.5pt; twelve on the handout stay
+one column at 10pt. **Nothing overflows its plate in any of the four.**
+All four screenshotted and looked at.
+
+## BUILDS 2A + 2B — THE SHEET MADE USABLE (6 September, NOT PUSHED)
+
+**2A — the panel is a form.** G: *"it needs to be a little bit more template
+like."* Three labelled sections — **Who it is for**, **What is happening** (one
+or two lines), **What is needed** (one per line) — with `Add an item` as the
+placeholder on every empty row and the hint reading "Return for the next item."
+The button is now **Make a sign-up sheet**, and the empty state explains the
+point: *"List what you need and the app makes a code you can print. People scan
+it, put their name to one thing each, and you see who is bringing what. No
+account, and nothing for them to install."* New `.asklab` class; the two top
+rows lost their dash and its indent.
+
+**2B — the poster is paper-sized, and there are two of them.** G: *"even if
+there's only three items on it, needs to fill an eight and a half by eleven...
+it's very tiny"*, plus *"create an option to do two half a sheet posters so they
+could be cut out and handed out"* — which is how Jessica works a street door to
+door.
+
+- `@page{size:letter;margin:0}` and `.pgt` is now **8.5in x 11in exactly**, with
+  0.95in/1.05in padding and the gold plate inset 0.28in. Type in **points**, not
+  pixels: eyebrow and reason 15pt, lede 13pt, the needs **19pt**, code 2.35in.
+- `.pgt.half` is **5.5in**; two per sheet, dashed rule between them for the cut,
+  everything scaled (needs 12pt, code 1.35in). `posterPanel(sh, half)` builds
+  one; `askPoster(kind)` emits one or two. **Same words either way.**
+- **The critical fix, found only by rendering it:** the app's `body` is a 520px
+  centred phone column, and it was squeezing the poster and pushing it off the
+  right edge of the paper. `@media print` now resets `html,body` width, margin,
+  padding and background. Without that the whole thing prints wrong and nothing
+  else matters.
+- Two buttons replace one: **One full page** / **Two handouts**, under the line
+  "Same words either way — only the size changes."
+
+**Pre-written, not blank.** G: *"I would rather us pre write everything, and they
+do have the option to edit it."* `askStart()` now fills the reason from the act's
+title (falling back to "For a neighbor who could use a hand") and writes a real
+lede. **This overrides my earlier concern** that pre-filling the reason puts the
+act's title on the public poster — G was told and chose pre-fill, with editing.
+
+**Verified** headless at 816x1056 (letter at 96dpi) with `emulateMedia('print')`:
+full page measures 816x1056, ratio 1.294 = 11/8.5; two handouts measure 816x528
+each, 1056 together, with identical text. Both screenshotted and looked at.
+
+**STILL OPEN, and G's to rule:**
+- **An explicit Edit control.** He said *"maybe there's a edit button in the
+  prefilled field."* Not built — the fields are labelled and editable but look
+  like plain text. Ask him whether he wants a visible Edit affordance or a
+  boxed-input look.
+- **The custom graphic** Jessica puts on her door-to-door handout. Named by G,
+  deferred by him: *"we can talk about that later."*
+- **Per-sheet keys** — still the blocker for anyone but G publishing.
+
+## THE WORKER — CORS, WITHOUT WHICH 1Z DOES NOTHING (6 September)
+
+**`C:\Users\tony\Documents\aog-sheets` is now mounted.** Patched `worker.js`
+directly; six additive edits, nothing removed. Backup at `/tmp/worker.bak.js`
+(this session only). 398 lines -> 441.
+
+**The defect.** The app is served from `gahensley1.github.io` and calls
+`actsofgood.app`. Cross-origin. `askPublish()` sends a PUT with
+`content-type: application/json` and an `Authorization` header — a non-simple
+request, so the browser sends an `OPTIONS` preflight first. **The Worker answered
+OPTIONS with 405 and no CORS headers**, so the publish never left the phone;
+`askPublish`'s `catch` swallowed it and showed "No connection". Reading claims
+back failed identically. **Found by probing the live service from a real browser.
+The sandbox test could not have caught it — Playwright route interception
+bypasses CORS entirely.** Moving the app to `app.actsofgood.app` would NOT have
+fixed it: a subdomain is still another origin.
+
+**The fix.** `ORIGINS` allowlist (`gahensley1.github.io` + `app.actsofgood.app`),
+`cors(req)` returning headers only for those, `co(res, req)` to stamp a response,
+an `OPTIONS` branch at the top of `fetch`, and five wrapped returns: PUT's
+401/400/200 and `.json`'s 401/200. **`vary: Origin`** so no cache serves one
+origin's answer to another.
+
+**The 401s are wrapped deliberately.** Without CORS headers on the 401 the
+browser hides the status from the app, a wrong key becomes indistinguishable from
+a dead network, and `askPublish`'s "clear the key and ask again" recovery never
+fires.
+
+**The sheet page and the claim route are untouched** — a stranger who scanned a
+poster is already on that origin, and those routes must advertise nothing.
+
+**Verified** by importing `worker.js` into Node and calling `fetch()` directly
+(wrangler will not run in this sandbox: `workerd` in `node_modules` is the Windows
+binary). Six cases, all correct: the app's preflight -> 204 with allow-origin,
+allow-methods `GET, PUT, OPTIONS`, allow-headers `content-type, authorization`,
+`vary: Origin`; a stranger's preflight -> 403 advertising nothing;
+`app.actsofgood.app` -> 204; a wrong key on PUT -> 401 **carrying the header, so
+the app can see it**; a wrong key on `.json` -> 401 likewise; the public sheet
+page -> 200 with **no** allow-origin.
+
+**DEPLOYED by G, 6 September.** Version `7e3132e8-ec15-4840-93b3-a88f74c6d698`.
+
+**A seventh edit, found only after deploying.** The first live probe showed the
+publish working and the owner's read still failing. Cause: `load()` returns null
+for an unknown id and the handler fell through to `page(shell('Nothing here'...))`
+— an HTML 404 with no CORS header — so a request for a sheet that no longer
+exists reached the app as a network failure and was reported as "no connection".
+Now `if (!data)` branches on `asJson`: the app gets `co(ok({error:'gone'},404))`,
+a person opening a dead link still gets the page and no header. Redeployed.
+
+**Confirmed live from `https://gahensley1.github.io`**, which is the only place
+this can honestly be tested: `PUT /a/:id` with a wrong key reaches the Worker and
+returns a readable **401 `{"error":"Not yours."}"`**; `GET /a/:id.json` for a
+missing sheet reaches it and returns a readable **404 `{"error":"gone"}`**. Before
+the deploy neither request left the browser at all.
+
+**Still never tested end to end:** a real publish with the real key, a printed
+poster, and a stranger scanning the code. Only G can run that.
+
+**Noticed, not changed:** `GET /a/:id.json` calls `load()` before `authed()`, so
+an unauthenticated request still costs two D1 queries. Not a leak, nothing is
+returned — but it is free work for anyone who has the sheet id off a poster.
+Worth reordering some day.
+
+---
+
+## BUILD 1Z — THE SIGN-UP SHEET, FROM THE APP (BUILT, 6 September)
+
+Applied from `patch-02-sheet.py`, read in full first. All nine anchors verified
+as matching exactly once before applying. The `.bak` and the spent patch removed
+from `aog-push`; both corrected patches archived in `acts of good/patches/`.
+
+**"Ask for help" under Photos on the act-in-the-works screen.** Make a sheet —
+the reason, the warm sentence, the list of what is needed (same list behaviour as
+Notes). Publish sends one `PUT`. "Who signed up" reads `/a/<id>.json` back. Print
+the poster renders through a print stylesheet.
+
+**THIS ENDS "NO NETWORK CALLS".** `fetch` now exists in the app — two calls, both
+to `actsofgood.app`, both only when G taps a button. Writing an act still works
+with no signal, and so does printing a poster.
+
+**The id is minted on the phone** by `sheetId()` — 10 chars from
+`crypto.getRandomValues`, before anything is online. **Never the act number:**
+with no accounts the link is the credential and `/a/22` must not be guessable.
+
+**The key.** `askKeyGet()` prompts once and keeps it in `S.pubkey`, serialised to
+localStorage. A 401 clears it and re-asks. **Claude never handles this key** — the
+app asks G directly. For the record: it is plain text in localStorage on his
+phone, which is the documented design, but it is the credential that both creates
+sheets and reads claimers' phone numbers.
+
+**The code.** `askQR()` uses bundled `qrcode-generator` 1.4.4 (MIT, ~20KB) for the
+module matrix only; the SVG, the clearing and the heart are ours. Level H, 37
+modules, 17x17 cleared, heart at 95%. **MEASURED upstream: 17x17 decodes, 19x19
+fails. DO NOT ENLARGE THE HEART.** Drawn entirely offline.
+
+**Verified** headless at 390x844 with `actsofgood.app` intercepted, zero page
+errors: the empty state offers "Make a sheet"; it mints a 10-char id that is not
+the act number; the `PUT` carries the right body and `Bearer` header; `live`
+flips; the code renders at viewBox 41 (37 modules + 4) with the heart `<image>`
+present; reading back shows three rows, two claimed, with `sms:` and `mailto:`
+links; **the poster contains the needs and does NOT contain the act's title, the
+claimer's name or the phone number**; and after a **full page reload** the sheet,
+its id, `live`, all three slots and the key survive.
+
+---
+
+## MY MISTAKE, 6 September — the notes did not survive a reload
+
+I applied the FIRST version of `patch-01-notes.py`, which did not edit
+`serialise()` or the works loader. **Notes and the journal flag were written to
+`WK` and never reached localStorage.** My test closed the act with
+`saveForLater()` and reopened it within the same page load, which looked exactly
+like persistence and was not. **It shipped, and it was live on the site.**
+
+Fixed by applying the two missing edits from `patch-01-notes-b846925b.py`
+(serialise + loader), then re-testing with an actual `page.reload()`.
+
+**Standing rule this proves: any change that adds a field to a work or to `S`
+must edit BOTH `serialise()` and the loader, and must be tested across a real
+page reload.** A test that never reloads cannot see this class of bug.
+
+---
 
 ## BUILD 1Y — THE NOTES PANEL (BUILT, 6 September)
 
