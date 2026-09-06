@@ -168,6 +168,32 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
 .tone.on::after{content:"✓";position:absolute;inset:0;display:flex;align-items:center;
   justify-content:center;color:#fff;font-size:17px;font-weight:700;
   text-shadow:0 1px 3px rgba(0,0,0,.45)}
+/* ── Notes on an act ─────────────────────────────────────────────
+   A plain list that takes anything. No mode, no toolbar. The circle is a
+   sibling of the field, never inside it, so tapping it cannot move the caret
+   or drop the keyboard. 21px circle inside a 34px target. */
+#wk-notes{border:1px solid var(--line);border-radius:12px;background:#fff;padding:9px 11px 11px}
+.nrow{display:flex;gap:8px;align-items:flex-start;min-height:34px}
+.nhit{flex:none;width:34px;height:34px;margin-left:-7px;padding:0;border:0;background:none;
+  display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent}
+.nbox{width:21px;height:21px;border-radius:50%;border:1.6px solid #CFC7B8;box-sizing:border-box;
+  display:flex;align-items:center;justify-content:center}
+.nbox.on{background:var(--gold);border-color:var(--gold)}
+.nbox svg{display:block}
+.ntx{flex:1;border:0;background:none;font:inherit;font-size:15px;line-height:1.35;color:var(--ink);
+  padding:7px 0 6px;resize:none;overflow:hidden;min-height:34px;width:100%}
+.ntx:focus{outline:none}
+.nrow.done .ntx{color:var(--muted)}
+.npd{flex:none;width:6px;height:6px;border-radius:50%;background:var(--coral);
+  align-self:center;margin-right:-3px}
+.nhint{font-size:11px;color:#B9B2A9;margin:2px 0 0;padding-left:27px}
+.njr{display:flex;gap:9px;align-items:center;font-size:11.5px;color:var(--muted);
+  margin-top:9px;padding-left:27px;min-height:34px}
+.njr button{width:34px;height:34px;margin-left:-8px;padding:0;border:0;background:none;
+  display:flex;align-items:center;justify-content:center}
+.njr .sq{width:16px;height:16px;border:1.6px solid #CFC7B8;border-radius:4px;box-sizing:border-box;
+  display:flex;align-items:center;justify-content:center}
+.njr .sq.on{background:var(--coralink);border-color:var(--coralink)}
 .photos{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
 .photos .ph-tile{aspect-ratio:1;border-radius:9px;overflow:hidden;position:relative;
   background:var(--mist);border:1px solid var(--line)}
@@ -798,7 +824,7 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
       page. Everything in it can still be changed.</p>
 
     <!-- BUILD MARK — dev only, delete this div when the app ships -->
-    <div id="buildtag">BUILD 1X</div>
+    <div id="buildtag">BUILD 1Y</div>
   </div>
 </section>
 
@@ -1130,6 +1156,9 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
 
     <div class="field"><label for="wk-story">The story <span style="text-transform:none;font-weight:400">(becomes your post)</span></label>
       <textarea id="wk-story" oninput="wkEdited()" placeholder="Whatever happened, as it happened. (The awkward parts are allowed too.)"></textarea></div>
+
+    <div class="field"><label>Notes <span style="text-transform:none;font-weight:400">(private &mdash; never printed)</span></label>
+      <div id="wk-notes"></div></div>
 
     <div class="field"><label>Photos <span style="text-transform:none;font-weight:400">(these ride on your post)</span></label>
       <div class="photos" id="wk-photos"></div>
@@ -3926,11 +3955,117 @@ function startWork(expect, aim){
 function workKeep(){
   if(!WK || !WK._unsaved) return;
   if(!( (WK.t||'').trim() || (WK.story||'').trim() || WK.d || (WK.who||[]).length ||
-        (WK.photos||[]).length || (WK.spends||[]).length || (WK.hon||'').trim() || WK.cost )) return;
+        (WK.photos||[]).length || (WK.spends||[]).length || (WK.hon||'').trim() || WK.cost ||
+        (WK.notes||[]).some(n=>(n.t||'').trim()) )) return;
   delete WK._unsaved;
   S.works = S.works || [];
   S.works.push(WK);
 }
+/* ── Notes on an act ──────────────────────────────────────────────────────
+   One list per act. It holds names, things to buy, calls to make — the list
+   does not care. Private: it never reaches a card, a post or a poster, and it
+   only reaches the journal if you tick the box.
+
+   Interaction copied from Apple Notes, including the one everybody forgets:
+   Return on an EMPTY line ends the list rather than making another empty one. */
+const NTICK = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" '+
+  'stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+
+  '<path d="M20 6 9 17l-5-5"/></svg>';
+
+function noteList(){ if(!WK) return []; if(!WK.notes) WK.notes=[]; return WK.notes; }
+
+/* A name the app already knows gets a dot. Plain words stay plain words. */
+function noteIsPerson(t){
+  t=(t||'').trim().toLowerCase(); if(!t) return false;
+  return (S.people||[]).some(p=>String(p).trim().toLowerCase()===t);
+}
+
+function drawNotes(){
+  const box=$('wk-notes'); if(!box) return;
+  const rows=noteList();
+  if(!rows.length) rows.push({t:'',d:0});
+  box.innerHTML = rows.map((n,i)=>
+    '<div class="nrow'+(n.d?' done':'')+'">'+
+      '<button class="nhit" type="button" aria-label="'+(n.d?'Undo':'Tick')+'" '+
+        'onpointerdown="return noteTap(event,'+i+')" onclick="return false"><span class="nbox'+
+        (n.d?' on':'')+'">'+(n.d?NTICK:'')+'</span></button>'+
+      (noteIsPerson(n.t)?'<span class="npd" aria-hidden="true"></span>':'')+
+      '<textarea class="ntx" rows="1" enterkeyhint="next" data-i="'+i+'" '+
+        'oninput="noteInput(this)" onkeydown="noteKey(event,this)" '+
+        'aria-label="Note"></textarea>'+
+    '</div>').join('') +
+    '<p class="nhint">Return for the next one. Return twice to stop.</p>'+
+    '<div class="njr"><button type="button" aria-pressed="'+(WK && WK.njr?'true':'false')+'" '+
+      'onclick="noteJournal()"><span class="sq'+(WK && WK.njr?' on':'')+'">'+
+      (WK && WK.njr?NTICK:'')+'</span></button>Keep these notes in the journal</div>';
+  /* value is set as a property, never as markup — a note can contain anything */
+  box.querySelectorAll('.ntx').forEach(el=>{ el.value = rows[+el.dataset.i].t || ''; noteGrow(el); });
+}
+
+function noteGrow(el){ el.style.height='auto'; el.style.height=(el.scrollHeight)+'px'; }
+
+/* pointerdown, not click: preventDefault here stops the focus moving, so the
+   keyboard never drops and the caret stays where the person left it. */
+function noteTap(e,i){
+  e.preventDefault();
+  const rows=noteList(); if(!rows[i]) return false;
+  rows[i].d = rows[i].d ? 0 : 1;
+  noteSave(); drawNotes();
+  return false;
+}
+
+function noteJournal(){ if(!WK) return; WK.njr = WK.njr ? 0 : 1; noteSave(); drawNotes(); }
+
+/* Read the field, write to state. Never re-render the line being typed into —
+   that is what breaks dictation. */
+function noteInput(el){
+  const rows=noteList(), i=+el.dataset.i;
+  if(!rows[i]) return;
+  rows[i].t = el.value.replace(/\n/g,' ');
+  noteGrow(el);
+  noteSave();
+}
+
+function noteKey(e,el){
+  const rows=noteList(), i=+el.dataset.i;
+  if(e.key==='Enter'){
+    e.preventDefault();
+    rows[i].t = el.value;
+    if(!rows[i].t.trim()){                 // Return on an empty line ends the list
+      if(rows.length>1) rows.splice(i,1);
+      noteSave(); drawNotes(); el.blur();
+      return;
+    }
+    const at = el.selectionStart, tail = rows[i].t.slice(at);
+    rows[i].t = rows[i].t.slice(0,at);
+    rows.splice(i+1,0,{t:tail,d:0});
+    noteSave(); drawNotes(); noteFocus(i+1,0);
+    return;
+  }
+  if(e.key==='Backspace' && el.selectionStart===0 && el.selectionEnd===0 && i>0){
+    e.preventDefault();
+    const join = (rows[i-1].t||'').length;
+    rows[i-1].t = (rows[i-1].t||'') + (el.value||'');
+    rows.splice(i,1);
+    noteSave(); drawNotes(); noteFocus(i-1,join);
+  }
+}
+
+function noteFocus(i,caret){
+  const el=document.querySelector('#wk-notes .ntx[data-i="'+i+'"]');
+  if(!el) return;
+  el.focus();
+  try{ el.setSelectionRange(caret,caret); }catch(_){}
+}
+
+function noteSave(){
+  /* No tidying here. An earlier version stripped a trailing empty row on every
+     save, which deleted the new line the instant Return created it. Empty rows
+     are removed by Return-on-empty and by nothing else. */
+  if(!WK) return;
+  workKeep(); save();
+}
+
 function openWork(w){
   WK = w;
   $('wk-t').value = w.t||'';
@@ -3943,6 +4078,7 @@ function openWork(w){
   $('wk-cost').value = (w.spends||[]).length ? (t.mine?money(t.mine):'') : (w.cost ? money(w.cost) : '');
   wkCostState();
   drawWorkWho();
+  drawNotes();
   drawPhotos('wk-photos','wk-file', w.photos, ()=>drawPhotos('wk-photos','wk-file', WK.photos, ()=>openWork(WK)));
   go('work');
 }

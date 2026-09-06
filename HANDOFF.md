@@ -428,6 +428,55 @@ idea's lead time, size and d-line verbatim, plus the screen's own copy and the
 empty-state message. Generated - do not hand-edit it; if G rewrites an idea there,
 change `IDEAS` in `index.html` and regenerate.
 
+## BUILD 1Y — THE NOTES PANEL (BUILT, 6 September)
+
+Applied from `patch-01-notes.py`, which G uploaded from another session. **The
+script was read in full before it was run** — it only edits `index.html`, writes
+a `.bak`, makes no network calls and deletes nothing. All six anchors verified
+against 1X as matching exactly once before applying. The `.bak` (1MB) and the
+spent patch were then removed from `aog-push` so neither gets committed;
+`README-PATCHES.md` is kept in both folders.
+
+A Notes list under The story on an act in the works. `w.notes = [{t,d}]`,
+`w.njr = 0|1`. Private: never on a card, a post or a poster.
+
+**The architecture is not a preference and must not be "simplified".** Separate
+one-line `<textarea>` elements, never one contenteditable. iOS dictation fires
+the text once then re-fires it word by word 100-500ms later with no composition
+events and the DOM already updated; in a contenteditable a re-render during
+input permanently desyncs the editor and later text lands in the wrong place.
+**G dictates everything.** Separate fields give native undo per field,
+`selectionStart` as a stable caret, working `enterkeyhint`, and dictation landing
+in a plain `.value` you can diff.
+
+The circle is a **sibling** of the field, never inside it, and the handler is on
+`pointerdown` with `preventDefault()` — not `click` — so a tap cannot move the
+caret or drop the keyboard.
+
+**A trap already hit and fixed upstream: `noteSave()` does no tidying.** An
+earlier version stripped trailing empty rows on every save, which deleted the new
+line the instant Return created it and made the panel look completely inert.
+Empty rows are removed by Return-on-empty and by nothing else. Do not add a trim.
+
+**Verified here against 1Y**, headless Chromium 390x844@2x, zero page errors:
+34x34 hit target with a 21px circle; the circle is confirmed NOT a descendant of
+the field; typing seven lines with Return between gives seven rows in order;
+four coral dots for the four names in People and none for the one that is not;
+Return on an empty line takes 8 rows to 7 and blurs; ticking two sets `d:1` on
+both without moving focus; Backspace at position 0 merges upward and joins the
+text; the journal flag persists; closing and reopening the act restores all six
+rows, both ticks, the flag, and every field's value; and **a caption built from
+an act carrying notes contains none of them.** Screenshot taken and looked at —
+it matches the design G supplied.
+
+**NOT WIRED, deliberately, and G has been told:** the notes do not appear in the
+journal page even when `njr` is set, and they are not in `exportJournal`. Both
+change what the journal prints, which is a s2 copy decision he has not seen.
+
+**Also not built** (drawn in `SHEETS-AND-NOTES.md`, not in the patch): no indent,
+no drag to reorder, no auto-sort of ticked items, and no "notice, never convert"
+hold-a-line menu offering to add a person or put a line on the sign-up sheet.
+
 ## BUILD 1X — THE YEAR CAN END (BUILT, 6 September)
 
 G: *"all of it go."* Built against his own marked recommendations because the
