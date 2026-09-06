@@ -6,7 +6,7 @@ what is true right now. When they disagree, this file is newer — say so and fi
 the skill.
 
 Last updated: **6 September 2026**.
-Build in G's hands: **1Z** — pushed and live. **The sign-up sheet in it cannot
+Build in G's hands: **2R** — pushed and live. **The sign-up sheet in it cannot
 publish until `npx wrangler deploy` is run from `aog-sheets`** (see the CORS
 entry below).
 
@@ -429,6 +429,80 @@ in screen order and sorted within each by `LEADS` order then title. Carries each
 idea's lead time, size and d-line verbatim, plus the screen's own copy and the
 empty-state message. Generated - do not hand-edit it; if G rewrites an idea there,
 change `IDEAS` in `index.html` and regenerate.
+
+## BUILDS 2M-2P — EVERYTHING OUTSTANDING, CLOSED (6 September)
+
+G: *"I want this all wrapped up tonight so there's no outstanding things to do."*
+
+**2M — the friendly / anonymous split.** Two chips at the top of the panel, his
+framing and his words. **For people you know**: greeting, name, number, details,
+letter layout. **Anonymous**: those rows do not render at all — not greyed,
+absent — and the sheet prints centred and plated with the code as the only way
+in. `askAnon()`, `askMode()`, and `askIsOn()` refuses greet/sign/phone whenever
+`sh.anon`. `pick()` does the same on the print side, so a sheet flipped to
+anonymous cannot leak a name that was ticked earlier. **The `letter` class now
+follows the MODE, not the paper size.** Verified: 8 rows friendly / 5 anonymous;
+printed anonymous carries no name, no number, no greeting and is not `.letter`;
+switching back restores every typed word.
+
+**2N — a second year.** G: *"these are not just a single time usage app. This is
+to keep you going for your goal."* `beginAnotherYear()` appears on the finished
+year screen. It pushes the whole year into `S.past` — `n, weeks, word, line,
+start, end, zero, acts` — then clears acts, plans, zero, `finShown`, `halfShown`
+and `current`, sets a new start date and routes to **act 0**, because a new year
+deserves declaring the way the first one was. People, ideas, handles and the
+card all stay. **`S.past` is in BOTH `serialise()` and the loader** — the rule
+from the notes-panel failure. The journal appends every past year after the
+closing page, each behind a "the year before" divider. Verified across a full
+reload: 25 acts archived, grid empty, people intact, journal 27 pages with the
+old stories still readable.
+
+**2O — PER-SHEET KEYS. Nobody types a key any more.**
+- App: `sheetToken()` mints 40 random characters at `askStart()`, kept on
+  `sh.key`. `askKeyGet()` returns it. **The `prompt()` is gone** — grep for
+  `prompt(` returns 0.
+- Worker: `authed()` replaced by `bearer()`, `sameSecret()`, `isOwner()` and
+  `ownsSheet()`. A PUT to an id that does not exist belongs to whoever creates
+  it and stores `sha256(token)`. A PUT to one that does requires the token to
+  hash-match. `.json` requires the same. **`PUBLISHER_KEY` still works as an
+  owner master key**, so G's pre-existing sheets stay reachable.
+- Verified against the real worker with eight cases: Ada creates and edits hers;
+  Ben cannot edit hers (401); Ben cannot read her claimers' numbers (401); Ada
+  can; Ben creates his own with no key from anybody; the master key still
+  reaches hers; no token at all is 401.
+- **The honest cost, and it is in the code comment:** lose the phone, lose the
+  ability to edit that sheet or read its names. The sheet keeps working.
+
+**2P/2Q — the feedback route. Sign-by-hand was DECLINED and removed.**
+- **Sign-by-hand (`on.pen`) is gone.** Built in 2P, declined by G at once:
+  *"no don't do this... if we want a signature we can use the font we used for
+  her signature, but not needed for the sign up sheet."* Removed whole in 2Q —
+  the tick, the flag, the print branch and the CSS; grep confirms nothing left.
+  **Closed. Do not propose a write-on line for the sheet again.** Note the
+  standing rule it brushes against: s4, no new script faces — the only
+  handwriting in the app is Jessica's traced signature on the letter, and that
+  is the face he means if a signature is ever wanted.
+- `tellUs()` at the foot of You opens the person's own mail to
+  **`info@donoharmcompany.com`**, subject "Acts of Good", with the build tag in
+  the body so a report says which version it came from. **The app sends nothing
+  and stores nothing** — the standing rule survives. One constant, `AOG_MAIL`,
+  if the address changes.
+- **2R moved it.** It sat on **You**, fifth of six buttons, and G ruled that
+  wrong at sight: *"I think it has to sit somewhere more prominent. It needs to
+  be somewhere where you can see it."* It is now at the **foot of Your year,
+  directly above the build mark** — the screen the app opens on — as a coral
+  line with a small envelope, 210×44 measured, not a sixth ghost button. The
+  note explaining that it opens their own mail came with it. **The You screen
+  lost the row entirely**; nothing is duplicated, and *Start over* is still last
+  there. Report and version travel together now: the build mark and the way to
+  tell us about it are the same square inch of the page.
+- **G confirmed the mailbox exists**, so the Worker splash page got the address
+  back too: *"Say hello"* now points at `info@donoharmcompany.com`. His personal
+  address appears nowhere in either codebase.
+
+**G's personal address was removed from the Worker splash page** and redeployed;
+verified gone from the live site with a cache-busting fetch. No `mailto:` remains
+anywhere in the Worker.
 
 ## BUILD 2L — TICK ONLY WHAT YOU NEED (6 September)
 

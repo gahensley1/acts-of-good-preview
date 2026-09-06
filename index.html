@@ -217,6 +217,12 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
 .askopt.on .askoptlab{color:var(--muted);font-weight:600;font-size:11px;
   letter-spacing:.06em;text-transform:uppercase}
 .askopt .atx{flex:1 1 100%;min-width:0;padding-left:27px;margin-top:-4px}
+/* who the sheet is for — two answers, no middle ground */
+.askmode{display:flex;gap:7px;margin:0 0 7px}
+.modechip{flex:1;min-height:44px;padding:9px 8px;border:1.5px solid var(--line);
+  border-radius:11px;background:var(--paper);font-family:inherit;font-size:12.5px;
+  font-weight:600;color:var(--muted);cursor:pointer;line-height:1.25}
+.modechip.on{border-color:var(--coralink);background:var(--coralink);color:#fff}
 .askbar{display:flex;gap:8px;margin-top:11px}
 .qrwrap{display:flex;flex-direction:column;align-items:center;gap:8px;margin-top:12px;
   padding-top:12px;border-top:1px solid var(--line)}
@@ -465,6 +471,18 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
    right corner, which on a notched phone landed inside the tab bar and could
    not be read at all. It sits at the end of Your year now, in the page, where
    there is room for it and nothing to read it against. */
+/* ── Tell us — at the foot of Your year ───────────────────────────
+   It sat fifth of six buttons on the You screen, where nobody found it. It
+   lives here now, on the screen the app opens on, above the build mark. A
+   quiet line rather than a button: it must be findable, not shouted. */
+#tellwrap{margin:34px 0 0;text-align:center}
+#tellline{display:inline-flex;align-items:center;justify-content:center;gap:7px;
+  min-height:44px;padding:6px 14px;border:0;background:none;cursor:pointer;
+  font:inherit;font-size:14.5px;font-weight:600;color:var(--coralink);
+  -webkit-tap-highlight-color:transparent}
+#tellline svg{display:block;flex:none}
+#tellwrap .note{margin:0;font-size:11.5px;max-width:270px;
+  margin-left:auto;margin-right:auto}
 #buildtag{margin:30px auto 0;width:max-content;
   font-size:12px;font-weight:700;letter-spacing:.12em;color:#6B6259;
   background:var(--mist);border:1px solid var(--line);border-radius:7px;
@@ -976,8 +994,22 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
     <p class="note" style="margin-top:8px;text-align:center">The journal, page by
       page. Everything in it can still be changed.</p>
 
+    <!-- Nothing is sent by the app and nothing is stored. This opens their own
+         mail, already addressed, and they write it themselves. -->
+    <div id="tellwrap">
+      <button id="tellline" type="button" onclick="tellUs()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round"
+          stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v14H4z"/>
+          <path d="m4 7 8 6 8-6"/></svg>
+        Tell us how it&rsquo;s going</button>
+      <p class="note">Anything at all &mdash; what&rsquo;s working, what
+        isn&rsquo;t, what&rsquo;s missing. It opens your own email, so nothing is
+        sent or kept by the app.</p>
+    </div>
+
     <!-- BUILD MARK — dev only, delete this div when the app ships -->
-    <div id="buildtag">BUILD 2L</div>
+    <div id="buildtag">BUILD 2R</div>
   </div>
 </section>
 
@@ -1633,7 +1665,8 @@ What you actually did. Why it mattered. Say the awkward parts."></textarea>
         Read your year</button>
       <button class="btn ghost" style="margin-top:10px" onclick="openLetter(true)">
         Read Jessica's letter again</button>
-      <button class="btn ghost" style="margin-top:12px;color:var(--coralink)"
+
+      <button class="btn ghost" style="margin-top:18px;color:var(--coralink)"
         onclick="checkFirst('Start again?','This deletes every act, photo and person. It cannot be undone.','Delete everything', wipe)">
         Start over</button>
     </div>
@@ -1917,6 +1950,11 @@ function serialise(){
     tone:S.tone,
     name:S.name, bday:S.bday, why:S.why, email:S.email||'', pubkey:S.pubkey||'',
     start:S.start.toISOString(),
+    /* Finished years. Kept whole so the journal can still read them years later;
+       photo ids travel, and the photos themselves are untouched in IndexedDB. */
+    past:(S.past||[]).map(y=>({ n:y.n, weeks:y.weeks, word:y.word||'', line:y.line||'',
+                                start:y.start||'', end:y.end||'', zero:y.zero||null,
+                                acts:y.acts||[] })),
     people:S.people, platforms:S.platforms,
     started:S.started, letterSeen:!!S.letterSeen, zero:S.zero||null, tabToured:!!S.tabToured, opens:S.opens||0, todoOpens:S.todoOpens||0, plans:slimPlans(), handles:S.handles||{}, places:S.places||{},
     works:(S.works||[]).map(w=>({ pid:w.pid, t:w.t||'', d:w.d||'', who:w.who||[], hon:w.hon||'',
@@ -2016,6 +2054,7 @@ async function load(){
   S.pubkey=o.pubkey||'';
   S.start=o.start?new Date(o.start):new Date();
   if(isNaN(S.start.getTime())) S.start = new Date();          // "week NaN of 52"
+  S.past = Array.isArray(o.past) ? o.past : [];
   S.people=o.people||[]; S.platforms=o.platforms||S.platforms;
   S.started=!!o.started; S.letterSeen=!!o.letterSeen;
   if(S.cat==='Neighbours') S.cat='Neighbors';   // the library went American
@@ -2382,7 +2421,7 @@ const S = {
      hers. Nothing has used it for a long time; the live pair is line + word,
      and word stays blank until a birthday makes it theirs. */
   n: 25, weeks: 52, start: new Date(),
-  acts: [], people: [], chosen: [], works: [],
+  acts: [], past: [], people: [], chosen: [], works: [],
   outcome: 'Went to plan', lead: 'Today', cat: 'Anything', current: null,
   line: 'in year', word: '', lineTouched: false, wordTouched: false, tone: null, toneToured: false,
   name: '', bday: '', why: '',
@@ -3073,6 +3112,57 @@ function checkMilestones(){
   }
 }
 
+/* ── another year ─────────────────────────────────────────────────────────
+   G, 6 Sept: "these are not just a single time usage app. This is to keep you
+   going for your goal." So a finished year is not the end of the app; it is the
+   end of a year. The one that just finished moves into the journal whole, and
+   the grid starts empty.
+
+   What travels: your people, your ideas, your name, your handles, your card.
+   What resets: the acts, the plans, the grid, the two moments, and act 0 —
+   because a new year deserves to be declared out loud the same way the first
+   one was. */
+/* ── telling us how it is going ────────────────────────────────────────────
+   The app sends nothing and stores nothing: this opens the person's own mail,
+   already addressed, and they write and send it themselves. No service, no
+   collection, no promise to keep. Anything at all — what worked, what did not,
+   what is missing. */
+const AOG_MAIL = 'info@donoharmcompany.com';
+const BUILD_TAG = (function(){ const e=document.getElementById('buildtag');
+  return e ? (e.textContent||'').trim() : ''; })();
+function tellUs(){
+  const sub = encodeURIComponent('Acts of Good');
+  const body = encodeURIComponent(
+    "Anything at all \u2014 what's working, what isn't, what's missing.\n\n\n" +
+    "\u2014\nSent from Acts of Good" + (BUILD_TAG ? ' (' + BUILD_TAG + ')' : ''));
+  location.href = 'mailto:' + AOG_MAIL + '?subject=' + sub + '&body=' + body;
+}
+
+function beginAnotherYear(){
+  const done = doneCount();
+  checkFirst('Begin another year?',
+    'This year moves into your journal, whole \u2014 all '+done+
+    (done===1?' act':' acts')+', their cards, their stories and their photographs. '+
+    'The grid starts empty. Your people, your ideas and your card stay exactly as they are.',
+    'Begin another year', ()=>{
+      if(!Array.isArray(S.past)) S.past = [];
+      S.past.push({ n:S.n, weeks:S.weeks, word:S.word||'', line:S.line||'',
+                    start:(S.start&&S.start.toISOString)?S.start.toISOString():'',
+                    end:todayISO(), zero:S.zero||null, acts:(S.acts||[]).slice() });
+      S.acts = [];
+      S.plans = {};
+      S.zero = null;
+      S.fin = null;
+      S.finShown = 0;
+      S.halfShown = 0;
+      S.current = null;
+      S.start = new Date();
+      save();
+      /* straight to the declaration, exactly as the first year began */
+      go('zero'); drawZero();
+    });
+}
+
 function zeroAct(){
   if(!S.zero) S.zero = { no:'0', zero:true, d:todayISO(),
                          t:'The year begins', posted:{}, captions:{} };
@@ -3276,6 +3366,17 @@ function drawHome(){
     : ahead >= 0 ? done+' so far, plenty of room'
     : 'taking your time';
   $('p-state').classList.toggle('complete', fin);
+  /* the year is over, and the app is not */
+  let ny = $('p-again');
+  if(fin && !ny){
+    ny = document.createElement('button');
+    ny.id = 'p-again'; ny.type = 'button'; ny.className = 'btn ghost';
+    ny.style.marginTop = '14px';
+    ny.textContent = 'Begin another year';
+    ny.onclick = beginAnotherYear;
+    const pace = $('p-bar') && $('p-bar').closest('.pace');
+    if(pace) pace.appendChild(ny);
+  } else if(!fin && ny){ ny.remove(); }
   $('p-bar').style.width=Math.min(100,done/S.n*100)+'%';
   /* the tick was a target line you could fall short of, on the one screen the
      letter's "nobody is keeping score" is answering. The bar still shows how far
@@ -4078,6 +4179,36 @@ function drawJournal(){
       '</p>';
     box.appendChild(close);
   }
+
+  /* ── the years before this one ──────────────────────────────────────────
+     A finished year does not disappear when the next one starts. Each one gets
+     a divider and then its pages, oldest last, exactly as they were written. */
+  (S.past||[]).slice().reverse().forEach(y=>{
+    const past = (y.acts||[]).slice()
+      .sort((a,b)=>(parseFloat(a.no)||0)-(parseFloat(b.no)||0));
+    const div = document.createElement('div');
+    div.className = 'jpage jclose';
+    const yr = (y.end||'').slice(0,4);
+    div.innerHTML = '<div class="plate"></div>'+
+      '<div class="jno">the year before</div>'+
+      '<div class="jbig">'+past.length+(past.length===1?' act':' acts')+'</div>'+
+      '<p class="jline">'+esc(y.n||'')+' acts of good'+
+        (y.word?' in year '+esc(y.word):'')+(yr?', finished '+esc(yr):'')+'.</p>';
+    box.appendChild(div);
+    past.forEach(a=>{
+      const pg=document.createElement('div');
+      pg.className='jpage';
+      const withWho=(a.who&&a.who.length)?'<p class="jwith">with '+esc(listWords(a.who))+'</p>':'';
+      pg.innerHTML='<div class="plate"></div>'+
+        '<div class="jno">act '+esc(a.no)+' of '+esc(y.n||'')+'</div>'+
+        '<h3>'+esc(a.t||'An act of good')+'</h3>'+
+        (a.hon?'<p class="jhon">In honor of '+esc(a.hon)+'</p>':'')+
+        (a.d?'<p class="jdate">'+esc(fmtLong(a.d))+'</p>':'')+
+        withWho+'<div class="jrule"></div>'+
+        (a.story?'<p class="jstory">'+esc(a.story)+'</p>':'');
+      box.appendChild(pg);
+    });
+  });
 }
 
 /* ── acts in the works: the one pipeline ──────────────────────────────────
@@ -4254,7 +4385,18 @@ function askGrow(el){ el.style.height='auto'; el.style.height=el.scrollHeight+'p
 /* One optional line: a circle, its name, and — only once ticked — the field.
    The circle is the same one the notes list uses, so there is one gesture in
    this app for "include this", not two. */
-function askIsOn(k){ const sh=askOf(); return !!(sh && sh.on && sh.on[k]); }
+function askAnon(){ const sh=askOf(); return !!(sh && sh.anon); }
+function askMode(anon){
+  const sh=askOf(); if(!sh) return;
+  sh.anon = anon ? 1 : 0;
+  workKeep(); save(); drawAsk();
+}
+function askIsOn(k){
+  const sh=askOf(); if(!sh || !sh.on) return false;
+  /* nothing personal survives the anonymous sheet, whatever was ticked before */
+  if(sh.anon && (k==='greet' || k==='sign' || k==='phone')) return false;
+  return !!sh.on[k];
+}
 function askOpt(k, label, ph){
   const on = askIsOn(k);
   return '<div class="askopt'+(on?' on':'')+'">'+
@@ -4262,7 +4404,9 @@ function askOpt(k, label, ph){
       'onpointerdown="return askTick(event,\''+k+'\')" onclick="return false">'+
       '<span class="nbox'+(on?' on':'')+'">'+(on?NTICK:'')+'</span></button>'+
     '<span class="askoptlab">'+label+'</span>'+
-    (on ? '<textarea class="atx" rows="1" data-k="'+k+'" oninput="askInput(this)" '+
+    /* a tick with no placeholder would be a plain yes/no — nothing uses that
+       today, kept because askOpt should not care */
+    (on && ph ? '<textarea class="atx" rows="1" data-k="'+k+'" oninput="askInput(this)" '+
           'placeholder="'+ph+'" aria-label="'+label+'"></textarea>' : '')+
   '</div>';
 }
@@ -4292,6 +4436,22 @@ function drawAsk(){
   }
   const rows=sh.slots||[];
   box.innerHTML=
+    /* Who it is for decides what the sheet even is. G, 6 Sept: one friendly, one
+       anonymous, and no middle ground. Anonymous hides the personal rows
+       entirely rather than greying them — there is no point offering to sign
+       something that will never carry a name. */
+    '<div class="askmode">'+
+      '<button type="button" class="modechip'+(askAnon()?'':' on')+'" '+
+        'onclick="askMode(0)">For people you know</button>'+
+      '<button type="button" class="modechip'+(askAnon()?' on':'')+'" '+
+        'onclick="askMode(1)">Anonymous</button>'+
+    '</div>'+
+    '<p class="askhint" style="padding-left:0;margin:0 0 4px">'+
+      (askAnon()
+        ? 'For a noticeboard, a shop window, a staff room. No name, no number, '+
+          'no address &mdash; the code is the only way in.'
+        : 'For your street, your congregation, your friends. Signed by you, with '+
+          'a number they can call.')+'</p>'+
     /* The headline and the story are always there — everything else is a tick.
        G, 6 Sept: "if you don't need the who, what, when and where, then you
        don't click that." Nobody should face a wall of boxes; the form is short
@@ -4301,7 +4461,7 @@ function drawAsk(){
     '<div class="askrow"><textarea class="atx" rows="1" id="ask-reason" '+
       'data-k="reason" oninput="askInput(this)" placeholder="For a family arriving in March" '+
       'aria-label="Who it is for"></textarea></div>'+
-    askOpt('greet','Open with a greeting','Dear neighbors on Oak Street,')+
+    (askAnon()?'':askOpt('greet','Open with a greeting','Dear neighbors on Oak Street,'))+
     '<label class="asklab" for="ask-lede">What is happening <span>(one or two lines)</span></label>'+
     '<div class="askrow"><textarea class="atx" rows="1" id="ask-lede" '+
       'data-k="lede" oninput="askInput(this)" placeholder="A few of us are putting a box together '+
@@ -4317,9 +4477,10 @@ function drawAsk(){
     askOpt('where','Where',           'Fire Station #1, 535 E. 63rd')+
     askOpt('who',  "Who's involved",  'Neighbors on the 600 block')+
     askOpt('drop', 'Drop off',        'Any time before 5:30, at mine')+
-    '<label class="asklab">Sign it</label>'+
-    askOpt('sign', 'Your name',       'Your name')+
-    askOpt('phone','A number they can call', '912.555.0148')+
+    (askAnon()?'' :
+      '<label class="asklab">Sign it</label>'+
+      askOpt('sign', 'Your name',       'Your name')+
+      askOpt('phone','A number they can call', '912.555.0148'))+
     '<div class="askbar"><button class="btn mini" type="button" onclick="askPublish()">'+
       (sh.live?'Update the sheet':'Publish it')+'</button>'+
       (sh.live?'<button class="btn mini ghost" type="button" onclick="askRefresh()">Who signed up</button>':'')+
@@ -4346,7 +4507,7 @@ function drawAsk(){
 function askStart(){
   if(!WK) return;
   const who = (WK.who||[]).length ? '' : '';
-  WK.sheet={ id:sheetId(),
+  WK.sheet={ id:sheetId(), key:sheetToken(),
     reason:(WK.t||'').trim() || 'For a neighbor who could use a hand',
     greet:'Dear neighbors,',
     lede:'A few of us are putting something together. Any one of these would be '+
@@ -4354,6 +4515,7 @@ function askStart(){
     slots:[''],
     when:(WK.d ? fmtLong(WK.d) : ''), time:'', where:'', who:'', drop:'',
     sign:(S.name||''), phone:'',
+    anon:0,
     /* on by default: the date, and who is asking. Everything else is a tick. */
     on:{ greet:1, when:!!WK.d?1:0, sign:(S.name?1:0) },
     live:0, claims:[] };
@@ -4386,13 +4548,26 @@ function askKey(e,el){
   }
 }
 
-/* Asked once, kept on this phone. It is the only thing that can create a sheet
-   or read one back. Claiming needs nothing — that was ruled. */
+/* ── who owns a sheet ─────────────────────────────────────────────────────
+   Nobody types a key. When you make a sheet the phone mints a long random token
+   and keeps it with that sheet; the server only ever stores a hash of it. That
+   token is what lets you edit the sheet and read back who signed up — and it
+   works for exactly one sheet, yours.
+
+   No accounts, no passwords, no shared secret. The honest cost: lose the phone
+   and you lose the ability to change that sheet. The sheet keeps working —
+   people can still sign up, the poster still scans — you just cannot edit it
+   or read the names. Same as losing a paper sign-up sheet. */
+function sheetToken(){
+  const a='abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  const b=new Uint8Array(40); crypto.getRandomValues(b);
+  return Array.from(b, x=>a[x % a.length]).join('');
+}
 function askKeyGet(){
-  if(S.pubkey) return S.pubkey;
-  const k=prompt('Your publisher key (asked once, kept on this phone)');
-  if(k && k.trim()){ S.pubkey=k.trim(); save(); return S.pubkey; }
-  return '';
+  const sh=askOf(); if(!sh) return '';
+  /* older sheets, made before per-sheet tokens, fall back to the owner key */
+  if(!sh.key) { if(S.pubkey) return S.pubkey; sh.key = sheetToken(); workKeep(); save(); }
+  return sh.key;
 }
 
 async function askPublish(){
@@ -4404,8 +4579,9 @@ async function askPublish(){
     const r=await fetch(AOG_BASE+'/a/'+sh.id,{method:'PUT',
       headers:{'content-type':'application/json','authorization':'Bearer '+key},
       body:JSON.stringify({reason:sh.reason||'',lede:sh.lede||'',when:(WK&&WK.d)||'',slots:slots})});
-    if(r.status===401){ S.pubkey=''; save();
-      say('That key was not right','Tap Publish again and paste it once more.'); return; }
+    if(r.status===401){
+      say('This sheet is not yours',
+          'It was made on another phone. Make a new sheet and it is yours.'); return; }
     if(!r.ok){ say('It did not go up','Try again in a moment.'); return; }
     sh.live=1; workKeep(); save(); drawAsk();
   }catch(_){ say('No connection','The sheet needs the internet to go up. The poster does not.'); }
@@ -4477,8 +4653,9 @@ function posterPanel(sh, half){
      it read as another fact rather than as somebody writing to you. The number
      stays in the footer, where somebody looking for how to reach you will find
      it without re-reading the letter. */
-  const on = sh.on || {};
-  const pick = k => on[k] ? String(sh[k]||'').trim() : '';
+  const on = sh.on || {}, anon = !!sh.anon;
+  const pick = k => (on[k] && !(anon && (k==='greet'||k==='sign'||k==='phone')))
+    ? String(sh[k]||'').trim() : '';
   const contact = [pick('sign'), pick('phone')].filter(Boolean).join(' \u2014 ');
   const facts = [
     ['When',        pick('when')],
@@ -4497,7 +4674,7 @@ function posterPanel(sh, half){
   const call = contact
     ? '<p class="pcall">Or just call or text '+esc2(contact)+'.</p>'
     : '';
-  return '<div class="pgt'+(half?' half letter':'')+step+'"><div class="pl"></div>'+
+  return '<div class="pgt'+(half?' half':'')+(anon?'':' letter')+step+'"><div class="pl"></div>'+
     '<p class="pe">We could use a hand</p><div class="pr"></div>'+
     '<p class="pt">'+esc2(sh.reason||'')+'</p>'+
     (pick('greet')?'<p class="pgr">'+esc2(sh.greet)+'</p>':'')+

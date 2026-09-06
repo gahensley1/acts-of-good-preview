@@ -241,12 +241,13 @@ Halfway lands on act 13 of 25 and fires once, ever. Half acts are gone.
 
 Only one is left from the finish work.
 
-**1.** Should the app offer a **second year** when the first one ends? Right now
-when it's over it's over — the grid is full, every screen still works, and there
-is nothing further to do. I am not building it either way until you say, because
-it changes the shape of the whole app.
+**ANSWERED and BUILT, 6 September.** G: *"these are not just a single time
+usage app. This is to keep you going for your goal."* A finished year now offers
+**Begin another year** — the year moves into your journal whole, the grid starts
+empty, and you declare the new one with act 0 the way you declared the first.
+Your people, your ideas and your card stay.
 
-Everything else above is built. Change any of it with one line.
+Nothing on this page is open any more. Change any of it with one line.
 
 ## Still waiting from before
 
