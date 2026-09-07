@@ -134,8 +134,11 @@ Numbers are the ones in `DECISIONS-OPEN.md`. I verified what I could.
    `serialise()` AND the loader, and tested across a real reload. **This has
    shipped broken three times**, most recently the finish and halfway moments,
    which re-fired on every launch for nine builds.
-2. **Grep before you name a function.** Two functions called `drawAsk` silently
-   killed the invitation panel, with no error.
+2. **Grep before you name a function** — or better, run
+   `reviews/check-duplicate-names.py`, which does it for you and exits non-zero.
+   This has now happened **twice**: `drawAsk` killed the invitation panel for
+   nine builds, and `drawPreview` nearly killed post composing on 7 September.
+   Neither threw an error. The later declaration wins and the earlier one dies.
 3. **Measure, do not guess.** The poster and the book both step their type by
    measurement now. The guess was wrong fourteen times in 222 acts.
 4. **Look at it.** A passing assertion is not a look.

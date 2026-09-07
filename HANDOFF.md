@@ -6,7 +6,7 @@ what is true right now. When they disagree, this file is newer — say so and fi
 the skill.
 
 Last updated: **6 September 2026**.
-Build in G's hands: **3F** — pushed and live. **The sign-up sheet in it cannot
+Build in G's hands: **3G** — pushed and live. **The sign-up sheet in it cannot
 
 **Everything not yet decided lives in `OPEN.md`, written 7 September against 3F.**
 It is one file, it says who owns each item, and where a question was old enough
@@ -561,6 +561,38 @@ old stories still readable.
 - **Both shapes re-measured at zero overflow** with a twelve-item potluck, after
   the taller footer pushed the full page 50px and each handout 53px over the
   plate. Row gaps and the handout's n4 step were tightened to pay for it.
+
+**3G — PREVIEW BESIDE PUBLISH, AND A NAME COLLISION CAUGHT IN THE ACT.**
+
+**The flow was backwards and G caught it**: *"we need to check it out what it
+looks like before you publish it."* The preview was gated on `sh.live`, so the
+only way to see the page was to publish it first. Now the sheet panel ends in
+two buttons side by side, **Preview** and **Publish it**, exactly as he asked:
+*"you preview it, you edit, then you publish it. Or you preview it again."*
+
+Preview opens the page **full screen** (`sheet-pv`) rather than as a stamp in
+the panel: the shape chips, the page at the width of the screen, and one action
+underneath, which is **Publish it** before and **Print it** after. Switching
+shape redraws in place instead of closing. Print and the link stay behind
+publishing, because a poster whose square leads to a 404 is worse than no
+poster.
+
+**AND THEN THE SAME BUG AS 2S, IN THE SAME HOUR I WROTE THE RULE AGAINST IT.**
+I named the new function `drawPreview`. **That name was already taken** by the
+post preview on the compose screen (`cm-prev`, called from `drawCompose` and
+`prepack`). Two declarations, no error, the later one wins. Mine sat earlier in
+the file, so the original survived and **only the new preview broke** — it
+opened blank. **Had I written mine below it, I would have silently killed post
+composing** and the rig would not have caught it, because the rig never opens
+the composer.
+
+Renamed `drawPaperPreview` / `openPaperPreview`.
+
+**So the rule is now a script, not a sentence.**
+`reviews/check-duplicate-names.py` parses every top-level `function` in the
+script blocks, with comments stripped, and exits non-zero on any duplicate.
+It takes a second. **Run it before every commit.** Today: 326 functions, no
+duplicates. It would have caught `drawAsk` in 2S and this one today.
 
 **3F — CONSOLIDATION. NOTHING NEW, 154KB LIGHTER.**
 

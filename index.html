@@ -1177,7 +1177,7 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
     </div>
 
     <!-- BUILD MARK — dev only, delete this div when the app ships -->
-    <div id="buildtag">BUILD 3F</div>
+    <div id="buildtag">BUILD 3G</div>
   </div>
 </section>
 
@@ -1864,6 +1864,17 @@ What you actually did. Why it mattered. Say the awkward parts."></textarea>
 
 <!-- ══════════ TABS ══════════ -->
 <!-- ══ SHEET — the tab ══ -->
+<!-- The page, at a size worth looking at. Opened by Preview, from the sheet
+     panel, before or after publishing. -->
+<div class="sheet hide" id="sheet-pv" role="dialog" aria-modal="true"><div class="panel">
+  <button class="sheetback" onclick="sheet(null)">&lsaquo; Done</button>
+  <h3>What prints</h3>
+  <div class="askmode" id="pv-shape"></div>
+  <div id="pv-body"></div>
+  <p class="askhint" id="pv-note" style="padding-left:0;text-align:center;margin:8px 0 0"></p>
+  <div class="askbar" id="pv-act" style="justify-content:center;margin-top:14px"></div>
+</div></div>
+
 <div class="sheet hide" id="sheet-spend" role="dialog" aria-modal="true"><div class="panel">
   <button class="sheetback" onclick="sheet(null)">‹ Done</button>
   <h3>The act tally</h3>
@@ -4805,39 +4816,27 @@ function drawSheetPanel(){
       'which is what you want for a noticeboard or a shop window.</p>'+
     askOpt('sign', 'Your name',       'Your name', 'optional')+
     askOpt('phone','A number they can call', '912.555.0148', 'optional')+
-    '<div class="askbar"><button class="btn mini" type="button" onclick="askPublish()">'+
-      (sh.live?'Update the sheet':'Publish it')+'</button>'+
-      (sh.live?'<button class="btn mini ghost" type="button" onclick="askRefresh()">Who signed up</button>':'')+
+    /* G, 7 Sept: "it should say preview and then put a publish it button beside
+       of it. So you preview it, you edit, then you publish it. Or you preview it
+       again." Two buttons, side by side, and the preview opens the page at a
+       size worth looking at rather than sitting in the panel as a stamp.
+       Print and the link stay behind publishing: a poster whose square leads to
+       a 404 is worse than no poster. */
+    '<div class="askbar">'+
+      '<button class="btn mini ghost" type="button" onclick="openPaperPreview()">Preview</button>'+
+      '<button class="btn mini" type="button" onclick="askPublish()">'+
+        (sh.live?'Update the sheet':'Publish it')+'</button>'+
     '</div>'+
-    /* G, 6 Sept: "can we say preview view so they can understand what they're
-       looking at?" This is the actual paper, at actual proportions, scaled to
-       the column — not a description of it. Same words either way; the two
-       chips only change the shape. */
-    (sh.live?'<div class="qrwrap">'+
-      '<label class="asklab" style="margin-top:2px">What prints</label>'+
-      '<div class="askmode">'+
-        '<button type="button" class="modechip'+(ASK_PV==='half'?'':' on')+'" '+
-          'onclick="askPv(\'full\')">One full page</button>'+
-        '<button type="button" class="modechip'+(ASK_PV==='half'?' on':'')+'" '+
-          'onclick="askPv(\'half\')">Two handouts</button>'+
-      '</div>'+
-      '<div class="ppv'+(ASK_PV==='half'?' wide':'')+'"><div class="ppvin">'+
-        (ASK_PV==='half'
-          ? '<div class="psheet">'+posterPanel(sh,true)+posterPanel(sh,true)+'</div>'
-          : posterPanel(sh,false))+
-      '</div></div>'+
-      '<p class="askhint" style="padding-left:0;text-align:center;margin:6px 0 8px">'+
-        (ASK_PV==='half'
-          ? 'One sheet, cut down the dashed line, and you have two to hand over.'
-          : 'One page to hang up, or to leave where people will see it.')+'</p>'+
-      '<div class="askbar" style="justify-content:center">'+
-        '<button class="btn mini" type="button" onclick="askPoster(ASK_PV)">'+
-          'Print it</button>'+
+    (sh.live?'<div class="askbar" style="margin-top:8px">'+
+      '<button class="btn mini ghost" type="button" onclick="askRefresh()">Who signed up</button>'+
+      '<button class="btn mini ghost" type="button" onclick="askPoster(ASK_PV)">Print it</button>'+
       '</div>'+
       '<p class="askhint" style="padding-left:0;text-align:center;margin:12px 0 2px">'+
         'Or send the link instead of printing anything:</p>'+
-      '<p class="qrlink">actsofgood.app/a/'+sh.id+'</p>'+
-      '</div>':'')+
+      '<p class="qrlink">actsofgood.app/a/'+sh.id+'</p>'
+     :'<p class="askhint" style="padding-left:0;text-align:center;margin:8px 0 2px">'+
+        'Have a look before you put it up. The square starts working the moment '+
+        'you publish.</p>')+
     '<div id="wk-claims"></div>';
   fitPreviewPlate();
   fitPreview();
@@ -4870,7 +4869,67 @@ function fitPreview(){
   inner.style.width = paper+'px';
   inner.style.transform = 'scale('+(w/paper)+')';
 }
-function askPv(kind){ ASK_PV = kind==='half' ? 'half' : 'full'; drawSheetPanel(); }
+function askPv(kind){
+  ASK_PV = kind==='half' ? 'half' : 'full';
+  if($('sheet-pv') && !$('sheet-pv').classList.contains('hide')) drawPaperPreview();
+  else drawSheetPanel();
+}
+
+/* The page, big. Same posterPanel the printer gets, so what is looked at here
+   is what comes out of the machine, not an impression of it. */
+/* NOT drawPreview(): that name was already taken, by the post preview on the
+   compose screen. Declared twice, the later one wins and the earlier one dies
+   in silence. It has happened twice in this file now. Grep the name first. */
+function openPaperPreview(){
+  const sh = askOf(); if(!sh) return;
+  drawPaperPreview();
+  sheet('pv');
+}
+function drawPaperPreview(){
+  const sh = askOf(); if(!sh) return;
+  const half = ASK_PV === 'half';
+  const chips = $('pv-shape');
+  if(chips) chips.innerHTML =
+    '<button type="button" class="modechip'+(half?'':' on')+'" '+
+      'onclick="askPv(\'full\')">One full page</button>'+
+    '<button type="button" class="modechip'+(half?' on':'')+'" '+
+      'onclick="askPv(\'half\')">Two handouts</button>';
+  const body = $('pv-body');
+  if(body) body.innerHTML =
+    '<div class="ppv'+(half?' wide':'')+'"><div class="ppvin">'+
+      (half ? '<div class="psheet">'+posterPanel(sh,true)+posterPanel(sh,true)+'</div>'
+            : posterPanel(sh,false))+
+    '</div></div>';
+  const note = $('pv-note');
+  if(note) note.textContent = sh.live
+    ? (half ? 'One sheet, cut down the dashed line, and you have two to hand over.'
+            : 'One page to hang up, or to leave where people will see it.')
+    : 'Nothing is online yet. The square starts working the moment you publish.';
+  const act = $('pv-act');
+  if(act) act.innerHTML = sh.live
+    ? '<button class="btn mini" type="button" onclick="askPoster(ASK_PV)">Print it</button>'
+    : '<button class="btn mini" type="button" onclick="sheet(null);askPublish()">Publish it</button>';
+  fitPvPlate();
+  requestAnimationFrame(fitPvScale);
+}
+function fitPvPlate(){
+  document.querySelectorAll('#pv-body .pgt').forEach(g=>{
+    for(const c of PLATE_STEPS){
+      PLATE_STEPS.forEach(x=>{ if(x) g.classList.remove(x); });
+      if(c) g.classList.add(c);
+      if(g.scrollHeight <= g.clientHeight + 1) break;
+    }
+  });
+}
+function fitPvScale(){
+  const fr = document.querySelector('#pv-body .ppv'), inner = fr && fr.firstElementChild;
+  if(!fr || !inner) return;
+  const w = fr.clientWidth || 0;
+  if(!w){ requestAnimationFrame(fitPvScale); return; }
+  const paper = fr.classList.contains('wide') ? 1056 : 816;
+  inner.style.width = paper + 'px';
+  inner.style.transform = 'scale(' + (w / paper) + ')';
+}
 
 /* G, 6 Sept: pre-write everything and let people edit it, rather than handing
    them three blank boxes. The words below are a starting point that already
@@ -7163,7 +7222,7 @@ function drawCompose(){
   /* the reminder is Instagram's alone — picking another chip must not leave it
      standing there telling her to paste into an app she is no longer using */
   if(CM_PLAT!=='instagram') dropPasteBar();
-  drawPreview(); prepack();
+  drawPaperPreview(); prepack();
 
   /* which platforms this act has already gone out on */
   /* An answer given by reflex used to be permanent. Each one can now be taken
@@ -7379,7 +7438,7 @@ async function prepack(){
   if(PACK.key === key && PACK.files) return;   // this exact picture is already drawn
   PACK = { key:key, files:null, busy:true };
   BAD_PHOTOS = 0; SMALL_PHOTOS = 0;
-  drawPreview(); drawGoState();
+  drawPaperPreview(); drawGoState();
   const files = [];
   /* captured BEFORE the awaits: the filename used to re-read the global after
      the render finished, so switching destination mid-render shipped a card
@@ -7408,7 +7467,7 @@ async function prepack(){
   }
   if(PACK.key !== key) return;                 // a later pack overtook us; it owns the state
   PACK.files = files; PACK.busy = false;
-  drawPreview(); drawGoState();
+  drawPaperPreview(); drawGoState();
   if(BAD_PHOTOS) say('One of your photos will not open',
     BAD_PHOTOS===1 ? 'It is left out of this one. Everything else goes as normal.'
                    : BAD_PHOTOS+' of them are left out. Everything else goes as normal.');
@@ -8446,7 +8505,7 @@ function checkFirst(title, note, okLabel, then, cancelLabel){
 let SHEET_FROM = null;
 function sheet(which){
   dropUndo();      // an offer does not follow you into or out of a sheet
-  ['you','social','spend','plan','person','cal','date','ask','done','finish','eval'].forEach(x=>{ const el=$('sheet-'+x); if(el) el.classList.add('hide'); });
+  ['you','social','spend','plan','person','cal','date','ask','done','finish','eval','pv'].forEach(x=>{ const el=$('sheet-'+x); if(el) el.classList.add('hide'); });
   if(which){ $('sheet-'+which).classList.remove('hide'); }
   if(which==='social') drawPlats();
   if(which==='cal') drawCal();
