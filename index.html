@@ -237,6 +237,16 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
 .ctick{flex:none;width:19px;height:19px;border-radius:50%;background:var(--gold);
   display:flex;align-items:center;justify-content:center}
 .ctick.off{background:none;border:1.5px solid #CFC7B8}
+/* Anything a person can type has to be able to break. A pasted URL or one very
+   long word used to push the whole page sideways: 2313px of horizontal scroll
+   on the journal, measured by the test rig. `anywhere` is the only value that
+   breaks inside a word with no hyphen, and flex and grid children need
+   min-width:0 as well or they refuse to shrink below their content. */
+.tile,.chip,.note,.cardbox,.jpage,.claimrow,.nrow,.askrow,.setgroup,
+.pgt,.pgt li,.pgt p,.ideaart,.msg,#wk-claims,#ideas,#grid{
+  overflow-wrap:anywhere;word-break:normal}
+.cardbox,.claimrow,.nrow,.askrow,.pgt,.pgt li{min-width:0}
+.claimrow .cn,.nrow .ntx,.askrow .atx{min-width:0}
 #poster{display:none}
 .ideaart{display:block;width:100%;height:132px;object-fit:cover;object-position:center;
   border-radius:9px;margin:0 0 12px;background:var(--mist)}
@@ -359,6 +369,24 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
 .pgt.n3 li{font-size:12.5pt;margin-bottom:0.095in}
 .pgt.n3 ul{column-count:2}
 .pgt.n4 li{font-size:11pt;margin-bottom:0.07in;line-height:1.28}
+/* the last band, for a long list carrying a picture and every detail */
+.pgt.n5 li{font-size:9.5pt;margin-bottom:0.05in;line-height:1.24}
+.pgt.n5 ul{column-count:2;column-gap:0.35in}
+.pgt.n5 .pd{font-size:10.5pt;margin:0}
+.pgt.n5 .pt{font-size:13pt}
+.pgt.n5 .ptag{font-size:11.5pt}
+.pgt.n5 .pfx b,.pgt.n5 .pfx span{font-size:10pt;line-height:1.35}
+.pgt.n5 .ps,.pgt.n5 .pcall{font-size:10pt}
+.pgt.n5 .pf{font-size:9pt;line-height:1.35}
+.pgt.n5 .pfh{font-size:10.5pt}
+.pgt.n5 .pu{font-size:9pt}
+.pgt.n5 .pq svg{width:1.55in;height:1.55in}
+.pgt.n5:not(.invite) .pa img{width:1.2in;max-height:0.85in}
+.pgt.half.n5 li{font-size:8pt;margin-bottom:0.03in;line-height:1.2}
+.pgt.half.n5 .pfx b,.pgt.half.n5 .pfx span{font-size:8pt;line-height:1.3}
+.pgt.half.n5 .pq svg{width:1.05in;height:1.05in}
+.pgt.half.n5 .pf{font-size:6.5pt;line-height:1.25}
+.pgt.half.n5:not(.invite) .pa img{width:1in;max-height:0.75in}
 .pgt.n4 ul{column-count:2;column-gap:0.4in}
 .pgt.n4 .pd{font-size:11.5pt;margin:0}
 .pgt.n4 .pq svg{width:1.75in;height:1.75in}
@@ -1063,7 +1091,7 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
     </div>
 
     <!-- BUILD MARK — dev only, delete this div when the app ships -->
-    <div id="buildtag">BUILD 3A</div>
+    <div id="buildtag">BUILD 3B</div>
   </div>
 </section>
 
@@ -1303,8 +1331,7 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
 
     <div class="field"><label for="l-num">Number</label>
       <input id="l-num" oninput="saveDraft()" style="max-width:120px">
-      <p class="note" style="margin-top:8px">Editable. Halves are allowed.
-        Act 2.5 is a real act.</p></div>
+      <p class="note" style="margin-top:8px">Editable.</p></div>
 
     <div class="field"><label for="l-when">When?</label>
       <input id="l-when" type="hidden" aria-hidden="true">
@@ -2021,7 +2048,8 @@ function serialise(){
                                 start:y.start||'', end:y.end||'', zero:y.zero||null,
                                 acts:y.acts||[] })),
     people:S.people, platforms:S.platforms,
-    started:S.started, letterSeen:!!S.letterSeen, bkup:S.bkup||'', bkupNag:S.bkupNag||'', zero:S.zero||null, tabToured:!!S.tabToured, opens:S.opens||0, todoOpens:S.todoOpens||0, plans:slimPlans(), handles:S.handles||{}, places:S.places||{},
+    started:S.started, letterSeen:!!S.letterSeen, bkup:S.bkup||'', bkupNag:S.bkupNag||'',
+    finShown:S.finShown?1:0, halfShown:S.halfShown?1:0, fin:S.fin||null, zero:S.zero||null, tabToured:!!S.tabToured, opens:S.opens||0, todoOpens:S.todoOpens||0, plans:slimPlans(), handles:S.handles||{}, places:S.places||{},
     works:(S.works||[]).map(w=>({ pid:w.pid, t:w.t||'', d:w.d||'', who:w.who||[], hon:w.hon||'',
                           cost:w.cost||0, spends:w.spends||[], story:w.story||'', exp:w.exp||'',
                           startedAt:w.startedAt||'', sheet:w.sheet||null, seed:w.seed||null,
@@ -2122,6 +2150,8 @@ async function load(){
   S.past = Array.isArray(o.past) ? o.past : [];
   S.people=o.people||[]; S.platforms=o.platforms||S.platforms;
   S.started=!!o.started; S.letterSeen=!!o.letterSeen; S.bkup=o.bkup||''; S.bkupNag=o.bkupNag||'';
+  S.finShown=o.finShown?1:0; S.halfShown=o.halfShown?1:0;
+  S.fin=(o.fin&&typeof o.fin==='object')?o.fin:null;
   if(S.cat==='Neighbours') S.cat='Neighbors';   // the library went American
   S.zero=o.zero||null; S.tabToured=!!o.tabToured; S.opens=o.opens||0; S.todoOpens=o.todoOpens||0; S.handles=o.handles||{}; S.places=o.places||{};
   S.plans = await fatPlans(o.plans||{});
@@ -2147,7 +2177,8 @@ async function load(){
   Object.keys(S.plans||{}).forEach(k=>{
     const pl=S.plans[k]; if(!pl) return;
     S.works.push({ pid:pl.pid||newWorkId(), t:pl.t||'', d:pl.d||'', who:(pl.who||[]).slice(),
-                   hon:'', cost:+pl.cost||0, spends:(pl.spends||[]).slice(), story:pl.note||'',
+                   hon:'', cost:+pl.cost||0, spends:(pl.spends||[]).slice(),
+                   story:pl.story||pl.note||'', r:pl.r||'',
                    exp:String(k), startedAt:todayISO(), photos:(pl.photos||[]).slice(),
                    seed:(pl.seed&&typeof pl.seed==='object')?pl.seed:null });
   });
@@ -4711,6 +4742,7 @@ function drawSheetPanel(){
       '<p class="qrlink">actsofgood.app/a/'+sh.id+'</p>'+
       '</div>':'')+
     '<div id="wk-claims"></div>';
+  fitPreviewPlate();
   fitPreview();
   box.querySelectorAll('.atx[data-k]').forEach(el=>{ el.value = sh[el.dataset.k] || ''; });
   box.querySelectorAll('.atx[data-i]').forEach(el=>{ el.value=rows[+el.dataset.i]||''; });
@@ -4720,6 +4752,18 @@ function drawSheetPanel(){
 
 /* One CSS inch is 96px, so a full page is 816x1056 and a landscape pair is
    1056x816. Measure the frame, divide, and the paper fits it exactly. */
+/* the preview is the same plate, so it steps the same way */
+function fitPreviewPlate(){
+  const wrap = document.querySelector('#wk-ask .ppvin'); if(!wrap) return;
+  wrap.querySelectorAll('.pgt').forEach(g=>{
+    for(const c of PLATE_STEPS){
+      PLATE_STEPS.forEach(x=>{ if(x) g.classList.remove(x); });
+      if(c) g.classList.add(c);
+      if(g.scrollHeight <= g.clientHeight + 1) break;
+    }
+  });
+}
+
 function fitPreview(){
   const fr=document.querySelector('#wk-ask .ppv'), inner=fr&&fr.firstElementChild;
   if(!fr || !inner) return;
@@ -4906,6 +4950,12 @@ function posterPanel(sh, half){
   const load = n + (facts.length ? facts.length - 1 : 0) + (pick('greet') ? 1 : 0)
                  + (pick('sign') ? 1 : 0) + (pick('tag') ? 1 : 0)
                  + (String(sh.art||'').trim() ? 4 : 0);
+  /* This was the only thing deciding the type size, and it was a guess. Across
+     222 acts played by the test rig it was wrong fourteen times, by 2px to 49px,
+     at six, nine, ten, eleven and twelve items. It is a STARTING GUESS now:
+     fitPlate() measures the finished plate and steps down until it truly fits,
+     so no combination of greeting, tagline, why, details, signature, picture
+     and list can push content off the paper. */
   const step = load<=5 ? '' : load<=9 ? ' n2' : load<=14 ? ' n3' : ' n4';
   /* it said "Or just call or text Sam Ortega." with no number on it, which is
      not an instruction. The line needs the number, or it does not run. */
@@ -4951,6 +5001,34 @@ function posterPanel(sh, half){
     call+
     '<p class="pm">50 acts of good</p></div>';
 }
+/* Measure the plate and step down until the content really fits. The .pgt
+   rules live outside @media print for exactly this reason: on screen and on
+   paper the geometry is the same, so what fits here fits there. #poster is
+   display:none, which measures zero, so it is made measurable off-screen for
+   the length of the loop and put back. */
+const PLATE_STEPS = ['','n2','n3','n4','n5'];
+function fitPlate(){
+  const p = $('poster'); if(!p) return;
+  const prev = { d:p.style.display, pos:p.style.position, l:p.style.left, t:p.style.top };
+  p.style.display='block'; p.style.position='fixed'; p.style.left='-20000px'; p.style.top='0';
+  const plates = p.querySelectorAll('.pgt');
+  let worst = '';
+  plates.forEach(g=>{
+    for(const c of PLATE_STEPS){
+      PLATE_STEPS.forEach(x=>{ if(x) g.classList.remove(x); });
+      if(c) g.classList.add(c);
+      if(g.scrollHeight <= g.clientHeight + 1) break;
+    }
+    for(const c of PLATE_STEPS){ if(c && g.classList.contains(c)) worst = c; }
+  });
+  /* two handouts on one sheet are cut apart, so they must match each other */
+  if(plates.length > 1 && worst){
+    plates.forEach(g=>{ PLATE_STEPS.forEach(x=>{ if(x) g.classList.remove(x); });
+                        g.classList.add(worst); });
+  }
+  p.style.display=prev.d; p.style.position=prev.pos; p.style.left=prev.l; p.style.top=prev.t;
+}
+
 function askPoster(kind){
   const sh=askOf(); if(!sh) return;
   const half = kind==='half';
@@ -4964,6 +5042,7 @@ function askPoster(kind){
   p.innerHTML = half
     ? '<div class="psheet">'+posterPanel(sh,true)+posterPanel(sh,true)+'</div>'
     : posterPanel(sh,false);
+  fitPlate();
   setTimeout(function(){ window.print(); }, 60);
 }
 
@@ -5289,7 +5368,7 @@ function drawGrid(){
        product. They are buttons because that is what they are. */
     const t=document.createElement('button'), a=map[i], pl=plans[i];
     t.type='button';
-    t.className='tile'+(a ? (a.no.indexOf('.')>-1?' half':' done')
+    t.className='tile'+(a ? ' done'
                           : (pl ? ' planned' : (i===nextN?' next':'')));
     if(pl){
       /* a planned act sits in its slot as a ghost, so the grid answers
@@ -5682,8 +5761,8 @@ function drawPeople(){
   });
 }
 /* Handles are stored per person, per platform, because they don't match:
-   a friend is "a friend Williams" on Facebook and @hollyyoungwilliamsarchitect on
-   Instagram, and another is "another Vinson Halabi" and @leigh_halabi. That can't
+   a friend is "a friend" on Facebook and @a_handle on
+   Instagram, and another is "another person" and @another_handle. That can't
    be derived, so it has to be kept. The composer substitutes the right one. */
 const HANDLE_KEYS = ['email','instagram','facebook','threads','x'];
 function handlesOf(name){ return (S.handles||(S.handles={}))[name] || {}; }
@@ -6316,16 +6395,18 @@ function logMode(){
   const fo=$('f-out'); if(fo) fo.classList.add('hide');   // now asked afterwards
 }
 
-/* The number field invites free typing — its own help says "Halves are allowed"
-   — and used to accept anything. "abc" became NaN, which took the whole grid
-   with it: no tile filled, and no next square marked for the rest of the year,
-   with no way to renumber or delete the act afterwards. */
+/* The number field invites free typing and used to accept anything. "abc"
+   became NaN, which took the whole grid with it: no tile filled, and no next
+   square marked for the rest of the year, with no way to renumber or delete
+   the act afterwards. It also still took 2.5 long after half acts were removed
+   in 1X, while telling the person it wanted a whole number, and drew a tile
+   wearing a class whose CSS had gone. Whole numbers only, and it means it. */
 function readActNo(){
   const raw = ($('l-num').value||'').trim();
   const n = parseFloat(raw);
-  if(!raw || !isFinite(n) || n <= 0 || n > S.n){
+  if(!raw || !isFinite(n) || n <= 0 || n > S.n || Math.round(n) !== n){
     say('That act number will not work',
-        'Use a number between 1 and '+S.n+'. Halves are fine, act 2.5 is a real act.');
+        'A whole number between 1 and '+S.n+'.');
     return null;
   }
   return { no: String(n), slot: Math.ceil(n) };
@@ -6648,7 +6729,7 @@ function drawSlides(a){
       cutting. If it still won't fit with every credit in, the app says so out
       loud rather than quietly dropping someone.
    3. The same person needs a different identifier per platform, a friend is
-      "a friend Williams" on Facebook and @hollyyoungwilliamsarchitect on
+      "a friend" on Facebook and @a_handle on
       Instagram. That can't be derived, so it comes from the People directory.
    4. Whitespace costs characters. Facebook is set in short paragraphs;
       Instagram's are collapsed, because blank lines are expensive at 2,200.  */

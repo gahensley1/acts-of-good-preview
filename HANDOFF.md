@@ -6,7 +6,7 @@ what is true right now. When they disagree, this file is newer — say so and fi
 the skill.
 
 Last updated: **6 September 2026**.
-Build in G's hands: **3A** — pushed and live. **The sign-up sheet in it cannot
+Build in G's hands: **3B** — pushed and live. **The sign-up sheet in it cannot
 publish until `npx wrangler deploy` is run from `aog-sheets`** (see the CORS
 entry below).
 
@@ -556,6 +556,75 @@ old stories still readable.
 - **Both shapes re-measured at zero overflow** with a twelve-item potluck, after
   the taller footer pushed the full page 50px and each handout 53px over the
   plate. Row gaps and the handout's n4 step were tightened to pay for it.
+
+**3B — THE ASSAULT. 495 ACTS PLAYED, 2,440 CHECKS, SIX REAL DEFECTS FOUND.**
+
+G asked for a full assault while he slept: runs at 25, 50 and 100 acts, then
+more, split up. Nine runs went through a real headless browser: 1, 7, 25, 50,
+100 and 200 acts, two chaos runs feeding the app deliberately hostile input
+(180-character words, emoji, markup, tabs, empty strings, 12-item lists), and one
+run served over HTTP rather than file:// to separate real console errors from
+origin artefacts. **The rig is at /tmp/rig/play.py and should be kept.**
+
+Each act is created, named, dated, given people, notes and sometimes a sign-up
+sheet, printed in both shapes with the plate measured for overflow, then
+finished and posted. Every fifth of the way through it reloads and re-verifies
+the act count, then walks all eight screens checking for em dashes, horizontal
+overflow and page errors.
+
+**SIX DEFECTS, ALL FIXED IN THIS BUILD.**
+
+**1. THE FINISH AND THE HALFWAY NOTE FIRED ON EVERY SINGLE LAUNCH, FOREVER.**
+The worst one, and no amount of playing would have found it, because it only
+shows on the *second* launch after the threshold. `S.finShown` and `S.halfShown`
+are both set and followed by `save()`, and **neither was in `serialise()` or the
+loader**. So the flag was gone by the next launch and the year ended again,
+with confetti and the closing card, every time the app opened. `S.fin` had the
+same hole, losing the closing post's captions and where it had been shared.
+All three are in both halves now, and it was **proved by launching four times in
+a row**: shown, then not, then not, then not.
+**This is the third time this exact fault has shipped in this codebase.** The
+standing rule already says both halves; it is not enough on its own. **Grep for
+the field name in `serialise` before you finish any change that adds one.**
+
+**2. ONE LONG WORD BROKE THE LAYOUT SIDEWAYS.** A pasted link or a very long
+unbroken word pushed the journal 2,313px wide, measured. Nothing could wrap it:
+a 180-character word has no break opportunity. `overflow-wrap:anywhere` on every
+container that holds typed text, plus `min-width:0` on the flex and grid children
+that were refusing to shrink below their content.
+
+**3. THE PRINTED PLATE OVERFLOWED, FOURTEEN TIMES IN 222 ACTS**, by 2px to 49px,
+at six, nine, ten, eleven and twelve items. The type size was chosen by a
+formula guessing at the content. **It is measured now**: `fitPlate()` steps the
+plate down through five bands until the content genuinely fits, and if two
+handouts are on one sheet they are forced to the same band so the pair matches
+when it is cut. The formula survives only as a starting guess. A fifth, smaller
+band was added for a long list carrying a picture. **Zero overflows in the 273
+acts played after the fix.**
+
+**4. TWO SCREENS STILL PROMISED HALF ACTS**, removed in 1X: the Log screen's
+help note, and its validation dialog, which said "a whole number" and then
+accepted 2.5 anyway. The grid still asked for a `.tile.half` class whose CSS
+went with the feature, so a 2.5 drew an unstyled tile. All three fixed.
+
+**5. TWO REAL INSTAGRAM HANDLES OF HER CIRCLE SURVIVED IN COMMENTS.** The names
+around them had been scrubbed; the handles had not. Generalised.
+**`check-nothing-of-hers.py` does not catch handles. Add them.**
+
+**6. THE PLAN-TO-WORK MIGRATION DROPPED THE REMINDER** (`pl.r`) and read
+`pl.note`, a field nothing ever writes, so an imported plan's story was always
+empty. Both fixed.
+
+**WHAT IS LEFT, AND IT IS NOT A DEFECT.** Two things the rig still flags:
+console `blob:null` errors, which are file:// origin artefacts and vanish when
+the same run is served over HTTP; and em dashes on screen in the chaos runs,
+which come from the rig's own hostile test titles. **A person may type an em
+dash and that is theirs.** The rule is about the app's own words.
+
+**Also noted by the audit, not fixed, for G:** the `BUILD 3B` mark still ships
+at the foot of Your year, and `wipe()`, `zeroDone()`, `copyAsk()`, `askAnon()`,
+`dropWork()`, `restoreDraft()`, `newActChecked()`, `unpost()`, `wholeNo()` and
+`lastWeek()` are all declared and never called.
 
 **3A — THE GRAPHIC, PROVED ON ONE IDEA.**
 
