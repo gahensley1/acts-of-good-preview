@@ -514,6 +514,13 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
   font-size:12px;font-weight:700;letter-spacing:.12em;color:#6B6259;
   background:var(--mist);border:1px solid var(--line);border-radius:7px;
   padding:6px 12px}
+/* the quietest thing on the screen, at the bottom of it, where somebody who
+   wants it will look and nobody else has to step over it */
+.youfoot{margin:26px 0 0;text-align:center}
+.youfoot button{border:0;background:none;font:inherit;font-size:13.5px;
+  color:var(--muted);text-decoration:underline;text-underline-offset:3px;
+  min-height:44px;padding:0 12px;cursor:pointer;
+  -webkit-tap-highlight-color:transparent}
 #storagebar{position:fixed;left:0;right:0;top:0;z-index:80;background:var(--coralink);
   color:#fff;display:flex;align-items:center;gap:12px;justify-content:center;
   padding:calc(8px + var(--safetop)) 14px 8px;font-size:13.5px;font-weight:600}
@@ -1035,7 +1042,7 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
     </div>
 
     <!-- BUILD MARK — dev only, delete this div when the app ships -->
-    <div id="buildtag">BUILD 2V</div>
+    <div id="buildtag">BUILD 2W</div>
   </div>
 </section>
 
@@ -1681,8 +1688,13 @@ What you actually did. Why it mattered. Say the awkward parts."></textarea>
       <p class="note" id="storagenote">Everything is saved on this phone.</p>
       <p class="note" style="margin-top:10px">Because it never leaves the phone, it
         can go with the phone. A backup is one file with everything in it: every act,
-        every photograph, every person. Send it to iCloud or Drive and it is off the
-        phone as well as on it.</p>
+        every photograph, every person.</p>
+      <p class="note" style="margin-top:10px"><b>How to keep one safe.</b> Tap
+        <i>Create a backup</i> and your phone offers to share the file. Choose
+        <b>Save to Files</b> and put it in <b>iCloud Drive</b>, or on an Android
+        phone, save it to <b>Google Drive</b>. Anywhere that is not only this phone.
+        <b>Once a month is plenty</b>, and again after any act you would hate to
+        lose. The line under the button tells you when the last one was.</p>
       <button class="btn ghost" style="margin-top:12px" onclick="exportJournal()">
         Create a backup</button>
       <p class="note" id="bkupwhen" style="margin:8px 0 0"></p>
@@ -1690,12 +1702,10 @@ What you actually did. Why it mattered. Say the awkward parts."></textarea>
         Restore from a backup</button>
       <input type="file" id="imp-file" accept="application/json,.json" class="hide" aria-label="Choose a backup file"
         onchange="importJournal(this)">
-      <button class="btn ghost" style="margin-top:10px" onclick="go('journal')">
-        Read your year</button>
-      <button class="btn ghost" style="margin-top:10px" onclick="openLetter(true)">
-        Read Jessica's letter again</button>
-
     </div>
+
+    <p class="youfoot"><button type="button" onclick="openLetter(true)">Read
+      Jessica&rsquo;s letter again</button></p>
   </div>
 </section>
 
@@ -2259,7 +2269,8 @@ async function exportJournal(){
     setTimeout(()=>URL.revokeObjectURL(url), 4000);
     backupMade();
     say('Backup made', 'Saved as ' + name + '. If you cannot find it, look in your '+
-        'downloads. Keep it somewhere off this phone.' + smallNote(lost));
+        'downloads. Move it to iCloud Drive or Google Drive, so it is not only on '+
+        'this phone.' + smallNote(lost));
   } catch(e){
     say('It could not save a copy', 'Your phone would not let the app hand the file '+
         'over. Try again from a browser tab rather than the installed app.');

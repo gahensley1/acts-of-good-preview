@@ -6,7 +6,7 @@ what is true right now. When they disagree, this file is newer — say so and fi
 the skill.
 
 Last updated: **6 September 2026**.
-Build in G's hands: **2V** — pushed and live. **The sign-up sheet in it cannot
+Build in G's hands: **2W** — pushed and live. **The sign-up sheet in it cannot
 publish until `npx wrangler deploy` is run from `aog-sheets`** (see the CORS
 entry below).
 
@@ -556,6 +556,24 @@ old stories still readable.
 - **Both shapes re-measured at zero overflow** with a twelve-item potluck, after
   the taller footer pushed the full page 50px and each handout 53px over the
   plate. Row gaps and the handout's n4 step were tightened to pay for it.
+
+**2W — THE FOOT OF YOU, AND TELLING PEOPLE WHERE TO PUT THE FILE.**
+
+- **"This device" now holds only the two device things.** *Read your year* is
+  gone from You: it was a second door to the journal, and the first one is on
+  the screen the app opens on. *Read Jessica's letter again* is no longer a
+  full-width button competing with the backup for weight. It is an underlined
+  line of words at the very foot of the screen, 44px tall, 27px clear of the tab
+  bar when scrolled to the bottom (measured). G: *"maybe it's just a simple set
+  of words below... but don't put it up here."*
+
+- **The backup note now names the destination.** G: *"if you can't auto save,
+  there needs to be somewhere to go and what to save periodically."* Right.
+  *"Keep it somewhere safe"* is advice; **"Choose Save to Files and put it in
+  iCloud Drive"** is something a person can follow while holding the phone. The
+  note covers both platforms, says **once a month is plenty**, and points at the
+  line under the button for when the last one was. The success dialog says the
+  same thing rather than *"keep it somewhere off this phone."*
 
 **2V — THE BACKUP, AND WHY IT CANNOT BE AUTOMATIC.**
 
