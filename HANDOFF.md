@@ -6,7 +6,7 @@ what is true right now. When they disagree, this file is newer — say so and fi
 the skill.
 
 Last updated: **6 September 2026**.
-Build in G's hands: **2W** — pushed and live. **The sign-up sheet in it cannot
+Build in G's hands: **2X** — pushed and live. **The sign-up sheet in it cannot
 publish until `npx wrangler deploy` is run from `aog-sheets`** (see the CORS
 entry below).
 
@@ -556,6 +556,38 @@ old stories still readable.
 - **Both shapes re-measured at zero overflow** with a twelve-item potluck, after
   the taller footer pushed the full page 50px and each handout 53px over the
   plate. Row gaps and the handout's n4 step were tightened to pay for it.
+
+**2X — THE BACKUP REMINDER.**
+
+G asked for a toast that comes round periodically and says where to go. It is
+the same black bar the undo and the card-gaps use, so it is a shape the app
+already owns rather than a new kind of interruption.
+
+**The rules, which are the whole design.** It is a reminder or it is a pest, and
+the difference is entirely in when it keeps quiet:
+
+- **Nothing until there are two acts.** Before that there is nothing to lose.
+- **Nothing unless the backup is stale**, which is over thirty days, or never.
+- **Nothing more than once a fortnight**, tracked in `S.bkupNag`.
+- **Nothing twice in one session.**
+- **Nothing while a sheet is open, or while the halfway note or the finish has
+  the screen.** It waits 2600ms after Your year draws, so the confetti gets its
+  moment uninterrupted.
+
+It says *"Nothing is backed up yet."* or *"Your last backup was 6 weeks ago."*
+and the button is **Back it up**, which lands on You **scrolled to the
+instructions**, not on the screen with the person left to hunt for it.
+
+**A trap worth recording.** The first version guarded on
+`moment.classList.contains('hide')`, and the moment overlay is hidden by
+`display:none` with the `up` class added to show it, so the guard was true
+whenever the moment was NOT showing and the bar never appeared once. **Nothing
+threw.** It was found by asserting the bar was up in seven seeded states rather
+than by looking at one. The guard reads `up` now.
+
+`S.bkupNag` is in `serialise()` and the loader. Seven states were measured:
+never, three days, forty-five days, four hundred days, stale-but-recently-said,
+stale-and-said-a-month-ago, and a single act.
 
 **2W — THE FOOT OF YOU, AND TELLING PEOPLE WHERE TO PUT THE FILE.**
 

@@ -469,17 +469,17 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
 /* Above the sheets. At z-index 60 it tied with them and lost on DOM order, so
    the Undo button was visible and unpressable — and during setup the tap landed
    on "Start" underneath it, ending onboarding instead of undoing the delete. */
-#undobar,#gapbar{position:fixed;left:50%;bottom:calc(72px + env(safe-area-inset-bottom));
+#undobar,#gapbar,#bkupbar{position:fixed;left:50%;bottom:calc(72px + env(safe-area-inset-bottom));
   transform:translate(-50%,140%);z-index:79;background:var(--ink);color:#fff;
   border-radius:12px;padding:11px 14px;display:flex;align-items:center;gap:14px;
   width:max-content;max-width:min(92vw,420px);box-shadow:0 8px 24px rgba(0,0,0,.28);
   transition:transform .22s cubic-bezier(.2,.8,.3,1);
   /* parked off screen it was still catching taps meant for the button beneath it */
   pointer-events:none;visibility:hidden}
-#undobar.up,#gapbar.up{transform:translate(-50%,0);pointer-events:auto;visibility:visible}
-#undobar .msg,#gapbar .msg{font-size:13.5px}
+#undobar.up,#gapbar.up,#bkupbar.up{transform:translate(-50%,0);pointer-events:auto;visibility:visible}
+#undobar .msg,#gapbar .msg,#bkupbar .msg{font-size:13.5px}
 /* the same bar, so the same action colour Undo uses */
-#gapbar button{background:none;border:0;color:#F6C65B;font-weight:700;
+#gapbar button,#bkupbar button{background:none;border:0;color:#F6C65B;font-weight:700;
   font-size:13.5px;padding:6px 4px;min-height:36px;cursor:pointer;flex-shrink:0}
 /* Tried in coral and ruled back to black, 1J: it reads better. Both bars are
    the app speaking in the same voice, so they look the same. */
@@ -1042,7 +1042,7 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
     </div>
 
     <!-- BUILD MARK — dev only, delete this div when the app ships -->
-    <div id="buildtag">BUILD 2W</div>
+    <div id="buildtag">BUILD 2X</div>
   </div>
 </section>
 
@@ -1143,6 +1143,14 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
      raised by arriving at You, which is the one screen that can answer it. -->
 <div id="gapbar" role="status" aria-live="polite">
   <span class="msg"></span><button type="button" onclick="sheet('you')">Add</button></div>
+
+<!-- The same bar again, for the one thing the app cannot do for you. It cannot
+     save a backup by itself: no browser on a phone can write a file without a
+     tap, and a reinstalled app has nothing to identify itself with. So it
+     remembers, and every few weeks it says so. Tapping it lands on the
+     instructions rather than on a shrug. -->
+<div id="bkupbar" role="status" aria-live="polite">
+  <span class="msg"></span><button type="button" onclick="goBackup()">Back it up</button></div>
 
 <!-- BUILD TAG — dev only, delete this div (and its comment) when the app ships -->
 <div class="sheet hide" id="sheet-date" role="dialog" aria-modal="true"><div class="panel">
@@ -1992,7 +2000,7 @@ function serialise(){
                                 start:y.start||'', end:y.end||'', zero:y.zero||null,
                                 acts:y.acts||[] })),
     people:S.people, platforms:S.platforms,
-    started:S.started, letterSeen:!!S.letterSeen, bkup:S.bkup||'', zero:S.zero||null, tabToured:!!S.tabToured, opens:S.opens||0, todoOpens:S.todoOpens||0, plans:slimPlans(), handles:S.handles||{}, places:S.places||{},
+    started:S.started, letterSeen:!!S.letterSeen, bkup:S.bkup||'', bkupNag:S.bkupNag||'', zero:S.zero||null, tabToured:!!S.tabToured, opens:S.opens||0, todoOpens:S.todoOpens||0, plans:slimPlans(), handles:S.handles||{}, places:S.places||{},
     works:(S.works||[]).map(w=>({ pid:w.pid, t:w.t||'', d:w.d||'', who:w.who||[], hon:w.hon||'',
                           cost:w.cost||0, spends:w.spends||[], story:w.story||'', exp:w.exp||'',
                           startedAt:w.startedAt||'', sheet:w.sheet||null,
@@ -2092,7 +2100,7 @@ async function load(){
   if(isNaN(S.start.getTime())) S.start = new Date();          // "week NaN of 52"
   S.past = Array.isArray(o.past) ? o.past : [];
   S.people=o.people||[]; S.platforms=o.platforms||S.platforms;
-  S.started=!!o.started; S.letterSeen=!!o.letterSeen; S.bkup=o.bkup||'';
+  S.started=!!o.started; S.letterSeen=!!o.letterSeen; S.bkup=o.bkup||''; S.bkupNag=o.bkupNag||'';
   if(S.cat==='Neighbours') S.cat='Neighbors';   // the library went American
   S.zero=o.zero||null; S.tabToured=!!o.tabToured; S.opens=o.opens||0; S.todoOpens=o.todoOpens||0; S.handles=o.handles||{}; S.places=o.places||{};
   S.plans = await fatPlans(o.plans||{});
@@ -7791,6 +7799,56 @@ function gapBar(){
   GAPBAR_T = setTimeout(()=>bar.classList.remove('up'), 7000);
 }
 let GAPBAR_T = null;
+
+/* ── the backup reminder ──────────────────────────────────────────────────
+   Rules, so it is a reminder and never a pest:
+     it says nothing until there are two acts, because there is nothing to lose
+     it says nothing more than once a fortnight
+     it says nothing twice in one session
+     it waits for the halfway note and the finish to have their moment first
+   STALE is thirty days. Never-backed-up counts as stale. */
+const BKUP_STALE_DAYS = 30, BKUP_QUIET_DAYS = 14;
+let BKUPBAR_SHOWN = false, BKUPBAR_T = null;
+
+function bkupAgeDays(){
+  const t = S.bkup ? Date.parse(S.bkup) : 0;
+  return t ? Math.floor((Date.now()-t)/86400000) : -1;   // -1 means never
+}
+function bkupDue(){
+  if((S.acts||[]).length + (S.works||[]).length < 2) return false;
+  const d = bkupAgeDays();
+  if(d >= 0 && d <= BKUP_STALE_DAYS) return false;
+  const said = S.bkupNag ? Date.parse(S.bkupNag) : 0;
+  if(said && (Date.now()-said)/86400000 < BKUP_QUIET_DAYS) return false;
+  return true;
+}
+function bkupBar(){
+  const bar=$('bkupbar'); if(!bar || BKUPBAR_SHOWN) return;
+  if(document.querySelector('.sheet:not(.hide)')) return;      // not over a sheet
+  const mo=$('moment'); if(mo && mo.classList.contains('up')) return;     // nor the moment
+  if(!bkupDue()) return;
+  BKUPBAR_SHOWN = true;
+  S.bkupNag = new Date().toISOString(); save();
+  const d = bkupAgeDays();
+  bar.querySelector('.msg').textContent = d < 0
+    ? 'Nothing is backed up yet.'
+    : 'Your last backup was ' + (d < 60 ? Math.round(d/7)+' weeks' : Math.round(d/30)+' months') + ' ago.';
+  bar.classList.add('up');
+  clearTimeout(BKUPBAR_T);
+  BKUPBAR_T = setTimeout(()=>bar.classList.remove('up'), 9000);
+}
+function dropBkupBar(){ const b=$('bkupbar'); if(b) b.classList.remove('up'); clearTimeout(BKUPBAR_T); }
+
+/* Lands on the instructions, not on the screen and let them hunt. */
+function goBackup(){
+  dropBkupBar();
+  go('you');
+  setTimeout(function(){
+    const el=$('bkupwhen') || document.querySelector('#s-you .seth');
+    if(el) el.scrollIntoView({block:'center'});
+  }, 120);
+}
+
 function dropGapBar(){ const b=$('gapbar'); if(b) b.classList.remove('up'); clearTimeout(GAPBAR_T); }
 
 /* The card's gaps, said once and quietly.
@@ -8067,7 +8125,10 @@ function go(v){
                   /* halfway and the finish land HERE, on Your year, whatever
                      route the act took to get logged — the confetti falls
                      across the year, which is the screen it is about */
-                  setTimeout(checkMilestones, 420); }
+                  setTimeout(checkMilestones, 420);
+                  /* well after the moment has had the screen to itself */
+                  setTimeout(bkupBar, 2600); }
+  else dropBkupBar();
   if(v==='you'){   drawYou(); setTimeout(gapBar, 260); } else dropGapBar();
   if(v==='people') drawPeople();
   if(v==='zero')   drawZero();
