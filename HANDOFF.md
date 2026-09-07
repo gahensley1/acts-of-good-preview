@@ -6,7 +6,7 @@ what is true right now. When they disagree, this file is newer — say so and fi
 the skill.
 
 Last updated: **6 September 2026**.
-Build in G's hands: **2U** — pushed and live. **The sign-up sheet in it cannot
+Build in G's hands: **2V** — pushed and live. **The sign-up sheet in it cannot
 publish until `npx wrangler deploy` is run from `aog-sheets`** (see the CORS
 entry below).
 
@@ -556,6 +556,41 @@ old stories still readable.
 - **Both shapes re-measured at zero overflow** with a twelve-item potluck, after
   the taller footer pushed the full page 50px and each handout 53px over the
   plate. Row gaps and the handout's n4 step were tightened to pay for it.
+
+**2V — THE BACKUP, AND WHY IT CANNOT BE AUTOMATIC.**
+
+G asked whether the app could *"secretly try to auto save"*, and whether a new
+phone could fetch the backup on its own. **It cannot, and this is worth writing
+down so it is not re-litigated every few builds.**
+
+- **A web app on iOS cannot write a file anywhere by itself.** There is no API.
+  The File System Access API, which would allow a silent repeat save to a folder
+  the person picked once, does not exist in Safari. The share sheet is the only
+  route a file can take off the phone, and it needs a tap.
+- **A new phone has nothing to identify itself with.** Storage is per origin, per
+  browser, per device. Install the app again and it is empty; nothing connects it
+  to the old phone. For a server to hand back a backup, something has to prove
+  who is asking, and there are exactly two candidates: **an account**, which ends
+  the app's "nothing leaves the phone" promise, or **a recovery code** the person
+  keeps, which is a secret they can lose. There is no third option.
+- **Photographs are the real obstacle**, not the mechanism. The text of a year is
+  a few kilobytes. The photographs are tens of megabytes, they have never left
+  the phone, and putting them on a server means real file storage and a rewritten
+  privacy promise. Encrypting them first fixes the privacy half and makes the
+  recovery code the only key in existence.
+- **The one silent protection that IS possible is already in**:
+  `navigator.storage.persist()`, which asks the browser not to evict the data.
+  It has been there since before this build.
+
+**So the app cannot do it, and now it reminds instead.** *Save a copy of my
+journal* and *Bring a copy back* are named as the pair they always were:
+**Create a backup** and **Restore from a backup**. `S.bkup` records when the last
+one was actually handed over, set on BOTH export routes (the share sheet and the
+download link), and a line under the button says so in words: *"Last backup:
+3 weeks ago."* It turns coral at thirty days, or when there has never been one,
+and it says nothing at all until there is an act worth losing. `S.bkup` is in
+`serialise()` and the loader, per the standing rule, and was tested across a
+reload.
 
 **2U — NO EM DASHES. STANDING RULE.**
 

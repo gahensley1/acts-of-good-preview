@@ -1035,7 +1035,7 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
     </div>
 
     <!-- BUILD MARK — dev only, delete this div when the app ships -->
-    <div id="buildtag">BUILD 2U</div>
+    <div id="buildtag">BUILD 2V</div>
   </div>
 </section>
 
@@ -1680,12 +1680,15 @@ What you actually did. Why it mattered. Say the awkward parts."></textarea>
       <h3 class="seth">This device</h3>
       <p class="note" id="storagenote">Everything is saved on this phone.</p>
       <p class="note" style="margin-top:10px">Because it never leaves the phone, it
-        can go with the phone. Keep a copy somewhere safe.</p>
+        can go with the phone. A backup is one file with everything in it: every act,
+        every photograph, every person. Send it to iCloud or Drive and it is off the
+        phone as well as on it.</p>
       <button class="btn ghost" style="margin-top:12px" onclick="exportJournal()">
-        Save a copy of my journal</button>
-      <button class="btn ghost" style="margin-top:10px" onclick="$('imp-file').click()">
-        Bring a copy back</button>
-      <input type="file" id="imp-file" accept="application/json,.json" class="hide" aria-label="Choose a saved copy of your journal"
+        Create a backup</button>
+      <p class="note" id="bkupwhen" style="margin:8px 0 0"></p>
+      <button class="btn ghost" style="margin-top:14px" onclick="$('imp-file').click()">
+        Restore from a backup</button>
+      <input type="file" id="imp-file" accept="application/json,.json" class="hide" aria-label="Choose a backup file"
         onchange="importJournal(this)">
       <button class="btn ghost" style="margin-top:10px" onclick="go('journal')">
         Read your year</button>
@@ -1979,7 +1982,7 @@ function serialise(){
                                 start:y.start||'', end:y.end||'', zero:y.zero||null,
                                 acts:y.acts||[] })),
     people:S.people, platforms:S.platforms,
-    started:S.started, letterSeen:!!S.letterSeen, zero:S.zero||null, tabToured:!!S.tabToured, opens:S.opens||0, todoOpens:S.todoOpens||0, plans:slimPlans(), handles:S.handles||{}, places:S.places||{},
+    started:S.started, letterSeen:!!S.letterSeen, bkup:S.bkup||'', zero:S.zero||null, tabToured:!!S.tabToured, opens:S.opens||0, todoOpens:S.todoOpens||0, plans:slimPlans(), handles:S.handles||{}, places:S.places||{},
     works:(S.works||[]).map(w=>({ pid:w.pid, t:w.t||'', d:w.d||'', who:w.who||[], hon:w.hon||'',
                           cost:w.cost||0, spends:w.spends||[], story:w.story||'', exp:w.exp||'',
                           startedAt:w.startedAt||'', sheet:w.sheet||null,
@@ -2079,7 +2082,7 @@ async function load(){
   if(isNaN(S.start.getTime())) S.start = new Date();          // "week NaN of 52"
   S.past = Array.isArray(o.past) ? o.past : [];
   S.people=o.people||[]; S.platforms=o.platforms||S.platforms;
-  S.started=!!o.started; S.letterSeen=!!o.letterSeen;
+  S.started=!!o.started; S.letterSeen=!!o.letterSeen; S.bkup=o.bkup||'';
   if(S.cat==='Neighbours') S.cat='Neighbors';   // the library went American
   S.zero=o.zero||null; S.tabToured=!!o.tabToured; S.opens=o.opens||0; S.todoOpens=o.todoOpens||0; S.handles=o.handles||{}; S.places=o.places||{};
   S.plans = await fatPlans(o.plans||{});
@@ -2241,6 +2244,7 @@ async function exportJournal(){
     const f = new File([blob], name, {type:'application/json'});
     if(navigator.canShare && navigator.canShare({files:[f]})){
       await navigator.share({ files:[f] });
+      backupMade();
       return;
     }
   } catch(e){ if(e && e.name==='AbortError') return; }
@@ -2253,12 +2257,35 @@ async function exportJournal(){
     link.href = url; link.download = name;
     document.body.appendChild(link); link.click(); link.remove();
     setTimeout(()=>URL.revokeObjectURL(url), 4000);
-    say('Copy saved', 'Saved as ' + name + '. If you cannot find it, look in your '+
+    backupMade();
+    say('Backup made', 'Saved as ' + name + '. If you cannot find it, look in your '+
         'downloads. Keep it somewhere off this phone.' + smallNote(lost));
   } catch(e){
     say('It could not save a copy', 'Your phone would not let the app hand the file '+
         'over. Try again from a browser tab rather than the installed app.');
   }
+}
+
+/* A backup the app never mentions again is a backup nobody makes twice. This
+   says when the last one was, in words, and turns coral once it is stale or was
+   never made at all. It is the only nagging in the app, and it only appears
+   once there is something worth losing. */
+function backupMade(){ S.bkup = new Date().toISOString(); save(); drawBackupLine(); }
+
+function drawBackupLine(){
+  const el = $('bkupwhen'); if(!el) return;
+  const done = (S.acts||[]).length + (S.works||[]).length;
+  if(!done){ el.textContent=''; el.style.color=''; return; }
+  const then = S.bkup ? Date.parse(S.bkup) : 0;
+  const days = then ? Math.floor((Date.now()-then)/86400000) : -1;
+  el.style.color = (days < 0 || days > 30) ? 'var(--coralink)' : '';
+  el.textContent =
+      days < 0 ? 'No backup yet. If this phone goes, the year goes with it.'
+    : days < 1 ? 'Last backup: today.'
+    : days < 2 ? 'Last backup: yesterday.'
+    : days < 14 ? 'Last backup: ' + days + ' days ago.'
+    : days < 60 ? 'Last backup: ' + Math.round(days/7) + ' weeks ago.'
+    : 'Last backup: ' + Math.round(days/30) + ' months ago.';
 }
 
 function importJournal(input){
@@ -7678,6 +7705,7 @@ function drawBrowse(){
 
 /* ── You screen ── */
 function drawYou(){
+  drawBackupLine();
   const per = S.weeks===52?'a year':S.weeks===26?'half a year':'a summer';
   $('you-seth').textContent = 'Your ' + periodNoun();
   $('v-n').textContent = S.n+' acts over '+per+' · '+humanCadence(Math.round(S.weeks*7/S.n));
