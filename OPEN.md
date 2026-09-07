@@ -17,28 +17,37 @@ a bad start is recoverable. The only lost case is handing the phone to somebody
 else. `wipe()` is still in the file, unreachable and marked, waiting on this.
 **If the answer is no, delete `wipe()`.**
 
-**A2. Web push, and the second file it costs.**
-Jessica asks whether it tells her when someone signs up, the way SignUpGenius
-does. The app now tells her *when she opens it*, which is not the same thing.
-Real push needs a service worker, which is a **second file**, and this app has
-been one file on purpose all year.
-**You have already solved this once**: Deerstalker does true push with the app
-closed, and its Worker signs VAPID and encrypts the payload by hand with no npm
-dependency, so it ports into `aog-sheets` directly. Cost: nothing. iOS needs the
-app on the Home Screen, 16.4+.
-**The condition, if you say yes**: copy Hunt's `sw.js` rule exactly —
-*network-first for the document*. Cache-first pins every returning user to the
-build they last loaded, which is the stale screen you showed me on the 7th.
+**A2. RULED, 7 September: no push. The app tells you when you open it, and
+that is the ceiling.**
 
-**And the harder half is not the code, it is when to ask.** iOS gives exactly
-one prompt. Ask at the wrong moment, get declined, and the app can never ask
-again: the person has to go into Settings themselves, and nobody does. Asking on
-install or first launch wastes it, because nobody yet knows what they would be
-agreeing to. **The moment is when a sheet is published** — the first point in
-the app where there is an honest answer to *why do you want to notify me*. *Not
-now* has to leave the offer standing on the sheet panel, since there is no
-second prompt. Today the app has **no notification code of any kind**: no
-service worker, no permission request, nothing. Checked 7 September.
+G: *"this is the route we should take. We shouldn't do it any more robust than
+this."*
+
+**This is a decision, not an omission. Do not add web push to this app.**
+
+What was on the table and was turned down: a service worker, a VAPID
+subscription, and the Worker sending a real notification with the app closed —
+all of it free, all of it already proven in G's own Deerstalker repo, so it was
+a day's work rather than a research project. It was still the wrong trade:
+
+- It costs a **second file**. This app has been one file all year, and that
+  property is why the file you edit is the file that ships.
+- A service worker caches the document, and getting that wrong pins every
+  returning person to the build they last loaded. That is the stale screen G was
+  looking at on the morning of the 7th.
+- iOS grants **one** permission prompt, ever. Spending it well is a design
+  problem in its own right, and the honest moment to ask — when a sheet goes up —
+  is late enough that most people would already have published without it.
+
+**What we have instead, and it is enough:** the app reads every live sheet when
+it opens, and raises a bar saying *"Someone signed up for the chili supper."* It
+never says the same claim twice, it needs no permission, no service worker, no
+account and no second file. If someone signs up on Tuesday and you open the app
+on Thursday, you find out on Thursday. **For a fortnightly act of kindness that
+is the right resolution.** It is not a delivery service.
+
+If this is ever revisited: the mechanism is in `Documents\Hunt` and the timing
+argument is above. Nothing in this app needs to change to accommodate it later.
 
 **A3. Lossy artwork.**
 The five hands are lossless WebP, pixel-identical wherever visible. Quality 90

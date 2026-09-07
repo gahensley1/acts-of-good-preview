@@ -562,6 +562,17 @@ old stories still readable.
   the taller footer pushed the full page 50px and each handout 53px over the
   plate. Row gaps and the handout's n4 step were tightened to pay for it.
 
+**RULED 7 September: NO WEB PUSH. THE APP LOOKS WHEN IT OPENS, AND THAT IS THE
+CEILING.** G: *"this is the route we should take. We shouldn't do it any more
+robust than this."*
+
+**Read this before you helpfully add notifications.** It was offered, costed and
+turned down: free, and already working in his own Deerstalker repo, so the code
+was never the obstacle. What it costs is a **second file** in an app that has
+been one file all year, a service-worker cache that pins people to old builds
+when it is wrong, and the single iOS permission prompt, which can only be spent
+once. The full argument is in `OPEN.md` under A2.
+
 **3H — THE TWO BUTTONS BECOME HALVES OF ONE ROW.**
 
 G, 7 Sept: make Preview and Publish equal, and lay them on the page properly.
