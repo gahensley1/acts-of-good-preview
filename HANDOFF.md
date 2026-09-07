@@ -7,6 +7,11 @@ the skill.
 
 Last updated: **6 September 2026**.
 Build in G's hands: **3F** — pushed and live. **The sign-up sheet in it cannot
+
+**Everything not yet decided lives in `OPEN.md`, written 7 September against 3F.**
+It is one file, it says who owns each item, and where a question was old enough
+to have gone stale it records whether it is still true and how that was checked.
+Read it before asking G anything.
 publish until `npx wrangler deploy` is run from `aog-sheets`** (see the CORS
 entry below).
 
