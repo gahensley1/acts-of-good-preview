@@ -6,7 +6,7 @@ what is true right now. When they disagree, this file is newer — say so and fi
 the skill.
 
 Last updated: **6 September 2026**.
-Build in G's hands: **2Z** — pushed and live. **The sign-up sheet in it cannot
+Build in G's hands: **3A** — pushed and live. **The sign-up sheet in it cannot
 publish until `npx wrangler deploy` is run from `aog-sheets`** (see the CORS
 entry below).
 
@@ -556,6 +556,48 @@ old stories still readable.
 - **Both shapes re-measured at zero overflow** with a twelve-item potluck, after
   the taller footer pushed the full page 50px and each handout 53px over the
   plate. Row gaps and the handout's n4 step were tightened to pay for it.
+
+**3A — THE GRAPHIC, PROVED ON ONE IDEA.**
+
+Jessica's own postcard artwork now rides with *A postcard party before voting
+day* and prints on the page without anybody choosing a picture. It shows on the
+idea in Ideas as well.
+
+**How the cut-out was done, because the first three attempts were wrong.**
+- **Wrong 1: flood fill on colour with a tight tolerance.** Left a beige and
+  shadow fringe. G: *"he made this file kinda messy looking."*
+- **Wrong 2 and 3: rebuild the outline geometrically** (minAreaRect, then
+  approxPolyDP on the union contour). Both **ate into the front card**, because
+  the cream face is barely lighter than the beige ground, so the mask lost it
+  and the polygon cut a straight line across the artwork. The second attempt
+  removed the whole *"Fewer people vote in midterms"* line and I nearly shipped
+  it. **Do not reconstruct an outline you can select instead.**
+- **Right, and it was G's instruction:** *"just colour select the gray, isolate
+  it on the edges of the card."* A **connected flood fill from the four edges,
+  fixed range against the seed colour** (loDiff 45, upDiff 6, so the darker
+  shadow is caught and the lighter cream never is). A connected flood cannot
+  cross a hard edge, so **nothing on the card can be eaten however generous the
+  tolerance**. Then: keep components over 2% of the panel, refill any enclosed
+  hole so a white card face is never punched out, erode one pixel to kill the
+  fringe. Verified by compositing on a dark ground and zooming the left edge.
+
+**Scale is hers, measured off her handout.** The artwork is 60% of her page
+width and the postcards fill 82% of that, so they print at **4.2in on a letter
+page**. The invitation uses exactly that. A sheet has a list underneath, so it
+takes a smaller print of the same picture (1.5 to 1.75in by step). All four
+shapes re-measured at zero overflow.
+
+**47KB as a transparent PNG, 110 colours, 466x422.** It is soft at 4.2in, about
+110dpi, **because the source is a crop of a screenshot**. Before this ships,
+get the original artwork file from Jessica.
+
+**TWO THINGS FOR G, BOTH OPEN.**
+1. **Provenance.** This picture will be redistributed to everyone who installs
+   the app. We need to know Jessica owns it, or has a licence that allows it.
+2. **This is not the shipping pattern for 89 ideas.** Eighty-nine of these adds
+   roughly four megabytes to a file that already loads over a patchy connection.
+   The catalogue wants named marks drawn inline as SVG, with a raster only where
+   a raster is the point, as here.
 
 **2Z — ONE PAGE, TWO SHAPES, AND IDEAS THAT ARRIVE ALREADY WRITTEN.**
 
