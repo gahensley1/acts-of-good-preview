@@ -223,7 +223,8 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
   border-radius:11px;background:var(--paper);font-family:inherit;font-size:12.5px;
   font-weight:600;color:var(--muted);cursor:pointer;line-height:1.25}
 .modechip.on{border-color:var(--coralink);background:var(--coralink);color:#fff}
-.askbar{display:flex;gap:8px;margin-top:11px}
+.askbar{display:flex;gap:9px;margin-top:12px}
+.askbar .btn{flex:1 1 0;min-width:0;margin:0}
 .qrwrap{display:flex;flex-direction:column;align-items:center;gap:8px;margin-top:12px;
   padding-top:12px;border-top:1px solid var(--line)}
 .qrwrap svg{display:block}
@@ -674,6 +675,8 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
 .btn:active{transform:scale(.985);opacity:.92}
 .btn.ghost{background:var(--paper);color:var(--ink);border:1.5px solid var(--line)}
 .btn.mini{padding:11px 16px;width:auto;display:inline-block;font-size:13.5px}
+.askbar .btn.mini{display:block;width:auto;text-align:center;padding:13px 10px;
+  font-size:14.5px}
 
 /* chips */
 .chips{display:flex;flex-wrap:wrap;gap:8px}
@@ -1177,7 +1180,7 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
     </div>
 
     <!-- BUILD MARK — dev only, delete this div when the app ships -->
-    <div id="buildtag">BUILD 3G</div>
+    <div id="buildtag">BUILD 3H</div>
   </div>
 </section>
 

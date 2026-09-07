@@ -1,6 +1,6 @@
 # Everything still open
 
-Written 7 September 2026, against build **3F**. This is the one place to look.
+Written 7 September 2026, against build **3H**. This is the one place to look.
 `HANDOFF.md` says what was built and why; this says what has not been decided.
 
 Each item says **who owns it**. Where I could check whether a thing is still
@@ -30,6 +30,16 @@ app on the Home Screen, 16.4+.
 *network-first for the document*. Cache-first pins every returning user to the
 build they last loaded, which is the stale screen you showed me on the 7th.
 
+**And the harder half is not the code, it is when to ask.** iOS gives exactly
+one prompt. Ask at the wrong moment, get declined, and the app can never ask
+again: the person has to go into Settings themselves, and nobody does. Asking on
+install or first launch wastes it, because nobody yet knows what they would be
+agreeing to. **The moment is when a sheet is published** — the first point in
+the app where there is an honest answer to *why do you want to notify me*. *Not
+now* has to leave the offer standing on the sheet panel, since there is no
+second prompt. Today the app has **no notification code of any kind**: no
+service worker, no permission request, nothing. Checked 7 September.
+
 **A3. Lossy artwork.**
 The five hands are lossless WebP, pixel-identical wherever visible. Quality 90
 would save **another 57KB** and composites identically — I measured it. That is
@@ -54,7 +64,7 @@ Two list bullets and the signature rule you asked for yourself. Everything else
 is gone. Say if those go too.
 
 **A8. The build mark.**
-`BUILD 3F` still prints at the foot of Your year. Useful while you are testing,
+`BUILD 3H` still prints at the foot of Your year. Useful while you are testing,
 wrong the day it ships.
 
 ---

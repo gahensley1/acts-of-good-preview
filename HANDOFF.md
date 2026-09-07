@@ -6,7 +6,7 @@ what is true right now. When they disagree, this file is newer — say so and fi
 the skill.
 
 Last updated: **6 September 2026**.
-Build in G's hands: **3G** — pushed and live. **The sign-up sheet in it cannot
+Build in G's hands: **3H** — pushed and live. **The sign-up sheet in it cannot
 
 **Everything not yet decided lives in `OPEN.md`, written 7 September against 3F.**
 It is one file, it says who owns each item, and where a question was old enough
@@ -561,6 +561,33 @@ old stories still readable.
 - **Both shapes re-measured at zero overflow** with a twelve-item potluck, after
   the taller footer pushed the full page 50px and each handout 53px over the
   plate. Row gaps and the handout's n4 step were tightened to pay for it.
+
+**3H — THE TWO BUTTONS BECOME HALVES OF ONE ROW.**
+
+G, 7 Sept: make Preview and Publish equal, and lay them on the page properly.
+They were sized by their own words, so *Preview* was narrow and *Publish it*
+narrower, sitting off to the left like an afterthought. `.askbar .btn` is
+`flex:1 1 0` now and `.btn.mini` stops shrinking to its text inside that row.
+
+**Measured, not eyeballed: Preview 159px, Publish it 159px.** After publishing
+the same shape carries down the panel — *Preview* / *Update the sheet*, then
+*Who signed up* / *Print it* — all four within a pixel of each other. The
+Publish button inside the preview is full width, being alone on its row.
+
+**Also noted for A2, from G:** the app has **no notification code at all** —
+zero `Notification.requestPermission`, zero service worker, zero notification
+calls, checked. There is nothing for him to switch on, and nothing waiting in
+his phone's settings. The bar that says *"Someone signed up"* needs no
+permission because it is the app looking when it opens.
+
+**And the design question he raised, which belongs with A2 rather than after
+it:** iOS grants exactly one prompt. Asked at the wrong moment and declined, the
+app can never ask again; the person has to go into Settings, which nobody does.
+So asking on install or first launch wastes it. **G named the right moment
+himself: when a sheet is published**, which is the first point in the whole app
+where there is an honest answer to "why do you want to notify me". *Not now*
+must leave the offer standing on the sheet panel afterwards, because there is no
+second prompt.
 
 **3G — PREVIEW BESIDE PUBLISH, AND A NAME COLLISION CAUGHT IN THE ACT.**
 
