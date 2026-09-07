@@ -6,7 +6,7 @@ what is true right now. When they disagree, this file is newer — say so and fi
 the skill.
 
 Last updated: **6 September 2026**.
-Build in G's hands: **2R** — pushed and live. **The sign-up sheet in it cannot
+Build in G's hands: **2S** — pushed and live. **The sign-up sheet in it cannot
 publish until `npx wrangler deploy` is run from `aog-sheets`** (see the CORS
 entry below).
 
@@ -499,6 +499,63 @@ old stories still readable.
 - **G confirmed the mailbox exists**, so the Worker splash page got the address
   back too: *"Say hello"* now points at `info@donoharmcompany.com`. His personal
   address appears nowhere in either codebase.
+
+**2S — A NAME COLLISION THAT BROKE THE INVITATION, AND THE SHEET'S SECOND PASS.**
+
+- **DEFECT, shipped in 2A-2R and found by reading, not by testing: two functions
+  called `drawAsk`.** The invitation panel has had one since 30 Aug; patch-02
+  added a second for the sign-up sheet. Declarations hoist, so the later one won
+  every call — including `openAsk()`'s. **Measured on the live 2R build**: after
+  opening the invitation, `#ask-kind` and `#ask-mode` were both empty strings,
+  so the Come along / Be part of it chips, the Text / Email chips, the message
+  body, the subject and the send-button label never drew. The sign-up sheet's
+  copy is now `drawSheetPanel()` and the invitation panel measures correct again
+  (chips present, 201-character body, "Open Messages").
+  **The lesson for this file: a patch that introduces a top-level function must
+  grep for the name first.** Nothing warns you. No error is thrown. The older
+  feature simply stops working, silently, and the newer one looks fine.
+
+- **The two chips no longer hold their own state.** G: *"it seems like we're
+  doubling up the same thing... we also have tick marks on the other side."*
+  Correct — `sh.anon` secretly overrode ticks that the person could still see
+  ticked. The chips now *move* the ticks and nothing more: **Signed by you**
+  sets greeting and name on; **No name on it** clears greeting, name and number.
+  Anonymity is read off the ticks (`anonOf()`), the three personal rows are
+  always visible, and the tick list is the single truth about what prints.
+  `sh.anon` is deleted on load — with a migration in `askOf()`, because an old
+  anonymous sheet may still carry those ticks set and they would otherwise start
+  printing on a sheet somebody made anonymous on purpose.
+
+- **"Anonymous" is gone as a word.** It described a legal state, not what the
+  paper looks like. The pair is now **Signed by you** / **No name on it**.
+
+- **Both personal lines say (optional).** G ruled it for the number, then for
+  the name. Noted for whoever reads this: every row in that list is optional —
+  that is what the ticks are — so the word marks the two that people hesitate
+  over rather than the two that are special.
+
+- **The printed code says what it is.** The old line — *"Point a camera at it.
+  Choose your one thing"* — never said the square was a sign-up list. It is now
+  a bold **Scan this to sign up** hard against the code, the instruction in
+  full, and **the address in plain text underneath**, which was missing
+  entirely: before this, a person who would not scan had no way in at all.
+  SignUpGenius's own published guidance is a short instruction against the code
+  and two inches minimum for arm's length; ours is 2in on the full page, down
+  from 2.35in, which is what G meant by *"it's just too big."*
+
+- **You can see the paper before you print it.** G: *"can we say preview view so
+  they can understand what they're looking at?"* The panel now shows the actual
+  poster, at real proportions, scaled to the column, with two chips for the
+  shape and one **Print it** button. **This is why the `.pgt` rules moved out of
+  `@media print`** — the geometry has to exist on screen too. `#poster` is still
+  `display:none`; the preview frame is the only place a `.pgt` shows. One CSS
+  inch is 96px, so a full page is 816x1056 and the scale is measured width over
+  that. `fitPreview()` retries on `requestAnimationFrame` because the panel is
+  drawn while its section is still hidden and measures zero.
+
+- **Both shapes re-measured at zero overflow** with a twelve-item potluck, after
+  the taller footer pushed the full page 50px and each handout 53px over the
+  plate. Row gaps and the handout's n4 step were tightened to pay for it.
 
 **G's personal address was removed from the Worker splash page** and redeployed;
 verified gone from the live site with a cache-busting fetch. No `mailto:` remains

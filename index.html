@@ -238,6 +238,16 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
   display:flex;align-items:center;justify-content:center}
 .ctick.off{background:none;border:1.5px solid #CFC7B8}
 #poster{display:none}
+/* ── the preview ─────────────────────────────────────────────────────────
+   The paper itself, at its real proportions, scaled down to the phone column.
+   The scale is set in JS from the measured width, because the column is not a
+   fixed number of pixels. Nothing inside is interactive — it is a picture. */
+.ppv{position:relative;width:100%;aspect-ratio:8.5/11;overflow:hidden;
+  border:1px solid var(--line);border-radius:10px;background:#fff;
+  margin:8px 0 0;pointer-events:none;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.ppv.wide{aspect-ratio:11/8.5}
+.ppvin{position:absolute;top:0;left:0;transform-origin:top left}
+.asksub{text-transform:none;font-weight:400;color:var(--muted)}
 /* ── the printed poster ───────────────────────────────────────────────────
    Two shapes, same words. A full page to hang on a wall, or two half-sheets on
    one page to cut apart and hand over at a door. Sized in inches, because this
@@ -247,6 +257,117 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
    which is the shape a handout has to be. askPoster() sets this before it
    prints, because one document cannot be both at once. */
 @page{ size:letter; margin:0 }
+/* These rules are OUTSIDE @media print on purpose. The poster is drawn on
+   screen as well now — the app shows you the page before you print it — so
+   the geometry has to exist in both. #poster stays display:none; only the
+   preview frame ever shows a .pgt on screen. Inches work on screen too:
+   one CSS inch is 96px, so the preview is the paper, scaled. */
+.pgt{position:relative;box-sizing:border-box;background:#fff;color:#231F1B;
+  font-family:Montserrat,sans-serif;text-align:center;overflow:hidden;
+  display:flex;flex-direction:column;justify-content:space-between;row-gap:0.09in;
+  width:8.5in;height:11in;padding:0.95in 1.05in;
+  page-break-after:always;break-after:page}
+/* Two handouts: each is PORTRAIT, 5.5 x 8.5, and the pair sits side by side
+   on a landscape sheet. Cut down the dashed middle and you have two. */
+.psheet{display:flex;width:11in;height:8.5in;page-break-after:auto;break-after:auto}
+.pgt.half{width:5.5in;height:8.5in;padding:0.62in 0.5in;row-gap:0.05in;
+  page-break-after:auto;break-after:auto}
+.pgt.half + .pgt.half{border-left:1px dashed #C9C2B4}
+.pgt:last-child{page-break-after:auto;break-after:auto}
+
+.pgt .pl{position:absolute;inset:0.28in;border:1.5px solid #D9BC6B;pointer-events:none}
+.pgt.half .pl{inset:0.2in;border-width:1px}
+
+.pgt .pe{font-size:15pt;text-transform:uppercase;letter-spacing:.19em;color:#C03F2B;
+  font-weight:700;margin:0}
+.pgt .pr{width:0.62in;border-top:3px solid #E1BA52;margin:0 auto}
+.pgt .pt{font-size:15pt;font-weight:700;text-transform:uppercase;letter-spacing:.11em;
+  color:#000;line-height:1.42;margin:0;text-wrap:balance}
+.pgt .pd{font-size:13pt;line-height:1.6;color:#3A342C;margin:0;text-align:left}
+.pgt ul{list-style:none;margin:0;padding:0;text-align:left;width:100%}
+.pgt li{font-size:19pt;font-weight:600;line-height:1.34;margin-bottom:0.17in}
+.pgt li span{color:#E1BA52;margin-right:0.14in}
+.pgt .ps{font-size:12.5pt;color:#665F57;margin:0}
+.pgt .pq{margin:0}
+.pgt .pq svg{width:2in;height:2in}
+.pgt .pfh{font-size:12.5pt;font-weight:700;color:#231F1B;margin:0;
+  letter-spacing:.01em}
+.pgt .pf{font-size:11pt;color:#665F57;margin:0;line-height:1.5}
+.pgt .pu{font-size:10.5pt;color:#3A342C;margin:0}
+.pgt .pu b{font-weight:700;color:#000}
+.pgt .pm{font-size:9.5pt;text-transform:uppercase;letter-spacing:.15em;color:#A79E90;
+  margin:0}
+
+/* ── the parts taken from Jessica's own handout, 6 Sept ──────────────────
+   A greeting, a block of labelled facts, a way to reach you that is not the
+   code, and a signature. It reads as a letter from a neighbour rather than a
+   notice on a wall, which is what it is. Every one of them is optional and
+   prints only when it has been filled in. */
+.pgt .pgr{font-size:13pt;color:#231F1B;margin:0;text-align:left;font-weight:600}
+.pgt .pfx{margin:0;text-align:left;width:100%}
+.pgt .pfx p{font-size:12.5pt;line-height:1.55;margin:0;color:#3A342C}
+.pgt .pfx b{color:#000;font-weight:700}
+.pgt .pcall{font-size:12pt;color:#3A342C;margin:0}
+/* G, 6 Sept: the name sits at the end of the details, tabbed over behind a
+   dash. Everything below it — the code, its caption, the mark — is the footer. */
+.pgt .psg{display:block;font-size:12.5pt;color:#231F1B;font-weight:600;
+  text-align:left;margin:0.1in 0 0;padding-left:0.85in}
+.pgt.half .pgr{font-size:10pt}
+.pgt.half .pfx p{font-size:9.5pt;line-height:1.5}
+.pgt.half .pcall{font-size:9pt}
+.pgt.half .psg{font-size:9.5pt;margin-top:0.07in;padding-left:0.5in}
+.pgt.n3 .pfx p,.pgt.n4 .pfx p{font-size:11pt;line-height:1.45}
+.pgt.n3 .pf,.pgt.n4 .pf{font-size:10pt;line-height:1.4}
+.pgt.n4 .pfh{font-size:11.5pt}
+.pgt.half.n3 .pf,.pgt.half.n4 .pf{font-size:7pt;line-height:1.28}
+.pgt.half.n3 .pfh,.pgt.half.n4 .pfh{font-size:8.5pt}
+.pgt.half.n3 .ps,.pgt.half.n4 .ps{font-size:8pt}
+.pgt.half.n3 .pu,.pgt.half.n4 .pu{font-size:7pt}
+.pgt.half.n3 .pfx p,.pgt.half.n4 .pfx p{font-size:8.5pt;line-height:1.4}
+/* A letter, but it still wears its head. G, 6 Sept: the eyebrow, the gold
+   rule and the bold title stay CENTRED; only the body below them sits left. */
+.pgt.letter .pgr,.pgt.letter .ps{text-align:left}
+
+/* ── how many things are on it ──────────────────────────────────────────
+   Three things want to be read from across a hall. A twelve-item potluck
+   wants to fit. The list steps down in size as it grows, and goes to two
+   columns once it is long, so the page is always full and never overrun. */
+.pgt li{break-inside:avoid;page-break-inside:avoid}
+.pgt ul{column-gap:0.5in}
+.pgt.n2 li{font-size:15pt;margin-bottom:0.125in}
+.pgt.n3 li{font-size:12.5pt;margin-bottom:0.095in}
+.pgt.n3 ul{column-count:2}
+.pgt.n4 li{font-size:11pt;margin-bottom:0.07in;line-height:1.28}
+.pgt.n4 ul{column-count:2;column-gap:0.4in}
+.pgt.n4 .pd{font-size:11.5pt;margin:0}
+.pgt.n4 .pq svg{width:1.75in;height:1.75in}
+.pgt.n4 .pq{margin:0}
+
+/* the handout is the same words, scaled — nothing is cut */
+.pgt.half .pl{inset:0.22in}
+.pgt.half .pe{font-size:11pt;letter-spacing:.17em}
+.pgt.half .pr{width:0.46in;border-top-width:2px;margin:0 auto}
+.pgt.half .pt{font-size:11pt;margin:0}
+.pgt.half .pd{font-size:10.5pt;margin:0;line-height:1.55}
+.pgt.half li{font-size:14pt;margin-bottom:0.13in}
+.pgt.half li span{margin-right:0.1in}
+.pgt.half .ps{font-size:9.5pt;margin:0}
+.pgt.half .pq{margin:0}
+.pgt.half .pq svg{width:1.5in;height:1.5in}
+.pgt.half .pfh{font-size:10pt;margin:0.03in 0 0}
+.pgt.half .pf{font-size:8.5pt;margin:0}
+.pgt.half .pu{font-size:8pt;margin:0}
+.pgt.half .pm{font-size:8pt;margin:0}
+/* the handout steps the same way, one column longer before it splits */
+.pgt.half.n2 li{font-size:11.5pt;margin-bottom:0.1in}
+.pgt.half.n3 li{font-size:10pt;margin-bottom:0.075in;line-height:1.3}
+.pgt.half.n3 ul{column-count:1}
+.pgt.half.n4 li{font-size:8.5pt;margin-bottom:0.038in;line-height:1.22}
+.pgt.half.n4 ul{column-count:1}
+.pgt.half.n3 .pd,.pgt.half.n4 .pd{font-size:9.5pt;margin:0}
+.pgt.half.n3 .pq svg{width:1.4in;height:1.4in}
+.pgt.half.n4 .pq svg{width:1.2in;height:1.2in}
+.pgt.half.n4 .pq{margin:0}
 @media print{
   /* the app's body is a 520px phone column, centred. Left alone it squeezes the
      poster and pushes it off the right of the paper. */
@@ -258,100 +379,6 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
      below whatever was on it. It now fills the plate: the first line sits on
      the top margin, the last on the bottom margin, and the space in between is
      shared out evenly. Top margin and bottom margin are the same number. */
-  .pgt{position:relative;box-sizing:border-box;background:#fff;color:#231F1B;
-    font-family:Montserrat,sans-serif;text-align:center;overflow:hidden;
-    display:flex;flex-direction:column;justify-content:space-between;row-gap:0.12in;
-    width:8.5in;height:11in;padding:0.95in 1.05in;
-    page-break-after:always;break-after:page}
-  /* Two handouts: each is PORTRAIT, 5.5 x 8.5, and the pair sits side by side
-     on a landscape sheet. Cut down the dashed middle and you have two. */
-  .psheet{display:flex;width:11in;height:8.5in;page-break-after:auto;break-after:auto}
-  .pgt.half{width:5.5in;height:8.5in;padding:0.62in 0.5in;row-gap:0.07in;
-    page-break-after:auto;break-after:auto}
-  .pgt.half + .pgt.half{border-left:1px dashed #C9C2B4}
-  .pgt:last-child{page-break-after:auto;break-after:auto}
-
-  .pgt .pl{position:absolute;inset:0.28in;border:1.5px solid #D9BC6B;pointer-events:none}
-  .pgt.half .pl{inset:0.2in;border-width:1px}
-
-  .pgt .pe{font-size:15pt;text-transform:uppercase;letter-spacing:.19em;color:#C03F2B;
-    font-weight:700;margin:0}
-  .pgt .pr{width:0.62in;border-top:3px solid #E1BA52;margin:0 auto}
-  .pgt .pt{font-size:15pt;font-weight:700;text-transform:uppercase;letter-spacing:.11em;
-    color:#000;line-height:1.42;margin:0;text-wrap:balance}
-  .pgt .pd{font-size:13pt;line-height:1.6;color:#3A342C;margin:0;text-align:left}
-  .pgt ul{list-style:none;margin:0;padding:0;text-align:left;width:100%}
-  .pgt li{font-size:19pt;font-weight:600;line-height:1.34;margin-bottom:0.17in}
-  .pgt li span{color:#E1BA52;margin-right:0.14in}
-  .pgt .ps{font-size:12.5pt;color:#665F57;margin:0}
-  .pgt .pq{margin:0}
-  .pgt .pq svg{width:2.35in;height:2.35in}
-  .pgt .pf{font-size:11pt;color:#665F57;margin:0;line-height:1.5}
-  .pgt .pm{font-size:9.5pt;text-transform:uppercase;letter-spacing:.15em;color:#A79E90;
-    margin:0}
-
-  /* ── the parts taken from Jessica's own handout, 6 Sept ──────────────────
-     A greeting, a block of labelled facts, a way to reach you that is not the
-     code, and a signature. It reads as a letter from a neighbour rather than a
-     notice on a wall, which is what it is. Every one of them is optional and
-     prints only when it has been filled in. */
-  .pgt .pgr{font-size:13pt;color:#231F1B;margin:0;text-align:left;font-weight:600}
-  .pgt .pfx{margin:0;text-align:left;width:100%}
-  .pgt .pfx p{font-size:12.5pt;line-height:1.55;margin:0;color:#3A342C}
-  .pgt .pfx b{color:#000;font-weight:700}
-  .pgt .pcall{font-size:12pt;color:#3A342C;margin:0}
-  /* G, 6 Sept: the name sits at the end of the details, tabbed over behind a
-     dash. Everything below it — the code, its caption, the mark — is the footer. */
-  .pgt .psg{display:block;font-size:12.5pt;color:#231F1B;font-weight:600;
-    text-align:left;margin:0.1in 0 0;padding-left:0.85in}
-  .pgt.half .pgr{font-size:10pt}
-  .pgt.half .pfx p{font-size:9.5pt;line-height:1.5}
-  .pgt.half .pcall{font-size:9pt}
-  .pgt.half .psg{font-size:9.5pt;margin-top:0.07in;padding-left:0.5in}
-  .pgt.n3 .pfx p,.pgt.n4 .pfx p{font-size:11pt;line-height:1.45}
-  .pgt.half.n3 .pfx p,.pgt.half.n4 .pfx p{font-size:8.5pt;line-height:1.4}
-  /* A letter, but it still wears its head. G, 6 Sept: the eyebrow, the gold
-     rule and the bold title stay CENTRED; only the body below them sits left. */
-  .pgt.letter .pgr,.pgt.letter .ps{text-align:left}
-
-  /* ── how many things are on it ──────────────────────────────────────────
-     Three things want to be read from across a hall. A twelve-item potluck
-     wants to fit. The list steps down in size as it grows, and goes to two
-     columns once it is long, so the page is always full and never overrun. */
-  .pgt li{break-inside:avoid;page-break-inside:avoid}
-  .pgt ul{column-gap:0.5in}
-  .pgt.n2 li{font-size:15pt;margin-bottom:0.125in}
-  .pgt.n3 li{font-size:12.5pt;margin-bottom:0.095in}
-  .pgt.n3 ul{column-count:2}
-  .pgt.n4 li{font-size:11pt;margin-bottom:0.07in;line-height:1.28}
-  .pgt.n4 ul{column-count:2;column-gap:0.4in}
-  .pgt.n4 .pd{font-size:11.5pt;margin:0}
-  .pgt.n4 .pq svg{width:1.95in;height:1.95in}
-  .pgt.n4 .pq{margin:0}
-
-  /* the handout is the same words, scaled — nothing is cut */
-  .pgt.half .pl{inset:0.22in}
-  .pgt.half .pe{font-size:11pt;letter-spacing:.17em}
-  .pgt.half .pr{width:0.46in;border-top-width:2px;margin:0 auto}
-  .pgt.half .pt{font-size:11pt;margin:0}
-  .pgt.half .pd{font-size:10.5pt;margin:0;line-height:1.55}
-  .pgt.half li{font-size:14pt;margin-bottom:0.13in}
-  .pgt.half li span{margin-right:0.1in}
-  .pgt.half .ps{font-size:9.5pt;margin:0}
-  .pgt.half .pq{margin:0}
-  .pgt.half .pq svg{width:1.7in;height:1.7in}
-  .pgt.half .pf{font-size:8.5pt;margin:0}
-  .pgt.half .pm{font-size:8pt;margin:0}
-  /* the handout steps the same way, one column longer before it splits */
-  .pgt.half.n2 li{font-size:11.5pt;margin-bottom:0.1in}
-  .pgt.half.n3 li{font-size:10pt;margin-bottom:0.075in;line-height:1.3}
-  .pgt.half.n3 ul{column-count:1}
-  .pgt.half.n4 li{font-size:9pt;margin-bottom:0.055in;line-height:1.25}
-  .pgt.half.n4 ul{column-count:1}
-  .pgt.half.n3 .pd,.pgt.half.n4 .pd{font-size:9.5pt;margin:0}
-  .pgt.half.n3 .pq svg{width:1.4in;height:1.4in}
-  .pgt.half.n4 .pq svg{width:1.15in;height:1.15in}
-  .pgt.half.n4 .pq{margin:0}
 }
 .photos{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
 .photos .ph-tile{aspect-ratio:1;border-radius:9px;overflow:hidden;position:relative;
@@ -1009,7 +1036,7 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
     </div>
 
     <!-- BUILD MARK — dev only, delete this div when the app ships -->
-    <div id="buildtag">BUILD 2R</div>
+    <div id="buildtag">BUILD 2S</div>
   </div>
 </section>
 
@@ -3420,7 +3447,7 @@ const ALARM = { '0':'PT9H', '1':'-PT15H', '3':'-PT63H', '7':'-PT159H' };
 
    Nothing is sent from the app and no phone numbers are stored: it opens the
    person's own Messages or Mail with the words in place, recipient blank.   */
-let ASK_MODE = 'text', ASK_CTX = 'plan', ASK_KIND = 'along';
+let ASK_MODE = 'text', ASK_CTX = 'plan', ASK_KIND = 'along', ASK_PV = 'full';
 
 function askDetails(){
   /* The auto-written invite NEVER mentions money — standing rule, 30 Aug 2026.
@@ -4377,7 +4404,14 @@ function sheetId(){
   crypto.getRandomValues(b);
   return Array.from(b, x=>a[x % 36]).join('');
 }
-function askOf(){ return WK ? (WK.sheet||null) : null; }
+function askOf(){
+  const sh = WK ? (WK.sheet||null) : null;
+  if(sh && sh.anon !== undefined){
+    if(sh.anon){ sh.on = sh.on||{}; sh.on.greet=0; sh.on.sign=0; sh.on.phone=0; }
+    delete sh.anon; save();
+  }
+  return sh;
+}
 function esc2(s){ return String(s==null?'':s).replace(/[&<>"']/g,
   c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 function askGrow(el){ el.style.height='auto'; el.style.height=el.scrollHeight+'px'; }
@@ -4385,25 +4419,39 @@ function askGrow(el){ el.style.height='auto'; el.style.height=el.scrollHeight+'p
 /* One optional line: a circle, its name, and — only once ticked — the field.
    The circle is the same one the notes list uses, so there is one gesture in
    this app for "include this", not two. */
-function askAnon(){ const sh=askOf(); return !!(sh && sh.anon); }
+/* G, 6 Sept: "it seems like we're doubling up the same thing." He was right —
+   the two chips and the tick list were two mechanisms for one decision, and the
+   chips worked by secretly overriding ticks the person could still see ticked.
+   The chips now simply MOVE the ticks. They are a shortcut, not a second state.
+   The tick list is the only truth about what prints, and it is always visible,
+   so the chips can never disagree with what is on the screen. `sh.anon` is gone
+   as stored state; it is read off the ticks. */
+function anonOf(sh){ const on=(sh&&sh.on)||{}; return !(on.greet || on.sign || on.phone); }
+function askAnon(){ const sh=askOf(); return !!sh && anonOf(sh); }
 function askMode(anon){
   const sh=askOf(); if(!sh) return;
-  sh.anon = anon ? 1 : 0;
-  workKeep(); save(); drawAsk();
+  if(!sh.on) sh.on={};
+  if(anon){ sh.on.greet=0; sh.on.sign=0; sh.on.phone=0; }
+  else {
+    sh.on.greet=1; sh.on.sign=1;
+    if(!String(sh.sign||'').trim()) sh.sign = S.name||'';
+    /* the number is never forced on — it is the one line that is genuinely
+       optional even on a signed sheet */
+  }
+  workKeep(); save(); drawSheetPanel();
 }
 function askIsOn(k){
   const sh=askOf(); if(!sh || !sh.on) return false;
-  /* nothing personal survives the anonymous sheet, whatever was ticked before */
-  if(sh.anon && (k==='greet' || k==='sign' || k==='phone')) return false;
   return !!sh.on[k];
 }
-function askOpt(k, label, ph){
+function askOpt(k, label, ph, sub){
   const on = askIsOn(k);
   return '<div class="askopt'+(on?' on':'')+'">'+
     '<button class="nhit" type="button" aria-pressed="'+(on?'true':'false')+'" '+
       'onpointerdown="return askTick(event,\''+k+'\')" onclick="return false">'+
       '<span class="nbox'+(on?' on':'')+'">'+(on?NTICK:'')+'</span></button>'+
-    '<span class="askoptlab">'+label+'</span>'+
+    '<span class="askoptlab">'+label+
+      (sub?' <span class="asksub">('+sub+')</span>':'')+'</span>'+
     /* a tick with no placeholder would be a plain yes/no — nothing uses that
        today, kept because askOpt should not care */
     (on && ph ? '<textarea class="atx" rows="1" data-k="'+k+'" oninput="askInput(this)" '+
@@ -4415,7 +4463,7 @@ function askTick(e,k){
   const sh=askOf(); if(!sh) return false;
   if(!sh.on) sh.on={};
   sh.on[k] = sh.on[k] ? 0 : 1;
-  workKeep(); save(); drawAsk();
+  workKeep(); save(); drawSheetPanel();
   /* land the caret in the field you just opened */
   if(sh.on[k]) setTimeout(function(){
     const el=document.querySelector('#wk-ask .atx[data-k="'+k+'"]');
@@ -4424,7 +4472,7 @@ function askTick(e,k){
   return false;
 }
 
-function drawAsk(){
+function drawSheetPanel(){
   const box=$('wk-ask'); if(!box) return;
   const sh=askOf();
   if(!sh){
@@ -4442,16 +4490,17 @@ function drawAsk(){
        something that will never carry a name. */
     '<div class="askmode">'+
       '<button type="button" class="modechip'+(askAnon()?'':' on')+'" '+
-        'onclick="askMode(0)">For people you know</button>'+
+        'onclick="askMode(0)">Signed by you</button>'+
       '<button type="button" class="modechip'+(askAnon()?' on':'')+'" '+
-        'onclick="askMode(1)">Anonymous</button>'+
+        'onclick="askMode(1)">No name on it</button>'+
     '</div>'+
     '<p class="askhint" style="padding-left:0;margin:0 0 4px">'+
       (askAnon()
-        ? 'For a noticeboard, a shop window, a staff room. No name, no number, '+
-          'no address &mdash; the code is the only way in.'
-        : 'For your street, your congregation, your friends. Signed by you, with '+
-          'a number they can call.')+'</p>'+
+        ? 'For a noticeboard, a shop window, a staff room. Nothing on the paper '+
+          'points back to you &mdash; the square is the only way in.'
+        : 'For your street, your congregation, your friends. It goes out as a '+
+          'note from you, with your name at the end of it.')+
+      ' These two just tick and untick the three lines below.</p>'+
     /* The headline and the story are always there — everything else is a tick.
        G, 6 Sept: "if you don't need the who, what, when and where, then you
        don't click that." Nobody should face a wall of boxes; the form is short
@@ -4461,7 +4510,7 @@ function drawAsk(){
     '<div class="askrow"><textarea class="atx" rows="1" id="ask-reason" '+
       'data-k="reason" oninput="askInput(this)" placeholder="For a family arriving in March" '+
       'aria-label="Who it is for"></textarea></div>'+
-    (askAnon()?'':askOpt('greet','Open with a greeting','Dear neighbors on Oak Street,'))+
+    askOpt('greet','Open with a greeting','Dear neighbors on Oak Street,')+
     '<label class="asklab" for="ask-lede">What is happening <span>(one or two lines)</span></label>'+
     '<div class="askrow"><textarea class="atx" rows="1" id="ask-lede" '+
       'data-k="lede" oninput="askInput(this)" placeholder="A few of us are putting a box together '+
@@ -4477,29 +4526,62 @@ function drawAsk(){
     askOpt('where','Where',           'Fire Station #1, 535 E. 63rd')+
     askOpt('who',  "Who's involved",  'Neighbors on the 600 block')+
     askOpt('drop', 'Drop off',        'Any time before 5:30, at mine')+
-    (askAnon()?'' :
-      '<label class="asklab">Sign it</label>'+
-      askOpt('sign', 'Your name',       'Your name')+
-      askOpt('phone','A number they can call', '912.555.0148'))+
+    '<label class="asklab">Sign it</label>'+
+    askOpt('sign', 'Your name',       'Your name', 'optional')+
+    askOpt('phone','A number they can call', '912.555.0148', 'optional')+
     '<div class="askbar"><button class="btn mini" type="button" onclick="askPublish()">'+
       (sh.live?'Update the sheet':'Publish it')+'</button>'+
       (sh.live?'<button class="btn mini ghost" type="button" onclick="askRefresh()">Who signed up</button>':'')+
     '</div>'+
-    (sh.live?'<div class="qrwrap">'+askQR(sh.id)+'<p class="qrlink">actsofgood.app/a/'+sh.id+'</p>'+
-      '<p class="askhint" style="padding-left:0;text-align:center;margin:2px 0 8px">'+
-        'Same words either way &mdash; only the size changes.</p>'+
+    /* G, 6 Sept: "can we say preview view so they can understand what they're
+       looking at?" This is the actual paper, at actual proportions, scaled to
+       the column — not a description of it. Same words either way; the two
+       chips only change the shape. */
+    (sh.live?'<div class="qrwrap">'+
+      '<label class="asklab" style="margin-top:2px">What prints</label>'+
+      '<div class="askmode">'+
+        '<button type="button" class="modechip'+(ASK_PV==='half'?'':' on')+'" '+
+          'onclick="askPv(\'full\')">One full page</button>'+
+        '<button type="button" class="modechip'+(ASK_PV==='half'?' on':'')+'" '+
+          'onclick="askPv(\'half\')">Two handouts</button>'+
+      '</div>'+
+      '<div class="ppv'+(ASK_PV==='half'?' wide':'')+'"><div class="ppvin">'+
+        (ASK_PV==='half'
+          ? '<div class="psheet">'+posterPanel(sh,true)+posterPanel(sh,true)+'</div>'
+          : posterPanel(sh,false))+
+      '</div></div>'+
+      '<p class="askhint" style="padding-left:0;text-align:center;margin:6px 0 8px">'+
+        (ASK_PV==='half'
+          ? 'One sheet, cut down the dashed line, and you have two to hand over.'
+          : 'One page to hang up, or to leave where people will see it.')+'</p>'+
       '<div class="askbar" style="justify-content:center">'+
-        '<button class="btn mini ghost" type="button" onclick="askPoster(\'full\')">'+
-          'One full page</button>'+
-        '<button class="btn mini ghost" type="button" onclick="askPoster(\'half\')">'+
-          'Two handouts</button>'+
-      '</div></div>':'')+
+        '<button class="btn mini" type="button" onclick="askPoster(ASK_PV)">'+
+          'Print it</button>'+
+      '</div>'+
+      '<p class="askhint" style="padding-left:0;text-align:center;margin:12px 0 2px">'+
+        'Or send the link instead of printing anything:</p>'+
+      '<p class="qrlink">actsofgood.app/a/'+sh.id+'</p>'+
+      '</div>':'')+
     '<div id="wk-claims"></div>';
+  fitPreview();
   box.querySelectorAll('.atx[data-k]').forEach(el=>{ el.value = sh[el.dataset.k] || ''; });
   box.querySelectorAll('.atx[data-i]').forEach(el=>{ el.value=rows[+el.dataset.i]||''; });
   box.querySelectorAll('.atx').forEach(askGrow);
   drawClaims();
 }
+
+/* One CSS inch is 96px, so a full page is 816x1056 and a landscape pair is
+   1056x816. Measure the frame, divide, and the paper fits it exactly. */
+function fitPreview(){
+  const fr=document.querySelector('#wk-ask .ppv'), inner=fr&&fr.firstElementChild;
+  if(!fr || !inner) return;
+  const w = fr.clientWidth || 0;
+  if(!w){ requestAnimationFrame(fitPreview); return; }
+  const paper = fr.classList.contains('wide') ? 1056 : 816;
+  inner.style.width = paper+'px';
+  inner.style.transform = 'scale('+(w/paper)+')';
+}
+function askPv(kind){ ASK_PV = kind==='half' ? 'half' : 'full'; drawSheetPanel(); }
 
 /* G, 6 Sept: pre-write everything and let people edit it, rather than handing
    them three blank boxes. The words below are a starting point that already
@@ -4515,11 +4597,10 @@ function askStart(){
     slots:[''],
     when:(WK.d ? fmtLong(WK.d) : ''), time:'', where:'', who:'', drop:'',
     sign:(S.name||''), phone:'',
-    anon:0,
     /* on by default: the date, and who is asking. Everything else is a tick. */
     on:{ greet:1, when:!!WK.d?1:0, sign:(S.name?1:0) },
     live:0, claims:[] };
-  workKeep(); save(); drawAsk();
+  workKeep(); save(); drawSheetPanel();
 }
 
 function askInput(el){
@@ -4535,15 +4616,15 @@ function askKey(e,el){
   if(e.key==='Enter'){
     e.preventDefault();
     sh.slots[i]=el.value;
-    if(!sh.slots[i].trim()){ if(sh.slots.length>1) sh.slots.splice(i,1); save(); drawAsk(); el.blur(); return; }
-    sh.slots.splice(i+1,0,''); save(); drawAsk();
+    if(!sh.slots[i].trim()){ if(sh.slots.length>1) sh.slots.splice(i,1); save(); drawSheetPanel(); el.blur(); return; }
+    sh.slots.splice(i+1,0,''); save(); drawSheetPanel();
     const nx=document.querySelector('#wk-ask .atx[data-i="'+(i+1)+'"]'); if(nx) nx.focus();
     return;
   }
   if(e.key==='Backspace' && el.selectionStart===0 && el.selectionEnd===0 && i>0){
     e.preventDefault();
     sh.slots[i-1]=(sh.slots[i-1]||'')+(el.value||'');
-    sh.slots.splice(i,1); save(); drawAsk();
+    sh.slots.splice(i,1); save(); drawSheetPanel();
     const pv=document.querySelector('#wk-ask .atx[data-i="'+(i-1)+'"]'); if(pv) pv.focus();
   }
 }
@@ -4583,7 +4664,7 @@ async function askPublish(){
       say('This sheet is not yours',
           'It was made on another phone. Make a new sheet and it is yours.'); return; }
     if(!r.ok){ say('It did not go up','Try again in a moment.'); return; }
-    sh.live=1; workKeep(); save(); drawAsk();
+    sh.live=1; workKeep(); save(); drawSheetPanel();
   }catch(_){ say('No connection','The sheet needs the internet to go up. The poster does not.'); }
 }
 
@@ -4653,9 +4734,8 @@ function posterPanel(sh, half){
      it read as another fact rather than as somebody writing to you. The number
      stays in the footer, where somebody looking for how to reach you will find
      it without re-reading the letter. */
-  const on = sh.on || {}, anon = !!sh.anon;
-  const pick = k => (on[k] && !(anon && (k==='greet'||k==='sign'||k==='phone')))
-    ? String(sh[k]||'').trim() : '';
+  const on = sh.on || {}, anon = anonOf(sh);
+  const pick = k => on[k] ? String(sh[k]||'').trim() : '';
   const contact = [pick('sign'), pick('phone')].filter(Boolean).join(' \u2014 ');
   const facts = [
     ['When',        pick('when')],
@@ -4686,9 +4766,18 @@ function posterPanel(sh, half){
     (facts.length
       ? '<div class="pfx">'+facts.map(f=>'<p><b>'+f[0]+':</b> '+esc2(f[1])+'</p>').join('')+'</div>'
       : '')+
+    /* G, 6 Sept: the old line ("point a camera at it") never said what the
+       square WAS or what happened next, and the square itself was bigger than
+       it needed to be. SignUpGenius's own guidance is a short instruction hard
+       against the code and two inches minimum for arm's length; this is that,
+       in our words, plus the address in plain text for the person who will not
+       scan anything — without it they had no way in at all. */
     '<div class="pq">'+askQR(sh.id, half?150:260)+'</div>'+
-    '<p class="pf">Point a camera at it. Choose your one thing &mdash; no account, '+
-      'no app to install.</p>'+
+    '<p class="pfh">Scan this to sign up</p>'+
+    '<p class="pf">Hold your phone\u2019s camera over the square. It opens this same '+
+      'list &mdash; put your name against the one thing you can bring. '+
+      'No account, nothing to install.</p>'+
+    '<p class="pu">Or type <b>actsofgood.app/a/'+esc2(sh.id)+'</b> into any browser.</p>'+
     call+
     '<p class="pm">50 acts of good</p></div>';
 }
@@ -4720,7 +4809,7 @@ function openWork(w){
   $('wk-cost').value = (w.spends||[]).length ? (t.mine?money(t.mine):'') : (w.cost ? money(w.cost) : '');
   wkCostState();
   drawWorkWho();
-  drawAsk();
+  drawSheetPanel();
   drawNotes();
   drawPhotos('wk-photos','wk-file', w.photos, ()=>drawPhotos('wk-photos','wk-file', WK.photos, ()=>openWork(WK)));
   go('work');
