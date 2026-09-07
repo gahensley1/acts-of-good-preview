@@ -955,10 +955,22 @@ standing rule, not a one-off pass. Do not write one into a new string.**
   that made the year a patchwork and no two grids read alike. The grid is a
   count, not a gallery. The `.tile img` rule went with it.
 
-- **STILL OPEN: the poster's scan wording.** Three versions were drawn and
-  rendered (A as shipped, B one plain paragraph, C three numbered steps). G has
-  not ruled. **A is what is in the build.** B and C each ran 28px over the plate
-  and would need the step thresholds moved down one band.
+- **RULED 7 September: the poster's scan wording is A**, which is what was
+  already in the build, so nothing changed. Three versions were drawn and
+  rendered; B was one plain paragraph, C was three numbered steps. **Closed. Do
+  not re-open it without G.** The word "code" is gone from all three anyway; the
+  poster says "the square", which is what he objected to:
+  *"It says code. Who knows what a fucking code is?"*
+
+  For the record, because it caused a genuine tangle: **the only exact wording
+  G dictated in that stretch was for the *Ask for help* label**, not the poster.
+  His words were *"ask for help. using a sign up a shareable list. Lets claim
+  one of the things you need from any phone, no back and forth, and nothing for
+  them to sign up. these words"*, and they are in the app verbatim. When he said
+  *"use the first version, which is a"* he was answering a list of three LABEL
+  options numbered 1 to 3, at a moment when a separate A/B/C of poster wording
+  was also on the table. **Number the options once, and never run two lettered
+  choices at the same time.**
 
 **G's personal address was removed from the Worker splash page** and redeployed;
 verified gone from the live site with a cache-busting fetch. No `mailto:` remains
