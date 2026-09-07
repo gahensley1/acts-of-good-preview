@@ -6,7 +6,7 @@ what is true right now. When they disagree, this file is newer — say so and fi
 the skill.
 
 Last updated: **6 September 2026**.
-Build in G's hands: **2X** — pushed and live. **The sign-up sheet in it cannot
+Build in G's hands: **2Y** — pushed and live. **The sign-up sheet in it cannot
 publish until `npx wrangler deploy` is run from `aog-sheets`** (see the CORS
 entry below).
 
@@ -556,6 +556,13 @@ old stories still readable.
 - **Both shapes re-measured at zero overflow** with a twelve-item potluck, after
   the taller footer pushed the full page 50px and each handout 53px over the
   plate. Row gaps and the handout's n4 step were tightened to pay for it.
+
+**2Y — MAKE A SIGN-UP SHEET GOES ABOVE THE SENTENCE, FULL WIDTH.**
+
+G marked it on a screenshot. It was a small inline button sitting under a
+paragraph, which read as a footnote to the explanation rather than the thing you
+came to that panel to do. It is a full-width ghost button now, with the sentence
+underneath it.
 
 **2X — THE BACKUP REMINDER.**
 

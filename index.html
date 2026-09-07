@@ -1042,7 +1042,7 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
     </div>
 
     <!-- BUILD MARK — dev only, delete this div when the app ships -->
-    <div id="buildtag">BUILD 2X</div>
+    <div id="buildtag">BUILD 2Y</div>
   </div>
 </section>
 
@@ -4506,9 +4506,13 @@ function drawSheetPanel(){
   const box=$('wk-ask'); if(!box) return;
   const sh=askOf();
   if(!sh){
-    box.innerHTML='<p class="note" style="margin:0 0 10px">List what you need. The app makes '+
-      'the page to put up or hand out, and the list behind it.</p>'+
-      '<button class="btn mini ghost" type="button" onclick="askStart()">Make a sign-up sheet</button>';
+    /* G, 6 Sept: the button goes above the sentence and runs the full width.
+       It was a small inline button under a paragraph, which read as a footnote
+       to the explanation rather than the thing you came here to do. */
+    box.innerHTML='<button class="btn ghost" type="button" onclick="askStart()">'+
+      'Make a sign-up sheet</button>'+
+      '<p class="note" style="margin:10px 0 0">List what you need. The app makes '+
+      'the page to put up or hand out, and the list behind it.</p>';
     return;
   }
   const rows=sh.slots||[];
