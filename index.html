@@ -693,7 +693,6 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
 .tile.done{background:var(--coralink);border-color:var(--coralink);color:#fff}
   border-color:var(--coralink);color:#fff}
 .tile.next{border:1.5px dashed var(--coralink);color:var(--coralink);background:#FFF6F4}
-.tile img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .tile .tilenum{position:absolute;left:4px;bottom:2px;color:#fff;font-size:11px;
   text-shadow:0 1px 3px rgba(0,0,0,.7);font-weight:700}
 /* a planned act — present but not yet done */
@@ -1036,7 +1035,7 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
     </div>
 
     <!-- BUILD MARK — dev only, delete this div when the app ships -->
-    <div id="buildtag">BUILD 2S</div>
+    <div id="buildtag">BUILD 2T</div>
   </div>
 </section>
 
@@ -1376,7 +1375,7 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
       <div class="photos" id="wk-photos"></div>
       <input type="file" id="wk-file" accept="image/*" multiple hidden></div>
 
-    <div class="field"><label>Ask for help <span style="text-transform:none;font-weight:400">(a sign-up sheet, and a code to print)</span></label>
+    <div class="field"><label>Ask for help <span style="text-transform:none;font-weight:400">&mdash; using a sign-up: a shareable list that lets people claim one of the things you need, from any phone. No back and forth, and nothing for them to sign up to.</span></label>
       <div id="wk-ask"></div></div>
 
     <button class="btn" onclick="finishWork(false)">It happened &mdash; post it</button>
@@ -1693,9 +1692,6 @@ What you actually did. Why it mattered. Say the awkward parts."></textarea>
       <button class="btn ghost" style="margin-top:10px" onclick="openLetter(true)">
         Read Jessica's letter again</button>
 
-      <button class="btn ghost" style="margin-top:18px;color:var(--coralink)"
-        onclick="checkFirst('Start again?','This deletes every act, photo and person. It cannot be undone.','Delete everything', wipe)">
-        Start over</button>
     </div>
   </div>
 </section>
@@ -3167,11 +3163,11 @@ function tellUs(){
 
 function beginAnotherYear(){
   const done = doneCount();
-  checkFirst('Begin another year?',
+  checkFirst('Start a new goal?',
     'This year moves into your journal, whole \u2014 all '+done+
     (done===1?' act':' acts')+', their cards, their stories and their photographs. '+
     'The grid starts empty. Your people, your ideas and your card stay exactly as they are.',
-    'Begin another year', ()=>{
+    'Start a new goal', ()=>{
       if(!Array.isArray(S.past)) S.past = [];
       S.past.push({ n:S.n, weeks:S.weeks, word:S.word||'', line:S.line||'',
                     start:(S.start&&S.start.toISOString)?S.start.toISOString():'',
@@ -3399,7 +3395,7 @@ function drawHome(){
     ny = document.createElement('button');
     ny.id = 'p-again'; ny.type = 'button'; ny.className = 'btn ghost';
     ny.style.marginTop = '14px';
-    ny.textContent = 'Begin another year';
+    ny.textContent = 'Start a new goal';
     ny.onclick = beginAnotherYear;
     const pace = $('p-bar') && $('p-bar').closest('.pace');
     if(pace) pace.appendChild(ny);
@@ -4428,18 +4424,6 @@ function askGrow(el){ el.style.height='auto'; el.style.height=el.scrollHeight+'p
    as stored state; it is read off the ticks. */
 function anonOf(sh){ const on=(sh&&sh.on)||{}; return !(on.greet || on.sign || on.phone); }
 function askAnon(){ const sh=askOf(); return !!sh && anonOf(sh); }
-function askMode(anon){
-  const sh=askOf(); if(!sh) return;
-  if(!sh.on) sh.on={};
-  if(anon){ sh.on.greet=0; sh.on.sign=0; sh.on.phone=0; }
-  else {
-    sh.on.greet=1; sh.on.sign=1;
-    if(!String(sh.sign||'').trim()) sh.sign = S.name||'';
-    /* the number is never forced on — it is the one line that is genuinely
-       optional even on a signed sheet */
-  }
-  workKeep(); save(); drawSheetPanel();
-}
 function askIsOn(k){
   const sh=askOf(); if(!sh || !sh.on) return false;
   return !!sh.on[k];
@@ -4476,9 +4460,8 @@ function drawSheetPanel(){
   const box=$('wk-ask'); if(!box) return;
   const sh=askOf();
   if(!sh){
-    box.innerHTML='<p class="note" style="margin:0 0 10px">List what you need and the app makes '+
-      'a code you can print. People scan it, put their name to one thing each, and you see who '+
-      'is bringing what. No account, and nothing for them to install.</p>'+
+    box.innerHTML='<p class="note" style="margin:0 0 10px">List what you need. The app makes '+
+      'the page to put up or hand out, and the list behind it.</p>'+
       '<button class="btn mini ghost" type="button" onclick="askStart()">Make a sign-up sheet</button>';
     return;
   }
@@ -4488,19 +4471,9 @@ function drawSheetPanel(){
        anonymous, and no middle ground. Anonymous hides the personal rows
        entirely rather than greying them — there is no point offering to sign
        something that will never carry a name. */
-    '<div class="askmode">'+
-      '<button type="button" class="modechip'+(askAnon()?'':' on')+'" '+
-        'onclick="askMode(0)">Signed by you</button>'+
-      '<button type="button" class="modechip'+(askAnon()?' on':'')+'" '+
-        'onclick="askMode(1)">No name on it</button>'+
-    '</div>'+
-    '<p class="askhint" style="padding-left:0;margin:0 0 4px">'+
-      (askAnon()
-        ? 'For a noticeboard, a shop window, a staff room. Nothing on the paper '+
-          'points back to you &mdash; the square is the only way in.'
-        : 'For your street, your congregation, your friends. It goes out as a '+
-          'note from you, with your name at the end of it.')+
-      ' These two just tick and untick the three lines below.</p>'+
+    '<p class="askhint" style="padding-left:0;margin:0 0 8px">'+
+      'Two lines are always here &mdash; who it is for, and what is happening. '+
+      'Everything else is a tick: if you do not need it, do not tick it.</p>'+
     /* The headline and the story are always there — everything else is a tick.
        G, 6 Sept: "if you don't need the who, what, when and where, then you
        don't click that." Nobody should face a wall of boxes; the form is short
@@ -4527,6 +4500,9 @@ function drawSheetPanel(){
     askOpt('who',  "Who's involved",  'Neighbors on the 600 block')+
     askOpt('drop', 'Drop off',        'Any time before 5:30, at mine')+
     '<label class="asklab">Sign it</label>'+
+    '<p class="askhint" style="padding-left:0;margin:0 0 4px">'+
+      'Leave both unticked and nothing on the paper points back to you &mdash; '+
+      'which is what you want for a noticeboard or a shop window.</p>'+
     askOpt('sign', 'Your name',       'Your name', 'optional')+
     askOpt('phone','A number they can call', '912.555.0148', 'optional')+
     '<div class="askbar"><button class="btn mini" type="button" onclick="askPublish()">'+
@@ -5121,10 +5097,7 @@ function drawGrid(){
     t.type='button';
     t.className='tile'+(a ? (a.no.indexOf('.')>-1?' half':' done')
                           : (pl ? ' planned' : (i===nextN?' next':'')));
-    if(a && a.photos && a.photos.length){
-      t.innerHTML='<img src="'+esc(a.photos[0].url)+'" alt="">'+
-                  '<b class="tilenum">'+i+'</b>';
-    } else if(pl){
+    if(pl){
       /* a planned act sits in its slot as a ghost, so the grid answers
          "what's coming?" as well as "what's done?" */
       t.innerHTML='<span class="tilenum">'+i+'</span>'+

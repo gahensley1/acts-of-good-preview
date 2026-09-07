@@ -6,7 +6,7 @@ what is true right now. When they disagree, this file is newer — say so and fi
 the skill.
 
 Last updated: **6 September 2026**.
-Build in G's hands: **2S** — pushed and live. **The sign-up sheet in it cannot
+Build in G's hands: **2T** — pushed and live. **The sign-up sheet in it cannot
 publish until `npx wrangler deploy` is run from `aog-sheets`** (see the CORS
 entry below).
 
@@ -556,6 +556,55 @@ old stories still readable.
 - **Both shapes re-measured at zero overflow** with a twelve-item potluck, after
   the taller footer pushed the full page 50px and each handout 53px over the
   plate. Row gaps and the handout's n4 step were tightened to pay for it.
+
+**2T — G'S RULINGS ON THE SHEET, THE YOU PAGE AND THE GRID (6 September).**
+
+- **The sign-up panel's words are his, verbatim.** The field label carries the
+  whole explanation now: *"Ask for help — using a sign-up: a shareable list that
+  lets people claim one of the things you need, from any phone. No back and
+  forth, and nothing for them to sign up to."* It replaced *"(a sign-up sheet,
+  and a code to print)"*, which explained neither the thing nor the doing.
+  **This is how SignUpGenius does it too** — their own definition never
+  describes the mechanism: *"a shareable form that lets people claim time slots,
+  tasks, or items from any device… no account required for participants."*
+  The box beneath was saying the same thing again immediately underneath, so it
+  is now one line: *"List what you need. The app makes the page to put up or
+  hand out, and the list behind it."*
+  **The explanation lives in exactly one of those two places. Do not restore it
+  to both.**
+
+- **The Signed by you / No name on it chips are gone.** They were a shortcut for
+  three ticks sitting directly beneath them, and a second identical-looking chip
+  pair in a panel that already has one for the preview. The panel opens on a
+  sentence instead, and *Sign it* carries the teaching the chips used to:
+  *"Leave both unticked and nothing on the paper points back to you — which is
+  what you want for a noticeboard or a shop window."* `askMode()` is deleted;
+  `anonOf()` still reads anonymity off the ticks for the poster.
+
+- **Start over is off the You screen.** G: *"I don't like the idea of start over
+  on the You page."* The wipe sat one tap from a confirm dialog on the screen
+  people open to export their journal. `wipe()` is still in the file but nothing
+  calls it. **Nobody is trapped by this**: the number, the word and the rhythm
+  are all still changeable any time through the setup sheet (`setGoal`). The one
+  case that is genuinely lost is handing the phone to somebody else. **OPEN for
+  G**: whether a quiet double-tap line goes back at the foot of You.
+
+- **"Begin another year" is now "Start a new goal"**, dialog and all. It appears
+  under the pace bar only when the year is complete, which is what G asked for —
+  a fresh start that arrives by finishing, not one that sits in settings all
+  year waiting to be tapped by mistake.
+
+- **Photographs no longer take over a grid tile. RULED — do not re-propose.**
+  G: *"leave it as a one, a two, and go forward with how it is. So when it fills
+  in red, it's completed with the sash."* A finished act used to wear its first
+  photograph as the tile face with the numeral shrunk into a corner; at 60px
+  that made the year a patchwork and no two grids read alike. The grid is a
+  count, not a gallery. The `.tile img` rule went with it.
+
+- **STILL OPEN: the poster's scan wording.** Three versions were drawn and
+  rendered (A as shipped, B one plain paragraph, C three numbered steps). G has
+  not ruled. **A is what is in the build.** B and C each ran 28px over the plate
+  and would need the step thresholds moved down one band.
 
 **G's personal address was removed from the Worker splash page** and redeployed;
 verified gone from the live site with a cache-busting fetch. No `mailto:` remains
