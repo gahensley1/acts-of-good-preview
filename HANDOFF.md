@@ -6,7 +6,7 @@ what is true right now. When they disagree, this file is newer — say so and fi
 the skill.
 
 Last updated: **6 September 2026**.
-Build in G's hands: **3B** — pushed and live. **The sign-up sheet in it cannot
+Build in G's hands: **3C** — pushed and live. **The sign-up sheet in it cannot
 publish until `npx wrangler deploy` is run from `aog-sheets`** (see the CORS
 entry below).
 
@@ -556,6 +556,35 @@ old stories still readable.
 - **Both shapes re-measured at zero overflow** with a twelve-item potluck, after
   the taller footer pushed the full page 50px and each handout 53px over the
   plate. Row gaps and the handout's n4 step were tightened to pay for it.
+
+**3C — THE PACE CARD, TO G'S MARKS ON A SCREENSHOT (7 September).**
+
+- **The two gaps either side of the rule now match, exactly.** He marked both
+  "EQ" and named the week line as the guide. The rule sits **14px** below
+  "week 3 of 52"; underneath it the two halves of the joined card were paying
+  12px of padding each, so 24px, which read as a gap rather than a seam. Seven
+  and seven makes fourteen. **Measured: 14 and 14.**
+- **The calendar stands the height of the two lines beside it**, top of "This
+  month" to bottom of the month name, which is what his bracket marked. 36px
+  mark inside a 48px target. **Measured: 1px above, 0.3px below.** Note the
+  button adds 12px of chrome around the svg, so the svg number is 12 less than
+  the height you want.
+- **Tightened**: "Nothing logged in September yet" from 6px to 2px, and the
+  card's own padding from 18 to 16. The whole card is **183.5px, down from
+  about 200**.
+- These rules are **scoped to `#s-home`**. The same `.pace` class dresses the
+  tally and the card fitter, and neither of those has a rule through the middle.
+- **Inline styles beat the stylesheet.** The note's gap is written inline by
+  `drawMonth`, so tightening it in CSS did nothing and it had to change there.
+
+**Jessica's letter moved again, and this is where G wants it**: off the You
+screen entirely, onto the **foot of Your year**, above the feedback line and the
+build mark. You now ends on *Restore from a backup*.
+
+**Also fixed**: a dialog still told people to press "Save a copy of my journal",
+a button renamed in 2V.
+
+Re-run after the change: 65 acts across two runs, 432 checks, zero defects.
 
 **3B — THE ASSAULT. 495 ACTS PLAYED, 2,440 CHECKS, SIX REAL DEFECTS FOUND.**
 

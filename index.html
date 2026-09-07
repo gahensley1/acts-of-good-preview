@@ -247,6 +247,22 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
   overflow-wrap:anywhere;word-break:normal}
 .cardbox,.claimrow,.nrow,.askrow,.pgt,.pgt li{min-width:0}
 .claimrow .cn,.nrow .ntx,.askrow .atx{min-width:0}
+/* ── the pace card at the top of Your year ───────────────────────────────
+   G marked this on a screenshot, 7 Sept: the space under "week 3 of 52" and
+   the space under the rule have to be the same, with the week line as the
+   guide. The rule sits 14px below the week line; underneath it the two halves
+   of the card were paying 12px of padding each, so 24px, which read as a gap
+   rather than a seam. Seven and seven makes fourteen and they match.
+   Scoped to Your year: the same .pace is used by the tally and the card fitter,
+   and neither has a rule through the middle of it. */
+#s-home .pace.joint-top{padding:16px 20px 7px}
+#s-home .pace.joint-bot{padding:7px 20px 16px}
+#s-home #month .lab{line-height:1.25}
+#s-home #month .big{line-height:1.15}
+#s-home #month .note{margin-top:3px}
+/* the calendar stands as tall as the two lines it sits beside, "This month"
+   over the month itself, which is what G's bracket marked */
+#s-home #calbtn{top:7px;right:12px;padding:0;line-height:0}
 #poster{display:none}
 .ideaart{display:block;width:100%;height:132px;object-fit:cover;object-position:center;
   border-radius:9px;margin:0 0 12px;background:var(--mist)}
@@ -1078,6 +1094,9 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
 
     <!-- Nothing is sent by the app and nothing is stored. This opens their own
          mail, already addressed, and they write it themselves. -->
+    <p class="youfoot"><button type="button" onclick="openLetter(true)">Read
+      Jessica&rsquo;s letter again</button></p>
+
     <div id="tellwrap">
       <button id="tellline" type="button" onclick="tellUs()">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
@@ -1091,7 +1110,7 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
     </div>
 
     <!-- BUILD MARK — dev only, delete this div when the app ships -->
-    <div id="buildtag">BUILD 3B</div>
+    <div id="buildtag">BUILD 3C</div>
   </div>
 </section>
 
@@ -1760,8 +1779,6 @@ What you actually did. Why it mattered. Say the awkward parts."></textarea>
         onchange="importJournal(this)">
     </div>
 
-    <p class="youfoot"><button type="button" onclick="openLetter(true)">Read
-      Jessica&rsquo;s letter again</button></p>
   </div>
 </section>
 
@@ -2374,7 +2391,7 @@ function importJournal(input){
        in the app with no undo. Ask for this app's own marker. */
     if(!o || !Array.isArray(o.acts) || typeof o.n !== 'number' || !o.v){
       say('That file will not open','It needs to be a copy this app saved. Use '+
-          '“Save a copy of my journal” to make one.'); return;
+          '“Create a backup” to make one.'); return;
     }
     checkFirst('Bring this copy back?',
       o.acts.length+' act'+(o.acts.length===1?'':'s')+', saved '+
@@ -4180,12 +4197,12 @@ function drawMonth(){
       '<span style="font-size:12.5px;color:var(--muted)">act '+a.no+'</span></div>';
   });
   if(!thisMonth.length && left){
-    html += '<p class="note" style="margin:6px 0 0">Nothing logged in '+
+    html += '<p class="note" style="margin:2px 0 0">Nothing logged in '+
       MONTHS_LONG[now.getMonth()]+' yet.</p>';
   }
   html += '<button id="calbtn" onclick="openCal()" aria-label="Month calendar" '+
     'style="position:absolute;top:6px;right:12px;padding:6px">'+
-    '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" '+
+    '<svg width="36" height="36" viewBox="0 0 24 24" fill="none" '+
     'stroke="var(--coral)" stroke-width="1.6">'+
     '<rect x="3" y="5" width="18" height="16" rx="2.5"/>'+
     '<path d="M3 10h18M8 3v4M16 3v4"/></svg></button>';
