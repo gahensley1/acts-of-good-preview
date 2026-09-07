@@ -1029,13 +1029,13 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
           stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v14H4z"/>
           <path d="m4 7 8 6 8-6"/></svg>
         Tell us how it&rsquo;s going</button>
-      <p class="note">Anything at all &mdash; what&rsquo;s working, what
+      <p class="note">Anything at all: what&rsquo;s working, what
         isn&rsquo;t, what&rsquo;s missing. It opens your own email, so nothing is
         sent or kept by the app.</p>
     </div>
 
     <!-- BUILD MARK — dev only, delete this div when the app ships -->
-    <div id="buildtag">BUILD 2T</div>
+    <div id="buildtag">BUILD 2U</div>
   </div>
 </section>
 
@@ -1349,7 +1349,7 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
       <div class="chips" id="wk-who"></div>
       <button type="button" class="tlink" id="wk-invite" style="display:none;margin-top:5px;font-size:13px;font-weight:600;background:none;border:0;color:var(--coralink);text-align:left;padding:12px 0;min-height:44px" onclick="openAsk('work')"></button></div>
 
-    <div class="field"><label for="wk-hon">In honor of <span style="text-transform:none;font-weight:400">(someone it was for &mdash; optional)</span></label>
+    <div class="field"><label for="wk-hon">In honor of <span style="text-transform:none;font-weight:400">(someone it was for, optional)</span></label>
       <input id="wk-hon" oninput="wkEdited()" placeholder="someone it was for"></div>
 
     <div class="field"><label for="wk-cost">Keep a tally of your costs <span style="text-transform:none;font-weight:400">(if anything)</span></label>
@@ -1368,18 +1368,18 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
     <div class="field"><label for="wk-story">The story <span style="text-transform:none;font-weight:400">(becomes your post)</span></label>
       <textarea id="wk-story" oninput="wkEdited()" placeholder="Whatever happened, as it happened. (The awkward parts are allowed too.)"></textarea></div>
 
-    <div class="field"><label>Notes <span style="text-transform:none;font-weight:400">(private &mdash; never printed)</span></label>
+    <div class="field"><label>Notes <span style="text-transform:none;font-weight:400">(private, never printed)</span></label>
       <div id="wk-notes"></div></div>
 
     <div class="field"><label>Photos <span style="text-transform:none;font-weight:400">(these ride on your post)</span></label>
       <div class="photos" id="wk-photos"></div>
       <input type="file" id="wk-file" accept="image/*" multiple hidden></div>
 
-    <div class="field"><label>Ask for help <span style="text-transform:none;font-weight:400">&mdash; using a sign-up: a shareable list that lets people claim one of the things you need, from any phone. No back and forth, and nothing for them to sign up to.</span></label>
+    <div class="field"><label>Ask for help<span style="text-transform:none;font-weight:400">. Using a sign-up: a shareable list that lets people claim one of the things you need, from any phone. No back and forth, and nothing for them to sign up to.</span></label>
       <div id="wk-ask"></div></div>
 
-    <button class="btn" onclick="finishWork(false)">It happened &mdash; post it</button>
-    <button class="btn ghost" style="margin-top:10px;border-width:2px" onclick="finishWork(true)">Anonymous act &mdash; just the card posts</button>
+    <button class="btn" onclick="finishWork(false)">It happened. Post it</button>
+    <button class="btn ghost" style="margin-top:10px;border-width:2px" onclick="finishWork(true)">Anonymous act. Just the card posts</button>
     <p class="note" style="text-align:center;margin-top:8px">your story and photos stay in your journal</p>
     <!-- G, 31 Aug: "Let this one go" is gone from the foot of this screen, and
          so is the note above it. This button does NOT call dropWork() — that
@@ -1404,7 +1404,7 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
       <input id="fin-when" type="hidden" aria-hidden="true">
       <div class="datewrap"><button class="datebtn" id="fin-when-btn" onclick="openDate('fin-when')" aria-label="On, pick the day"></button></div></div>
   </div>
-  <p class="note" style="margin-top:10px">of <span id="fin-of"></span>. Editable. Halves are allowed &mdash; act 2.5 is a real act.</p>
+  <p class="note" style="margin-top:10px">of <span id="fin-of"></span>. Editable.</p>
   <p class="note" id="fin-ripe" style="margin-top:6px;font-style:italic;color:#6B5E3A"></p>
   <button class="btn" onclick="finishGo()" id="fin-go">On to the post</button>
 </div></div>
@@ -1435,7 +1435,7 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
     <!-- Act 20 taught this: the honoree asked for an act instead of a birthday
          gift. Optional, and blank means it appears nowhere. Regular type only —
          the app's one piece of handwriting is Jessica's real signature. -->
-    <div class="field"><label for="w-honor">In honor of <span style="text-transform:none;font-weight:400;color:var(--muted)">(if it was for someone — optional)</span></label>
+    <div class="field"><label for="w-honor">In honor of <span style="text-transform:none;font-weight:400;color:var(--muted)">(if it was for someone, optional)</span></label>
       <!-- was "a named person's birthday" — a real person, shown to everyone as an
            example. The idea survives; whose birthday it was does not. -->
       <input id="w-honor" placeholder="someone’s birthday" oninput="factEdited()"></div>
@@ -1555,9 +1555,9 @@ What you actually did. Why it mattered. Say the awkward parts."></textarea>
     <!-- the envelope: giving quietly gets an object, not a channel (ruled 2B) -->
     <button type="button" class="envnote" id="cm-env" onclick="envNote()">
       <span class="flap" aria-hidden="true"></span>
-      <span class="etxt"><b>Send it as a note to someone</b> — or send it later.<br>
+      <span class="etxt"><b>Send it as a note to someone</b>, or send it later.<br>
       <span style="opacity:.8">It awaits in your journal page. A text or an email to one
-      person — no act number, no hashtag, nothing posted.</span></span>
+      person. No act number, no hashtag, nothing posted.</span></span>
     </button>
   </div>
 </section>
@@ -1592,7 +1592,7 @@ What you actually did. Why it mattered. Say the awkward parts."></textarea>
   <div class="top"><h2>Act 0</h2><div class="sub">where the year starts</div></div>
   <div class="wrap">
     <p class="note" style="margin:0 0 4px">This is your card. Every act you log
-      makes one of these &mdash; this one is for the year itself.</p>
+      makes one of these. This one is for the year itself.</p>
 
     <div class="cardbox" id="zeroface" style="margin-top:14px">
       <div class="lockup"><div class="mark">
@@ -2568,7 +2568,7 @@ const IDEAS = [
  {t:'Puzzles and large-print books to a senior center',l:'Today',s:'An hour',c:'Elders',
   d:'Large print is the part everyone forgets. Magazines count.'},
  {t:"Walk an older neighbor's dog for a month",l:'Needs a month',s:'A village',c:'Elders',
-  d:'Weekly, same day each week — or take on the litter box. The routine is the gift.'},
+  d:'Weekly, same day each week, or take on the litter box. The routine is the gift.'},
  {t:'Drive one Meals on Wheels route a month',l:'Needs a month',s:'A village',c:'Elders',
   d:'The doorstep welfare check is the point, not the food. 18+, license and background check, your own gas.'},
 
@@ -2576,7 +2576,7 @@ const IDEAS = [
  {t:'Take a shift at a shelter breakfast',l:'This weekend',s:'A weekend',c:'Feed people',
   d:'Early start, warm room. Most places want you back, which is the good part.'},
  {t:'Cook a freezable meal for someone in a season',l:'This weekend',s:'A weekend',c:'Feed people',
-  d:'New baby, illness, a loss — or a house gone quiet because a child left for college. Foil tray, instructions taped on.'},
+  d:'New baby, illness, a loss, or a house gone quiet because a child left for college. Foil tray, instructions taped on.'},
  {t:"Buy the food bank's actual top-needs list",l:'Today',s:'An hour',c:'Feed people',
   d:'Canned protein, pop-top cans, diapers, period products. January and July are their worst months.'},
  {t:'Work a sorting shift at a food pantry',l:'This weekend',s:'A weekend',c:'Feed people',
@@ -2584,7 +2584,7 @@ const IDEAS = [
  {t:'Take the prep shift before Thanksgiving',l:'Needs a month',s:'A weekend',c:'Feed people',
   d:'The day itself is oversubscribed by early November. The day before is when they are short.'},
  {t:"Buy the holiday food box's missing items",l:'A week or two',s:'A weekend',c:'Feed people',
-  d:'Foil, roasting pans, gravy, butter, spices, coffee — the things nobody donates alongside the turkey.'},
+  d:'Foil, roasting pans, gravy, butter, spices, coffee: the things nobody donates alongside the turkey.'},
  {t:'Restock a little free pantry',l:'A week or two',s:'An hour',c:'Feed people',
   d:'Canned protein, tampons, diapers. Check what is missing before you shop.'},
  {t:'Hygiene kits and water in the trunk',l:'This weekend',s:'An hour',c:'Feed people',
@@ -2600,7 +2600,7 @@ const IDEAS = [
  {t:'Treats for an animal shelter, flowers for the staff',l:'This weekend',s:'A weekend',c:'Animals',
   /* was: "…Charlottesville did for act 16." Generalised 31 Aug — the library
      may carry what was learned, never whose act it was learned on. */
-  d:'Call ahead about homemade — some shelters take them happily, some cannot.'},
+  d:'Call ahead about homemade. Some shelters take them happily, some cannot.'},
  {t:'Old towels and blankets to a shelter',l:'Today',s:'An hour',c:'Animals',
   d:'The one place your worn textiles are genuinely wanted. February is the cold month.'},
  {t:"Pay the adoption fee for the longest wait",l:'Today',s:'An hour',c:'Animals',
@@ -2622,7 +2622,7 @@ const IDEAS = [
  {t:'Tools, paint and lumber to a Habitat ReStore',l:'A week or two',s:'A weekend',c:'Mother Earth',
   d:'Usable things headed for the dump become somebody’s kitchen instead.'},
  {t:'Organize a free clothing swap',l:'Needs a month',s:'A village',c:'Mother Earth',
-  d:'Everyone brings a bag, everyone leaves with a bag, the rest goes to a shelter — washed, pockets checked.'},
+  d:'Everyone brings a bag, everyone leaves with a bag, the rest goes to a shelter, washed, pockets checked.'},
 
  // ── Friends & family ──
  {t:'Do an act in someone’s honor instead of a gift',l:'A week or two',s:'An hour',c:'Friends & family',
@@ -2678,7 +2678,7 @@ const IDEAS = [
  {t:'Make one gift recurring',l:'Today',s:'An hour',c:'Causes & voice',
   d:"Check your employer's matching portal first, it can double you for free."},
  {t:'Register people to vote',l:'This weekend',s:'A weekend',c:'Causes & voice',
-  d:'Nonpartisan and legal everywhere, with rules that vary by state — your county registrar has the real ones.'},
+  d:'Nonpartisan and legal everywhere, with rules that vary by state. Your county registrar has the real ones.'},
  {t:'A postcard party before voting day',l:'Needs a month',s:'A village',c:'Causes & voice',
   d:'Friends, stamps, a stack of postcards to folks who sat out the primaries. October, ahead of November.'},
  {t:'Stock a little library for Black History Month',l:'This weekend',s:'An hour',c:'Causes & voice',
@@ -3050,7 +3050,7 @@ function showMoment(kind){
     $('m-title').textContent = 'Halfway.';
     const left = S.n - doneCount();
     $('m-line').innerHTML = doneCount()+' done, '+left+' to go.<br>'+
-      'Whatever you have been doing — keep doing it.';
+      'Whatever you have been doing, keep doing it.';
     $('m-card').style.display = 'none';
     $('m-go').textContent = 'Carry on';
     $('m-go').onclick = hideMoment;
@@ -3065,7 +3065,7 @@ function showMoment(kind){
     else if(n <= 3) who = 'and <b>'+esc(listWords(people))+'</b> '+(n===1?'was':'were')+' in it with you.';
     else who = 'and <b>'+esc(listWords(people.slice(0,3)))+'</b>, and '+
                numWord(n-3)+' others were in it with you.';
-    $('m-line').innerHTML = capWord(acts)+' acts of good — '+who+
+    $('m-line').innerHTML = capWord(acts)+' acts of good, '+who+
       '<br>It was never really about the number.';
     $('m-card').style.display = '';
     drawMomentCard();
@@ -3156,15 +3156,15 @@ const BUILD_TAG = (function(){ const e=document.getElementById('buildtag');
 function tellUs(){
   const sub = encodeURIComponent('Acts of Good');
   const body = encodeURIComponent(
-    "Anything at all \u2014 what's working, what isn't, what's missing.\n\n\n" +
-    "\u2014\nSent from Acts of Good" + (BUILD_TAG ? ' (' + BUILD_TAG + ')' : ''));
+    "Anything at all: what's working, what isn't, what's missing.\n\n\n" +
+    "- - - - -\nSent from Acts of Good" + (BUILD_TAG ? ' (' + BUILD_TAG + ')' : ''));
   location.href = 'mailto:' + AOG_MAIL + '?subject=' + sub + '&body=' + body;
 }
 
 function beginAnotherYear(){
   const done = doneCount();
   checkFirst('Start a new goal?',
-    'This year moves into your journal, whole \u2014 all '+done+
+    'This year moves into your journal, whole: all '+done+
     (done===1?' act':' acts')+', their cards, their stories and their photographs. '+
     'The grid starts empty. Your people, your ideas and your card stay exactly as they are.',
     'Start a new goal', ()=>{
@@ -3476,10 +3476,10 @@ function askDrafts(){
     const first=a.who.length ? listWords(a.who.map(n=>n.split(' ')[0])) : 'you';
     const what=a.t || ('act '+a.no);
     const text='Hello '+first+', I\u2019m putting together act '+a.no+' of my '+S.n+': '+what+'.\n\n'+
-      'You don\u2019t have to be there \u2014 but if you\u2019d like to be part of it, there\u2019s room. '+
+      'You don\u2019t have to be there, but if you\u2019d like to be part of it, there\u2019s room. '+
       'A hand beforehand, an idea, or just your name on the card with mine.'+
       (name?'\n\n'+name:'')+'\n\n'+S.n+' acts of good'+(S.word?', '+S.line+' '+S.word:'')+'.';
-    return { text:text, email:text, subject:'Act '+a.no+' of '+S.n+' \u2014 be part of it?' };
+    return { text:text, email:text, subject:'Act '+a.no+' of '+S.n+': be part of it?' };
   }
   const name = (S.name||'').trim();
   const first = a.who.length ? listWords(a.who.map(n=>n.split(' ')[0])) : 'you';
@@ -3504,8 +3504,8 @@ function askDrafts(){
     'Hello ' + (a.who.length ? first : 'there') + ',\n\n' +
     'I’m doing ' + S.n + ' acts of good over a ' + per + ', and number ' +
     a.no + ' is ' + when + '.\n\n' +
-    '  • What — ' + what + '\n' +
-    '  • When — ' + (a.d ? longDate(a.d) : 'still deciding') + '\n' +
+    '  • What: ' + what + '\n' +
+    '  • When: ' + (a.d ? longDate(a.d) : 'still deciding') + '\n' +
     '\nWould you like to come along? No obligation whatsoever, the offer is the\n' +
     'point, and it’d be nicer with you in it.\n\n' +
     'If this one doesn’t suit, there are ' + Math.max(1, S.n - S.acts.length - 1) +
@@ -3545,7 +3545,7 @@ function drawAsk(){
   const noCal = (ASK_KIND==='part');
   ['ask-invite'].forEach(id=>{ const el=$(id); if(el) el.classList.toggle('hide', noCal); });
   document.querySelectorAll('#sheet-ask [onclick="shareInvite(true)"]').forEach(el=>el.classList.toggle('hide', noCal));
-  if(noCal){ const n=$('ask-invnote'); if(n) n.textContent='No calendar invitation with this one \u2014 there is nothing to attend, only something to be part of.'; }
+  if(noCal){ const n=$('ask-invnote'); if(n) n.textContent='No calendar invitation with this one. There is nothing to attend, only something to be part of.'; }
   const a = askDetails();
   const known = (a.who||[]).filter(n=>(handlesOf(n)||{}).email);
   const note = $('ask-invnote');
@@ -3565,7 +3565,7 @@ function drawAsk(){
       : 'Attaches the act as an event they can add in one tap.';
   }
   /* the be-part-of-it opening has the last word on the note */
-  if(ASK_KIND==='part'){ const n=$('ask-invnote'); if(n) n.textContent='No calendar invitation with this one \u2014 there is nothing to attend, only something to be part of.'; }
+  if(ASK_KIND==='part'){ const n=$('ask-invnote'); if(n) n.textContent='No calendar invitation with this one. There is nothing to attend, only something to be part of.'; }
 }
 function sendAsk(){
   const body = encodeURIComponent($('ask-body').value);
@@ -4472,7 +4472,7 @@ function drawSheetPanel(){
        entirely rather than greying them — there is no point offering to sign
        something that will never carry a name. */
     '<p class="askhint" style="padding-left:0;margin:0 0 8px">'+
-      'Two lines are always here &mdash; who it is for, and what is happening. '+
+      'Two lines are always here: who it is for, and what is happening. '+
       'Everything else is a tick: if you do not need it, do not tick it.</p>'+
     /* The headline and the story are always there — everything else is a tick.
        G, 6 Sept: "if you don't need the who, what, when and where, then you
@@ -4501,7 +4501,7 @@ function drawSheetPanel(){
     askOpt('drop', 'Drop off',        'Any time before 5:30, at mine')+
     '<label class="asklab">Sign it</label>'+
     '<p class="askhint" style="padding-left:0;margin:0 0 4px">'+
-      'Leave both unticked and nothing on the paper points back to you &mdash; '+
+      'Leave both unticked and nothing on the paper points back to you, '+
       'which is what you want for a noticeboard or a shop window.</p>'+
     askOpt('sign', 'Your name',       'Your name', 'optional')+
     askOpt('phone','A number they can call', '912.555.0148', 'optional')+
@@ -4712,7 +4712,7 @@ function posterPanel(sh, half){
      it without re-reading the letter. */
   const on = sh.on || {}, anon = anonOf(sh);
   const pick = k => on[k] ? String(sh[k]||'').trim() : '';
-  const contact = [pick('sign'), pick('phone')].filter(Boolean).join(' \u2014 ');
+  const contact = [pick('sign'), pick('phone')].filter(Boolean).join(', ');
   const facts = [
     ['When',        pick('when')],
     ['What time',   pick('time')],
@@ -4751,7 +4751,7 @@ function posterPanel(sh, half){
     '<div class="pq">'+askQR(sh.id, half?150:260)+'</div>'+
     '<p class="pfh">Scan this to sign up</p>'+
     '<p class="pf">Hold your phone\u2019s camera over the square. It opens this same '+
-      'list &mdash; put your name against the one thing you can bring. '+
+      'list. Put your name against the one thing you can bring. '+
       'No account, nothing to install.</p>'+
     '<p class="pu">Or type <b>actsofgood.app/a/'+esc2(sh.id)+'</b> into any browser.</p>'+
     call+
@@ -4855,7 +4855,7 @@ function drawWorkWho(){
   const inv=$('wk-invite');
   if((WK.who||[]).length){
     inv.style.display='block';
-    inv.textContent='\u2709\uFE0E Invite '+listWords(WK.who)+' \u2014 the app writes the text'+(WK.d?', and a real calendar invite':'');
+    inv.textContent='\u2709\uFE0E Invite '+listWords(WK.who)+': the app writes the text'+(WK.d?', and a real calendar invite':'');
   } else inv.style.display='none';
 }
 function workToCalendar(){
@@ -4979,10 +4979,10 @@ function drawWork(){ if(!WK){ go('works'); return; } killDisarm(); }
 function drawWorks(){
   const box=$('workslist'); box.innerHTML='';
   const list=(S.works||[]);
-  $('works-h').textContent = list.length ? 'Acts in the works \u2014 '+list.length : 'Acts in the works';
+  $('works-h').textContent = list.length ? 'Acts in the works \u00b7 '+list.length : 'Acts in the works';
   $('works-sub').textContent = S.acts.length ? (S.acts.length+' done') : '';
   if(!list.length){
-    box.innerHTML='<p class="note">Nothing in the works yet. Start one \u2014 a name is enough, the rest ripens whenever it likes.</p>';
+    box.innerHTML='<p class="note">Nothing in the works yet. Start one. A name is enough, the rest ripens whenever it likes.</p>';
     return;
   }
   list.forEach(w=>{
@@ -6209,7 +6209,7 @@ function saveAct(writeNow){
      twelve hundred and fifty. */
   const moneyIn = readMoney($('l-cost').value);
   if(moneyIn === null){
-    say('That is not an amount', 'A number, like 12 or 12.50 — or leave it blank '+
+    say('That is not an amount', 'A number, like 12 or 12.50. Or leave it blank '+
         'and use the tally.');
     return;
   }
@@ -6512,12 +6512,12 @@ function buildCaption(force){
     const every = humanCadence(Math.round(S.weeks*7/S.n));
     a.captions[CM_PLAT] =
       'I\u2019m doing this.\n\n'+
-      S.n+' acts of good over the next year \u2014 '+every+'. Starting now.\n\n'+
+      S.n+' acts of good over the next year, '+every+'. Starting now.\n\n'+
       /* Her own words, from act 21 recalling what act 0 said: "I told friends
          I'd be reaching out to them to accompany me on some acts, but I also
          asked my people to invite ME if they were up to some good good." */
       'I\u2019ll be reaching out to some of you to come along. And if you\u2019re '+
-      'up to some good \u2014 invite me.'+
+      'up to some good, invite me.'+
       (CM_PLAT==='private' ? '' : '\n\n'+defaultHashtag());
     drawCompose(); return;
   }
@@ -6530,7 +6530,7 @@ function buildCaption(force){
       S.n+' of '+S.n+'.\n\n'+
       'A year of small things, done on purpose, alongside people I love. '+
       'That was the whole idea.\n\n'+
-      'It doesn\u2019t stop here \u2014 if you\u2019re up to some good, invite me.'+
+      'It doesn\u2019t stop here. If you\u2019re up to some good, invite me.'+
       (CM_PLAT==='private' ? '' : '\n\n'+defaultHashtag());
     drawCompose(); return;
   }
@@ -6769,7 +6769,7 @@ function drawFit(){
       };
       if(c.p.length > 200)
         checkFirst('Cut this paragraph?', '“'+c.p.slice(0,90)+
-          (c.p.length>90?'…':'')+'” — '+c.p.length+' characters, and it is the only '+
+          (c.p.length>90?'…':'')+'”, '+c.p.length+' characters, and it is the only '+
           'copy. You can put it back straight afterwards.', 'Cut it', doCut);
       else doCut();
     };
@@ -7035,15 +7035,15 @@ function drawPreview(){
       'style="width:100%;max-width:260px;display:block;border-radius:12px;'+
       'border:1px solid var(--line)">';
   if(a.anon){
-    box.innerHTML += '<p class="note" style="margin:8px 0 0">An anonymous act — '+
-      'the card posts alone. Your story and photos stay in your journal.</p>';
+    box.innerHTML += '<p class="note" style="margin:8px 0 0">An anonymous act. '+
+      'The card posts alone. Your story and photos stay in your journal.</p>';
     return;
   }
   /* riding along: tap a photo to include it or leave it out of the post */
   const ph=(a.photos||[]).filter(p=>p&&p.url);
   if(ph.length && CM_PLAT!=='private'){
     const off = ph.filter(p=>p.off).length;
-    box.innerHTML += '<p class="note" style="margin:10px 0 6px">Riding along — tap to '+
+    box.innerHTML += '<p class="note" style="margin:10px 0 6px">Riding along. Tap to '+
       'include or leave out. The journal keeps them all.</p>';
     const strip=document.createElement('div'); strip.className='photos';
     ph.forEach((p,i)=>{
@@ -7686,7 +7686,7 @@ function drawYou(){
   $('v-bday').textContent = S.bday
     ? MONTHS[parseInt(S.bday.slice(5,7),10)-1]+' '+S.bday.slice(0,4)+
       ' · year '+(ORD[ageTurning(S.bday)]||ageTurning(S.bday))
-    : 'Add — your card says "in year …" without it';
+    : 'Add. Your card says "in year …" without it';
   $('v-why').textContent = S.why || 'Add';
   /* the row wears the mark, so the dot on the tab has somewhere to land */
   markGap('v-name', !S.name); markGap('v-bday', !S.bday); markGap('v-why', !S.why);
@@ -7783,7 +7783,7 @@ function drawTodo(){
 
   /* the dot is colour alone, which is nothing to a screen reader */
   const btn = document.querySelector('.tabs [data-t="you"]');
-  if(btn) btn.setAttribute('aria-label', show ? 'You — your card still needs '+listWords(gaps) : 'You');
+  if(btn) btn.setAttribute('aria-label', show ? 'You. Your card still needs '+listWords(gaps) : 'You');
 }
 /* ── setup sheets ── */
 /* iOS keeps the scroll position when a full-screen step swaps out beneath a

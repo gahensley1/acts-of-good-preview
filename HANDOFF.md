@@ -6,7 +6,7 @@ what is true right now. When they disagree, this file is newer — say so and fi
 the skill.
 
 Last updated: **6 September 2026**.
-Build in G's hands: **2T** — pushed and live. **The sign-up sheet in it cannot
+Build in G's hands: **2U** — pushed and live. **The sign-up sheet in it cannot
 publish until `npx wrangler deploy` is run from `aog-sheets`** (see the CORS
 entry below).
 
@@ -556,6 +556,30 @@ old stories still readable.
 - **Both shapes re-measured at zero overflow** with a twelve-item potluck, after
   the taller footer pushed the full page 50px and each handout 53px over the
   plate. Row gaps and the handout's n4 step were tightened to pay for it.
+
+**2U — NO EM DASHES. STANDING RULE.**
+
+G, 6 September: *"no em dashes whatsoever to be used in this app."* **This is a
+standing rule, not a one-off pass. Do not write one into a new string.**
+
+- **Forty-four em dashes were rewritten by hand, one at a time**, not swapped for
+  a hyphen. A find-and-replace to " - " would have left the same rhythm on the
+  page, which is the thing he is objecting to. Each became whatever that sentence
+  actually wanted: a colon where a list or a definition followed, a comma where
+  it was an aside, a full stop where it was really two sentences.
+- **Verified by rendering, not by grep.** The app was walked across Your year,
+  People, Ideas, You, the journal, the works list, the log, setup, an act in the
+  works with a live sheet, the letter and the invitation, and `body.innerText`
+  checked for the character on each. Clean everywhere.
+- **Three dashes survive on purpose, and they are not punctuation:** the bullet
+  before each item in the app's needs list (`.adash`), the same bullet on the
+  printed poster (`<li><span>`), and the signature rule G asked for himself on
+  6 September (`.psg`, *"tabbed over dash Jessica Hensley"*). **OPEN for G**:
+  whether those three go too.
+- **A stale line was found while sweeping and removed**: the finish screen still
+  said *"Halves are allowed, act 2.5 is a real act."* Half acts came out in 1X.
+  It had been lying to people for nine builds.
+- Comments in the source still contain em dashes. They are not in the app.
 
 **2T — G'S RULINGS ON THE SHEET, THE YOU PAGE AND THE GRID (6 September).**
 
