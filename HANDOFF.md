@@ -6,7 +6,7 @@ what is true right now. When they disagree, this file is newer — say so and fi
 the skill.
 
 Last updated: **6 September 2026**.
-Build in G's hands: **3E** — pushed and live. **The sign-up sheet in it cannot
+Build in G's hands: **3F** — pushed and live. **The sign-up sheet in it cannot
 publish until `npx wrangler deploy` is run from `aog-sheets`** (see the CORS
 entry below).
 
@@ -556,6 +556,46 @@ old stories still readable.
 - **Both shapes re-measured at zero overflow** with a twelve-item potluck, after
   the taller footer pushed the full page 50px and each handout 53px over the
   plate. Row gaps and the handout's n4 step were tightened to pay for it.
+
+**3F — CONSOLIDATION. NOTHING NEW, 154KB LIGHTER.**
+
+G, 7 Sept, on a run of nine builds in a night: *"you're just adding things."*
+He was right. This build adds nothing.
+
+**Nine dead functions deleted.** `zeroDone`, `lastWeek`, `copyAsk`, `askAnon`,
+`dropWork`, `restoreDraft`, `newActChecked`, `unpost`, `wholeNo`. Each was
+proved unreachable first: zero calls, zero references from any `on*` attribute,
+comments excluded from the count so a mention in prose could not look like a
+call. 3.5KB.
+
+**`wipe()` was KEPT, deliberately, and marked.** It is the only code that clears
+the app, and *Start over* came off the You screen on 6 September with the
+replacement still unruled. It is one decision away from being needed.
+
+**THE REAL WEIGHT WAS NEVER THE CODE.** Measured properly for the first time:
+the app downloads **718KB gzipped on a cold load**. Of that, **comments are
+294KB (41%)** and **embedded assets are 432KB**, and assets barely compress: the
+base64 only shrinks to 74%.
+
+**The five hands were 307KB of it** — one 248x570 PNG per skin tone, 61KB each,
+the largest single thing in the app. They are **lossless WebP now: 31KB each**.
+Lossless was chosen over quality 90 (which would have saved another 57KB)
+because lossless needs no judgement about somebody else's artwork.
+
+**Proved identical before the swap, not after**: the alpha channel is
+byte-identical, and so is every colour value wherever alpha is not zero. The
+only bytes that changed sit underneath fully transparent pixels and cannot be
+drawn. Then all five were decoded in a browser (248x570 each) and the card that
+draws one was rendered and looked at.
+
+**718KB -> 588KB gzipped.** Nothing on screen moved.
+
+**The comments stay.** They are 41% of the download and they have earned it:
+three persistence holes, a duplicate function name and nine builds of stale copy
+were all found because the file explains itself. Stripping them at deploy time
+would mean the file that ships is not the file you edit, and that property has
+been load-bearing all year. **The right discipline is to stop growing them, not
+to delete them.**
 
 **3E — THE NOTE BOX, AND THE FREE HALF OF A NOTIFIER.**
 
