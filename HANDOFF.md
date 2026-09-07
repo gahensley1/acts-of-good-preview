@@ -6,7 +6,7 @@ what is true right now. When they disagree, this file is newer — say so and fi
 the skill.
 
 Last updated: **6 September 2026**.
-Build in G's hands: **2Y** — pushed and live. **The sign-up sheet in it cannot
+Build in G's hands: **2Z** — pushed and live. **The sign-up sheet in it cannot
 publish until `npx wrangler deploy` is run from `aog-sheets`** (see the CORS
 entry below).
 
@@ -556,6 +556,62 @@ old stories still readable.
 - **Both shapes re-measured at zero overflow** with a twelve-item potluck, after
   the taller footer pushed the full page 50px and each handout 53px over the
   plate. Row gaps and the handout's n4 step were tightened to pay for it.
+
+**2Z — ONE PAGE, TWO SHAPES, AND IDEAS THAT ARRIVE ALREADY WRITTEN.**
+
+Built after G sent Jessica's *Postcard Party* invitation as a reference.
+
+**The invitation is not a second document. It is the sheet with the list off.**
+`posterPanel` reads `invite = !needs.length`. Nothing on the list and the same
+page loses the code, the claiming and the list, the eyebrow turns from *We could
+use a hand* to *Come along*, and it closes on *"I hope you'll join us."* Nobody
+picks a mode. **You either need things or you do not**, and the page follows.
+`.pgt.invite` centres the block instead of stretching it margin to margin, which
+is what made the first draft of this look so empty.
+
+**Three things taken from her handout:**
+- **Why**, as one more tick. It is the best thing she had that we did not.
+- **The label column is a two-column grid now**, labels right-aligned against
+  the colon, values left. Hers scans faster than our old left-aligned run did,
+  and it is four lines of CSS.
+- **A tagline under the title**, one tick. *"Sips. Snacks. Stamps."*
+
+**The money rule is lifted.** It used to be that an invitation never mentions
+money. G, 6 Sept: *"let the participant user decide whether they need the money.
+That is not up to us."* Her own invitation asks for a voluntary $5 toward
+postage, gently, and it reads fine.
+
+**Every idea now carries the same four slots, and empty is a real answer.**
+`why`, `tag`, `needs[]`, `art` are on all 89, per G: *"create a tier template for
+each idea, and it's okay to not use."* What they are filled with follows one
+question, which is NOT the size field: **what does this idea ask of other
+people?**
+- **Nothing.** 65 of them. All four empty. Most acts are you and an afternoon.
+- **Things.** 19 collections and drives: a `why` and a `needs` list, no tagline,
+  because nobody is being invited anywhere. Prints as a sheet.
+- **People, somewhere, at a time.** Only 5: the block gathering, games hour at a
+  care home, the litter pick, the clothing swap, the postcard party. All four
+  slots. Prints as an invitation.
+
+**Note for whoever adds ideas: `s` ("A village") is about EFFORT, not about
+other people.** Five of the fourteen village-sized ideas are long commitments
+with nobody invited: walking a dog for a month, a Meals on Wheels route,
+adopting a resident, tutoring, adopting a cause. Do not use `s` to decide
+whether an idea gets a page.
+
+**`art` is a reserved slot and renders nothing yet.** G: the graphic will come
+with the idea. When it is built, do NOT put 89 data URIs in this file: use a
+named mark drawn inline from a small shared library (`art:'postcards'`).
+
+**The seed travels: idea, plan, work, sheet.** Saving an idea writes
+`seed:{why,tag,needs,art}` onto the plan; the one-way plan-to-work migration
+carries it; `seed` is in the work's `serialise()` AND its loader; `askStart()`
+opens the sheet with the reason, the tagline, the why and the whole needs list
+already in it, ticked. **Tested across a real reload**, per the standing rule.
+
+**Also fixed:** the poster printed *"Or just call or text Sam Ortega."* with no
+number whenever the number was unticked. That is not an instruction. The line
+needs `pick('phone')` now, not just a name.
 
 **2Y — MAKE A SIGN-UP SHEET GOES ABOVE THE SENTENCE, FULL WIDTH.**
 

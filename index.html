@@ -304,9 +304,17 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
    notice on a wall, which is what it is. Every one of them is optional and
    prints only when it has been filled in. */
 .pgt .pgr{font-size:13pt;color:#231F1B;margin:0;text-align:left;font-weight:600}
-.pgt .pfx{margin:0;text-align:left;width:100%}
-.pgt .pfx p{font-size:12.5pt;line-height:1.55;margin:0;color:#3A342C}
-.pgt .pfx b{color:#000;font-weight:700}
+.pgt .pfx{margin:0;width:100%;display:grid;grid-template-columns:max-content 1fr;
+  column-gap:0.16in;row-gap:0.045in;justify-content:center}
+.pgt .pfx b{font-size:12.5pt;line-height:1.55;color:#000;font-weight:700;text-align:right}
+.pgt .pfx span{font-size:12.5pt;line-height:1.55;color:#3A342C;text-align:left}
+.pgt.half .pfx b,.pgt.half .pfx span{font-size:9.5pt;line-height:1.5}
+.pgt .ptag{font-size:14pt;color:#3A342C;margin:0;font-weight:500}
+.pgt.half .ptag{font-size:10.5pt}
+/* an invitation has no list to fill the plate, so it is set as a block in the
+   middle rather than stretched from margin to margin */
+.pgt.invite{justify-content:center;row-gap:0.26in}
+.pgt.half.invite{row-gap:0.16in}
 .pgt .pcall{font-size:12pt;color:#3A342C;margin:0}
 /* G, 6 Sept: the name sits at the end of the details, tabbed over behind a
    dash. Everything below it — the code, its caption, the mark — is the footer. */
@@ -316,14 +324,15 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
 .pgt.half .pfx p{font-size:9.5pt;line-height:1.5}
 .pgt.half .pcall{font-size:9pt}
 .pgt.half .psg{font-size:9.5pt;margin-top:0.07in;padding-left:0.5in}
-.pgt.n3 .pfx p,.pgt.n4 .pfx p{font-size:11pt;line-height:1.45}
+.pgt.n3 .pfx b,.pgt.n4 .pfx b,.pgt.n3 .pfx span,.pgt.n4 .pfx span{font-size:11pt;line-height:1.45}
 .pgt.n3 .pf,.pgt.n4 .pf{font-size:10pt;line-height:1.4}
 .pgt.n4 .pfh{font-size:11.5pt}
 .pgt.half.n3 .pf,.pgt.half.n4 .pf{font-size:7pt;line-height:1.28}
 .pgt.half.n3 .pfh,.pgt.half.n4 .pfh{font-size:8.5pt}
 .pgt.half.n3 .ps,.pgt.half.n4 .ps{font-size:8pt}
 .pgt.half.n3 .pu,.pgt.half.n4 .pu{font-size:7pt}
-.pgt.half.n3 .pfx p,.pgt.half.n4 .pfx p{font-size:8.5pt;line-height:1.4}
+.pgt.half.n3 .pfx b,.pgt.half.n4 .pfx b,
+.pgt.half.n3 .pfx span,.pgt.half.n4 .pfx span{font-size:8.5pt;line-height:1.4}
 /* A letter, but it still wears its head. G, 6 Sept: the eyebrow, the gold
    rule and the bold title stay CENTRED; only the body below them sits left. */
 .pgt.letter .pgr,.pgt.letter .ps{text-align:left}
@@ -1042,7 +1051,7 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
     </div>
 
     <!-- BUILD MARK — dev only, delete this div when the app ships -->
-    <div id="buildtag">BUILD 2Y</div>
+    <div id="buildtag">BUILD 2Z</div>
   </div>
 </section>
 
@@ -2003,7 +2012,7 @@ function serialise(){
     started:S.started, letterSeen:!!S.letterSeen, bkup:S.bkup||'', bkupNag:S.bkupNag||'', zero:S.zero||null, tabToured:!!S.tabToured, opens:S.opens||0, todoOpens:S.todoOpens||0, plans:slimPlans(), handles:S.handles||{}, places:S.places||{},
     works:(S.works||[]).map(w=>({ pid:w.pid, t:w.t||'', d:w.d||'', who:w.who||[], hon:w.hon||'',
                           cost:w.cost||0, spends:w.spends||[], story:w.story||'', exp:w.exp||'',
-                          startedAt:w.startedAt||'', sheet:w.sheet||null,
+                          startedAt:w.startedAt||'', sheet:w.sheet||null, seed:w.seed||null,
                           photos:(w.photos||[]).map(p=>p&&p.id).filter(Boolean),
                           notes:w.notes||[], njr:w.njr||0 })),
     acts:S.acts.map(a=>({ no:a.no, t:a.t, out:a.out, who:a.who, cost:a.cost, spends:a.spends||[],
@@ -2118,6 +2127,7 @@ async function load(){
     S.works.push({ pid:w.pid||newWorkId(), t:w.t||'', d:w.d||'', who:Array.isArray(w.who)?w.who:[],
                    hon:w.hon||'', cost:+w.cost||0, spends:Array.isArray(w.spends)?w.spends:[],
                    story:w.story||'', exp:String(w.exp||''), startedAt:w.startedAt||'', sheet:(w.sheet&&typeof w.sheet==='object')?w.sheet:null,
+                   seed:(w.seed&&typeof w.seed==='object')?w.seed:null,
                    notes:Array.isArray(w.notes)?w.notes:[], njr:w.njr?1:0, photos:photos });
   }
   /* Legacy square-bound plans become works: the grid is the finished year now,
@@ -2126,7 +2136,8 @@ async function load(){
     const pl=S.plans[k]; if(!pl) return;
     S.works.push({ pid:pl.pid||newWorkId(), t:pl.t||'', d:pl.d||'', who:(pl.who||[]).slice(),
                    hon:'', cost:+pl.cost||0, spends:(pl.spends||[]).slice(), story:pl.note||'',
-                   exp:String(k), startedAt:todayISO(), photos:(pl.photos||[]).slice() });
+                   exp:String(k), startedAt:todayISO(), photos:(pl.photos||[]).slice(),
+                   seed:(pl.seed&&typeof pl.seed==='object')?pl.seed:null });
   });
   S.plans = {};
 
@@ -2538,201 +2549,290 @@ const IDEAS = [
 
  // ── Neighbors ──
  {t:'Bake something for new neighbors',l:'Today',s:'An hour',c:'Neighbors',
-  d:"Wrap it, add a handwritten tag. Don't overthink the allergies, the welcome is the point."},
+  d:"Wrap it, add a handwritten tag. Don't overthink the allergies, the welcome is the point.",
+  why:"",tag:"",needs:[],art:''},
  {t:"Take a neighbor's trash and recycling out, and back",l:'Today',s:'An hour',c:'Neighbors',
-  d:'Collection day, both directions. Small enough to repeat every week without asking.'},
+  d:'Collection day, both directions. Small enough to repeat every week without asking.',
+  why:"",tag:"",needs:[],art:''},
  {t:'Mow, rake, shovel, or clip back the overgrowth',l:'Today',s:'An hour',c:'Neighbors',
-  d:'Without being asked is the whole act. Their strip of yard while you are doing yours.'},
+  d:'Without being asked is the whole act. Their strip of yard while you are doing yours.',
+  why:"",tag:"",needs:[],art:''},
  {t:'Fresh smoke-alarm batteries for an older neighbor',l:'Today',s:'An hour',c:'Neighbors',
-  d:'Bring the stepladder too. Test each one before you leave.'},
+  d:'Bring the stepladder too. Test each one before you leave.',
+  why:"",tag:"",needs:[],art:''},
  {t:'Share garden surplus door to door',l:'Today',s:'An hour',c:'Neighbors',
-  d:'A bag on the porch with a note. Zucchini season exists for this.'},
+  d:'A bag on the porch with a note. Zucchini season exists for this.',
+  why:"",tag:"",needs:[],art:''},
  {t:'Leave a review for a small business',l:'Today',s:'An hour',c:'Neighbors',
-  d:'Free, takes four minutes, and it is worth real money to somebody local.'},
+  d:'Free, takes four minutes, and it is worth real money to somebody local.',
+  why:"",tag:"",needs:[],art:''},
  {t:'Stock a Little Free Library that needs it',l:'This weekend',s:'A weekend',c:'Neighbors',
-  d:'The directory at littlefreelibrary.org lists them. Find one in an underserved spot, not the fullest one nearby.'},
+  d:'The directory at littlefreelibrary.org lists them. Find one in an underserved spot, not the fullest one nearby.',
+  why:"",tag:"",needs:[],art:''},
  {t:'A block gathering that introduces two strangers',l:'Needs a month',s:'A village',c:'Neighbors',
-  d:'First Tuesday of August is National Night Out. Introduce two neighbors who have never met.'},
+  d:'First Tuesday of August is National Night Out. Introduce two neighbors who have never met.',
+  why:"most of us have lived beside each other for years without meeting",tag:"One street. One evening. Name tags.",needs:["Folding chairs","A cooler of ice","Something to grill","Plates and cups","Name tags and a marker"],art:''},
  {t:'Welcome packages for people arriving somewhere new',l:'Needs a month',s:'A village',c:'Neighbors',
-  d:'Find someone on the inside who can tell you who they are. Recruit two friends.'},
+  d:'Find someone on the inside who can tell you who they are. Recruit two friends.',
+  why:"the first week somewhere new is the loneliest one",tag:"",needs:["A local map or a hand-drawn one","Takeaway menus that are actually good","Bin day and recycling day, written down","Coffee or tea","A note with your number on it"],art:''},
  {t:'A card for every door in a senior housing building',l:'A week or two',s:'A weekend',c:'Neighbors',
-  d:'December. Call the office first, they will tell you how many doors and which entrance.'},
+  d:'December. Call the office first, they will tell you how many doors and which entrance.',
+  why:"a great many of those doors get no post at all",tag:"",needs:["Blank cards, one per door","Stamps if they go by post","Pens that write well","A count from the office first"],art:''},
 
  // ── Teachers & schools ──
  {t:"Fill a teacher's classroom wish list",l:'This weekend',s:'A weekend',c:'Teachers & schools',
-  d:'Buy the boring things on it. Split it with a friend and cover a few items each.'},
+  d:'Buy the boring things on it. Split it with a friend and cover a few items each.',
+  why:"teachers buy this out of their own pocket, every year",tag:"",needs:["Expo markers","Tissues","Glue sticks","Snacks for the drawer","Headphones"],art:''},
  {t:'Write to a teacher who mattered',l:'Today',s:'An hour',c:'Teachers & schools',
-  d:'Yours, or your children’s. Post it, a letter lands differently than a message.'},
+  d:'Yours, or your children’s. Post it, a letter lands differently than a message.',
+  why:"",tag:"",needs:[],art:''},
  {t:'Email the principal about one teacher, and cc them',l:'Today',s:'An hour',c:'Teachers & schools',
-  d:'One specific paragraph with evidence. It goes in a personnel file, praise to the manager travels.'},
+  d:'One specific paragraph with evidence. It goes in a personnel file, praise to the manager travels.',
+  why:"",tag:"",needs:[],art:''},
  {t:'Stock the staff room for a week',l:'A week or two',s:'A weekend',c:'Teachers & schools',
-  d:'Drinks and treats on a Monday, with a card so they know they are seen. Include cleaners, office staff, bus drivers.'},
+  d:'Drinks and treats on a Monday, with a card so they know they are seen. Include cleaners, office staff, bus drivers.',
+  why:"the staff room runs on whatever somebody remembered to bring",tag:"",needs:["Good coffee","Tea and sugar","Something to put in the fridge","Fruit","Paper towels"],art:''},
  {t:'Encouragement notes for a teacher to hand out',l:'This weekend',s:'An hour',c:'Teachers & schools',
-  d:'A stack of small "I see you" cards, for working hard, being a good friend, going above and beyond. The teacher does the spotting.'},
+  d:'A stack of small "I see you" cards, for working hard, being a good friend, going above and beyond. The teacher does the spotting.',
+  why:"",tag:"",needs:[],art:''},
  {t:"Pay off a school's lunch balances",l:'A week or two',s:'A weekend',c:'Teachers & schools',
-  d:'Call the district food services office, not the school. Ask for the negative-balance total.'},
+  d:'Call the district food services office, not the school. Ask for the negative-balance total.',
+  why:"",tag:"",needs:[],art:''},
  {t:'Shoes and underwear for the school nurse',l:'A week or two',s:'A weekend',c:'Teachers & schools',
-  d:'The nurse runs the clothing closet and knows the sizes they are short of. Unopened packs only.'},
+  d:'The nurse runs the clothing closet and knows the sizes they are short of. Unopened packs only.',
+  why:"the nurse keeps these for children who arrive without them",tag:"",needs:["Underwear, new, a range of sizes","Socks","Plain trainers","Leggings and joggers","A bag to keep it all in"],art:''},
  {t:'Deodorant and period products for the school closet',l:'This weekend',s:'An hour',c:'Teachers & schools',
-  d:'Middle and high schools quietly keep these. August is when the shelf is barest.'},
+  d:'Middle and high schools quietly keep these. August is when the shelf is barest.',
+  why:"a teenager should not have to ask twice for either",tag:"",needs:["Deodorant","Pads and tampons","Face wipes","Body wash","A discreet box to hold them"],art:''},
  {t:'Tell a class what you actually do for work',l:'Needs a month',s:'An hour',c:'Teachers & schools',
-  d:'One lunchtime a term. Teachers want real jobs described by real people.'},
+  d:'One lunchtime a term. Teachers want real jobs described by real people.',
+  why:"",tag:"",needs:[],art:''},
 
  // ── Community helpers ──
  {t:'Doughnuts for the vet, clinic or library',l:'Today',s:'An hour',c:'Community helpers',
-  d:"Buy them somewhere you'd like to keep in business. Include a note saying why."},
+  d:"Buy them somewhere you'd like to keep in business. Include a note saying why.",
+  why:"",tag:"",needs:[],art:''},
  {t:'Pastries to a fire station',l:'Today',s:'An hour',c:'Community helpers',
-  d:'Call the non-emergency line first, never just turn up. October 28 is First Responders Day.'},
+  d:'Call the non-emergency line first, never just turn up. October 28 is First Responders Day.',
+  why:"",tag:"",needs:[],art:''},
  {t:'A cooler of cold drinks for the sanitation crew',l:'Today',s:'An hour',c:'Community helpers',
-  d:'Left out on collection morning in summer, with a note or small poster so they know it is for them.'},
+  d:'Left out on collection morning in summer, with a note or small poster so they know it is for them.',
+  why:"the round happens in every kind of weather",tag:"",needs:["Bottled water","Sports drinks","Ice","A cooler you do not need back","A note on the lid"],art:''},
  {t:'A wrapped treat in the mailbox for your carrier',l:'Today',s:'An hour',c:'Community helpers',
-  d:'Sealed and store-bought, with the note taped on. They are not allowed to take much, this they can.'},
+  d:'Sealed and store-bought, with the note taped on. They are not allowed to take much, this they can.',
+  why:"",tag:"",needs:[],art:''},
  {t:'Coffee for the night shift on a hospital ward',l:'A week or two',s:'An hour',c:'Community helpers',
-  d:'Sealed and commercial, handed to the nurse manager. The day shift gets everything, nights get nothing.'},
+  d:'Sealed and commercial, handed to the nurse manager. The day shift gets everything, nights get nothing.',
+  why:"",tag:"",needs:[],art:''},
  {t:'Name a great staff member to their manager',l:'Today',s:'An hour',c:'Community helpers',
-  d:'Call the shop and ask for the manager. Praise with a name attached is the kind that counts at review time.'},
+  d:'Call the shop and ask for the manager. Praise with a name attached is the kind that counts at review time.',
+  why:"",tag:"",needs:[],art:''},
  {t:'Thank the crews nobody thanks',l:'Needs a month',s:'A weekend',c:'Community helpers',
-  d:'Road crews, night staff, the loading dock. Find out when they are actually there.'},
+  d:'Road crews, night staff, the loading dock. Find out when they are actually there.',
+  why:"somebody empties the bins and nobody says anything about it",tag:"",needs:["Cold drinks","Something wrapped to eat","A written note","A cooler with ice in it"],art:''},
  {t:'Learn CPR properly',l:'This weekend',s:'A weekend',c:'Community helpers',
-  d:'A certified class, a few hours. The act is being ready for the next ten years.'},
+  d:'A certified class, a few hours. The act is being ready for the next ten years.',
+  why:"",tag:"",needs:[],art:''},
 
  // ── Elders ──
  {t:'Games hour at a care home',l:'Needs a month',s:'A village',c:'Elders',
-  d:'Call two weeks ahead and ask for the activities coordinator, never reception. Bring prizes and a flyer.'},
+  d:'Call two weeks ahead and ask for the activities coordinator, never reception. Bring prizes and a flyer.',
+  why:"an afternoon with people in it, for residents whose week has none",tag:"Cards. Dominoes. Company.",needs:["Two decks of cards","Dominoes","Large-print bingo cards","Small prizes","A pot of coffee"],art:''},
  {t:'Adopt a resident who gets no visitors',l:'Needs a month',s:'A village',c:'Elders',
-  d:'The activities coordinator knows exactly who. Forty-five minutes every two weeks, kept up.'},
+  d:'The activities coordinator knows exactly who. Forty-five minutes every two weeks, kept up.',
+  why:"",tag:"",needs:[],art:''},
  {t:'A coupon book of favors for an older friend',l:'This weekend',s:'An hour',c:'Elders',
-  d:'A ride to the airport, a ride to vote, a yard task, a dog walk, a lift to church. They redeem, you show up.'},
+  d:'A ride to the airport, a ride to vote, a yard task, a dog walk, a lift to church. They redeem, you show up.',
+  why:"",tag:"",needs:[],art:''},
  {t:"Record an older relative's life story",l:'Today',s:'An hour',c:'Elders',
-  d:'Your phone, their kitchen table, one question to start. You will not regret having the recording.'},
+  d:'Your phone, their kitchen table, one question to start. You will not regret having the recording.',
+  why:"",tag:"",needs:[],art:''},
  {t:'Teach a senior to video-call the grandchildren',l:'Today',s:'An hour',c:'Elders',
-  d:'Set up the shortcut on their home screen and practice twice before you leave.'},
+  d:'Set up the shortcut on their home screen and practice twice before you leave.',
+  why:"",tag:"",needs:[],art:''},
  {t:'Flowers for assisted-living residents',l:'A week or two',s:'An hour',c:'Elders',
-  d:'Call first and ask how many residents. Small posies beat one big arrangement.'},
+  d:'Call first and ask how many residents. Small posies beat one big arrangement.',
+  why:"",tag:"",needs:[],art:''},
  {t:'A wreath for a widow or widower',l:'A week or two',s:'An hour',c:'Elders',
-  d:'Hung on the door in December, for somebody whose holidays got quieter. No note needed.'},
+  d:'Hung on the door in December, for somebody whose holidays got quieter. No note needed.',
+  why:"",tag:"",needs:[],art:''},
  {t:'Puzzles and large-print books to a senior center',l:'Today',s:'An hour',c:'Elders',
-  d:'Large print is the part everyone forgets. Magazines count.'},
+  d:'Large print is the part everyone forgets. Magazines count.',
+  why:"an afternoon is very long without something to do in it",tag:"",needs:["Jigsaws, 300 to 500 pieces","Large-print paperbacks","Crossword books","Playing cards"],art:''},
  {t:"Walk an older neighbor's dog for a month",l:'Needs a month',s:'A village',c:'Elders',
-  d:'Weekly, same day each week, or take on the litter box. The routine is the gift.'},
+  d:'Weekly, same day each week, or take on the litter box. The routine is the gift.',
+  why:"",tag:"",needs:[],art:''},
  {t:'Drive one Meals on Wheels route a month',l:'Needs a month',s:'A village',c:'Elders',
-  d:'The doorstep welfare check is the point, not the food. 18+, license and background check, your own gas.'},
+  d:'The doorstep welfare check is the point, not the food. 18+, license and background check, your own gas.',
+  why:"",tag:"",needs:[],art:''},
 
  // ── Feed people ──
  {t:'Take a shift at a shelter breakfast',l:'This weekend',s:'A weekend',c:'Feed people',
-  d:'Early start, warm room. Most places want you back, which is the good part.'},
+  d:'Early start, warm room. Most places want you back, which is the good part.',
+  why:"",tag:"",needs:[],art:''},
  {t:'Cook a freezable meal for someone in a season',l:'This weekend',s:'A weekend',c:'Feed people',
-  d:'New baby, illness, a loss, or a house gone quiet because a child left for college. Foil tray, instructions taped on.'},
+  d:'New baby, illness, a loss, or a house gone quiet because a child left for college. Foil tray, instructions taped on.',
+  why:"",tag:"",needs:[],art:''},
  {t:"Buy the food bank's actual top-needs list",l:'Today',s:'An hour',c:'Feed people',
-  d:'Canned protein, pop-top cans, diapers, period products. January and July are their worst months.'},
+  d:'Canned protein, pop-top cans, diapers, period products. January and July are their worst months.',
+  why:"the list is public and almost nobody reads it before shopping",tag:"",needs:["Canned protein","Pop-top cans","Diapers","Period products","Cooking oil"],art:''},
  {t:'Work a sorting shift at a food pantry',l:'This weekend',s:'A weekend',c:'Feed people',
-  d:'The one volunteer job younger children can genuinely do too.'},
+  d:'The one volunteer job younger children can genuinely do too.',
+  why:"",tag:"",needs:[],art:''},
  {t:'Take the prep shift before Thanksgiving',l:'Needs a month',s:'A weekend',c:'Feed people',
-  d:'The day itself is oversubscribed by early November. The day before is when they are short.'},
+  d:'The day itself is oversubscribed by early November. The day before is when they are short.',
+  why:"",tag:"",needs:[],art:''},
  {t:"Buy the holiday food box's missing items",l:'A week or two',s:'A weekend',c:'Feed people',
-  d:'Foil, roasting pans, gravy, butter, spices, coffee: the things nobody donates alongside the turkey.'},
+  d:'Foil, roasting pans, gravy, butter, spices, coffee: the things nobody donates alongside the turkey.',
+  why:"everyone donates the turkey and nobody donates the rest of the dinner",tag:"",needs:["Foil roasting pans","Gravy","Butter","Stuffing mix","Coffee","Pie filling"],art:''},
  {t:'Restock a little free pantry',l:'A week or two',s:'An hour',c:'Feed people',
-  d:'Canned protein, tampons, diapers. Check what is missing before you shop.'},
+  d:'Canned protein, tampons, diapers. Check what is missing before you shop.',
+  why:"it empties fastest in the weeks nobody is thinking about it",tag:"",needs:["Canned protein","Tampons","Diapers","Peanut butter","Nothing that needs a can opener"],art:''},
  {t:'Hygiene kits and water in the trunk',l:'This weekend',s:'An hour',c:'Feed people',
-  d:'Made up once, handed out over months, whenever you see the need.'},
+  d:'Made up once, handed out over months, whenever you see the need.',
+  why:"so the answer at a junction is something rather than nothing",tag:"",needs:["Bottled water","Socks","Toothbrush and paste","Wipes","A gallon bag for each kit"],art:''},
  {t:'Grocery gift cards kept in the car',l:'Today',s:'An hour',c:'Feed people',
-  d:'A stack of $5s and $10s from the supermarket, for the person at the intersection. Dignity travels in small denominations.'},
+  d:'A stack of $5s and $10s from the supermarket, for the person at the intersection. Dignity travels in small denominations.',
+  why:"",tag:"",needs:[],art:''},
  {t:'Run a diaper-and-formula drive',l:'Needs a month',s:'A village',c:'Feed people',
-  d:'For a family shelter. Sizes 4 to 6 are always the gap.'},
+  d:'For a family shelter. Sizes 4 to 6 are always the gap.',
+  why:"neither one can be bought with food assistance",tag:"",needs:["Diapers, sizes 4, 5 and 6","Wipes","Formula, unopened","Somewhere dry to store it","A car for the drop-off"],art:''},
  {t:'A small monthly gift to a food bank',l:'Today',s:'An hour',c:'Feed people',
-  d:'Set it up once in January. Steady money buys better than one-off cans.'},
+  d:'Set it up once in January. Steady money buys better than one-off cans.',
+  why:"",tag:"",needs:[],art:''},
 
  // ── Animals ──
  {t:'Treats for an animal shelter, flowers for the staff',l:'This weekend',s:'A weekend',c:'Animals',
   /* was: "…Charlottesville did for act 16." Generalised 31 Aug — the library
      may carry what was learned, never whose act it was learned on. */
-  d:'Call ahead about homemade. Some shelters take them happily, some cannot.'},
+  d:'Call ahead about homemade. Some shelters take them happily, some cannot.',
+  why:"the people who work there take it home with them every night",tag:"",needs:["Training treats","Peanut butter","Kongs or chew toys","Flowers for the front desk","Cat litter"],art:''},
  {t:'Old towels and blankets to a shelter',l:'Today',s:'An hour',c:'Animals',
-  d:'The one place your worn textiles are genuinely wanted. February is the cold month.'},
+  d:'The one place your worn textiles are genuinely wanted. February is the cold month.',
+  why:"this is the one place your worn textiles are genuinely wanted",tag:"",needs:["Towels","Blankets","Sheets","Nothing with stuffing in it"],art:''},
  {t:"Pay the adoption fee for the longest wait",l:'Today',s:'An hour',c:'Animals',
-  d:'Ask the front desk which animal has been there longest. Their fee, covered, changes the odds.'},
+  d:'Ask the front desk which animal has been there longest. Their fee, covered, changes the odds.',
+  why:"",tag:"",needs:[],art:''},
  {t:'Foster or transport for a rescue',l:'Needs a month',s:'A village',c:'Animals',
-  d:'Transport runs are a weekend and no long-term commitment. Start there.'},
+  d:'Transport runs are a weekend and no long-term commitment. Start there.',
+  why:"",tag:"",needs:[],art:''},
  {t:'Bird feeders where they will be watched',l:'Today',s:'An hour',c:'Animals',
-  d:"A park, or outside an older person's window. Winter is when it matters."},
+  d:"A park, or outside an older person's window. Winter is when it matters.",
+  why:"",tag:"",needs:[],art:''},
  {t:'A basket of tennis balls at the dog park',l:'Today',s:'An hour',c:'Animals',
-  d:'Left with a note. Cheap, silly, and remembered by every dog and half the owners.'},
+  d:'Left with a note. Cheap, silly, and remembered by every dog and half the owners.',
+  why:"",tag:"",needs:[],art:''},
 
  // ── Mother Earth ──
  {t:'Take a bag and a glove on your walk',l:'Today',s:'An hour',c:'Mother Earth',
-  d:'Bolt it onto a walk you were taking anyway. You will be surprised what you find.'},
+  d:'Bolt it onto a walk you were taking anyway. You will be surprised what you find.',
+  why:"",tag:"",needs:[],art:''},
  {t:'Organize a litter pick with neighbors',l:'Needs a month',s:'A village',c:'Mother Earth',
-  d:'A named park, riverbank or beach, then finish somewhere warm. Earth Day is April 22.'},
+  d:'A named park, riverbank or beach, then finish somewhere warm. Earth Day is April 22.',
+  why:"the same stretch gets walked past by everybody and cleaned by nobody",tag:"An hour. A bag each. Done.",needs:["Grabbers, if anyone has them","Heavy bags","Work gloves, a few spare pairs","A high-vis vest or two","Somewhere to take it after"],art:''},
  {t:'Plant a tree or a wildflower strip',l:'This weekend',s:'A weekend',c:'Mother Earth',
-  d:'On the strip by the street you pass daily, so you get to watch it. Spring.'},
+  d:'On the strip by the street you pass daily, so you get to watch it. Spring.',
+  why:"",tag:"",needs:[],art:''},
  {t:'Tools, paint and lumber to a Habitat ReStore',l:'A week or two',s:'A weekend',c:'Mother Earth',
-  d:'Usable things headed for the dump become somebody’s kitchen instead.'},
+  d:'Usable things headed for the dump become somebody’s kitchen instead.',
+  why:"it turns a full garage into somebody's house",tag:"",needs:["Hand tools","Unopened paint","Offcut lumber","Working power tools","Fittings and fixings"],art:''},
  {t:'Organize a free clothing swap',l:'Needs a month',s:'A village',c:'Mother Earth',
-  d:'Everyone brings a bag, everyone leaves with a bag, the rest goes to a shelter, washed, pockets checked.'},
+  d:'Everyone brings a bag, everyone leaves with a bag, the rest goes to a shelter, washed, pockets checked.',
+  why:"good clothes get a second life instead of a landfill",tag:"Bring a bag. Leave with a bag.",needs:["A folding table or two","Hangers","A long mirror","Bags for what is left","A car for the shelter run"],art:''},
 
  // ── Friends & family ──
  {t:'Do an act in someone’s honor instead of a gift',l:'A week or two',s:'An hour',c:'Friends & family',
-  d:'For a birthday, a memory, a thank-you. Ask what they would want done in their name, then do it.'},
+  d:'For a birthday, a memory, a thank-you. Ask what they would want done in their name, then do it.',
+  why:"",tag:"",needs:[],art:''},
  {t:'Sponsor a friend’s fundraiser, and say why',l:'Today',s:'An hour',c:'Friends & family',
-  d:'Money counts. Adding a sentence about why you gave is what they will remember.'},
+  d:'Money counts. Adding a sentence about why you gave is what they will remember.',
+  why:"",tag:"",needs:[],art:''},
  {t:'Girl Scout cookies, bought and given away',l:'Today',s:'An hour',c:'Friends & family',
-  d:'Gift boxes to neighbors, or use the troop’s option to send them to service members overseas.'},
+  d:'Gift boxes to neighbors, or use the troop’s option to send them to service members overseas.',
+  why:"",tag:"",needs:[],art:''},
  {t:'Babysit so someone gets a night off',l:'This weekend',s:'A weekend',c:'Friends & family',
-  d:'Offer a specific date rather than "any time", that is what makes it happen.'},
+  d:'Offer a specific date rather than "any time", that is what makes it happen.',
+  why:"",tag:"",needs:[],art:''},
  {t:'Four hours of December childcare',l:'A week or two',s:'A weekend',c:'Friends & family',
-  d:'So a friend can shop, wrap, or sleep. December is when nobody offers.'},
+  d:'So a friend can shop, wrap, or sleep. December is when nobody offers.',
+  why:"",tag:"",needs:[],art:''},
  {t:"Do a friend's dreaded chore",l:'This weekend',s:'A weekend',c:'Friends & family',
-  d:'Clean the house of someone who is ill. The chore they mention twice is the one.'},
+  d:'Clean the house of someone who is ill. The chore they mention twice is the one.',
+  why:"",tag:"",needs:[],art:''},
  {t:'Text five people one specific thing you admire',l:'Today',s:'An hour',c:'Friends & family',
-  d:'Specific is the whole trick. "You are great" evaporates, "the way you handled June" does not.'},
+  d:'Specific is the whole trick. "You are great" evaporates, "the way you handled June" does not.',
+  why:"",tag:"",needs:[],art:''},
  {t:'Write an unprompted recommendation',l:'Today',s:'An hour',c:'Friends & family',
-  d:'For a former colleague, posted where their next employer will read it.'},
+  d:'For a former colleague, posted where their next employer will read it.',
+  why:"",tag:"",needs:[],art:''},
  {t:'A care package to a child away at camp',l:'A week or two',s:'An hour',c:'Friends & family',
-  d:'June and July. Include notes they can pass on, an act that seeds another act.'},
+  d:'June and July. Include notes they can pass on, an act that seeds another act.',
+  why:"",tag:"",needs:[],art:''},
  {t:"Text a friend who's lost a parent, on the day",l:'Today',s:'An hour',c:'Friends & family',
-  d:"Mother's Day or Father's Day. Use the parent's name, that is what nobody else will do."},
+  d:"Mother's Day or Father's Day. Use the parent's name, that is what nobody else will do.",
+  why:"",tag:"",needs:[],art:''},
  {t:'Treat a parent you admire, in honor of your own',l:'This weekend',s:'An hour',c:'Friends & family',
-  d:'If you have lost your mother or father: a meal out for a mother or father in your circle honors them both.'},
+  d:'If you have lost your mother or father: a meal out for a mother or father in your circle honors them both.',
+  why:"",tag:"",needs:[],art:''},
  {t:'An ordinary walk on a hard day',l:'A week or two',s:'An hour',c:'Friends & family',
-  d:'For someone whose calendar has a landmine in it. No occasion talk unless they start it.'},
+  d:'For someone whose calendar has a landmine in it. No occasion talk unless they start it.',
+  why:"",tag:"",needs:[],art:''},
  {t:'Record a veteran or an older relative properly',l:'A week or two',s:'A weekend',c:'Friends & family',
-  d:'November 11 gives you the reason to ask. Sit down, phone on the table, let them go.'},
+  d:'November 11 gives you the reason to ask. Sit down, phone on the table, let them go.',
+  why:"",tag:"",needs:[],art:''},
  {t:'Lunchbox notes and snacks for a single mom',l:'This weekend',s:'An hour',c:'Friends & family',
-  d:'August, when back-to-school costs bite. A stack of notes and a bag of the fun snacks.'},
+  d:'August, when back-to-school costs bite. A stack of notes and a bag of the fun snacks.',
+  why:"",tag:"",needs:[],art:''},
 
  // ── Causes & voice ──
  {t:'Give blood, or platelets',l:'This weekend',s:'A weekend',c:'Causes & voice',
-  d:'Platelets take 2–3 hours and no aspirin for 48 hours first. January and summer are the shortages.'},
+  d:'Platelets take 2–3 hours and no aspirin for 48 hours first. January and summer are the shortages.',
+  why:"",tag:"",needs:[],art:''},
  {t:'Organ donor register and marrow registry, same day',l:'Today',s:'An hour',c:'Causes & voice',
-  d:'Two forms, ten minutes, once in a lifetime.'},
+  d:'Two forms, ten minutes, once in a lifetime.',
+  why:"",tag:"",needs:[],art:''},
  {t:'Adopt one local cause for the whole stretch',l:'Needs a month',s:'A village',c:'Causes & voice',
-  d:'Turning up four times beats turning up once at four places.'},
+  d:'Turning up four times beats turning up once at four places.',
+  why:"",tag:"",needs:[],art:''},
  {t:'A day of your professional skill for a small charity',l:'This weekend',s:'A weekend',c:'Causes & voice',
-  d:'Accounts, website, legal, design. The thing you do easily is the thing they cannot afford.'},
+  d:'Accounts, website, legal, design. The thing you do easily is the thing they cannot afford.',
+  why:"",tag:"",needs:[],art:''},
  {t:'A welcome-home box for a refugee family',l:'A week or two',s:'A village',c:'Causes & voice',
-  d:'New bedding, pans, staples. The resettlement agency will tell you exactly what and when.'},
+  d:'New bedding, pans, staples. The resettlement agency will tell you exactly what and when.',
+  why:"a flat with nothing in it is not yet a home",tag:"",needs:["A pot and a pan","Plates, bowls, cutlery","Bedding","Towels","Cleaning things","A kettle"],art:''},
  {t:'Sign up as a literacy or ESL tutor',l:'Needs a month',s:'A village',c:'Causes & voice',
-  d:'Intakes are usually September and October. About nine hours of training, then an hour or two a week.'},
+  d:'Intakes are usually September and October. About nine hours of training, then an hour or two a week.',
+  why:"",tag:"",needs:[],art:''},
  {t:'An evening shift at a cold-weather shelter',l:'Needs a month',s:'A weekend',c:'Causes & voice',
-  d:'They recruit and train in October and November. January is too late for that winter.'},
+  d:'They recruit and train in October and November. January is too late for that winter.',
+  why:"",tag:"",needs:[],art:''},
  {t:'Flowers on an unvisited headstone',l:'Today',s:'An hour',c:'Causes & voice',
-  d:'Memorial Day. Clean a war grave, or pick the stone nobody stops at.'},
+  d:'Memorial Day. Clean a war grave, or pick the stone nobody stops at.',
+  why:"",tag:"",needs:[],art:''},
  {t:'An Angel Tree tag nobody picks',l:'A week or two',s:'A weekend',c:'Causes & voice',
-  d:'Ask for the teenagers and the unglamorous requests. Gifts go back unwrapped, first week of December.'},
+  d:'Ask for the teenagers and the unglamorous requests. Gifts go back unwrapped, first week of December.',
+  why:"",tag:"",needs:[],art:''},
  {t:'A shift in the toy-wrapping room',l:'A week or two',s:'A weekend',c:'Causes & voice',
-  d:'Mid-December, when the sorting rooms are drowning. Bring a friend and your own tape.'},
+  d:'Mid-December, when the sorting rooms are drowning. Bring a friend and your own tape.',
+  why:"",tag:"",needs:[],art:''},
  {t:'Make one gift recurring',l:'Today',s:'An hour',c:'Causes & voice',
-  d:"Check your employer's matching portal first, it can double you for free."},
+  d:"Check your employer's matching portal first, it can double you for free.",
+  why:"",tag:"",needs:[],art:''},
  {t:'Register people to vote',l:'This weekend',s:'A weekend',c:'Causes & voice',
-  d:'Nonpartisan and legal everywhere, with rules that vary by state. Your county registrar has the real ones.'},
+  d:'Nonpartisan and legal everywhere, with rules that vary by state. Your county registrar has the real ones.',
+  why:"",tag:"",needs:[],art:''},
  {t:'A postcard party before voting day',l:'Needs a month',s:'A village',c:'Causes & voice',
-  d:'Friends, stamps, a stack of postcards to folks who sat out the primaries. October, ahead of November.'},
+  d:'Friends, stamps, a stack of postcards to folks who sat out the primaries. October, ahead of November.',
+  why:"to reach people who sat out the last one",tag:"Sips. Snacks. Stamps.",needs:["Postcards","Stamps","Pens that do not skip","Something to share","A list of addresses"],art:''},
  {t:'Stock a little library for Black History Month',l:'This weekend',s:'An hour',c:'Causes & voice',
-  d:'One near an elementary school, filled with books by Black authors and illustrators. February.'},
+  d:'One near an elementary school, filled with books by Black authors and illustrators. February.',
+  why:"children read what is in front of them",tag:"",needs:["Picture books","Middle-grade novels","A biography or two","Something for adults","A note inside each cover"],art:''},
  {t:'Organize the shelves at a clothing closet',l:'This weekend',s:'A weekend',c:'Causes & voice',
-  d:'Sorting and sizing is the job nobody stays for, which is why they need you.'},
+  d:'Sorting and sizing is the job nobody stays for, which is why they need you.',
+  why:"",tag:"",needs:[],art:''},
  {t:'Support a center that looks after people who get overlooked',l:'A week or two',s:'A weekend',c:'Causes & voice',
-  d:'LGBTQ centers, refugee services, veterans’ groups. Ask what they actually need.'}
+  d:'LGBTQ centers, refugee services, veterans’ groups. Ask what they actually need.',
+  why:"",tag:"",needs:[],art:''}
 ];
 
 /* people don't think in "0.48 a week" — say it the way you'd say it out loud */
@@ -4543,7 +4643,9 @@ function drawSheetPanel(){
       'rows="1" data-i="'+i+'" oninput="askInput(this)" onkeydown="askKey(event,this)" '+
       'placeholder="Add an item" aria-label="Something needed"></textarea></div>').join('')+
     '<p class="askhint">Return for the next item. Return twice to stop.</p>'+
+    askOpt('tag', 'A line under the title', 'Sips. Snacks. Stamps.')+
     '<label class="asklab">The details <span>(tick only what you need)</span></label>'+
+    askOpt('why',  'Why',             'To encourage voter participation')+
     askOpt('when', 'When',            'Friday, September 11')+
     askOpt('time', 'What time',       '6:00 pm')+
     askOpt('where','Where',           'Fire Station #1, 535 E. 63rd')+
@@ -4614,17 +4716,23 @@ function askPv(kind){ ASK_PV = kind==='half' ? 'half' : 'full'; drawSheetPanel()
    reads properly on a poster; every one of them is editable. */
 function askStart(){
   if(!WK) return;
-  const who = (WK.who||[]).length ? '' : '';
+  const sd = WK.seed || {};
+  const needs = (sd.needs||[]).filter(x=>String(x||'').trim());
   WK.sheet={ id:sheetId(), key:sheetToken(),
     reason:(WK.t||'').trim() || 'For a neighbor who could use a hand',
     greet:'Dear neighbors,',
+    tag:sd.tag||'',
+    why:sd.why||'',
     lede:'A few of us are putting something together. Any one of these would be '+
          'a real help, and none of it is a big job.',
-    slots:[''],
+    slots:needs.length ? needs.slice() : [''],
     when:(WK.d ? fmtLong(WK.d) : ''), time:'', where:'', who:'', drop:'',
     sign:(S.name||''), phone:'',
-    /* on by default: the date, and who is asking. Everything else is a tick. */
-    on:{ greet:1, when:!!WK.d?1:0, sign:(S.name?1:0) },
+    art:sd.art||'',
+    /* on by default: the date, who is asking, and anything the idea brought.
+       Everything else is a tick. */
+    on:{ greet:1, when:!!WK.d?1:0, sign:(S.name?1:0),
+         tag:sd.tag?1:0, why:sd.why?1:0 },
     live:0, claims:[] };
   workKeep(); save(); drawSheetPanel();
 }
@@ -4764,6 +4872,7 @@ function posterPanel(sh, half){
   const pick = k => on[k] ? String(sh[k]||'').trim() : '';
   const contact = [pick('sign'), pick('phone')].filter(Boolean).join(', ');
   const facts = [
+    ['Why',         pick('why')],
     ['When',        pick('when')],
     ['What time',   pick('time')],
     ['Where',       pick('where')],
@@ -4775,22 +4884,31 @@ function posterPanel(sh, half){
      overran by 8px the first time all of them were filled in. It counts the
      whole load now. */
   const load = n + (facts.length ? facts.length - 1 : 0) + (pick('greet') ? 1 : 0)
-                 + (pick('sign') ? 1 : 0);
+                 + (pick('sign') ? 1 : 0) + (pick('tag') ? 1 : 0);
   const step = load<=5 ? '' : load<=9 ? ' n2' : load<=14 ? ' n3' : ' n4';
-  const call = contact
+  /* it said "Or just call or text Sam Ortega." with no number on it, which is
+     not an instruction. The line needs the number, or it does not run. */
+  const call = pick('phone')
     ? '<p class="pcall">Or just call or text '+esc2(contact)+'.</p>'
     : '';
-  return '<div class="pgt'+(half?' half':'')+(anon?'':' letter')+step+'"><div class="pl"></div>'+
-    '<p class="pe">We could use a hand</p><div class="pr"></div>'+
+  /* One page, two shapes, and the list decides which. Anything on it and this
+     is a sign-up sheet: a code, and people claiming one thing each. Nothing on
+     it and the same page is an invitation: no code, nothing to claim, come to
+     this. Nobody has to choose a mode; you either need things or you do not. */
+  const invite = !n;
+  return '<div class="pgt'+(half?' half':'')+(anon?'':' letter')+(invite?' invite':'')+step+
+    '"><div class="pl"></div>'+
+    '<p class="pe">'+(invite?'Come along':'We could use a hand')+'</p><div class="pr"></div>'+
     '<p class="pt">'+esc2(sh.reason||'')+'</p>'+
+    (pick('tag')?'<p class="ptag">'+esc2(sh.tag)+'</p>':'')+
     (pick('greet')?'<p class="pgr">'+esc2(sh.greet)+'</p>':'')+
     (sh.lede?'<p class="pd">'+esc2(sh.lede)+
       (pick('sign') ? '<span class="psg">&mdash; '+esc2(sh.sign)+'</span>' : '')+
       '</p>':'')+
-    '<ul>'+needs.map(t=>'<li><span>&mdash;</span>'+esc2(t)+'</li>').join('')+'</ul>'+
-    '<p class="ps">Take whichever is easiest for you. That\u2019s the whole of it.</p>'+
+    (invite?'':'<ul>'+needs.map(t=>'<li><span>&mdash;</span>'+esc2(t)+'</li>').join('')+'</ul>'+
+      '<p class="ps">Take whichever is easiest for you. That\u2019s the whole of it.</p>')+
     (facts.length
-      ? '<div class="pfx">'+facts.map(f=>'<p><b>'+f[0]+':</b> '+esc2(f[1])+'</p>').join('')+'</div>'
+      ? '<div class="pfx">'+facts.map(f=>'<b>'+f[0]+':</b><span>'+esc2(f[1])+'</span>').join('')+'</div>'
       : '')+
     /* G, 6 Sept: the old line ("point a camera at it") never said what the
        square WAS or what happened next, and the square itself was bigger than
@@ -4798,12 +4916,14 @@ function posterPanel(sh, half){
        against the code and two inches minimum for arm's length; this is that,
        in our words, plus the address in plain text for the person who will not
        scan anything — without it they had no way in at all. */
-    '<div class="pq">'+askQR(sh.id, half?150:260)+'</div>'+
-    '<p class="pfh">Scan this to sign up</p>'+
-    '<p class="pf">Hold your phone\u2019s camera over the square. It opens this same '+
-      'list. Put your name against the one thing you can bring. '+
-      'No account, nothing to install.</p>'+
-    '<p class="pu">Or type <b>actsofgood.app/a/'+esc2(sh.id)+'</b> into any browser.</p>'+
+    (invite
+      ? '<p class="ps">I hope you\u2019ll join us.</p>'
+      : '<div class="pq">'+askQR(sh.id, half?150:260)+'</div>'+
+        '<p class="pfh">Scan this to sign up</p>'+
+        '<p class="pf">Hold your phone\u2019s camera over the square. It opens this same '+
+          'list. Put your name against the one thing you can bring. '+
+          'No account, nothing to install.</p>'+
+        '<p class="pu">Or type <b>actsofgood.app/a/'+esc2(sh.id)+'</b> into any browser.</p>')+
     call+
     '<p class="pm">50 acts of good</p></div>';
 }
@@ -7711,7 +7831,11 @@ function drawBrowse(){
       let slot=1; while(used[slot] && slot<=S.n) slot++;
       if(slot>S.n){ say('Your year is full','Every slot has something in it already.'); return; }
       S.plans = S.plans || {};
-      S.plans[slot] = { pid:newPlanId(), t:i.t, d:'', who:[], r:'1' };
+      /* The idea arrives already written. G, 6 Sept: the rules in an idea
+         "could be customized into our actual act itself." Empty fields ride
+         along as empty and cost nothing; a filled one saves the typing. */
+      S.plans[slot] = { pid:newPlanId(), t:i.t, d:'', who:[], r:'1',
+        seed:{ why:i.why||'', tag:i.tag||'', needs:(i.needs||[]).slice(), art:i.art||'' } };
       save(); drawBrowse();
       undoBar('Saved as act '+slot+'.', ()=>{ delete S.plans[slot]; save(); drawBrowse(); });
     };
