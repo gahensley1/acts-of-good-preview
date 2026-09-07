@@ -6,7 +6,7 @@ what is true right now. When they disagree, this file is newer — say so and fi
 the skill.
 
 Last updated: **6 September 2026**.
-Build in G's hands: **3D** — pushed and live. **The sign-up sheet in it cannot
+Build in G's hands: **3E** — pushed and live. **The sign-up sheet in it cannot
 publish until `npx wrangler deploy` is run from `aog-sheets`** (see the CORS
 entry below).
 
@@ -556,6 +556,53 @@ old stories still readable.
 - **Both shapes re-measured at zero overflow** with a twelve-item potluck, after
   the taller footer pushed the full page 50px and each handout 53px over the
   plate. Row gaps and the handout's n4 step were tightened to pay for it.
+
+**3E — THE NOTE BOX, AND THE FREE HALF OF A NOTIFIER.**
+
+**The note box.** The claim page asks a third, optional thing: *Anything you
+want to say? (optional)*, 400 characters, stored on the slot beside the name and
+the contact, read back only with the owner's key, and shown under that person's
+name in *Who signed up*, in quotes and in italic. **On an anonymous sheet it is
+the only channel there is**, because there is no number on the paper to ring.
+Escaped like every other stranger-typed field. **The Worker needs a deploy and
+D1 needs one migration**, which is written at the foot of `schema.sql`:
+`ALTER TABLE slots ADD COLUMN note TEXT`.
+
+**"Does it notify you when someone signs up?"** Jessica's question, and she
+loves that SignUpGenius does it. Built the half that is free and honest:
+`claimSweep()` runs 900ms after Your year draws, reads back every live sheet
+with its key, and raises the same black bar the undo and the backup use:
+*"Someone signed up for Chili supper."* `sh.seen` remembers how many the last
+look found, so **the same claim is never announced twice** — proved by opening
+three times over two claims and a reload. *See who* opens that act with the
+names on screen.
+
+**It only fires when the app is opened. That is the honest limit**, and it is
+not what Jessica means when she says her phone tells her while she is watching
+television.
+
+**THE REAL ANSWER IS ALREADY WRITTEN, IN G'S OWN OTHER APP.** The Deerstalker
+repo at `C:\Users\tony\Documents\Hunt` does true Web Push, and it works with
+the app CLOSED:
+- `sw.js`, a service worker with a `push` handler.
+- `pushSubscribe()` in its index.html: `pushManager.subscribe` with a VAPID
+  public key that ships in the file (public by design), posting the subscription
+  to its Worker.
+- Its Worker signs VAPID (ES256, RFC 8292) and encrypts the payload (aes128gcm,
+  RFC 8188/8291) **by hand, with no npm dependency**, so it ports straight into
+  `aog-sheets`.
+- Secrets `VAPID_PRIVATE` and `VAPID_SUBJECT`; the public key is not a secret.
+
+**Cost: nothing.** iOS needs the app installed to the Home Screen and 16.4+,
+which this app already supports.
+
+**THE ONE THING G MUST RULE FIRST.** A service worker is a **second file**, and
+this app is one file on purpose. Deerstalker already made that trade and wrote
+the scar into its own `sw.js`: **network-first for the document**, because
+cache-first pins every returning user to the build they last loaded, forever,
+with no way to push them off it. If we add one here it must copy that rule
+exactly. **Do not add a service worker to this app without reading Hunt's
+sw.js first.**
 
 **3D — THE PRINTED JOURNAL.**
 

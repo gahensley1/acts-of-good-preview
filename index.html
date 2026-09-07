@@ -326,6 +326,9 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
 .bpage.s4 .bstory{font-size:9pt;line-height:1.42}
 .bpage.s4 .bshots{margin-top:0.12in}
 .bpage.s4 h1{font-size:19pt}
+/* what a claimer wanted to say, under their name */
+.claimrow .csaid{display:block;font-size:13px;line-height:1.45;color:#3A342C;
+  font-style:italic;margin-top:3px}
 #poster{display:none}
 .ideaart{display:block;width:100%;height:132px;object-fit:cover;object-position:center;
   border-radius:9px;margin:0 0 12px;background:var(--mist)}
@@ -598,17 +601,17 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
 /* Above the sheets. At z-index 60 it tied with them and lost on DOM order, so
    the Undo button was visible and unpressable — and during setup the tap landed
    on "Start" underneath it, ending onboarding instead of undoing the delete. */
-#undobar,#gapbar,#bkupbar{position:fixed;left:50%;bottom:calc(72px + env(safe-area-inset-bottom));
+#undobar,#gapbar,#bkupbar,#claimbar{position:fixed;left:50%;bottom:calc(72px + env(safe-area-inset-bottom));
   transform:translate(-50%,140%);z-index:79;background:var(--ink);color:#fff;
   border-radius:12px;padding:11px 14px;display:flex;align-items:center;gap:14px;
   width:max-content;max-width:min(92vw,420px);box-shadow:0 8px 24px rgba(0,0,0,.28);
   transition:transform .22s cubic-bezier(.2,.8,.3,1);
   /* parked off screen it was still catching taps meant for the button beneath it */
   pointer-events:none;visibility:hidden}
-#undobar.up,#gapbar.up,#bkupbar.up{transform:translate(-50%,0);pointer-events:auto;visibility:visible}
-#undobar .msg,#gapbar .msg,#bkupbar .msg{font-size:13.5px}
+#undobar.up,#gapbar.up,#bkupbar.up,#claimbar.up{transform:translate(-50%,0);pointer-events:auto;visibility:visible}
+#undobar .msg,#gapbar .msg,#bkupbar .msg,#claimbar .msg{font-size:13.5px}
 /* the same bar, so the same action colour Undo uses */
-#gapbar button,#bkupbar button{background:none;border:0;color:#F6C65B;font-weight:700;
+#gapbar button,#bkupbar button,#claimbar button{background:none;border:0;color:#F6C65B;font-weight:700;
   font-size:13.5px;padding:6px 4px;min-height:36px;cursor:pointer;flex-shrink:0}
 /* Tried in coral and ruled back to black, 1J: it reads better. Both bars are
    the app speaking in the same voice, so they look the same. */
@@ -1174,7 +1177,7 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
     </div>
 
     <!-- BUILD MARK — dev only, delete this div when the app ships -->
-    <div id="buildtag">BUILD 3D</div>
+    <div id="buildtag">BUILD 3E</div>
   </div>
 </section>
 
@@ -1283,6 +1286,11 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
      instructions rather than on a shrug. -->
 <div id="bkupbar" role="status" aria-live="polite">
   <span class="msg"></span><button type="button" onclick="goBackup()">Back it up</button></div>
+
+<!-- Someone took something off a sign-up sheet. The app cannot be told; it
+     looks when it opens. -->
+<div id="claimbar" role="status" aria-live="polite">
+  <span class="msg"></span><button type="button" onclick="goClaims()">See who</button></div>
 
 <!-- BUILD TAG — dev only, delete this div (and its comment) when the app ships -->
 <div class="sheet hide" id="sheet-date" role="dialog" aria-modal="true"><div class="panel">
@@ -4970,6 +4978,59 @@ async function askRefresh(){
   }catch(_){ say('No connection','Try again when you have signal.'); }
 }
 
+/* ── "someone signed up" ──────────────────────────────────────────────────
+   Jessica's ask: SignUpGenius tells her when somebody signs up, and she loves
+   that. This is the free half of it, and it is honest about what it is: the app
+   looks when you open it, and says what changed since the last look. No push,
+   which would need a service worker and a second file, and this app is one file
+   on purpose. No email, which needs a verified address and probably a paid plan.
+   Both are still open with G; this works today and costs nothing.
+
+   `sh.seen` is how many claims the last look found. It rides inside the sheet
+   object, which the works loader copies whole, so it survives a reload. */
+let CLAIMBAR_T = null;
+async function claimSweep(){
+  const live = [];
+  (S.works||[]).forEach(w=>{ if(w && w.sheet && w.sheet.live && w.sheet.key)
+                               live.push(w.sheet); });
+  if(!live.length) return;
+  let fresh = 0, where = '';
+  for(const sh of live){
+    try{
+      const r = await fetch(AOG_BASE+'/a/'+sh.id+'.json',
+                            {headers:{'authorization':'Bearer '+sh.key},
+                             cache:'no-store'});
+      if(!r.ok) continue;
+      const j = await r.json();
+      const slots = j.slots || [];
+      sh.claims = slots;
+      const taken = slots.filter(x=>x && x.name).length;
+      const was = (sh.seen === undefined) ? taken : sh.seen;
+      if(taken > was){ fresh += (taken - was); where = sh.reason || ''; }
+      sh.seen = taken;
+    }catch(_){ /* no signal is not an error worth saying out loud */ }
+  }
+  save();
+  if(fresh) claimBar(fresh, where);
+}
+function claimBar(n, what){
+  const bar = $('claimbar'); if(!bar) return;
+  bar.querySelector('.msg').textContent =
+    n === 1 ? 'Someone signed up' + (what ? ' for ' + what : '') + '.'
+            : n + ' people signed up' + (what ? ' for ' + what : '') + '.';
+  bar.classList.add('up');
+  clearTimeout(CLAIMBAR_T);
+  CLAIMBAR_T = setTimeout(()=>bar.classList.remove('up'), 9000);
+}
+function dropClaimBar(){ const b=$('claimbar'); if(b) b.classList.remove('up');
+                         clearTimeout(CLAIMBAR_T); }
+/* takes you to the act whose sheet it was, with the names already on screen */
+function goClaims(){
+  dropClaimBar();
+  const w = (S.works||[]).find(x=>x && x.sheet && x.sheet.live);
+  if(w) openWork(w);
+}
+
 function drawClaims(){
   const el=$('wk-claims'), sh=askOf();
   if(!el) return;
@@ -4979,11 +5040,15 @@ function drawClaims(){
     const reach=c.contact ? (/@/.test(c.contact)
       ? '<a href="mailto:'+esc2(c.contact)+'">Email</a>'
       : '<a href="sms:'+esc2(c.contact)+'">Message</a>') : '';
+    /* Their words, under their name. This is the only thing a stranger can
+       send back, and on an anonymous sheet it is the only channel there is.
+       Escaped like everything else on this row: it is typed by the public. */
+    const said = (got && c.note) ? '<span class="csaid">\u201C'+esc2(c.note)+'\u201D</span>' : '';
     return '<div class="claimrow"><span class="ctick'+(got?'':' off')+'">'+(got?
       '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5" '+
       'stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>':'')+'</span>'+
       '<span class="cn">'+esc2(c.text||'')+(got?'<span class="cw">'+esc2(c.name)+
-      (c.contact?' · '+esc2(c.contact):'')+'</span>':'')+'</span>'+reach+'</div>';
+      (c.contact?' · '+esc2(c.contact):'')+'</span>':'')+said+'</span>'+reach+'</div>';
   }).join('');
 }
 
@@ -8599,9 +8664,11 @@ function go(v){
                      route the act took to get logged — the confetti falls
                      across the year, which is the screen it is about */
                   setTimeout(checkMilestones, 420);
+                  /* a real thing that happened outranks a reminder */
+                  setTimeout(claimSweep, 900);
                   /* well after the moment has had the screen to itself */
                   setTimeout(bkupBar, 2600); }
-  else dropBkupBar();
+  else { dropBkupBar(); dropClaimBar(); }
   if(v==='you'){   drawYou(); setTimeout(gapBar, 260); } else dropGapBar();
   if(v==='people') drawPeople();
   if(v==='zero')   drawZero();
