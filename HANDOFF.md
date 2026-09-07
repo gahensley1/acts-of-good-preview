@@ -6,7 +6,7 @@ what is true right now. When they disagree, this file is newer — say so and fi
 the skill.
 
 Last updated: **6 September 2026**.
-Build in G's hands: **3C** — pushed and live. **The sign-up sheet in it cannot
+Build in G's hands: **3D** — pushed and live. **The sign-up sheet in it cannot
 publish until `npx wrangler deploy` is run from `aog-sheets`** (see the CORS
 entry below).
 
@@ -556,6 +556,48 @@ old stories still readable.
 - **Both shapes re-measured at zero overflow** with a twelve-item potluck, after
   the taller footer pushed the full page 50px and each handout 53px over the
   plate. Row gaps and the handout's n4 step were tightened to pay for it.
+
+**3D — THE PRINTED JOURNAL.**
+
+G, 7 Sept: *"let's just make a PDF that's printable with the idea that we could
+go back and make it something different custom to the printer."* Built exactly
+that way.
+
+**The paper is four numbers and nothing else knows about it.**
+`--bookw --bookh --bookmx --bookmy` at the top of the book's CSS. Today they are
+US Letter portrait. **When a printer is chosen, change those four and add bleed;
+no other rule needs to move.** The `@page` size is read from the same variables
+at print time.
+
+**It prints through the browser**, so the person chooses "Save as PDF" from
+their own print dialogue. No service, no upload, no account, works with no
+signal: the same bargain the poster makes.
+
+**The book, in order:** a title page (the count, the reason in the script face,
+the name, the date range); *Why this year*, in their own words; **one act a
+page** with number, title, In honor of, the date in the script face, who was
+there, the rule, the story, up to four photographs; **the honour roll**; and the
+ending, which carries PUT A LITTLE MORE GOOD INTO THE WORLD.
+
+**The honour roll is the page that was drawn long ago and never built**, and it
+is the reason an act has kept its honoree all this time. Every name, and the
+acts done in it.
+
+**Photographs are pulled at FULL size from IndexedDB.** The screen journal shows
+420px thumbnails, which are right for a phone and poor on paper.
+
+**Pagination is measured, not guessed** — the same discipline as the poster.
+`fitBook()` steps a long story down through four sizes rather than letting it
+run off the page. Verified by generating a real PDF: 16 pages, zero overflow.
+
+**A guard added to the act loader.** An act's photos are stored as ids, and the
+works loader has always skipped anything that is not a string. The act loader
+did not, and a journal carrying the wrong shape lost the rest of that act's
+fields, honoree included. Found because a test fixture had the wrong shape.
+
+**Open, and G knows:** which printer, and therefore the real trim size. Also
+whether *Print your journal* should appear at the finish as well as on the
+journal screen, where it is now.
 
 **3C — THE PACE CARD, TO G'S MARKS ON A SCREENSHOT (7 September).**
 

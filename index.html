@@ -263,6 +263,69 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
 /* the calendar stands as tall as the two lines it sits beside, "This month"
    over the month itself, which is what G's bracket marked */
 #s-home #calbtn{top:7px;right:12px;padding:0;line-height:0}
+/* ── THE PRINTED JOURNAL ──────────────────────────────────────────────────
+   The journal is already a book on screen: an opening page, a page an act, a
+   closing page. This is the same book laid on paper. It is kept OUT of
+   @media print, exactly as the poster is, so it can be measured and previewed
+   on screen; #book is display:none until it is printed.
+
+   TRIM AND MARGIN LIVE IN THESE FOUR NUMBERS AND NOWHERE ELSE. When a printer
+   is chosen and hands over a spec, change them here and add bleed; nothing
+   below needs to move. G, 7 Sept: "make a PDF that's printable with the idea
+   that we could go back and make it something different custom to the printer".
+   Today they are US Letter portrait, which is what a person at home can print. */
+:root{ --bookw:8.5in; --bookh:11in; --bookmx:0.9in; --bookmy:0.85in; }
+#book{display:none}
+.bpage{position:relative;box-sizing:border-box;background:#FCFAF4;color:#231F1B;
+  width:var(--bookw);height:var(--bookh);padding:var(--bookmy) var(--bookmx);
+  font-family:Montserrat,sans-serif;overflow:hidden;
+  display:flex;flex-direction:column;
+  page-break-after:always;break-after:page}
+.bpage:last-child{page-break-after:auto;break-after:auto}
+.bpage .bplate{position:absolute;inset:0.42in;border:1px solid #E4DCCB;pointer-events:none}
+.bpage .bno{font-size:10.5pt;font-weight:700;letter-spacing:.15em;
+  text-transform:uppercase;color:#C03F2B;margin:0 0 0.16in}
+.bpage h1{font-size:23pt;line-height:1.2;letter-spacing:-.01em;margin:0 0 0.1in;
+  font-weight:700;text-wrap:balance}
+.bpage .bdate{font-family:'Great Vibes',cursive;font-size:21pt;color:#8A7F70;
+  margin:0 0 0.06in}
+.bpage .bwith{font-size:11.5pt;color:#665F57;margin:0 0 0.12in}
+.bpage .bhon{font-size:11.5pt;font-style:italic;color:#6B5E3A;margin:0 0 0.06in}
+.bpage .brule{width:0.62in;border-top:2px solid #D9BC6B;margin:0 0 0.2in}
+.bpage .bstory{font-size:12pt;line-height:1.72;color:#3A342C;margin:0;
+  white-space:pre-wrap}
+.bpage .bstory.none{color:#8A8177;font-style:italic}
+.bpage .bshots{display:grid;grid-template-columns:repeat(2,1fr);gap:0.14in;
+  margin-top:0.24in}
+.bpage .bshots.one{grid-template-columns:1fr}
+.bpage .bshots img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:3px;
+  display:block}
+.bpage .bshots.one img{aspect-ratio:4/3}
+.bpage .bfoot{margin-top:auto;padding-top:0.2in;font-size:9pt;color:#A79E90;
+  letter-spacing:.12em;text-transform:uppercase;display:flex;
+  justify-content:space-between}
+/* the title page, the opening, the honour roll and the ending are centred
+   blocks rather than a column that runs from margin to margin */
+.bpage.bmid{justify-content:center;text-align:center}
+.bpage.bmid h1{font-size:30pt;margin-bottom:0.16in}
+.bpage .bscript{font-family:'Great Vibes',cursive;font-size:34pt;color:#C9A227;
+  margin:0 0 0.2in;line-height:1.1}
+.bpage .bbig{font-size:52pt;font-weight:700;letter-spacing:-.03em;margin:0}
+.bpage .bline{font-size:13pt;line-height:1.6;color:#3A342C;margin:0.14in 0 0}
+.bpage .bclose{font-size:15pt;font-weight:700;letter-spacing:.09em;
+  text-transform:uppercase;color:#C03F2B;line-height:1.5;margin:0.3in 0 0}
+.bpage .bhonlist{text-align:left;margin:0.1in 0 0;padding:0;list-style:none}
+.bpage .bhonlist li{font-size:12pt;line-height:1.55;padding:0.07in 0;
+  border-top:1px solid #EAE2D2}
+.bpage .bhonlist b{font-weight:700}
+.bpage .bhonlist span{color:#6E675E}
+/* a long story simply gets smaller type before it gets cut */
+.bpage.s2 .bstory{font-size:11pt;line-height:1.62}
+.bpage.s3 .bstory{font-size:10pt;line-height:1.5}
+.bpage.s3 .bshots{margin-top:0.16in;gap:0.1in}
+.bpage.s4 .bstory{font-size:9pt;line-height:1.42}
+.bpage.s4 .bshots{margin-top:0.12in}
+.bpage.s4 h1{font-size:19pt}
 #poster{display:none}
 .ideaart{display:block;width:100%;height:132px;object-fit:cover;object-position:center;
   border-radius:9px;margin:0 0 12px;background:var(--mist)}
@@ -440,6 +503,7 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
     padding:0!important;background:#fff!important}
   body>*{display:none!important}
   #poster{display:block!important;margin:0!important;padding:0!important}
+  #book{display:block!important;margin:0!important;padding:0!important}
   /* The block used to be centred, which left the same dead band above and
      below whatever was on it. It now fills the plate: the first line sits on
      the top margin, the last on the bottom margin, and the space in between is
@@ -1110,7 +1174,7 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
     </div>
 
     <!-- BUILD MARK — dev only, delete this div when the app ships -->
-    <div id="buildtag">BUILD 3C</div>
+    <div id="buildtag">BUILD 3D</div>
   </div>
 </section>
 
@@ -1559,6 +1623,14 @@ What you actually did. Why it mattered. Say the awkward parts."></textarea>
   <div class="top"><button class="back" onclick="go('home')">‹</button>
     <h2>Your journal</h2><div class="sub" id="j-sub"></div></div>
   <div class="jwrap" id="j-pages"></div>
+  <!-- G, 7 Sept: printable now, re-cut later for a chosen printer. Everything
+       about the paper is in four CSS variables. -->
+  <div class="wrap" style="padding-top:0">
+    <button class="btn ghost" onclick="printJournal()">Print your journal</button>
+    <p class="note" style="margin:8px 0 26px;text-align:center">One page an act,
+      photographs at full size, and the names it was all for at the back. Your
+      phone will offer to save it as a PDF.</p>
+  </div>
 </section>
 
 <!-- ══════════ CARD ══════════ -->
@@ -2205,6 +2277,10 @@ async function load(){
   for(const a of (o.acts||[])){
     const photos=[];
     for(const id of (a.photos||[])){
+      /* an act's photos are stored as ids. The works loader has always guarded
+         against anything else; this one did not, and a journal carrying the
+         wrong shape took the rest of the act's fields down with it. */
+      if(typeof id !== 'string') continue;
       /* the thumbnail if there is one, the original otherwise: photos stored by
          an earlier build were only ever kept at one size */
       const url = (await idbGet(THUMB(id))) || (await idbGet(id));
@@ -5044,6 +5120,152 @@ function fitPlate(){
                         g.classList.add(worst); });
   }
   p.style.display=prev.d; p.style.position=prev.pos; p.style.left=prev.l; p.style.top=prev.t;
+}
+
+/* ── THE PRINTED JOURNAL ──────────────────────────────────────────────────
+   G, 7 Sept: a printable PDF now, re-cut later for whichever printer we end up
+   with. Everything about the paper is in the four variables at the top of the
+   book's CSS; nothing here knows what size the page is.
+
+   It prints through the browser, which means the person picks "Save as PDF"
+   from their own print dialogue. No service, no upload, no account, and it
+   works with no signal, which is the same bargain the poster makes.
+
+   The photographs are pulled at FULL size from IndexedDB. The screen journal
+   shows thumbnails, 420px, which are fine on a phone and poor on paper. */
+async function fullShot(p){
+  if(!p) return '';
+  try{ const full = p.id ? await idbGet(p.id) : null; if(full) return full; }catch(e){}
+  return p.url || '';
+}
+
+function bookFoot(left, right){
+  return '<div class="bfoot"><span>'+esc(left||'')+'</span>'+
+         '<span>'+esc(right||'')+'</span></div>';
+}
+
+/* One act, one page. The story steps down in size before it is ever cut off. */
+async function bookAct(a, mark){
+  const shots = [];
+  for(const ph of (a.photos||[]).filter(x=>x&&(x.url||x.id)).slice(0,4)){
+    const u = await fullShot(ph); if(u) shots.push(u);
+  }
+  const who = (a.who&&a.who.length) ? '<p class="bwith">with '+esc(listWords(a.who))+'</p>' : '';
+  const out = (a.out && a.out!=='Went to plan')
+    ? '<p class="bwith" style="font-style:italic">'+esc(a.out==='Partly'
+        ? 'It half went to plan, which is its own kind of story.'
+        : 'It did not go to plan. It still counts.')+'</p>' : '';
+  return '<div class="bpage"><div class="bplate"></div>'+
+    '<div class="bno">act '+esc(a.no)+' of '+esc(S.n)+'</div>'+
+    '<h1>'+esc(a.t||'An act of good')+'</h1>'+
+    (a.hon ? '<p class="bhon">In honor of '+esc(a.hon)+'</p>' : '')+
+    (a.d ? '<p class="bdate">'+esc(fmtLong(a.d))+'</p>' : '')+
+    who+'<div class="brule"></div>'+
+    (a.story ? '<p class="bstory">'+esc(a.story)+'</p>'
+             : '<p class="bstory none">Not written up. The doing was the point.</p>')+
+    (shots.length ? '<div class="bshots'+(shots.length===1?' one':'')+'">'+
+        shots.map(u=>'<img src="'+esc(u)+'" alt="">').join('')+'</div>' : '')+
+    out + bookFoot(mark||'', 'act '+esc(a.no)) + '</div>';
+}
+
+/* The honour roll. This page was drawn a long time ago and never built, and it
+   is the reason an act keeps who it was for. Every name, and what was done in
+   it. */
+function bookHonours(acts){
+  const by = {};
+  acts.forEach(a=>{ const h=(a.hon||'').trim(); if(!h) return;
+                    (by[h] = by[h] || []).push(a); });
+  const names = Object.keys(by).sort((x,y)=>x.localeCompare(y));
+  if(!names.length) return '';
+  return '<div class="bpage"><div class="bplate"></div>'+
+    '<div class="bno">in honor of</div>'+
+    '<h1 style="margin-bottom:0.18in">The names this year was for</h1>'+
+    '<ul class="bhonlist">'+names.map(n=>'<li><b>'+esc(n)+'</b> '+
+      '<span>'+esc(by[n].map(a=>'act '+a.no).join(', '))+'</span></li>').join('')+
+    '</ul>'+ bookFoot('', 'in honor of') +'</div>';
+}
+
+async function printJournal(){
+  const acts = S.acts.slice().sort((x,y)=>slotOf(x)-slotOf(y) ||
+                                          (parseFloat(x.no)-parseFloat(y.no)));
+  if(!acts.length){
+    say('Nothing to print yet','The first act becomes the first page.'); return;
+  }
+  say('Making the book', 'Gathering '+acts.length+
+      (acts.length===1?' act':' acts')+' and their photographs at full size.');
+
+  let b = $('book');
+  if(!b){ b=document.createElement('div'); b.id='book'; document.body.appendChild(b); }
+  let bs = $('booksize');
+  if(!bs){ bs=document.createElement('style'); bs.id='booksize'; document.head.appendChild(bs); }
+  /* the only place the paper size is stated to the printer */
+  bs.textContent = '@page{size:'+
+    (getComputedStyle(document.documentElement).getPropertyValue('--bookw').trim()||'8.5in')+
+    ' '+(getComputedStyle(document.documentElement).getPropertyValue('--bookh').trim()||'11in')+
+    ';margin:0}';
+
+  const yearWord = (S.line?S.line+' ':'') + (S.word||'good');
+  const span = acts.map(a=>a.d).filter(Boolean).sort();
+  const range = span.length
+    ? fmtLong(span[0]) + (span.length>1 ? ' to ' + fmtLong(span[span.length-1]) : '')
+    : '';
+
+  let html = '';
+  /* 1 — the title page */
+  html += '<div class="bpage bmid"><div class="bplate"></div>'+
+    '<div class="bno" style="margin-bottom:0.3in">'+esc(S.n)+' acts of good</div>'+
+    '<div class="bscript">'+esc(yearWord)+'</div>'+
+    (S.name ? '<h1>'+esc(S.name)+'</h1>' : '')+
+    (range ? '<p class="bline">'+esc(range)+'</p>' : '')+
+    '</div>';
+  /* 2 — why it began */
+  if((S.why||'').trim()){
+    html += '<div class="bpage bmid"><div class="bplate"></div>'+
+      '<div class="bno">why this year</div>'+
+      '<p class="bline" style="font-size:15pt;line-height:1.7;max-width:5in;'+
+      'margin-left:auto;margin-right:auto">'+esc(S.why)+'</p>'+
+      (S.name ? '<p class="bline" style="margin-top:0.3in">'+esc(S.name)+'</p>' : '')+
+      '</div>';
+  }
+  /* 3 — an act a page */
+  for(const a of acts) html += await bookAct(a, yearWord);
+  /* 4 — the honour roll */
+  html += bookHonours(acts);
+  /* 5 — the ending */
+  const people = {}; acts.forEach(a=>(a.who||[]).forEach(w=>people[w]=1));
+  const names = Object.keys(people);
+  html += '<div class="bpage bmid"><div class="bplate"></div>'+
+    '<div class="bno">'+(yearDone()?'the year is complete':'so far')+'</div>'+
+    '<div class="bbig">'+acts.length+'</div>'+
+    '<p class="bline">'+(acts.length===1?'act of good':'acts of good')+'</p>'+
+    '<p class="bline" style="max-width:4.6in;margin-left:auto;margin-right:auto">'+
+      (names.length ? esc(listWords(names.slice(0,10)))+
+        (names.length>10 ? ' and '+(names.length-10)+' more' : '')+
+        (names.length===1 ? ' was in it with you.' : ' were in it with you.')
+        : 'It was yours alone, which counts just the same.')+'</p>'+
+    '<p class="bclose">Put a little<br>more good into<br>the world.</p>'+
+    '</div>';
+
+  b.innerHTML = html;
+  fitBook();
+  setTimeout(function(){ window.print(); }, 120);
+}
+
+/* Same discipline as the poster: measure, do not guess. A long story steps
+   down through four sizes rather than running off the bottom of the page. */
+const BOOK_STEPS = ['','s2','s3','s4'];
+function fitBook(){
+  const b = $('book'); if(!b) return;
+  const prev = { d:b.style.display, pos:b.style.position, l:b.style.left };
+  b.style.display='block'; b.style.position='fixed'; b.style.left='-20000px'; b.style.top='0';
+  b.querySelectorAll('.bpage').forEach(g=>{
+    for(const c of BOOK_STEPS){
+      BOOK_STEPS.forEach(x=>{ if(x) g.classList.remove(x); });
+      if(c) g.classList.add(c);
+      if(g.scrollHeight <= g.clientHeight + 1) break;
+    }
+  });
+  b.style.display=prev.d; b.style.position=prev.pos; b.style.left=prev.l;
 }
 
 function askPoster(kind){
