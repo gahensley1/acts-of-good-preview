@@ -15,6 +15,38 @@ true, I did, and the check is written down. Where I could not, it says so.
 
 ---
 
+**BUILT, 8 September, build 3M: the stray.**
+
+G: *"Every so often, let's just have a random single heart fly across the
+screen, whatever the science tells us on how the butterfly should act. Just for
+fun, just something to brighten the screen."*
+
+One heart, wandering across Your year, **every two to five minutes at random**
+(G's ruling: rare, so it stays a small piece of luck rather than decoration).
+The first is sooner, 25 to 65 seconds after the screen appears, so somebody
+does eventually meet one.
+
+**It is the same walk as the butterflies in the act moment, with one change out
+of the ecology: this one is not searching, it is CROSSING.** That is ballistic
+dispersal rather than area-restricted search, so kappa starts high instead of
+climbing: turning spread is a flat 0.055 from the first frame and it holds its
+bearing at 0.035. It enters off one side at a shallow angle, rises a little,
+and leaves. Speed 1.45 to 2.10, so a crossing takes six or seven seconds. Same
+bob on the downstroke and the same lobes flapping about the line from the cleft.
+
+**Every rule it obeys, and each one is there for a reason:** one at a time;
+Your year only; never over a sheet, the halfway or finish moment, or an act's
+own moment; nothing while the tab is hidden; nothing under reduced motion; a
+30-second failsafe so it can never get stuck on screen; and the canvas ignores
+taps, so it can never swallow a tap meant for a square.
+
+**Two defects found by testing, both real:**
+- **It kept a timer alive on every other screen in the app**, because it planned
+  the next crossing before checking where it was. Now it checks first and stops.
+- It drifted slowly enough to look stuck; speed raised about a quarter.
+
+---
+
 **RULED and BUILT, 8 September, build 3L: every act keeps its sash, and the
 moment waits until you are actually looking.**
 

@@ -1231,7 +1231,7 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
     </div>
 
     <!-- BUILD MARK — dev only, delete this div when the app ships -->
-    <div id="buildtag">BUILD 3L</div>
+    <div id="buildtag">BUILD 3M</div>
   </div>
 </section>
 
@@ -3326,6 +3326,96 @@ function drawZero(){
   $('z-scr').textContent = S.word;
   fitAllMarks();
 }
+
+
+/* ── the stray ────────────────────────────────────────────────────────────
+   G, 8 Sept: "every so often, let's just have a random single heart fly across
+   the screen, whatever the science tells us on how the butterfly should act.
+   Just for fun, just something to brighten the screen."
+
+   Same walk as the butterflies in the act moment, with one difference that
+   comes straight out of the ecology: this one is not searching, it is CROSSING.
+   In the literature that is ballistic dispersal rather than area-restricted
+   search - long steps, high directional persistence, a bearing held. So kappa
+   starts high instead of climbing, and the turning is small from the first
+   frame. It still bobs on the downstroke and its lobes still flap about the
+   line down from the cleft, because that is how the thing flies.
+
+   Rules it obeys, all of them so that it can never be a nuisance:
+   one at a time; only on Your year; never over a sheet, a moment, or an act's
+   own moment; nothing while the phone is in your pocket or the tab is hidden;
+   nothing under reduced motion; and it cannot be tapped, so it can never take
+   a tap meant for a square.                                                  */
+let STRAY_T = null, STRAY_ON = 0;
+function strayGap(){ return 120000 + Math.random()*180000; }   // 2 to 5 minutes
+function strayStop(){ if(STRAY_T) clearTimeout(STRAY_T); STRAY_T = null; }
+function strayPlan(first){
+  strayStop();
+  STRAY_T = setTimeout(strayGo, first ? 25000 + Math.random()*40000 : strayGap());
+}
+function strayGo(){
+  /* Where it is gets checked BEFORE the next one is planned. Re-planning first
+     kept a timer alive on every other screen in the app. */
+  if(SCREEN !== 'home'){ strayStop(); return; }
+  strayPlan(false);
+  if(STRAY_ON) return;
+  if(document.hidden) return;
+  if(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const mo = $('moment'); if(mo && mo.classList.contains('up')) return;
+  const wrap = $('actcf'); if(!wrap || wrap.classList.contains('up')) return;
+  if(['you','social','spend','plan','person','cal','date','ask','done','finish','eval','pv']
+     .some(x=>{ const el=$('sheet-'+x); return el && !el.classList.contains('hide'); })) return;
+  if(!acSize()) return;
+
+  STRAY_ON = 1;
+  wrap.classList.add('up');
+  AC_PARTS = []; AC_JETS = []; AC_RINGS = []; AC_QUEUE = []; AC_F = 0;
+
+  const W = window.innerWidth, H = window.innerHeight;
+  const G = () => (Math.random()+Math.random()+Math.random()-1.5)*2;
+  const fromLeft = Math.random() < 0.5;
+  const x0 = fromLeft ? -40 : W + 40;
+  const y0 = H*0.30 + Math.random()*H*0.45;
+  /* a shallow crossing, rising a little, the way one actually goes past */
+  const bearing = (fromLeft ? 0 : Math.PI) + (fromLeft ? -1 : 1)*(0.16 + Math.random()*0.30);
+
+  acSpawn({ x:x0, y:y0, vx:0, vy:0,
+    hd:bearing, bearing:bearing, sp0:1.45 + Math.random()*0.65,
+    s:0, s0:20, s1:27 + Math.random()*7, op:0.94, rot:0, spin:0,
+    ph:Math.random()*6.2832, phv:0.25 + Math.random()*0.09,
+    lift:0.44 + Math.random()*0.18,
+    born:0, wing:1, trail:0, life:0, fadeAt:100000, fadeLen:1,
+    move: q => {
+      const age = q.life;
+      q.ph += q.phv;
+      const u = Math.min(1, age/70), e = u*u*(3-2*u);
+      q.s = q.s0 + (q.s1 - q.s0)*e;
+      /* high kappa from the start: it is dispersing, not searching */
+      q.hd += G() * 0.055;
+      let d = q.bearing - q.hd;
+      while(d >  Math.PI) d -= 6.2832;
+      while(d < -Math.PI) d += 6.2832;
+      q.hd += d * 0.035;
+      const sp = q.sp0 * (0.55 + 0.45*Math.min(1, age/40));
+      q.vx = Math.cos(q.hd)*sp; q.vy = Math.sin(q.hd)*sp;
+      q.vy -= q.lift * Math.max(0, Math.sin(q.ph));   // lift on the downstroke
+      q.vy += q.lift * 0.318;                          // weight cancels it
+      q.x += q.vx; q.y += q.vy;
+      q.rot = q.vx*0.085 + Math.sin(q.ph)*0.12;
+    } });
+
+  const done = () => { STRAY_ON = 0; };
+  const watch = () => {
+    if(!AC_PARTS.length){ done(); return; }
+    setTimeout(watch, 250);
+  };
+  AC_RAF = requestAnimationFrame(acFrame);
+  setTimeout(watch, 250);
+  setTimeout(()=>{ if(STRAY_ON){ acStop(); STRAY_ON = 0; } }, 30000);  // never stuck
+}
+document.addEventListener('visibilitychange', ()=>{
+  if(document.hidden) strayStop(); else if(SCREEN === 'home') strayPlan(true);
+});
 
 /* ── the act moment ────────────────────────────────────────────────────────
    Ruled 7 September. One act done, one moment, chosen from six and never the
@@ -9257,6 +9347,7 @@ const VIEWS=['setup','zero','home','log','write','card','compose','browse','peop
 let SCREEN = 'home';
 function go(v){
   if(v !== SCREEN) dropUndo();
+  if(v !== 'home') strayStop();   // it belongs to Your year and nowhere else
   if(v !== 'work') killDisarm();   // a primed delete never survives the screen
   if(SCREEN==='compose' && v!=='compose') leaveCompose();
   SCREEN = v;
@@ -9277,7 +9368,8 @@ function go(v){
                   /* a real thing that happened outranks a reminder */
                   setTimeout(claimSweep, 900);
                   /* well after the moment has had the screen to itself */
-                  setTimeout(bkupBar, 2600); }
+                  setTimeout(bkupBar, 2600);
+                  strayPlan(true); }
   else { dropBkupBar(); dropClaimBar(); }
   if(v==='you'){   drawYou(); setTimeout(gapBar, 260); } else dropGapBar();
   if(v==='people') drawPeople();
