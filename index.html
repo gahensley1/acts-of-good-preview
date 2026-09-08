@@ -735,6 +735,12 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
   background:var(--paper);overflow-y:auto;overscroll-behavior:contain;
   padding:calc(18px + var(--safetop)) 20px calc(24px + var(--safebot))}
 #moment.up{display:flex;align-items:center;justify-content:center}
+/* The act moment plays over Your year, under the halfway/finish overlay.
+   Hearts rise and leave through the top; confetti falls and leaves through the
+   bottom. That is what keeps this from ever competing with the end of a year. */
+#actcf{position:fixed;inset:0;z-index:60;pointer-events:none;display:none}
+#actcf.up{display:block}
+#actcf canvas{width:100%;height:100%;display:block}
 #momentcf{position:fixed;inset:0;z-index:71;pointer-events:none;display:none}
 #momentcf.up{display:block}
 #moment .inner{max-width:520px;width:100%;margin:auto;position:relative;z-index:72;text-align:center}
@@ -872,6 +878,21 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
 .tile .sash{position:absolute;inset:0;pointer-events:none;line-height:0;
   filter:drop-shadow(0 1px 2px rgba(90,50,35,.22));z-index:2}
 .tile .sash svg{width:100%;height:auto;display:block}
+/* Ruled 7 Sept. Two beats. The band already runs at 45 degrees, so sliding it
+   along that same axis reads as being strapped across rather than appearing.
+   Then the date is stamped onto it a beat AFTER the ribbon has landed, using
+   the Deerstalker's own stamp unchanged: .9, over to 1.04, settle at 1.
+   It only ever runs on a sash that has just arrived on a new square. */
+.tile .sash.strap{animation:sashStrap .42s cubic-bezier(.2,.85,.3,1) both}
+.tile .sash.strap text{animation:sashStamp .3s ease .52s both}
+@keyframes sashStrap{ 0%{opacity:0;transform:translate(-78%,-78%)}
+                      60%{opacity:1}
+                      100%{opacity:1;transform:translate(0,0)} }
+@keyframes sashStamp{ 0%{opacity:0;transform:scale(.9)}
+                      25%{opacity:1}
+                      60%{transform:scale(1.04)}
+                      100%{opacity:1;transform:scale(1)} }
+.tile .sash text{transform-box:fill-box;transform-origin:center}
 #grid,.tile{overflow:visible}
 .tile.planned .tilenum{position:static;color:var(--gold);text-shadow:none;font-size:12.5px}
 .tile .tilewhen{position:absolute;left:0;right:0;bottom:3px;font-size:8.5px;
@@ -1186,7 +1207,7 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
     </div>
 
     <!-- BUILD MARK — dev only, delete this div when the app ships -->
-    <div id="buildtag">BUILD 3I</div>
+    <div id="buildtag">BUILD 3J</div>
   </div>
 </section>
 
@@ -1744,6 +1765,7 @@ What you actually did. Why it mattered. Say the awkward parts."></textarea>
      same lockup with "act n of N" added under the rule. -->
 <!-- ══════════ THE MOMENT ══════════
      Halfway, and the end of the year. Never both at once. -->
+<div id="actcf" aria-hidden="true"><canvas id="actcanvas"></canvas></div>
 <div id="momentcf" aria-hidden="true"><canvas id="momentcanvas"></canvas></div>
 <div id="moment" role="dialog" aria-modal="true" aria-labelledby="m-title">
   <div class="inner">
@@ -2173,7 +2195,7 @@ function serialise(){
                                 acts:y.acts||[] })),
     people:S.people, platforms:S.platforms,
     started:S.started, letterSeen:!!S.letterSeen, bkup:S.bkup||'', bkupNag:S.bkupNag||'',
-    finShown:S.finShown?1:0, halfShown:S.halfShown?1:0, fin:S.fin||null, zero:S.zero||null, tabToured:!!S.tabToured, opens:S.opens||0, todoOpens:S.todoOpens||0, plans:slimPlans(), handles:S.handles||{}, places:S.places||{},
+    finShown:S.finShown?1:0, halfShown:S.halfShown?1:0, fin:S.fin||null, celLast:S.celLast||'', celBag:S.celBag||'', zero:S.zero||null, tabToured:!!S.tabToured, opens:S.opens||0, todoOpens:S.todoOpens||0, plans:slimPlans(), handles:S.handles||{}, places:S.places||{},
     works:(S.works||[]).map(w=>({ pid:w.pid, t:w.t||'', d:w.d||'', who:w.who||[], hon:w.hon||'',
                           cost:w.cost||0, spends:w.spends||[], story:w.story||'', exp:w.exp||'',
                           startedAt:w.startedAt||'', sheet:w.sheet||null, seed:w.seed||null,
@@ -2275,6 +2297,13 @@ async function load(){
   S.people=o.people||[]; S.platforms=o.platforms||S.platforms;
   S.started=!!o.started; S.letterSeen=!!o.letterSeen; S.bkup=o.bkup||''; S.bkupNag=o.bkupNag||'';
   S.finShown=o.finShown?1:0; S.halfShown=o.halfShown?1:0;
+  /* which act moment came up last, so the next one is never the same. Named in
+     BOTH halves on purpose: this file has shipped a one-sided field three
+     times, most recently the finish and halfway moments, which then re-fired
+     on every launch for nine builds. */
+  S.celLast=(typeof o.celLast==='string' && AC_KINDS.indexOf(o.celLast)>-1) ? o.celLast : '';
+  S.celBag=(typeof o.celBag==='string')
+    ? o.celBag.split(',').filter(k=>AC_KINDS.indexOf(k)>-1).join(',') : '';
   S.fin=(o.fin&&typeof o.fin==='object')?o.fin:null;
   if(S.cat==='Neighbours') S.cat='Neighbors';   // the library went American
   S.zero=o.zero||null; S.tabToured=!!o.tabToured; S.opens=o.opens||0; S.todoOpens=o.todoOpens||0; S.handles=o.handles||{}; S.places=o.places||{};
@@ -3273,6 +3302,456 @@ function drawZero(){
   $('z-scr').textContent = S.word;
   fitAllMarks();
 }
+
+/* ── the act moment ────────────────────────────────────────────────────────
+   Ruled 7 September. One act done, one moment, chosen from six and never the
+   same one twice running. It is not a streak: a streak rewards not missing and
+   punishes gaps, and this rewards the act itself, so there is nothing to
+   protect and nothing to break. Nothing escalates with the count either, so
+   act 3 and act 47 get the same treatment.
+
+   The standing rule underneath all six: HEARTS RISE AND LEAVE THROUGH THE TOP,
+   CONFETTI FALLS AND LEAVES THROUGH THE BOTTOM. That is what keeps this from
+   ever competing with the end of a year, which is the only time the sky comes
+   down.
+
+   The heart is drawn, not a picture: a bezier filled coral with the colour
+   slipped a hair off a thin ink line, the way the rest of the app prints. The
+   line is what makes a coral heart read against a coral tile, and it ships for
+   nothing where a cropped sprite cost 18KB.                                  */
+const AC_INK = '#231F1B', AC_CORAL = '#E2604A';
+const AC_KINDS = ['plume','firework','salvo','butterflies','balloons','bubbles'];
+let AC_PARTS = [], AC_JETS = [], AC_RINGS = [], AC_QUEUE = [], AC_F = 0, AC_RAF = null;
+const acR = (a,b) => a + Math.random()*(b-a);
+
+function acPath(g,s){
+  g.beginPath();
+  g.moveTo(0, s*0.32);
+  g.bezierCurveTo(-s*0.56, -s*0.09, -s*0.43, -s*0.53, 0, -s*0.27);
+  g.bezierCurveTo( s*0.43, -s*0.53,  s*0.56, -s*0.09, 0, s*0.32);
+  g.closePath();
+}
+function acHeart(g,s,lw){
+  const off = Math.max(0.9, s*0.055);
+  g.save(); g.translate(-off*0.9, -off);
+  g.fillStyle = AC_CORAL; acPath(g,s); g.fill();
+  g.restore();
+  g.strokeStyle = AC_INK; g.lineJoin = 'round';
+  g.lineWidth = Math.min(2.1, Math.max(1.0, s/14)) * (lw === undefined ? 1 : lw);
+  acPath(g,s); g.stroke();
+}
+/* No wings are added. The heart already has two. The line straight down from
+   the cleft is the hinge, never drawn; each lobe is a flat wing turning about
+   it, and a flat plate rotated out of the plane by alpha foreshortens to
+   cos(alpha). So the flap is the heart opening and closing about its own
+   middle. The small vertical stretch as it closes is the one cheat, and it is
+   what a real wing does at the top of the stroke. */
+function acHeartFly(g,s,open){
+  const w = 0.26 + 0.74*open;
+  g.save(); g.scale(w, 1 + 0.11*(1-w)); acHeart(g,s); g.restore();
+}
+
+function acSize(){
+  const c = $('actcanvas'); if(!c) return null;
+  const d = Math.min(window.devicePixelRatio || 1, 2);
+  const w = window.innerWidth, h = window.innerHeight;
+  c.width = Math.max(1, w*d); c.height = Math.max(1, h*d);
+  c.style.width = w+'px'; c.style.height = h+'px';
+  c.getContext('2d').setTransform(d,0,0,d,0,0);
+  return {w:w, h:h};
+}
+function acStop(){
+  if(AC_RAF) cancelAnimationFrame(AC_RAF);
+  AC_RAF = null; AC_PARTS = []; AC_JETS = []; AC_RINGS = []; AC_QUEUE = [];
+  const wrap = $('actcf'); if(wrap) wrap.classList.remove('up');
+}
+function acSpawn(o){ o.hist = o.hist || []; AC_PARTS.push(o); }
+
+function acStep(){
+  AC_F++;
+  for(let i=AC_RINGS.length-1;i>=0;i--){ if(++AC_RINGS[i].age >= AC_RINGS[i].len) AC_RINGS.splice(i,1); }
+  for(let i=AC_QUEUE.length-1;i>=0;i--){
+    if(AC_F >= AC_QUEUE[i].at){ const q = AC_QUEUE[i]; AC_QUEUE.splice(i,1); q.fn(); } }
+  for(let i=AC_JETS.length-1;i>=0;i--){
+    const j = AC_JETS[i];
+    if(AC_F-j.f0 >= j.frames){ AC_JETS.splice(i,1); continue; }
+    const t = (AC_F-j.f0)/j.frames;
+    j.acc += j.rate*(j.shape ? j.shape(t) : 1);
+    while(j.acc >= 1){ j.acc -= 1; j.make(t); }
+  }
+  const H = window.innerHeight, W = window.innerWidth;
+  for(let i=AC_PARTS.length-1;i>=0;i--){
+    const p = AC_PARTS[i];
+    if(p.move) p.move(p);
+    else { p.vy += p.g; p.vx *= p.drag; p.vy *= p.drag; p.x += p.vx; p.y += p.vy; }
+    p.rot += (p.spin||0); p.life++;
+    if(p.trail){ p.hist.push({x:p.x,y:p.y}); if(p.hist.length > p.trail) p.hist.shift(); }
+    const off = (p.wing || p.balloon || p.bub)
+      ? (p.x < -80 || p.x > W+80 || p.y < -90 || p.y > H+90)
+      : (p.y > H + 80);
+    if((p.dead && p.dead(p)) || p.life > p.fadeAt + p.fadeLen || off) AC_PARTS.splice(i,1);
+  }
+}
+function acPaint(){
+  const c = $('actcanvas'); if(!c) return;
+  const g = c.getContext('2d'), W = window.innerWidth, H = window.innerHeight;
+  g.clearRect(0,0,W,H);
+  for(const r of AC_RINGS){
+    const t = r.age/r.len; if(t >= 1) continue;
+    g.save(); g.globalAlpha = 0.42*(1-t)*(1-t);
+    g.strokeStyle = AC_CORAL; g.lineWidth = 2.4*(1-t) + 0.5;
+    g.beginPath(); g.arc(r.x, r.y, 6 + r.r*(1-Math.pow(1-t,2.2)), 0, 6.2832);
+    g.stroke(); g.restore();
+  }
+  g.strokeStyle = AC_CORAL; g.lineCap = 'round'; g.lineWidth = 1.05;
+  for(const p of AC_PARTS){
+    if(!p.trail || p.hist.length < 3) continue;
+    const a = p.life > p.fadeAt ? Math.max(0, 1-(p.life-p.fadeAt)/p.fadeLen) : 1;
+    g.globalAlpha = (p.tr === undefined ? 0.19 : p.tr)*a;
+    g.beginPath(); g.moveTo(p.hist[0].x, p.hist[0].y);
+    for(let k=1;k<p.hist.length;k++) g.lineTo(p.hist[k].x, p.hist[k].y);
+    g.stroke();
+  }
+  for(const p of AC_PARTS){
+    const a = p.life > p.fadeAt ? Math.max(0, 1-(p.life-p.fadeAt)/p.fadeLen) : 1;
+    g.save(); g.globalAlpha = a*p.op;
+    g.translate(p.x, p.y); g.rotate(p.rot);
+    let sz = (p.wing || p.bub) ? p.s : p.s*(0.55 + 0.45*Math.min(1, p.life/9));
+    if(p.depth) sz *= p.depth;
+    if(p.wing) acHeartFly(g, sz, 0.12 + 0.88*Math.abs(Math.sin(p.ph)));
+    else if(p.bub){
+      const w = Math.sin(p.ph)*0.055;          // the lowest Rayleigh mode
+      g.scale(1 + w, 1 - w);
+      acHeart(g, sz, 0.52 + 0.48*p.h);         // only the line shows the drain
+      g.fillStyle = 'rgba(255,255,255,0.78)';
+      g.beginPath();
+      g.ellipse(-sz*0.23, -sz*0.19, sz*0.105, sz*0.062, -0.62, 0, 6.2832);
+      g.fill();
+    }
+    else acHeart(g, sz);
+    g.restore();
+  }
+  g.globalAlpha = 1;
+}
+function acFrame(){
+  acStep(); acPaint();
+  if(AC_PARTS.length || AC_JETS.length || AC_RINGS.length || AC_QUEUE.length)
+    AC_RAF = requestAnimationFrame(acFrame);
+  else acStop();
+}
+
+
+/* The six. Each one leaves the tile that was just filled. */
+function acPlay(kind, cx, cy){
+  const R = acR, f0 = AC_F;
+
+  /* THE PLUME. A single tight jet: no lanes, no symmetry, nothing arranged.
+     A crown at the top and two curtains coming down. Every arranged version
+     was tried and rejected - arrangement reads as a diagram. */
+  const plume = (frames, rate, lo, hi) => {
+    AC_JETS.push({ f0, frames, rate, acc:0, shape:t => 1-0.5*t*t, make:t => {
+      const ang = -Math.PI/2 + R(-.25,.25), sp = R(lo,hi)*(1-.14*t);
+      acSpawn({ x:cx+R(-4,4), y:cy-4,
+        vx:Math.cos(ang)*sp*.70, vy:Math.sin(ang)*sp,
+        g:.44, drag:.995, s:R(16,30), op:R(.85,1),
+        rot:R(-.5,.5), spin:R(-.055,.055),
+        trail:18, tr:0.15, life:0, fadeAt:76, fadeLen:22 }); }});
+  };
+
+  /* A SHELL BURST, done the way a real one is. Stars leave the surface of a
+     SPHERE at one speed V, so a star's screen speed is V*sin(theta): the ones
+     flying at you hardly move and the rim races. That is why a real burst
+     reads as a filled disc and a naive one reads as a ring. The depth is kept
+     as vz and spent on size. Drag on a star is QUADRATIC, not a flat
+     percentage - it bites hard while the star is fast and lets go once it
+     slows, and that is the stall you feel in a real firework. */
+  const burst = (bx, by, o) => {
+    AC_RINGS.push({ x:bx, y:by, r:o.ring, age:0, len:o.ringLen });
+    for(let i=0;i<o.n;i++){
+      const u = R(-1,1), ph = R(0,6.2832), rr = Math.sqrt(1-u*u);
+      const V = o.v * R(.90,1.06);
+      acSpawn({ x:bx, y:by,
+        vx: V*rr*Math.cos(ph), vy: V*rr*Math.sin(ph), vz: V*u, z:0,
+        K:o.K, g:o.g, s:o.s(), op:R(.85,1),
+        rot:R(-.6,.6), spin:R(-.07,.07),
+        trail:o.trail, tr:0.20, life:0, fadeAt:o.fadeAt, fadeLen:o.fadeLen,
+        move: q => {
+          const sp = Math.sqrt(q.vx*q.vx + q.vy*q.vy + q.vz*q.vz);
+          const d  = Math.max(0.70, 1 - q.K*sp);
+          q.vx *= d; q.vy *= d; q.vz *= d;
+          q.vy += q.g;
+          q.x += q.vx; q.y += q.vy; q.z += q.vz;
+          q.depth = Math.min(1.45, Math.max(0.60, 1 + q.z/300));
+        } });
+    }
+  };
+  const shell = o => {
+    const sh = { x:(o.x === undefined ? cx : o.x), y:cy-6, vx:R(-.35,.35), vy:o.vy,
+      g:.30, drag:.999, s:o.s, op:1, rot:0, spin:R(-.02,.02),
+      trail:14, tr:0.20, life:0, fadeAt:999, fadeLen:8, hang:0, gone:0 };
+    sh.move = q => {
+      if(q.hang){ q.y += 0.35; q.hang++;
+        if(q.hang > o.beat){ q.gone = 1; burst(q.x, q.y, o.burst); } return; }
+      q.vy += q.g; q.x += q.vx; q.y += q.vy;
+      if(q.vy > -2.2) q.hang = 1;
+    };
+    sh.dead = q => q.gone;
+    acSpawn(sh);
+  };
+  /* the one that goes up on its own is bigger than the ones in a salvo,
+     because it is the whole moment rather than a third of it */
+  const BIG    = { n:70, v:11.6, K:.0138, g:.132, ring:96,  ringLen:24,
+                   trail:20, fadeAt:46, fadeLen:34, s:() => R(13,27) };
+  const CHRYS  = { n:48, v:8.6,  K:.0165, g:.150, ring:64,  ringLen:20,
+                   trail:16, fadeAt:38, fadeLen:30, s:() => R(11,22) };
+  const SALUTE = { n:56, v:15.4, K:.0330, g:.115, ring:104, ringLen:13,
+                   trail:9,  fadeAt:20, fadeLen:20, s:() => R(9,17) };
+
+  if(kind === 'plume'){ plume(56, 1.90, 12.8, 16.4); return; }
+
+  if(kind === 'firework'){ shell({ vy:-15.7, s:31, beat:9, burst:BIG }); return; }
+
+  /* THE SALVO. Always three. It was one, two or three at random and G cut
+     that: a salvo of one is just the firework again and reads as a mistake,
+     not as variety. Three every time, never the same three. */
+  if(kind === 'salvo'){
+    const W = window.innerWidth;
+    const zones = [[W*.13,W*.32],[W*.41,W*.59],[W*.68,W*.87]];
+    for(let i=zones.length-1;i>0;i--){ const j=(Math.random()*(i+1))|0;
+      const t=zones[i]; zones[i]=zones[j]; zones[j]=t; }
+    let at = 0;
+    for(let i=0;i<3;i++){
+      const x  = i === 0 ? cx : R(zones[i][0], zones[i][1]);
+      const vy = -R(12.9, 17.4);
+      const kd = Math.random() < 0.34 ? SALUTE : CHRYS;
+      const when = at;
+      AC_QUEUE.push({ at: AC_F + when,
+        fn: () => shell({ x:x, vy:vy, s:26, beat:(kd===SALUTE?4:7), burst:kd }) });
+      at += 11 + ((Math.random()*15)|0);
+    }
+    return;
+  }
+
+  /* THE BUTTERFLIES. Kareiva & Shigesada analysed cabbage whites as a
+     CORRELATED RANDOM WALK: turning angles from a von Mises distribution,
+     mean zero, concentration kappa. Here sigma collapses as t rises, so kappa
+     CLIMBS - and that climb is a documented behavioural switch, not a trick.
+     In a patch a butterfly does area-restricted search: short steps, constant
+     turning, all of them milling in one place. Leaving it, it switches to
+     ballistic dispersal: longer steps, straighter paths, each holding its own
+     bearing until it is gone. They come out together and then go their own
+     ways. Separation is what stops them clumping; it is computed fresh every
+     frame and never stored. */
+  if(kind === 'butterflies'){
+    const G = () => (Math.random()+Math.random()+Math.random()-1.5)*2;
+    const N = 24;
+    for(let i=0;i<N;i++){
+      const bearing = -Math.PI/2 + ((i+0.5)/N - 0.5)*2.62 + R(-.10,.10);
+      AC_QUEUE.push({ at: AC_F + ((i*1.5)|0) + ((Math.random()*6)|0), fn: () => {
+        acSpawn({ x:cx+R(-8,8), y:cy-2, vx:0, vy:0,
+          hd:-Math.PI/2 + R(-1.0,1.0), bearing:bearing, sp0:R(1.40,1.92),
+          s:0, s0:R(19,23), s1:R(34,41), op:R(.86,1), rot:0, spin:0,
+          ph:R(0,6.2832), phv:R(.25,.34), lift:R(.44,.62),
+          born:AC_F, wing:1, trail:0, life:0, fadeAt:150, fadeLen:26,
+          move: q => {
+            const age = AC_F - q.born, t = Math.min(1, age/36);
+            q.ph += q.phv;
+            const u = Math.min(1, age/62), e = u*u*(3-2*u);
+            q.s = q.s0 + (q.s1 - q.s0)*e;
+            q.hd += G() * (0.50*(1-t)*(1-t) + 0.028);      // kappa climbing
+            let d = q.bearing - q.hd;
+            while(d >  Math.PI) d -= 6.2832;
+            while(d < -Math.PI) d += 6.2832;
+            q.hd += d * 0.052 * t * t;
+            const sp = q.sp0 * (0.52 + 2.15*t*t);
+            q.vx = Math.cos(q.hd)*sp; q.vy = Math.sin(q.hd)*sp;
+            for(const o of AC_PARTS){
+              if(o === q || !o.wing) continue;
+              const dx = q.x-o.x, dy = q.y-o.y, dd = dx*dx + dy*dy;
+              if(dd > 3844 || dd < 1) continue;            // 62px
+              const r = Math.sqrt(dd), f = (62-r)*0.050/r;
+              q.vx += dx*f; q.vy += dy*f;
+            }
+            q.vy -= q.lift * Math.max(0, Math.sin(q.ph));  // lift on the downstroke
+            q.vy += q.lift * 0.318;                        // weight cancels it
+            q.x += q.vx; q.y += q.vy;
+            q.rot = q.vx*0.085 + Math.sin(q.ph)*0.12;      // never sits still
+          } });
+      }});
+    }
+    return;
+  }
+
+  /* THE BALLOONS. Restored on G's ruling to the build from before any
+     constraining, after nine iterations of it. The separation here is the
+     ACCUMULATING one - added into vx and then damped, which amplifies it - and
+     it is left that way ON PURPOSE. It is part of why they spread the way they
+     do, and this behaviour is what was chosen. Do not "fix" it here. */
+  if(kind === 'balloons'){
+    const N = 20;
+    for(let i=0;i<N;i++){
+      AC_QUEUE.push({ at: AC_F + ((i*3.4)|0) + ((Math.random()*9)|0), fn: () => {
+        const d = Math.random();
+        acSpawn({ x:cx+R(-14,14), y:cy-2, vx:R(-.5,.5), vy:R(-1.3,-.2),
+          s:15 + d*19, op:R(.86,1),
+          B:0.155 + 0.115*d, K:0.040,
+          om:(0.052 + 0.018*d)*R(.88,1.12),      // Strouhal: f = St*U/D
+          amp:(0.13 + 0.15*d)*R(.85,1.15),
+          fan:((i/(N-1)) - 0.5) * 15.5 * R(.80,1.20),
+          ph:R(0,6.2832), rot:0, spin:0,
+          balloon:1, trail:0, life:0, fadeAt:320, fadeLen:22,
+          move: q => {
+            q.vy -= q.B;
+            q.vy -= q.K * Math.abs(q.vy) * q.vy;   // quadratic drag, terminal speed
+            q.ph += q.om;                          // the shed vortex changes sides
+            q.vx += Math.sin(q.ph) * q.amp * 0.24;
+            q.vx += q.fan * 0.0125;
+            for(const o of AC_PARTS){
+              if(o === q || !o.balloon) continue;
+              const dx = q.x-o.x, dy = q.y-o.y, dd = dx*dx + dy*dy;
+              if(dd > 3364 || dd < 1) continue;
+              const r = Math.sqrt(dd), f = (58-r)*0.055/r;
+              q.vx += dx*f; q.vy += dy*f*0.45;
+            }
+            q.vx *= 0.945;
+            q.x += q.vx; q.y += q.vy;
+            q.rot = q.vx * 0.055;
+          } });
+      }});
+    }
+    return;
+  }
+
+  /* THE BUBBLES. A soap bubble is nearly weightless either way, because the
+     film weighs something too: lift goes as the volume and the film as the
+     surface, so net buoyancy runs like r^3 - k*r^2. Above u = 0.29 they climb,
+     below it they sink, and that mixed drift falls out of the physics rather
+     than being scattered in. The film DRAINS and only the ink line shows it.
+     Rupture is set off by local thinning or a stray speck and does not
+     reliably start at the apex, so popping is a HAZARD that climbs, never a
+     countdown: some go early, some late, and some drift off having never
+     popped. When one does go the film tears at the Taylor-Culick velocity,
+     sqrt(2*sigma/(rho*h)) - h is underneath, so a bubble that has drained a
+     long time pops harder. */
+  if(kind === 'bubbles'){
+    const pop = q => {
+      const V = 1.15 / Math.sqrt(Math.max(0.055, q.h));
+      AC_RINGS.push({ x:q.x, y:q.y, r:q.s*1.5, age:0, len:9 });
+      const n = 8 + ((Math.random()*6)|0);
+      for(let i=0;i<n;i++){
+        const a = (i/n)*6.2832 + R(-.2,.2), sp = V*R(.65,1.35);
+        acSpawn({ x:q.x, y:q.y, vx:Math.cos(a)*sp, vy:Math.sin(a)*sp,
+          g:0.055, drag:0.90, s:q.s*R(.13,.24), op:R(.7,1),
+          rot:R(-.6,.6), spin:R(-.2,.2),
+          trail:0, life:0, fadeAt:3, fadeLen:11 });
+      }
+    };
+    const N = 18;
+    for(let i=0;i<N;i++){
+      AC_QUEUE.push({ at: AC_F + ((i*3.0)|0) + ((Math.random()*8)|0), fn: () => {
+        const u = Math.random();
+        const puff = -Math.PI/2 + R(-.62,.62), sp0 = R(0.34,0.80);
+        acSpawn({ x:cx+R(-11,11), y:cy-2,
+          vx:Math.cos(puff)*sp0, vy:Math.sin(puff)*sp0,   // lifted off, not fired
+          out:(((i+0.5)/N) - 0.5)*2 * R(.85,1.15) * 0.52,
+          born:AC_F, s0:12 + u*13, s1:(12 + u*13)*R(1.9,2.6), s:12 + u*13,
+          op:R(.88,1),
+          B:0.082*u - 0.024,                    // r^3 lift less r^2 film
+          drain:0.0026 + 0.0052*u,
+          h:1, bub:1, om:R(.085,.135), amp:R(.10,.22),
+          w1:R(.0075,.0135), w2:R(.0055,.0105),
+          p1:R(0,6.2832), p2:R(0,6.2832), wob:R(.010,.024),
+          ph:R(0,6.2832), rot:0, spin:0,
+          trail:0, life:0, fadeAt:900, fadeLen:10,
+          move: q => {
+            const age = AC_F - q.born;
+            q.vy -= q.B;
+            q.vx *= 0.958; q.vy *= 0.972;
+            q.vx += q.out * 0.044;
+            q.ph += q.om;
+            q.vx += Math.sin(q.ph) * q.amp * 0.09;
+            /* slow air: two long terms out of phase, so they wander about
+               instead of travelling anywhere. This is what keeps them in the
+               frame long enough to watch them go. */
+            q.p1 += q.w1; q.p2 += q.w2;
+            q.vx += Math.sin(q.p1) * q.wob;
+            q.vy += Math.cos(q.p2) * q.wob * 0.72;
+            let sep = 0;
+            for(const o of AC_PARTS){
+              if(o === q || !o.bub) continue;
+              const dx = q.x-o.x, dy = q.y-o.y, dd = dx*dx + dy*dy;
+              if(dd > 4900 || dd < 1) continue;   // 70px
+              const r = Math.sqrt(dd);
+              sep += (dx/r) * (70-r) * 0.011;
+            }
+            if(sep >  0.50) sep =  0.50;
+            if(sep < -0.50) sep = -0.50;
+            q.vx += sep;
+            q.x += q.vx; q.y += q.vy;
+            q.rot = q.vx * 0.05;
+            const g2 = Math.min(1, age/74), e2 = g2*g2*(3-2*g2);
+            q.s = q.s0 + (q.s1 - q.s0)*e2;        // it comes toward you
+            q.h -= q.drain;                       // the film thins
+            if(q.h <= 0.02){ q.gone = 1; pop(q); return; }
+            if(q.h < 0.42 && Math.random() < (0.42-q.h)*0.055){ q.gone = 1; pop(q); }
+          },
+          dead: q => q.gone });
+      }});
+    }
+    return;
+  }
+}
+
+/* Which one. A shuffled BAG, not a random pick: deal all six in a random
+   order, then deal a fresh six. Picking at random and only barring the last
+   one clusters badly - six acts came up plume, butterflies, bubbles, plume,
+   bubbles, plume in testing, which is not a rotation. A bag guarantees you see
+   every one of the six before you see any of them twice, and swapping the head
+   of a new bag keeps it from repeating across the join.
+
+   Both the bag and the last dealt are named in BOTH halves of serialise().
+   This file has shipped a one-sided field three times. */
+function acPick(){
+  let bag = (S.celBag||'').split(',').filter(k => AC_KINDS.indexOf(k) > -1);
+  if(!bag.length){
+    bag = AC_KINDS.slice();
+    for(let i=bag.length-1;i>0;i--){
+      const j=(Math.random()*(i+1))|0; const t=bag[i]; bag[i]=bag[j]; bag[j]=t; }
+    if(bag[0] === S.celLast && bag.length > 1){ const t=bag[0]; bag[0]=bag[1]; bag[1]=t; }
+  }
+  const k = bag.shift();
+  S.celBag = bag.join(','); S.celLast = k; save();
+  return k;
+}
+/* Fired from Your year when a new act has landed there, and nowhere else.
+   The grid sits below the pace card, so on a phone the square that was just
+   filled is usually under the fold. Bring it into view first: a moment that
+   erupts out of a tile nobody can see is no moment at all. */
+function actMoment(slot){
+  const wrap = $('actcf'); if(!wrap) return;
+  if(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const t = document.getElementById('tile-'+slot);
+  if(!t) return;
+  const onScreen = () => {
+    const r = t.getBoundingClientRect();
+    return r.width > 2 && r.top > 40 && r.bottom < window.innerHeight - 40;
+  };
+  const play = () => {
+    const r = t.getBoundingClientRect();
+    if(r.width < 2) return;
+    acStop();
+    wrap.classList.add('up');
+    if(!acSize()) return;
+    AC_F = 0;
+    acPlay(acPick(), r.left + r.width/2, r.top + r.height/2);
+    AC_RAF = requestAnimationFrame(acFrame);
+  };
+  if(onScreen()){ play(); return; }
+  try{ t.scrollIntoView({block:'center', behavior:'smooth'}); }
+  catch(e){ t.scrollIntoView(); }
+  setTimeout(play, 480);
+}
+
 /* ── confetti ─────────────────────────────────────────────────────────────
    G, 2 Sept: two bursts at the finish, one at halfway, and every piece falls
    all the way off the bottom rather than fading out in mid-air. Nothing here
@@ -3453,6 +3932,22 @@ function finPost(){
 }
 
 /* Called wherever an act joins the year. Fires at most once each. */
+/* The moment is owed the instant the act lands, but the act usually lands
+   behind the follow-up sheet. So it waits until Your year actually has the
+   screen, and it gives way to halfway and the finish, which outrank it. */
+function celTick(){
+  if(!CEL_DUE) return;
+  if(SCREEN !== 'home') return;
+  /* the moment overlay SHOWS with .up, it is not hidden with .hide. Guarding
+     on the wrong class is how bkupBar stayed invisible for a whole build. */
+  const mo = $('moment'); if(mo && mo.classList.contains('up')) return;
+  const anySheet = ['you','social','spend','plan','person','cal','date','ask',
+                    'done','finish','eval','pv'].some(x=>{
+    const el = $('sheet-'+x); return el && !el.classList.contains('hide'); });
+  if(anySheet) return;
+  const slot = CEL_DUE; CEL_DUE = 0;
+  actMoment(slot);
+}
 function checkMilestones(){
   if(!S.n) return;
   const done = doneCount();
@@ -5673,7 +6168,7 @@ function sashSVG(txt){
   /* G's chosen design (his Gemini reference, 30 Aug): a simple white band across
      the top-right corner, clipped inside the tile's rounded corners, the date in
      light coral letterspaced type. Nothing overhangs; it doesn't have to be hard. */
-  return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><defs><clipPath id="sashclip"><rect width="200" height="200" rx="24"/></clipPath></defs><g clip-path="url(#sashclip)"><defs><filter id="sashblur" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="2.2"/></filter></defs><line x1="34" y1="13" x2="196" y2="175" stroke="rgba(96,80,66,0.28)" stroke-width="8" filter="url(#sashblur)"/><polygon points="21.5,0 103.9,0 200,96.1 200,178.5" fill="#FFFDF7"/><text x="131" y="68" transform="rotate(45 131 68)" text-anchor="middle" dominant-baseline="central" font-family="Montserrat,-apple-system,sans-serif" font-weight="600" font-size="38" letter-spacing="1.5" fill="#EC9C90">'+txt+'</text></g></svg>';
+  return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><defs><clipPath id="sashclip"><rect width="200" height="200" rx="24"/></clipPath></defs><g clip-path="url(#sashclip)"><defs><filter id="sashblur" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="2.2"/></filter></defs><line x1="34" y1="13" x2="196" y2="175" stroke="rgba(96,80,66,0.28)" stroke-width="8" filter="url(#sashblur)"/><polygon points="21.5,0 103.9,0 200,96.1 200,178.5" fill="#FFFDF7"/><g transform="rotate(45 131 68)"><text x="131" y="68" text-anchor="middle" dominant-baseline="central" font-family="Montserrat,-apple-system,sans-serif" font-weight="600" font-size="38" letter-spacing="1.5" fill="#EC9C90">'+txt+'</text></g></g></svg>';
 }
 /* The sash carries the date and only the date. It used to fall back to the
    word DONE when an act had none — G's ruling 31 Aug: that word belongs to an
@@ -5697,6 +6192,16 @@ function drawGrid(){
   const plans=S.plans||{};
   const nextN = nextSlot();
   const f = S.filterPerson;
+  /* Has the sash just arrived on a new square? SASH_LAST is recomputed on
+     every redraw, so without this the sash re-straps itself and the moment
+     replays every time anything repaints the grid. SASH_SEEN is null on the
+     very first draw of a session, so a reload never replays a moment for an
+     act that was logged days ago. */
+  let sashNew = false;
+  if(SASH_SEEN === null){ SASH_SEEN = SASH_LAST; }
+  else if(SASH_LAST && SASH_LAST !== SASH_SEEN){
+    SASH_SEEN = SASH_LAST; CEL_DUE = SASH_LAST; sashNew = true;
+  }
 
   /* Act 0 is the first tile, drawn like any other finished act. */
   if(S.zero){
@@ -5745,12 +6250,14 @@ function drawGrid(){
       a  ? 'Act '+a.no+', '+(a.t||'logged')+'. Open it.'
     : pl ? 'Act '+i+', planned'+(pl.t?': '+pl.t:'')+(pl.d?', '+shortDate(pl.d):'')+'. Open it.'
          : 'Act '+i+', empty. Plan it.');
+    t.id='tile-'+i;
     /* the sash rides the most recently logged act's square only */
     if(a && SASH_LAST===i && sashDate(a)){
-      const s=document.createElement('div');
-      s.className='sash'; s.setAttribute('aria-hidden','true');
-      s.innerHTML=sashSVG(sashDate(a));   // live type, the act's own date
-      t.appendChild(s);
+      const sd=document.createElement('div');
+      sd.className='sash'; sd.setAttribute('aria-hidden','true');
+      sd.innerHTML=sashSVG(sashDate(a));   // live type, the act's own date
+      if(sashNew) sd.classList.add('strap');   // only on a square it just reached
+      t.appendChild(sd);
     }
     g.appendChild(t);
   }
@@ -5761,6 +6268,9 @@ function drawGrid(){
     '<a class="tlink" href="#" onclick="S.filterPerson=null;drawGrid();return false">'+
     'show everything</a></p>';
 }
+/* Which square the sash was on last time the grid was drawn, and which act is
+   still owed its moment. Session only: a moment is for the act you just did. */
+let SASH_SEEN = null, CEL_DUE = 0;
 const shortDate = d => {
   const p=(d||'').split('-'); if(p.length<3) return '';
   return +p[2] + ' ' + ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][+p[1]-1];
@@ -8355,6 +8865,10 @@ function bkupBar(){
   const bar=$('bkupbar'); if(!bar || BKUPBAR_SHOWN) return;
   if(document.querySelector('.sheet:not(.hide)')) return;      // not over a sheet
   const mo=$('moment'); if(mo && mo.classList.contains('up')) return;     // nor the moment
+  /* nor an act's own moment. The bubbles run about seven seconds, which is
+     longer than the 2600ms this used to wait, so it was landing on top of
+     them. Anything still playing gets the screen to itself. */
+  const ac=$('actcf'); if(ac && ac.classList.contains('up')) return;
   if(!bkupDue()) return;
   BKUPBAR_SHOWN = true;
   S.bkupNag = new Date().toISOString(); save();
@@ -8524,6 +9038,7 @@ function sheet(which){
   VIEWS.forEach(v=>{ const el=$('s-'+v); if(el) el.inert = !!which; });
   const tabs = $('tabs'); if(tabs) tabs.inert = !!which;
   const inst = $('install'); if(inst) inst.inert = !!which;   // it was still tabbable
+  if(!which) setTimeout(celTick, 260);   // the sheet is away; the moment is owed
   if(which){
     SHEET_FROM = document.activeElement;
     const panel = $('sheet-'+which).querySelector('.panel');
@@ -8531,6 +9046,7 @@ function sheet(which){
       panel.setAttribute('tabindex','-1');
       setTimeout(()=>{ try{ panel.focus(); }catch(e){} }, 60);
     }
+    /* nothing else */
   } else if(SHEET_FROM && SHEET_FROM.focus){
     try{ SHEET_FROM.focus(); }catch(e){}
     SHEET_FROM = null;
@@ -8655,6 +9171,10 @@ function go(v){
                      route the act took to get logged — the confetti falls
                      across the year, which is the screen it is about */
                   setTimeout(checkMilestones, 420);
+                  /* the act's own moment, on the screen it is about. It waits
+                     for the follow-up sheet to be put away, and stands down
+                     entirely if halfway or the finish has taken the screen. */
+                  setTimeout(celTick, 520);
                   /* a real thing that happened outranks a reminder */
                   setTimeout(claimSweep, 900);
                   /* well after the moment has had the screen to itself */
