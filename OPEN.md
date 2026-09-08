@@ -1,6 +1,6 @@
 # Everything still open
 
-Written 7 September 2026, against build **3H**. This is the one place to look.
+Written 7 September 2026, against build **3I**. This is the one place to look.
 `HANDOFF.md` says what was built and why; this says what has not been decided.
 
 Each item says **who owns it**. Where I could check whether a thing is still
@@ -49,6 +49,54 @@ is the right resolution.** It is not a delivery service.
 If this is ever revisited: the mechanism is in `Documents\Hunt` and the timing
 argument is above. Nothing in this app needs to change to accommodate it later.
 
+**RULED 7 September, and already built. Recorded because they exist nowhere
+else.**
+
+**The journal draws a page from whatever the person gave it, and never says what
+is missing.** The line *"Not written up yet. The story is the page"* is gone from
+the screen and from the printed book. A page with a title, a date, the names and
+the photographs is a finished page; with no story the photographs take a taller
+crop and carry it. G: *"that's fine and rather dignified."* **Do not reintroduce
+a placeholder that names an absence.**
+
+**The journal's closing page is the catchphrase and one line, nothing else.**
+
+> **Look at the good you've done.**
+> Under way. / Halfway there. / The year is complete.
+
+**No names and no count.** It led on the number before, which made it a
+scoreboard; putting the names there instead was worse, because *a list is a
+thing somebody can be left off*, and a page about who was with you is a page
+about how many people you know. G raised that himself and he was right.
+**Do not put names, a count, a percentage or money on this page.**
+
+**Agreed, not yet built: a calendar entry for the person who claims something on
+a sign-up sheet**, alarm set two days out, item in the title. It is the only
+reminder mechanism that works without a mail server, and every competitor puts
+one on their confirmation screen. Half a day.
+
+**Parked: the app is a plug-in to social media, not a social network.** It hands
+you a card and a post to take wherever you already are. That is why the
+no-account position is worth protecting rather than a gap to close.
+
+**Open, and the interesting one: a moment when every act is completed.** Not a
+streak — a streak rewards not missing and punishes gaps; this rewards the act
+itself, so there is nothing to protect and nothing to break. A brainstorm ran on
+7 September and produced one rule worth keeping whatever gets built:
+**hearts rise and leave through the top; confetti falls and leaves through the
+bottom.** A per-act moment can then be as bright as you like and still never be
+the finish, because the finish is the only time the sky comes down. The idea
+argued hardest for was **a drawn hand at the foot of Your year holding one heart
+balloon per act** — same one-second gesture every time, so nothing escalates,
+but act 24 is visibly bigger than act 4, and the finish becomes the hand opening
+and the whole year going up at once, which cannot happen early.
+
+**Loose end from that work:** `numWord()` still stops at twenty, so the finish
+moment says *"25 acts of good"* where it means twenty-five. Extending it to
+ninety-nine is about ten lines and fixes every place the app spells a number.
+
+---
+
 **A3. Lossy artwork.**
 The five hands are lossless WebP, pixel-identical wherever visible. Quality 90
 would save **another 57KB** and composites identically — I measured it. That is
@@ -73,7 +121,7 @@ Two list bullets and the signature rule you asked for yourself. Everything else
 is gone. Say if those go too.
 
 **A8. The build mark.**
-`BUILD 3H` still prints at the foot of Your year. Useful while you are testing,
+`BUILD 3I` still prints at the foot of Your year. Useful while you are testing,
 wrong the day it ships.
 
 ---

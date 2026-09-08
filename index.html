@@ -330,6 +330,9 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
 /* what a claimer wanted to say, under their name */
 .claimrow .csaid{display:block;font-size:13px;line-height:1.45;color:#3A342C;
   font-style:italic;margin-top:3px}
+.jpage.jclose .jbig{font-size:clamp(24px,7vw,31px);line-height:1.24;text-wrap:balance;
+  margin-bottom:2px}
+.jpage.jclose .jline{font-size:16px;color:#6E675E;line-height:1.6;margin-top:12px}
 #poster{display:none}
 .ideaart{display:block;width:100%;height:132px;object-fit:cover;object-position:center;
   border-radius:9px;margin:0 0 12px;background:var(--mist)}
@@ -558,6 +561,9 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
 .jpage .jstory{font-size:clamp(13.5px,3.8vw,15px);line-height:1.65;color:#3A342C;
   white-space:pre-wrap;word-wrap:break-word;margin:0}
 .jpage .jphotos{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:14px}
+/* with no story to share the page with, the photographs carry it */
+.jpage.nostory .jphotos{margin-top:18px;gap:10px}
+.jpage.nostory .jphotos img{aspect-ratio:4/5}
 .jpage .jphotos img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:4px;display:block}
 .jpage .jphotos.one{grid-template-columns:1fr}
 .jpage .jphotos.one img{aspect-ratio:4/3}
@@ -1180,7 +1186,7 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
     </div>
 
     <!-- BUILD MARK — dev only, delete this div when the app ships -->
-    <div id="buildtag">BUILD 3H</div>
+    <div id="buildtag">BUILD 3I</div>
   </div>
 </section>
 
@@ -4448,7 +4454,11 @@ function drawJournal(){
 
   acts.forEach(a=>{
     const pg=document.createElement('div');
-    pg.className='jpage';
+    /* G, 7 Sept: a page is drawn from whatever the person gave us and never
+       says what is missing. The line this replaces sat in italic grey exactly
+       where a story would go, so twenty-five acts and nine stories meant
+       sixteen small accusations. */
+    pg.className='jpage'+(a.story?'':' nostory');
     const noLine = 'act '+esc(a.no)+' of '+S.n;
     const withWho = (a.who&&a.who.length) ? '<p class="jwith">with '+esc(listWords(a.who))+'</p>' : '';
     const outLine = a.out && a.out!=='Went to plan'
@@ -4466,9 +4476,7 @@ function drawJournal(){
       (a.hon ? '<p class="jhon">In honor of '+esc(a.hon)+'</p>' : '')+
       (a.d ? '<p class="jdate">'+esc(fmtLong(a.d))+'</p>' : '')+
       withWho+'<div class="jrule"></div>'+
-      (a.story ? '<p class="jstory">'+esc(a.story)+'</p>'
-               : '<p class="jstory" style="color:#6E675E;font-style:italic">Not written '+
-                 'up yet. The story is the page.</p>')+
+      (a.story ? '<p class="jstory">'+esc(a.story)+'</p>' : '')+
       shots+outLine;
     const ed=document.createElement('button');
     ed.className='jedit';
@@ -4500,15 +4508,13 @@ function drawJournal(){
        year. It now matches Your year: 5A when the year is done. */
     const fin = yearDone();
     close.innerHTML='<div class="plate"></div>'+
-      '<div class="jno">'+(fin ? 'the year is complete' : 'so far')+'</div>'+
-      '<div class="jbig">'+acts.length+(acts.length===1?' act':' acts')+'</div>'+
-      '<p class="jline">'+
-      (names.length ? esc(listWords(names.slice(0,8)))+
-        (names.length>8 ? ' and '+(names.length-8)+' more' : '')+
-        (names.length===1 ? ' was in it with you.' : ' were in it with you.') 
-        : 'So far it has been yours alone, which counts just the same.')+
-      (sp.all ? '<br>'+esc(money(sp.all))+' spent along the way.' : '')+
-      '</p>';
+      /* G, 7 Sept. No names here. A list is a thing somebody can be left off,
+         and a page about who was with you is a page about how many people you
+         know. It used to lead on the count, which made it a scoreboard. The
+         catchphrase, then where you are. Nothing else on the page. */
+      '<div class="jbig">Look at the good you\u2019ve done.</div>'+
+      '<p class="jline">'+(fin ? 'The year is complete.'
+                           : (acts.length*2 >= S.n ? 'Halfway there.' : 'Under way.'))+'</p>';
     box.appendChild(close);
   }
 
@@ -5284,8 +5290,7 @@ async function bookAct(a, mark){
     (a.hon ? '<p class="bhon">In honor of '+esc(a.hon)+'</p>' : '')+
     (a.d ? '<p class="bdate">'+esc(fmtLong(a.d))+'</p>' : '')+
     who+'<div class="brule"></div>'+
-    (a.story ? '<p class="bstory">'+esc(a.story)+'</p>'
-             : '<p class="bstory none">Not written up. The doing was the point.</p>')+
+    (a.story ? '<p class="bstory">'+esc(a.story)+'</p>' : '')+
     (shots.length ? '<div class="bshots'+(shots.length===1?' one':'')+'">'+
         shots.map(u=>'<img src="'+esc(u)+'" alt="">').join('')+'</div>' : '')+
     out + bookFoot(mark||'', 'act '+esc(a.no)) + '</div>';

@@ -6,7 +6,7 @@ what is true right now. When they disagree, this file is newer — say so and fi
 the skill.
 
 Last updated: **6 September 2026**.
-Build in G's hands: **3H** — pushed and live. **The sign-up sheet in it cannot
+Build in G's hands: **3I** — pushed and live. **The sign-up sheet in it cannot
 
 **Everything not yet decided lives in `OPEN.md`, written 7 September against 3F.**
 It is one file, it says who owns each item, and where a question was old enough
@@ -572,6 +572,33 @@ was never the obstacle. What it costs is a **second file** in an app that has
 been one file all year, a service-worker cache that pins people to old builds
 when it is wrong, and the single iOS permission prompt, which can only be spent
 once. The full argument is in `OPEN.md` under A2.
+
+**3I — THE JOURNAL STOPS ASKING FOR THINGS.**
+
+Two changes, both ruled by G from before-and-after renders on 7 September, both
+about the same thing: the journal should show what somebody did, not what they
+still owe.
+
+**An unwritten act is a finished page.** The italic grey line *"Not written up
+yet. The story is the page"* sat exactly where a story would go, so twenty-five
+acts and nine stories meant sixteen small accusations. It is gone from the
+screen and from the printed book. With no story the photographs take a 4:5 crop
+and carry the page. The title, the date, the names and the gold rule were always
+there; only the apology has left. *Write it up* stays, because an invitation is
+not an accusation.
+
+**The closing page is the catchphrase and one line.**
+*Look at the good you've done.* Then *Under way.* / *Halfway there.* / *The year
+is complete.*
+
+It used to lead on the count with the names as small print underneath. Leading
+on the names instead was drawn, shown and **rejected by G for a better reason
+than the one I had**: a list is a thing a person can be left off, and a page
+about who was with you is a page about how many people you know. Somebody who
+did the year alone would have had their solitude set as the headline. **Nothing
+about people or totals goes on that page.**
+
+See `OPEN.md` for the full rulings, including what is agreed but unbuilt.
 
 **3H — THE TWO BUTTONS BECOME HALVES OF ONE ROW.**
 
