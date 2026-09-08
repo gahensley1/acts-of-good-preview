@@ -3,6 +3,13 @@
 Written 7 September 2026, against build **3I**. This is the one place to look.
 `HANDOFF.md` says what was built and why; this says what has not been decided.
 
+**The research behind the decisions is in `reviews/`:**
+`RESEARCH-signup-apps.md` (nine competitors, what they do about reminders,
+cancelling and printing), `RESEARCH-journaling-apps.md` (how sixteen apps make
+writing feel optional, plus the streak evidence and the two invented statistics),
+and `IDEAS-the-act-moment.md` (twelve celebration ideas and the rule that solves
+the escalation problem). Read those before re-opening anything in section A.
+
 Each item says **who owns it**. Where I could check whether a thing is still
 true, I did, and the check is written down. Where I could not, it says so.
 
