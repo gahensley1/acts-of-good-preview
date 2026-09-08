@@ -15,6 +15,44 @@ true, I did, and the check is written down. Where I could not, it says so.
 
 ---
 
+**RULED and BUILT, 8 September, build 3L: every act keeps its sash, and the
+moment waits until you are actually looking.**
+
+**1. The sash stays on. This overturns the older ruling.** It used to ride the
+newest completed square only and move forward through the year. G, seeing it:
+*"The banner doesn't stay on when you do another act. That's weird. They should
+always stay on."* Every finished act now wears its own sash carrying its own
+date, act 0 included. `SASH_LAST` survives, but it now means only *which one has
+just arrived*, and therefore which one animates.
+
+**2. The strap was playing where nobody could see it, and this was a real bug.**
+Completing an act lands on Your year and immediately covers it with the
+follow-up sheet. The sash was animating on redraw, which meant it strapped
+itself on **behind that sheet** and was finished before the sheet was dismissed.
+G: *"the banners are not animating."* He was right. The strap is no longer added
+in `drawGrid()` at all; it is held in `SASH_STRAP` and applied by the moment.
+
+**3. The sash is the closing beat, not the opening one.** It goes on 1500ms
+after the moment starts, so the order reads: the act is done, here is the
+moment, here is the record of it. The first attempt put it 620ms in, on top of
+the celebration beginning.
+
+**4. The moment waits for the screen to STOP MOVING, then holds a beat.**
+G: *"the animation should wait a beat when you go back to the page. When you go
+back to the page it may not totally be on it, and you're gonna miss it, and
+that's half the fun."* It no longer fires on a timer and hope. It watches the
+square's position each frame and waits until it has not moved for four frames -
+covering a smooth scroll into place, and a screen still settling after a sheet
+was put away - then waits 620ms and begins. Capped at 1400ms so a page that
+never settles cannot swallow the moment.
+
+**Every early exit still lands the sash** (`sashStrap(0)`), including reduced
+motion, where the class arrives and the CSS turns the travelling off. A sash
+that never appears because the moment could not play would be a worse bug than
+the one being fixed.
+
+---
+
 **RULED and BUILT, 8 September, build 3K: the sign-up panel rolls back up.**
 
 G: *"I don't want to delete the sheet once it's filled in. I just don't want it

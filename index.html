@@ -908,6 +908,10 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
 @keyframes sashStrap{ 0%{opacity:0;transform:translate(-78%,-78%)}
                       60%{opacity:1}
                       100%{opacity:1;transform:translate(0,0)} }
+@media (prefers-reduced-motion: reduce){
+  .tile .sash.strap{animation:none}
+  .tile .sash.strap text{animation:none}
+}
 @keyframes sashStamp{ 0%{opacity:0;transform:scale(.9)}
                       25%{opacity:1}
                       60%{transform:scale(1.04)}
@@ -1227,7 +1231,7 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
     </div>
 
     <!-- BUILD MARK — dev only, delete this div when the app ships -->
-    <div id="buildtag">BUILD 3K</div>
+    <div id="buildtag">BUILD 3L</div>
   </div>
 </section>
 
@@ -3748,28 +3752,51 @@ function acPick(){
    filled is usually under the fold. Bring it into view first: a moment that
    erupts out of a tile nobody can see is no moment at all. */
 function actMoment(slot){
-  const wrap = $('actcf'); if(!wrap) return;
-  if(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const wrap = $('actcf'); if(!wrap){ sashStrap(0); return; }
+  if(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+    sashStrap(0); return; }
   const t = document.getElementById('tile-'+slot);
-  if(!t) return;
+  if(!t){ sashStrap(0); return; }
   const onScreen = () => {
     const r = t.getBoundingClientRect();
     return r.width > 2 && r.top > 40 && r.bottom < window.innerHeight - 40;
   };
   const play = () => {
     const r = t.getBoundingClientRect();
-    if(r.width < 2) return;
+    if(r.width < 2){ sashStrap(0); return; }
     acStop();
     wrap.classList.add('up');
-    if(!acSize()) return;
+    if(!acSize()){ sashStrap(0); return; }
     AC_F = 0;
     acPlay(acPick(), r.left + r.width/2, r.top + r.height/2);
     AC_RAF = requestAnimationFrame(acFrame);
+    sashStrap(1500);          // the closing beat, once the moment is underway
   };
-  if(onScreen()){ play(); return; }
+  /* G, 8 Sept: "the animation should wait a beat when you go back to the page.
+     When you go back to the page it may not totally be on it, and you're gonna
+     miss it, and that's half the fun."
+
+     So it does not fire on a timer and hope. It waits until the square has
+     actually STOPPED MOVING - the screen may still be scrolling into place, or
+     settling after a sheet was put away - and only then holds a beat and a half
+     and begins. Capped, so a page that never settles cannot swallow the moment
+     altogether. */
+  const BEAT = 620;
+  const settleThenPlay = () => {
+    let last = null, still = 0, waited = 0;
+    const tick = () => {
+      const y = Math.round(t.getBoundingClientRect().top);
+      still = (y === last) ? still + 1 : 0;
+      last = y; waited += 16;
+      if(still >= 4 || waited > 1400){ setTimeout(play, BEAT); return; }
+      requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  };
+  if(onScreen()){ settleThenPlay(); return; }
   try{ t.scrollIntoView({block:'center', behavior:'smooth'}); }
   catch(e){ t.scrollIntoView(); }
-  setTimeout(play, 480);
+  settleThenPlay();
 }
 
 /* ── confetti ─────────────────────────────────────────────────────────────
@@ -3967,6 +3994,20 @@ function celTick(){
   if(anySheet) return;
   const slot = CEL_DUE; CEL_DUE = 0;
   actMoment(slot);
+}
+/* The sash is the last beat, not the first. It goes on once the moment has had
+   its run, so the order reads: the act is done, here is the moment, and here is
+   the record of it. actMoment calls this when the moment actually starts, which
+   is after any scrolling, and calls it straight away when there is no moment to
+   wait for - under reduced motion the class simply lands and the CSS turns the
+   travelling off. */
+function sashStrap(wait){
+  if(!SASH_STRAP) return;
+  const st = SASH_STRAP; SASH_STRAP = 0;
+  setTimeout(()=>{
+    const el = document.querySelector('#tile-'+st+' .sash');
+    if(el){ el.classList.remove('strap'); void el.offsetWidth; el.classList.add('strap'); }
+  }, wait);
 }
 function checkMilestones(){
   if(!S.n) return;
@@ -6239,7 +6280,10 @@ function drawGrid(){
      act 2's square and it does not fall off the bottom of the grid, which is
      what flooring the number used to do to it. */
   const map={}; S.acts.forEach(a=>{ const s=slotOf(a); if(s>=1) map[s]=a; });
-  /* newest finished act = the last one logged, not the highest number */
+  /* G, 8 Sept: "the banner doesn't stay on when you do another act. That's
+     weird. They should always stay on." So every finished act keeps its sash
+     and its date. SASH_LAST is now only about which one has just ARRIVED, and
+     therefore which one straps itself on. */
   let SASH_LAST=0;
   for(let k=S.acts.length-1;k>=0;k--){ const s=slotOf(S.acts[k]); if(s>=1){ SASH_LAST=s; break; } }
   const plans=S.plans||{};
@@ -6250,10 +6294,9 @@ function drawGrid(){
      replays every time anything repaints the grid. SASH_SEEN is null on the
      very first draw of a session, so a reload never replays a moment for an
      act that was logged days ago. */
-  let sashNew = false;
   if(SASH_SEEN === null){ SASH_SEEN = SASH_LAST; }
   else if(SASH_LAST && SASH_LAST !== SASH_SEEN){
-    SASH_SEEN = SASH_LAST; CEL_DUE = SASH_LAST; sashNew = true;
+    SASH_SEEN = SASH_LAST; CEL_DUE = SASH_LAST; SASH_STRAP = SASH_LAST;
   }
 
   /* Act 0 is the first tile, drawn like any other finished act. */
@@ -6263,7 +6306,7 @@ function drawGrid(){
     z.textContent='0';
     z.setAttribute('aria-label','Act 0, the year declared'+(S.zero.d?', '+shortDate(S.zero.d):'')+'. Open it.');
     z.onclick=()=>{ S.current=S.zero; go('card'); };
-    if(!SASH_LAST && sashDate(S.zero)){
+    if(sashDate(S.zero)){
       const sh=document.createElement('div');
       sh.className='sash'; sh.setAttribute('aria-hidden','true');
       sh.innerHTML=sashSVG(sashDate(S.zero));
@@ -6304,12 +6347,15 @@ function drawGrid(){
     : pl ? 'Act '+i+', planned'+(pl.t?': '+pl.t:'')+(pl.d?', '+shortDate(pl.d):'')+'. Open it.'
          : 'Act '+i+', empty. Plan it.');
     t.id='tile-'+i;
-    /* the sash rides the most recently logged act's square only */
-    if(a && SASH_LAST===i && sashDate(a)){
+    /* every finished act wears its own sash, and keeps it */
+    if(a && sashDate(a)){
       const sd=document.createElement('div');
       sd.className='sash'; sd.setAttribute('aria-hidden','true');
       sd.innerHTML=sashSVG(sashDate(a));   // live type, the act's own date
-      if(sashNew) sd.classList.add('strap');   // only on a square it just reached
+      /* The strap is NOT added here. Completing an act lands on Your year and
+         immediately covers it with the follow-up sheet, so a sash that animates
+         on redraw plays out behind that sheet and is over before anybody sees
+         it. It waits for the same moment the celebration waits for. */
       t.appendChild(sd);
     }
     g.appendChild(t);
@@ -6323,7 +6369,7 @@ function drawGrid(){
 }
 /* Which square the sash was on last time the grid was drawn, and which act is
    still owed its moment. Session only: a moment is for the act you just did. */
-let SASH_SEEN = null, CEL_DUE = 0;
+let SASH_SEEN = null, CEL_DUE = 0, SASH_STRAP = 0;
 const shortDate = d => {
   const p=(d||'').split('-'); if(p.length<3) return '';
   return +p[2] + ' ' + ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][+p[1]-1];
