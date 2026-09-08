@@ -15,6 +15,44 @@ true, I did, and the check is written down. Where I could not, it says so.
 
 ---
 
+**RULED and BUILT, 8 September, build 3K: the sign-up panel rolls back up.**
+
+G: *"I don't want to delete the sheet once it's filled in. I just don't want it
+rolled down on your screen in Plan and Log. Oh, I'm gonna create a sign up
+sheet. Oh, I have a better idea. That sign up sheet is still rolled down, so it
+picks up so much room in your screen. I wanna roll it back up."*
+
+**This is a fold, not a delete and not a take-down.** The panel used to unfurl
+when you made a sheet and stay unfurled for the life of the act: 939px of
+screen whether you still wanted it or not. Now there is an X in the top right
+and it folds to 87px.
+
+- **Nothing is thrown away.** Everything typed stays typed and comes straight
+  back when you open it again.
+- **A published sheet stays live.** Folding the panel does nothing to the page
+  people are holding a poster for.
+- **The folded button says where it got to** — G's ruling: "Sign-up sheet" with
+  a quiet line under it reading *Started, not published yet.* or *Live. 1 of 3
+  claimed.* A half-made sheet is never silently hiding behind a plain button.
+- Remembered per act in `askShut`, so it is still folded when you come back.
+- A brand new sheet always opens unfurled.
+
+**Not what was asked for, and worth recording so it is not built by mistake:** I
+first read this as wanting to take a sheet DOWN, and started designing around
+what happens when somebody has already claimed something. That is a real
+question but it is not this one. **The server can already close a sheet**
+(`closed` on the sheet row; a claim then returns 409 and the public page shows a
+thank-you rather than a dead list), so if that is ever wanted, the hard half
+exists and only the app side is missing.
+
+**And the standing rule caught me again.** `askShut` went into the loader but
+not into `serialise()`, which builds `works` as an explicit field list rather
+than copying the object. It worked perfectly until a reload and then silently
+forgot. **That is four times in this file.** The test that caught it asserts
+across a real reload, which is the only thing that ever catches it.
+
+---
+
 ## A. Yours to rule. Nothing moves until you do.
 
 **A1. Does a delete option go back on the You screen?**

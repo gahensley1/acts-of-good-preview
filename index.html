@@ -197,6 +197,26 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
 /* ── Ask for help: the sign-up sheet on an act ───────────────────
    Private working UI. The sheet itself lives at actsofgood.app/a/<id>. */
 #wk-ask{border:1px solid var(--line);border-radius:12px;background:#fff;padding:11px 12px 12px}
+/* G, 8 Sept: "that sign up sheet is still rolled down, so it picks up so much
+   room in your screen. I wanna roll it back up." The panel used to unfurl and
+   stay unfurled for the life of the act. Nothing is thrown away when it folds:
+   everything typed is still there, and a live sheet stays live. */
+#wk-ask{position:relative}
+.askfold{position:absolute;top:4px;right:4px;width:32px;height:32px;border:0;
+  background:none;color:var(--muted);font-size:17px;line-height:32px;padding:0;
+  cursor:pointer;border-radius:50%}
+.askfold:hover{color:var(--ink);background:var(--mist)}
+.askfold:focus-visible{outline:2px solid var(--coralink);outline-offset:1px}
+.askrolled{display:flex;align-items:center;justify-content:space-between;gap:10px;
+  width:100%;border:1px solid var(--line);border-radius:10px;background:#fff;
+  padding:12px 13px;text-align:left;font:inherit;cursor:pointer}
+.askrolled:hover{border-color:var(--coralink)}
+.askrolled:focus-visible{outline:2px solid var(--coralink);outline-offset:1px}
+.askrolled b{display:block;font-size:15px;font-weight:600;color:var(--ink);
+  letter-spacing:-.01em}
+.askrolled i{display:block;font-style:normal;font-size:12.5px;color:var(--muted);
+  margin-top:2px}
+.askrolled .chev{flex:none;color:var(--muted);font-size:15px}
 .askrow{display:flex;gap:8px;align-items:flex-start;min-height:34px}
 .askrow .adash{flex:none;width:16px;text-align:center;color:var(--gold);font-weight:700;line-height:34px}
 .atx{flex:1;border:0;background:none;font:inherit;font-size:15px;line-height:1.35;color:var(--ink);
@@ -1207,7 +1227,7 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
     </div>
 
     <!-- BUILD MARK — dev only, delete this div when the app ships -->
-    <div id="buildtag">BUILD 3J</div>
+    <div id="buildtag">BUILD 3K</div>
   </div>
 </section>
 
@@ -2200,7 +2220,7 @@ function serialise(){
                           cost:w.cost||0, spends:w.spends||[], story:w.story||'', exp:w.exp||'',
                           startedAt:w.startedAt||'', sheet:w.sheet||null, seed:w.seed||null,
                           photos:(w.photos||[]).map(p=>p&&p.id).filter(Boolean),
-                          notes:w.notes||[], njr:w.njr||0 })),
+                          notes:w.notes||[], njr:w.njr||0, askShut:w.askShut?1:0 })),
     acts:S.acts.map(a=>({ no:a.no, t:a.t, out:a.out, who:a.who, cost:a.cost, spends:a.spends||[],
                           story:a.story, note:a.note||'', d:a.d||'', hon:a.hon||'', anon:!!a.anon, pipelined:!!a.pipelined, evalAsked:!!a.evalAsked, captions:a.captions||{},
                           posted:a.posted||{},
@@ -2321,7 +2341,7 @@ async function load(){
     }
     S.works.push({ pid:w.pid||newWorkId(), t:w.t||'', d:w.d||'', who:Array.isArray(w.who)?w.who:[],
                    hon:w.hon||'', cost:+w.cost||0, spends:Array.isArray(w.spends)?w.spends:[],
-                   story:w.story||'', exp:String(w.exp||''), startedAt:w.startedAt||'', sheet:(w.sheet&&typeof w.sheet==='object')?w.sheet:null,
+                   story:w.story||'', exp:String(w.exp||''), startedAt:w.startedAt||'', sheet:(w.sheet&&typeof w.sheet==='object')?w.sheet:null, askShut:w.askShut?1:0,
                    seed:(w.seed&&typeof w.seed==='object')?w.seed:null,
                    notes:Array.isArray(w.notes)?w.notes:[], njr:w.njr?1:0, photos:photos });
   }
@@ -5210,6 +5230,19 @@ function sheetId(){
   crypto.getRandomValues(b);
   return Array.from(b, x=>a[x % 36]).join('');
 }
+/* Rolling up throws nothing away and takes nothing down. It is the panel that
+   folds, not the sheet: what is typed stays typed, and a published sheet goes
+   on working for anyone holding the poster. Remembered per act, so it is still
+   rolled up when you come back to it. */
+function askFold(){
+  if(!WK) return;
+  WK.askShut = 1; workKeep(); save(); drawSheetPanel();
+}
+function askUnfold(){
+  if(!WK) return;
+  WK.askShut = 0; workKeep(); save(); drawSheetPanel();
+  const box = $('wk-ask'); if(box) box.scrollIntoView({block:'nearest'});
+}
 function askOf(){
   const sh = WK ? (WK.sheet||null) : null;
   if(sh && sh.anon !== undefined){
@@ -5268,6 +5301,23 @@ function askTick(e,k){
 function drawSheetPanel(){
   const box=$('wk-ask'); if(!box) return;
   const sh=askOf();
+  /* Rolled up. Everything typed is still here and a live sheet is still live;
+     it is only out of the way. The line underneath says where it got to, so a
+     half-made sheet is never silently hiding behind a plain button. */
+  if(sh && WK && WK.askShut){
+    const slots = (sh.slots||[]).length;
+    const took  = (sh.claims||[]).filter(c=>c && c.name).length;
+    const where = sh.live
+      ? ('Live. ' + (slots ? (took + ' of ' + slots + ' claimed') : 'nothing on it yet') + '.')
+      : 'Started, not published yet.';
+    box.innerHTML =
+      '<button class="askrolled" type="button" onclick="askUnfold()" '+
+        'aria-expanded="false" aria-label="Sign-up sheet. '+esc(where)+' Open it.">'+
+        '<span><b>Sign-up sheet</b><i>'+esc(where)+'</i></span>'+
+        '<span class="chev" aria-hidden="true">\u203A</span>'+
+      '</button>';
+    return;
+  }
   if(!sh){
     /* G, 6 Sept: the button goes above the sentence and runs the full width.
        It was a small inline button under a paragraph, which read as a footnote
@@ -5280,6 +5330,8 @@ function drawSheetPanel(){
   }
   const rows=sh.slots||[];
   box.innerHTML=
+    '<button class="askfold" type="button" onclick="askFold()" '+
+      'aria-label="Roll the sign-up sheet up">\u00D7</button>'+
     /* Who it is for decides what the sheet even is. G, 6 Sept: one friendly, one
        anonymous, and no middle ground. Anonymous hides the personal rows
        entirely rather than greying them — there is no point offering to sign
@@ -5440,6 +5492,7 @@ function fitPvScale(){
    reads properly on a poster; every one of them is editable. */
 function askStart(){
   if(!WK) return;
+  WK.askShut = 0;
   const sd = WK.seed || {};
   const needs = (sd.needs||[]).filter(x=>String(x||'').trim());
   WK.sheet={ id:sheetId(), key:sheetToken(),
