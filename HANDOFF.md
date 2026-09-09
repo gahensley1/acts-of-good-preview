@@ -24,6 +24,60 @@ Read it before asking G anything.
 
 ---
 
+## BUILD 3U — 8 September. The app stops judging how an act went.
+
+G: *"We don't need that. We just ask if there's anything you want to remember.
+That's enough. I don't think we need to judge how everything went. And if there
+was something, they'll put it in anything you want to remember."*
+
+**The three outcome chips — Went to plan / Partly / Didn't go to plan — are gone
+from every screen.** The follow-up sheet, the Write it up screen ("How it went")
+and the dead hidden field on the log screen. Nothing in the app asks how an act
+went any more.
+
+**And the two sentences the app used to write on the strength of them are gone
+too, which is the part G was told about and ruled on anyway:**
+- the journal page no longer prints *"It half went to plan, which is its own
+  kind of story."* / *"It did not go to plan. It still counts."*
+- **the printed book no longer prints them either**
+
+That is the right call for a reason beyond tidiness: those were the app putting
+words in somebody's mouth about their own act — the same thing G removed from
+the story boxes earlier today. The page now says only what the person wrote.
+
+**`out` is still in `serialise()` and `load()` and is still written on a new act
+(`S.outcome`, which no longer changes from 'Went to plan').** Deliberate:
+an older backup restores whole, and nobody's stored data was thrown away.
+**Nothing reads it.** Verified in the browser with an act carrying
+`out:'Partly'` — the journal page does not mention it.
+
+**One defect created and fixed in the same edit:** the follow-up sheet's note
+said *"Two quick questions while it's fresh. Both are optional."* With one
+question left it now reads *"One quick question while it's fresh, and it's
+optional."*
+
+---
+
+## CLOSED — the letter stays as it is (G, 8 September)
+
+Panel finding 3 — four of seven worked out unprompted that the app was built
+around one person's year and read every screen after as somebody else's.
+**G ruled 3A: leave it.** His reason, and it is a good one:
+
+> *"Read the last paragraph. I'm not sure how that's being misinterpreted.
+> It's written right there."*
+
+He is right. The letter's third paragraph says *"designed to help you track your
+own journey"* and *"Choose a number that feels right for your life"* — it hands
+the app over in plain words, in the place you would put it.
+
+**Do not re-open this, and do not re-raise it from the panel notes.** Those
+seven are not real users; they are a simulation, and a real reader who wrote
+the app disagreeing with them settles it. `reviews/PANEL-01-first-read.md` still
+carries the finding — it is a record of a review, not an open item.
+
+---
+
 ## BUILD 3T — 8 September. The backup reminder is counted in acts.
 
 G: *"I think every third act."* This replaces the once-ever rule from 3P, which

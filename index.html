@@ -1239,7 +1239,7 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
     </div>
 
     <!-- BUILD MARK — dev only, delete this div when the app ships -->
-    <div id="buildtag">BUILD 3T</div>
+    <div id="buildtag">BUILD 3U</div>
   </div>
 </section>
 
@@ -1299,11 +1299,11 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
   <!-- Done keeps the note. It used to throw it away. -->
   <button class="sheetback" onclick="doneLater()">‹ Done</button>
   <h3 id="done-h3">Act done</h3>
-  <p class="note" style="margin-bottom:16px">Nicely done. Two quick questions while
-    it's fresh. Both are optional.</p>
-
-  <div class="field"><label>How did it go?</label>
-    <div class="chips" id="done-out"></div></div>
+  <!-- One question now, not two. G, 8 Sept: "I don't think we need to judge
+       how everything went. And if there was something, they'll put it in
+       anything you want to remember." -->
+  <p class="note" style="margin-bottom:16px">Nicely done. One quick question
+    while it's fresh, and it's optional.</p>
 
   <!-- One wording for one question, everywhere it is asked (G, 8 Sept). The
        aria-label said "How did it go?" — the chips' question, not this one — so
@@ -1509,9 +1509,6 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
         date in and the app can hand the day to your calendar, which does any
         reminding.</p></div>
 
-    <div class="field hide" id="f-out"><label>How did it go?</label>
-      <div class="chips" id="outchips"></div></div>
-
     <div class="field"><label id="l-wholab">Who's in it with you?</label>
       <div class="chips" id="pchips"></div>
       <p class="note" style="margin-top:8px">Tap to add. They're remembered for next time.</p></div>
@@ -1670,8 +1667,6 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
       </div></div>
     <div class="field"><label>Who was in it</label>
       <div class="chips" id="w-who"></div></div>
-    <div class="field"><label>How it went</label>
-      <div class="chips" id="w-out"></div></div>
 
     <div class="field"><label for="w-story">The story</label>
       <textarea id="w-story" placeholder="How it came about. Who helped, name them.
@@ -5129,9 +5124,11 @@ function drawJournal(){
     pg.className='jpage'+(a.story?'':' nostory');
     const noLine = 'act '+esc(a.no)+' of '+S.n;
     const withWho = (a.who&&a.who.length) ? '<p class="jwith">with '+esc(listWords(a.who))+'</p>' : '';
-    const outLine = a.out && a.out!=='Went to plan'
-      ? '<p class="jout">'+esc(a.out==='Partly' ? 'It half went to plan, which is its own kind of story.'
-                                                : 'It did not go to plan. It still counts.')+'</p>' : '';
+    /* The journal used to add its own sentence here — "It half went to plan,
+       which is its own kind of story." — off the outcome chips. The chips are
+       gone (G, 8 Sept) and so is the sentence: the page now says only what the
+       person wrote. `out` is still kept in storage so an older backup restores
+       whole; nothing reads it. */
     const ph=(a.photos||[]).filter(p=>p&&p.url);
     const shots = ph.length
       ? '<div class="jphotos'+(ph.length===1?' one':'')+'">'+
@@ -5145,7 +5142,7 @@ function drawJournal(){
       (a.d ? '<p class="jdate">'+esc(fmtLong(a.d))+'</p>' : '')+
       withWho+'<div class="jrule"></div>'+
       (a.story ? '<p class="jstory">'+esc(a.story)+'</p>' : '')+
-      shots+outLine;
+      shots;
     const ed=document.createElement('button');
     ed.className='jedit';
     ed.textContent = a.story ? 'Change anything' : 'Write it up';
@@ -5981,10 +5978,6 @@ async function bookAct(a, mark){
     const u = await fullShot(ph); if(u) shots.push(u);
   }
   const who = (a.who&&a.who.length) ? '<p class="bwith">with '+esc(listWords(a.who))+'</p>' : '';
-  const out = (a.out && a.out!=='Went to plan')
-    ? '<p class="bwith" style="font-style:italic">'+esc(a.out==='Partly'
-        ? 'It half went to plan, which is its own kind of story.'
-        : 'It did not go to plan. It still counts.')+'</p>' : '';
   return '<div class="bpage"><div class="bplate"></div>'+
     '<div class="bno">act '+esc(a.no)+' of '+esc(S.n)+'</div>'+
     '<h1>'+esc(a.t||'An act of good')+'</h1>'+
@@ -5994,7 +5987,7 @@ async function bookAct(a, mark){
     (a.story ? '<p class="bstory">'+esc(a.story)+'</p>' : '')+
     (shots.length ? '<div class="bshots'+(shots.length===1?' one':'')+'">'+
         shots.map(u=>'<img src="'+esc(u)+'" alt="">').join('')+'</div>' : '')+
-    out + bookFoot(mark||'', 'act '+esc(a.no)) + '</div>';
+    bookFoot(mark||'', 'act '+esc(a.no)) + '</div>';
 }
 
 /* The honour roll. This page was drawn a long time ago and never built, and it
@@ -6278,7 +6271,8 @@ let EVAL_ACT=null;
    question now — "Anything you want to remember?" — and the answer goes
    straight into the journal. This OVERTURNS the older ruling that kept "How
    did it go?" here. The same question still stands on the follow-up sheet
-   (#sheet-done) and on the log screen (#f-out); neither was asked about. */
+   G then removed the outcome chips everywhere (3U), so nothing in the app
+   asks how an act went any more. */
 function askEval(a){
   if(arguments[0] && (arguments[0].zero || arguments[0].fin)) return;
   if(!a || a.evalAsked) return;
@@ -7388,7 +7382,6 @@ function newAct(){
 function drawLog(){
   saveDraft();
   drawPhotos('l-photos','l-file', S.newPhotos, drawLog);
-  chips($('outchips'),['Went to plan','Partly',"Didn't go to plan"],()=>S.outcome,v=>{S.outcome=v;drawLog();});
   const pc=$('pchips'); pc.innerHTML='';
   S.people.forEach(p=>{
     const b=document.createElement('button');
@@ -7433,7 +7426,6 @@ function logMode(){
   if(t) t.textContent = future ? 'What are you thinking?' : 'What did you do?';
   if(w) w.textContent = future ? "Who's coming?" : "Who's in it with you?";
   const fp=$('f-photos'); if(fp) fp.classList.toggle('hide', future);
-  const fo=$('f-out'); if(fo) fo.classList.add('hide');   // now asked afterwards
 }
 
 /* The number field invites free typing and used to accept anything. "abc"
@@ -7643,10 +7635,8 @@ function saveAct(writeNow){
    has happened, was always slightly wrong, so it moved here, to the moment
    after you press Complete.                                                 */
 function drawDone(){
-  const a=S.current||{}; if(!a.out) a.out='Went to plan';
+  const a=S.current||{};
   const h=$('done-h3'); if(h) h.textContent='Act '+(a.no||'')+' done';
-  chips($('done-out'),['Went to plan','Partly',"Didn't go to plan"],
-        ()=>a.out, v=>{ grabDone(); a.out=v; save(); drawDone(); });
   const n=$('done-note'); if(n && n.value!==(a.note||'')) n.value=a.note||'';
 }
 function grabDone(){
@@ -7700,8 +7690,6 @@ function drawWriteFacts(a){
     save(); drawWriteFacts(a);
   });
   pc.appendChild(add);
-  chips($('w-out'),['Went to plan','Partly',"Didn't go to plan"],
-        ()=>a.out||'Went to plan', v=>{ a.out=v; save(); drawWriteFacts(a); });
 }
 function factEdited(){
   const a=S.current; if(!a) return;
