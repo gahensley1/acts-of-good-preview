@@ -24,6 +24,52 @@ Read it before asking G anything.
 
 ---
 
+## BUILD 3W — 8 September. The app can be used without sight.
+
+G ruled items 10, 11 and 12. **Nothing visual changed** — the date picker
+renders pixel-identical, checked against a screenshot. All of this is in what
+the phone says out loud.
+
+**10 — the days in the date picker are buttons now.** They were `<div>`s with an
+`onclick`. A screen reader never stops on a div, so the grid was unreachable and
+the only date anybody could set was Today — which closed the **entire planning
+half of the app**. Each day is now a real button carrying its own name
+(*"Thursday 16 April 2026"*, and *", today"* when it is), with `aria-pressed`
+saying which one is chosen. Selected and today had been colour and nothing else.
+The seven column letters are `aria-hidden` now, since every button says its own
+weekday. Verified: 30 buttons, all named, exactly one pressed, clicking still
+sets the date.
+
+**11 — the date buttons say the date they are holding.** Five of them carried a
+hardcoded `aria-label` — *"When, pick a date"* — which overrode the real date, so
+they said "pick a date" whether empty or set to next March, and a date already in
+the journal could never be read back. `syncDateBtn` now writes the spoken name
+from a new `data-lab` on each button plus a new `longDate()` (no abbreviation, no
+apostrophe-year: *"When, Wednesday 22 April 2026"*).
+
+**The markup keeps an empty-state `aria-label` deliberately.** First pass removed
+them entirely, and a button reached before its first sync then had **no name at
+all**, which is worse than a stale one. Caught in the browser. `syncDateBtn`
+replaces it the moment there is a date.
+
+**12 — the eight back buttons have names.** They were the single character "‹",
+which reads as punctuation or nothing. Now *"Back to your year"* on seven and
+*"Back to Plan and Log"* on the one inside an act; compose's says *"Back"*
+because it returns wherever it came from.
+
+### Named, not built
+
+**The month calendar (`drawCal`) has exactly the same defect as the date
+picker** — day cells are `<div>`s, and done / planned / today are three colours
+with no words. It was Desmond's fourth blocker and was NOT in the list G ruled
+on. Same fix, same shape. Ask before doing it.
+
+Also still open from his audit: thirty-two identical "Save for later" buttons in
+Ideas; the skin-tone chips named as colours with no pressed state and the hand
+image with an empty `alt`; seven sheets with `role="dialog"` and no name.
+
+---
+
 ## BUILD 3V — 8 September. Eight defects from the six-reviewer panel.
 
 G ruled items 1–8 of the list; the full panel is `reviews/PANEL-04-the-six.html`.

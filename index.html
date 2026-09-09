@@ -1239,7 +1239,7 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
     </div>
 
     <!-- BUILD MARK — dev only, delete this div when the app ships -->
-    <div id="buildtag">BUILD 3V</div>
+    <div id="buildtag">BUILD 3W</div>
   </div>
 </section>
 
@@ -1437,7 +1437,7 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
   <div class="field"><label>When? (optional)</label>
     <input id="pl-when" type="hidden" aria-hidden="true">
     <div class="datewrap">
-      <button class="datebtn" id="pl-when-btn" onclick="openDate('pl-when')" aria-label="When, pick a date"></button>
+      <button class="datebtn" id="pl-when-btn" onclick="openDate('pl-when')" data-lab="When" aria-label="When, pick a date" ></button>
       <button class="calgo" onclick="openCal()" aria-label="Month calendar"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--coral)" stroke-width="1.5"><rect x="3" y="5" width="18" height="16" rx="2.5"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></button>
     </div>
     <p class="note" style="margin-top:8px">Tap the date to pick a day. Leave it if
@@ -1483,7 +1483,7 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
 
 <!-- ══════════ LOG ══════════ -->
 <section id="s-log" class="hide" role="main" aria-label="Plan and log an act">
-  <div class="top"><button class="back" onclick="go('home')">‹</button>
+  <div class="top"><button class="back" aria-label="Back to your year" onclick="go('home')">‹</button>
     <h2 id="log-h2">Plan &amp; Log</h2><div class="sub" id="log-no"></div></div>
   <div class="wrap">
     <div class="field"><label id="l-titlelab">What did you do?</label>
@@ -1496,7 +1496,7 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
     <div class="field"><label for="l-when">When?</label>
       <input id="l-when" type="hidden" aria-hidden="true">
       <div class="datewrap">
-        <button class="datebtn" id="l-when-btn" onclick="openDate('l-when')" aria-label="When, pick a date"></button>
+        <button class="datebtn" id="l-when-btn" onclick="openDate('l-when')" data-lab="When" aria-label="When, pick a date" ></button>
         <button class="calgo" onclick="openCal()" aria-label="Month calendar"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--coral)" stroke-width="1.5"><rect x="3" y="5" width="18" height="16" rx="2.5"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></button>
       </div>
       <div style="display:flex;gap:10px;margin-top:10px">
@@ -1538,7 +1538,7 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
      Every act starts here, ripens as long as it likes, and finishes by
      posting. The grid below on Home is the finished year only. -->
 <section id="s-works" class="hide" role="main" aria-label="Plan and log your acts">
-  <div class="top"><button class="back" onclick="go('home')">‹</button>
+  <div class="top"><button class="back" aria-label="Back to your year" onclick="go('home')">‹</button>
     <h2>Plan &amp; Log</h2><div class="sub" id="works-sub"></div></div>
   <div class="wrap">
     <button class="btn" style="margin-top:0" onclick="startWork()">Start a new act</button>
@@ -1548,7 +1548,7 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
 </section>
 
 <section id="s-work" class="hide" role="main" aria-label="An act in the works">
-  <div class="top"><button class="back" onclick="go('works')">‹</button>
+  <div class="top"><button class="back" aria-label="Back to Plan and Log" onclick="go('works')">‹</button>
     <h2>Plan &amp; Log</h2><div class="sub" id="wk-sub"></div></div>
   <div class="wrap">
     <div class="field"><label for="wk-t">The act <span style="text-transform:none;font-weight:400">(journal page &amp; post title)</span></label>
@@ -1560,7 +1560,7 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
       <div class="field" style="flex:1.4"><label for="wk-when-btn">Aiming for</label>
         <input id="wk-when" type="hidden" aria-hidden="true">
         <div class="datewrap">
-          <button class="datebtn" id="wk-when-btn" onclick="openDate('wk-when')" aria-label="Aiming for, pick a day"></button>
+          <button class="datebtn" id="wk-when-btn" onclick="openDate('wk-when')" data-lab="Aiming for" aria-label="Aiming for, pick a date" ></button>
           <button class="calgo" onclick="workToCalendar()" aria-label="Hand the day to your phone's calendar"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--coral)" stroke-width="1.5"><rect x="3" y="5" width="18" height="16" rx="2.5"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></button>
         </div>
         <p class="note" style="margin-top:8px">Today unless you change it. Tap the
@@ -1624,7 +1624,7 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
       <input id="fin-no" inputmode="numeric" style="max-width:90px"></div>
     <div class="field" style="flex:1.6;margin:0"><label for="fin-when-btn">On</label>
       <input id="fin-when" type="hidden" aria-hidden="true">
-      <div class="datewrap"><button class="datebtn" id="fin-when-btn" onclick="openDate('fin-when')" aria-label="On, pick the day"></button></div></div>
+      <div class="datewrap"><button class="datebtn" id="fin-when-btn" onclick="openDate('fin-when')" data-lab="On" aria-label="On, pick a date" ></button></div></div>
   </div>
   <p class="note" style="margin-top:10px">of <span id="fin-of"></span>. Editable.</p>
   <p class="note" id="fin-ripe" style="margin-top:6px;font-style:italic;color:#6B5E3A"></p>
@@ -1644,7 +1644,7 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
 
 <!-- ══════════ WRITE-UP ══════════ -->
 <section id="s-write" class="hide" role="main" aria-label="Write up an act">
-  <div class="top"><button class="back" onclick="go('home')">‹</button>
+  <div class="top"><button class="back" aria-label="Back to your year" onclick="go('home')">‹</button>
     <h2>Write it up</h2><div class="sub" id="w-no"></div></div>
   <div class="wrap">
     <p class="note" style="margin-bottom:18px">This is the journal entry. The post comes
@@ -1662,8 +1662,8 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
     <div class="field"><label for="w-when-btn">When</label>
       <input id="w-when" type="hidden" aria-hidden="true">
       <div class="datewrap">
-        <button class="datebtn" id="w-when-btn" onclick="openDate('w-when')"
-          aria-label="When, pick a date"></button>
+        <button class="datebtn" id="w-when-btn" onclick="openDate('w-when')" data-lab="When" aria-label="When, pick a date"
+          ></button>
       </div></div>
     <div class="field"><label>Who was in it</label>
       <div class="chips" id="w-who"></div></div>
@@ -1692,7 +1692,7 @@ What you actually did. Why it mattered. Say the awkward parts."></textarea>
 
 <!-- ══════════ JOURNAL — the year, readable ══════════ -->
 <section id="s-journal" class="hide" role="main" aria-label="Read your year">
-  <div class="top"><button class="back" onclick="go('home')">‹</button>
+  <div class="top"><button class="back" aria-label="Back to your year" onclick="go('home')">‹</button>
     <h2>Your journal</h2><div class="sub" id="j-sub"></div></div>
   <div class="jwrap" id="j-pages"></div>
   <!-- G, 7 Sept: printable now, re-cut later for a chosen printer. Everything
@@ -1707,7 +1707,7 @@ What you actually did. Why it mattered. Say the awkward parts."></textarea>
 
 <!-- ══════════ CARD ══════════ -->
 <section id="s-card" class="hide" role="main" aria-label="The act card">
-  <div class="top"><button class="back" onclick="go('home')">‹</button>
+  <div class="top"><button class="back" aria-label="Back to your year" onclick="go('home')">‹</button>
     <h2>Your card</h2><div class="sub">drawn for this act</div></div>
   <div class="wrap">
     <div class="cardbox cardface" id="cardface">
@@ -1742,7 +1742,7 @@ What you actually did. Why it mattered. Say the awkward parts."></textarea>
 
 <!-- ══════════ COMPOSE ══════════ -->
 <section id="s-compose" class="hide" role="main" aria-label="Post an act">
-  <div class="top"><button class="back" onclick="go(CM_BACK||'card')">‹</button>
+  <div class="top"><button class="back" aria-label="Back" onclick="go(CM_BACK||'card')">‹</button>
     <h2>Post it</h2><div class="sub" id="cm-no"></div></div>
   <div class="wrap">
     <div class="chips" id="cm-plats" style="margin-bottom:16px"></div>
@@ -1842,7 +1842,7 @@ What you actually did. Why it mattered. Say the awkward parts."></textarea>
 </section>
 
 <section id="s-browse" class="hide" role="main" aria-label="Ideas">
-  <div class="top"><button class="back" onclick="go('home')">‹</button>
+  <div class="top"><button class="back" aria-label="Back to your year" onclick="go('home')">‹</button>
     <h2>Ideas</h2></div>
   <div class="wrap">
     <div class="sub" style="margin:0 0 8px">filter by time</div>
@@ -4709,10 +4709,23 @@ function fieldDate(iso){
   const p=iso.split('-');
   return +p[2]+' '+MONTHS_LONG[+p[1]-1]+' \u2019'+p[0].slice(2);
 }
+/* spoken, not printed: no apostrophe-year, no abbreviation */
+function longDate(iso){
+  const p=iso.split('-');
+  const d=new Date(+p[0], +p[1]-1, +p[2]);
+  return DAY_LONG[d.getDay()]+' '+(+p[2])+' '+MONTHS_LONG[+p[1]-1]+' '+p[0];
+}
 function syncDateBtn(id){
   const b=$(id+'-btn'); if(!b) return;
   const v=$(id).value;
   b.textContent = v ? fieldDate(v) : 'Pick a date';
+  /* The button used to carry a fixed aria-label — "When, pick a date" — which
+     overrode the date it was actually holding, so it said "pick a date" whether
+     it was empty or set to next March, and a date already in the journal could
+     never be read back. The visible text is the truth; the spoken name now says
+     the same thing, in full, with the field it belongs to in front of it. */
+  const lab = b.getAttribute('data-lab') || 'Date';
+  b.setAttribute('aria-label', lab + ', ' + (v ? longDate(v) : 'pick a date'));
   b.classList.toggle('empty', !v);
 }
 function openDate(id){
@@ -4740,8 +4753,10 @@ function drawDate(){
   $('dp-title').textContent = MONTHS_LONG[m]+' '+y;
   const first=new Date(y,m,1).getDay(), days=new Date(y,m+1,0).getDate();
   let g='<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px">';
+  /* the column letters are decoration now: every day button says its own
+     weekday out loud, so these would only be seven stray letters to read past */
   ['S','M','T','W','T','F','S'].forEach(d=>{
-    g+='<div style="text-align:center;font-size:10.5px;color:var(--muted);'+
+    g+='<div aria-hidden="true" style="text-align:center;font-size:10.5px;color:var(--muted);'+
        'font-weight:600;padding-bottom:4px">'+d+'</div>';
   });
   for(let i=0;i<first;i++) g+='<div></div>';
@@ -4749,12 +4764,22 @@ function drawDate(){
     const iso=y+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
     const isToday = d===now.getDate() && m===now.getMonth() && y===now.getFullYear();
     const isSel   = iso===sel;
+    /* These were <div>s with an onclick. A screen reader never stops on a div,
+       so the whole grid was unreachable and the only date anybody could set was
+       Today — which closed the entire planning half of the app. They are buttons
+       now, each one saying its own date, whether it is today, and whether it is
+       the one chosen. Selected and today were colour and nothing else. */
     let st='aspect-ratio:1;display:flex;align-items:center;justify-content:center;'+
-           'border-radius:9px;font-size:13.5px;font-weight:600;cursor:pointer;';
+           'border-radius:9px;font-size:13.5px;font-weight:600;cursor:pointer;'+
+           'background:transparent;border:0;font-family:inherit;padding:0;'+
+           'width:100%;-webkit-appearance:none;appearance:none;';
     if(isSel)        st+='background:var(--coralink);color:#fff;';
     else if(isToday) st+='border:1.5px solid var(--gold);color:var(--gold);';
     else             st+='color:var(--ink);opacity:.75;';
-    g+='<div style="'+st+'" data-p="'+iso+'">'+d+'</div>';
+    const lab = DAY_LONG[new Date(y,m,d).getDay()]+' '+d+' '+MONTHS_LONG[m]+' '+y+
+                (isToday?', today':'');
+    g+='<button type="button" style="'+st+'" data-p="'+iso+'" '+
+       'aria-pressed="'+(isSel?'true':'false')+'" aria-label="'+lab+'">'+d+'</button>';
   }
   g+='</div>';
   $('dp-grid').innerHTML=g;
@@ -4920,6 +4945,7 @@ function endNudge(){
    says what this month asks of you, and lists what you've already done in it,
    dated. The number in brackets is what's left to keep the year on track, so
    it falls as you go and it accounts for being ahead or behind.             */
+const DAY_LONG = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 const MONTHS_LONG = ['January','February','March','April','May','June','July',
   'August','September','October','November','December'];
 function todayISO(){
