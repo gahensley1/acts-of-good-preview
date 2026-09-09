@@ -5,9 +5,48 @@ The skill carries the standing rules and the working method; this one carries
 what is true right now. When they disagree, this file is newer — say so and fix
 the skill.
 
-Last updated: **8 September 2026**.
+Last updated: **9 September 2026**.
 Build in G's hands: **3R** — pushed and live, confirmed by fetching the site.
-**3T is built, committed and mirrored, waiting on a push.**
+
+## 3Z is VERIFIED and MIRRORED. It is not yet committed or pushed. (9 September)
+
+**`aog-push\index.html` and the mirror are both at BUILD 3Z and byte-identical.**
+The one change in 3Z:
+
+> **15, G's ruling:** the **Ask for help** sign-up block on the act screen
+> (`s-work`) was moved up to sit directly under *In honor of* and above *Keep a
+> tally of your costs*. It was the eighth field, second from the bottom, under
+> the story, the notes and the photos. Now it is fifth. Nothing else changed —
+> every act still keeps its own sheet.
+
+**Verified 9 September, in this order:**
+1. Field order on `s-work` read in the file — `wk-t`, `wk-exp`/`wk-when`,
+   *Invite someone to join you*, `wk-hon`, **Ask for help**, `wk-cost`, story,
+   notes, photos. The block sits between `wk-hon` and `wk-cost`. `Ask for help`
+   appears **twice** in the file and only **once** on screen — the other is the
+   CSS section comment at ~line 197.
+2. Scripts extracted (one non-src block) and `node --check` — **parses clean.**
+3. **Rendered in headless Chromium at 390×844, dsf 2, and looked at.** Act screen
+   opened with `openWork(w)` on a fresh work; zero page errors. Measured field
+   tops: In honor of 411, **Ask for help 495 (h 194)**, tally 706, story 840,
+   notes 1003, photos 1157. Screenshot confirms the block reads as one unit —
+   the sentence, the bordered *Make a sign-up sheet* card and its note — with
+   clear air above and below.
+4. Copied to the mirror; both files verified identical.
+
+**Still to do: the commit and the push.** The session that verified this had no
+shell on G's machine — the desktop bridge could mount the folders for reading and
+writing but `device_bash` could not mount them at all, so `git` could not be run.
+Nothing is committed. Run from `aog-push`:
+
+```
+git add index.html HANDOFF.md
+git commit -m "3Z: Ask for help moves up under In honor of"
+git push
+```
+
+Then fetch the live site with a cache-buster and read its build mark before
+telling G it is live.
 
 **The two paragraphs that used to sit here were garbled and both were stale.**
 They said 3I was live and that the sign-up sheet could not publish until

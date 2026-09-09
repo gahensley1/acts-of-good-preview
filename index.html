@@ -1239,7 +1239,7 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
     </div>
 
     <!-- BUILD MARK — dev only, delete this div when the app ships -->
-    <div id="buildtag">BUILD 3Y</div>
+    <div id="buildtag">BUILD 3Z</div>
   </div>
 </section>
 
@@ -1574,6 +1574,14 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
     <div class="field"><label for="wk-hon">In honor of <span style="text-transform:none;font-weight:400">(someone it was for, optional)</span></label>
       <input id="wk-hon" oninput="wkEdited()" placeholder="someone it was for"></div>
 
+    <!-- G, 9 Sept: moved up to sit under "In honor of" and above the tally. It
+         was the eighth field on this screen, second from the bottom, under the
+         story, the notes and the photos — which is a long way down for the one
+         thing five of seven testers named as the best idea in the app. Every act
+         keeps its own sheet; this only changes where it is found. -->
+    <div class="field"><label>Ask for help<span style="text-transform:none;font-weight:400">. Using a sign-up: a shareable list that lets people claim one of the things you need, from any phone. No back and forth, and nothing for them to sign up to.</span></label>
+      <div id="wk-ask"></div></div>
+
     <div class="field"><label for="wk-cost">Keep a tally of your costs <span style="text-transform:none;font-weight:400">(if anything)</span></label>
       <div class="costrow">
         <input id="wk-cost" placeholder="$0" oninput="wkCostTyped()">
@@ -1596,9 +1604,6 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
     <div class="field"><label>Photos <span style="text-transform:none;font-weight:400">(these ride on your post)</span></label>
       <div class="photos" id="wk-photos"></div>
       <input type="file" id="wk-file" accept="image/*" multiple hidden></div>
-
-    <div class="field"><label>Ask for help<span style="text-transform:none;font-weight:400">. Using a sign-up: a shareable list that lets people claim one of the things you need, from any phone. No back and forth, and nothing for them to sign up to.</span></label>
-      <div id="wk-ask"></div></div>
 
     <button class="btn" onclick="finishWork(false)">It happened. Post it</button>
     <button class="btn ghost" style="margin-top:10px;border-width:2px" onclick="finishWork(true)">Anonymous act. Just the card posts</button>
