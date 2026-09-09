@@ -24,6 +24,60 @@ Read it before asking G anything.
 
 ---
 
+## BUILD 3X — 8 September. The accessibility audit is closed.
+
+G: *"Fix it all while we're doing this. So this is resolved."* Everything left
+from Desmond Iyer's audit is now built. **Nothing visual changed anywhere** —
+the month calendar was screenshotted before and after and is pixel-identical.
+
+**The month calendar (`drawCal`) got the same treatment as the date picker.**
+Day cells were `<div>`s, and done / planned / today were three colours with no
+words. They are buttons now, each carrying its own date and what is on it:
+*"Friday 4 September 2026, act 1 done"*, *"Friday 18 September 2026, an act
+planned"*, *"Tuesday 8 September 2026, today"*. Multiple acts on one day read as
+*"2 acts done"*. Verified: 30 cells, all buttons, all three states spoken.
+
+**The thirty-two "Save for later" buttons say which idea they save.** Swiping
+the Ideas screen linearly was fine; jumping between buttons — which is how a
+screen reader user actually moves — gave thirty-two identical entries. Now
+*"Save Write to a teacher who mattered for later"*. Verified: 32 buttons, 32
+distinct names.
+
+**The five skin-tone chips.** They were named with the raw stored values —
+"light", "medium-dark" — five bare adjectives with nothing saying what they were
+adjectives for, and no indication which was chosen. Now *"Medium-dark skin
+tone"* with `aria-pressed`. New `TONE_SAY` map: spoken names only, the stored
+values are untouched.
+
+**The hand on the card had `alt=""`** in all four places it is drawn — the one
+visual choice the app asks a person to make was the one thing they could never
+hear. Now *"A hand holding a balloon"*.
+
+**All twelve sheets say what they are.** Every one carried `role="dialog"` with
+no name, though each had an `<h3>` sitting right there. Six of those headings had
+no `id`; they have one now, and all twelve sheets point at theirs with
+`aria-labelledby`. Verified by reading each sheet's name back through the
+attribute: ask, done, date, cal, person, plan, finish, eval, pv, spend, you,
+social.
+
+### The audit is closed
+
+Every blocker and every "serious but survivable" item from
+`reviews/PANEL-04-the-six.html` is built, across 3W and 3X. Nothing from it is
+outstanding.
+
+### Still open — G's calls, items 13–20, none of them touched
+
+Act 0 making 26 tiles under a heading of 25 · only 11 of 89 ideas are free ·
+the sign-up sheet buried inside a form · backup without iCloud jargon ·
+send-to-one-person as the main road · recipients sharing a list with helpers ·
+the printed book's back-page names · the number on the card.
+
+These are design decisions, not defects. **Do not build any of them without a
+ruling.**
+
+---
+
 ## BUILD 3W — 8 September. The app can be used without sight.
 
 G ruled items 10, 11 and 12. **Nothing visual changed** — the date picker
