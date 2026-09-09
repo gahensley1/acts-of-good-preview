@@ -1239,7 +1239,7 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
     </div>
 
     <!-- BUILD MARK — dev only, delete this div when the app ships -->
-    <div id="buildtag">BUILD 3R</div>
+    <div id="buildtag">BUILD 3T</div>
   </div>
 </section>
 
@@ -1305,9 +1305,14 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
   <div class="field"><label>How did it go?</label>
     <div class="chips" id="done-out"></div></div>
 
-  <div class="field"><label>Anything worth remembering?</label>
-    <textarea id="done-note" aria-label="How did it go?" style="min-height:90px"
-      placeholder="A face, a thing someone said, what you'd do differently."></textarea>
+  <!-- One wording for one question, everywhere it is asked (G, 8 Sept). The
+       aria-label said "How did it go?" — the chips' question, not this one — so
+       anyone using the app by voice or with a screen reader was answering the
+       wrong question into this box. It now matches what is on the screen. The
+       grey example came out for the same reason it came out of the other sheet:
+       the box belongs to whoever is writing in it. -->
+  <div class="field"><label for="done-note">Anything you want to remember?</label>
+    <textarea id="done-note" style="min-height:90px"></textarea>
     <p class="note" style="margin-top:8px">This becomes the first line of the write-up.</p></div>
 
   <button class="btn" onclick="doneWrite()">Write it up now</button>
@@ -2228,7 +2233,7 @@ function serialise(){
                                 start:y.start||'', end:y.end||'', zero:y.zero||null,
                                 acts:y.acts||[] })),
     people:S.people, platforms:S.platforms,
-    started:S.started, letterSeen:!!S.letterSeen, bkup:S.bkup||'', bkupNag:S.bkupNag||'', bkupTold:S.bkupTold||'',
+    started:S.started, letterSeen:!!S.letterSeen, bkup:S.bkup||'', bkupNag:S.bkupNag||'', bkupAt:S.bkupAt||0, bkupToldAt:S.bkupToldAt||0,
     finShown:S.finShown?1:0, halfShown:S.halfShown?1:0, fin:S.fin||null, celLast:S.celLast||'', celBag:S.celBag||'', zero:S.zero||null, tabToured:!!S.tabToured, opens:S.opens||0, todoOpens:S.todoOpens||0, plans:slimPlans(), handles:S.handles||{}, places:S.places||{},
     works:(S.works||[]).map(w=>({ pid:w.pid, t:w.t||'', d:w.d||'', who:w.who||[], hon:w.hon||'',
                           cost:w.cost||0, spends:w.spends||[], story:w.story||'', exp:w.exp||'',
@@ -2329,7 +2334,8 @@ async function load(){
   if(isNaN(S.start.getTime())) S.start = new Date();          // "week NaN of 52"
   S.past = Array.isArray(o.past) ? o.past : [];
   S.people=o.people||[]; S.platforms=o.platforms||S.platforms;
-  S.started=!!o.started; S.letterSeen=!!o.letterSeen; S.bkup=o.bkup||''; S.bkupNag=o.bkupNag||''; S.bkupTold=o.bkupTold||'';
+  S.started=!!o.started; S.letterSeen=!!o.letterSeen; S.bkup=o.bkup||''; S.bkupNag=o.bkupNag||'';
+  S.bkupAt=o.bkupAt||0; S.bkupToldAt=o.bkupToldAt||0;
   S.finShown=o.finShown?1:0; S.halfShown=o.halfShown?1:0;
   /* which act moment came up last, so the next one is never the same. Named in
      BOTH halves on purpose: this file has shipped a one-sided field three
@@ -2534,7 +2540,13 @@ async function exportJournal(){
    says when the last one was, in words, and turns coral once it is stale or was
    never made at all. It is the only nagging in the app, and it only appears
    once there is something worth losing. */
-function backupMade(){ S.bkup = new Date().toISOString(); save(); drawBackupLine(); }
+function backupMade(){
+  S.bkup = new Date().toISOString();
+  /* the backup is the reset: nothing is at risk, and the count starts again
+     from here, so the bar does not arrive on the very next act */
+  S.bkupAt = S.bkupToldAt = (S.acts||[]).length + (S.works||[]).length;
+  save(); drawBackupLine();
+}
 
 function drawBackupLine(){
   const el = $('bkupwhen'); if(!el) return;
@@ -9054,6 +9066,12 @@ let GAPBAR_T = null;
      it waits for the halfway note and the finish to have their moment first
    STALE is thirty days. Never-backed-up counts as stale. */
 const BKUP_STALE_DAYS = 30, BKUP_QUIET_DAYS = 14;
+/* G, 8 Sept: "every third act." The reminder is tied to how much there is to
+   lose, not to the calendar — a fortnightly nag reaches the person who logged
+   one act this month exactly as often as the person who logged ten, and only
+   one of them has anything at risk. Counted in acts, it arrives when it is
+   earned and stops the moment a backup is made. */
+const BKUP_EVERY = 3;
 let BKUPBAR_SHOWN = false, BKUPBAR_T = null;
 
 function bkupAgeDays(){
@@ -9061,16 +9079,18 @@ function bkupAgeDays(){
   return t ? Math.floor((Date.now()-t)/86400000) : -1;   // -1 means never
 }
 function bkupDue(){
-  /* G, 8 Sept: "once we fire the toast on the main page, it's over." It is said
-     ONCE, ever — not once a fortnight — and after that the app never puts a bar
-     over the buttons again. What it must not do is stop caring: if the backup
-     still has not been made, the You screen says so in coral for as long as that
-     stays true, which is the reminder that has no cost to anybody. */
-  if(S.bkupTold) return false;
-  if((S.acts||[]).length + (S.works||[]).length < 2) return false;
-  const d = bkupAgeDays();
-  if(d >= 0 && d <= BKUP_STALE_DAYS) return false;
-  return true;
+  /* Two counts, both in acts, and both must be met:
+       sinceBackup — how much has been written since the last backup. This is
+         what would actually be lost, and backing up sets it to zero.
+       sinceTold — how much has been written since the bar last said anything,
+         so it cannot arrive twice for the same three acts.
+     Never backed up leaves bkupAt at 0, so sinceBackup is simply everything.
+     Nothing here is time-based on purpose: a year in which nothing was written
+     has nothing new to lose, and should be silent. */
+  const total = (S.acts||[]).length + (S.works||[]).length;
+  const sinceBackup = total - (S.bkupAt||0);
+  const sinceTold   = total - (S.bkupToldAt||0);
+  return sinceBackup >= BKUP_EVERY && sinceTold >= BKUP_EVERY;
 }
 function bkupBar(){
   const bar=$('bkupbar'); if(!bar || BKUPBAR_SHOWN) return;
@@ -9082,8 +9102,8 @@ function bkupBar(){
   const ac=$('actcf'); if(ac && ac.classList.contains('up')) return;
   if(!bkupDue()) return;
   BKUPBAR_SHOWN = true;
-  /* said once, and that is the end of it */
-  S.bkupTold = new Date().toISOString(); save();
+  /* remember the count it was said at, so the next one is three acts away */
+  S.bkupToldAt = (S.acts||[]).length + (S.works||[]).length; save();
   const d = bkupAgeDays();
   bar.querySelector('.msg').textContent = d < 0
     ? 'Nothing is backed up yet.'

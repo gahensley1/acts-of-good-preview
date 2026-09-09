@@ -17,6 +17,75 @@ entry below).
 
 ---
 
+## BUILD 3T — 8 September. The backup reminder is counted in acts.
+
+G: *"I think every third act."* This replaces the once-ever rule from 3P, which
+was an over-correction — the only thing actually wrong with the old bar was
+that it covered the tab labels, and that was fixed by moving it.
+
+**The rule now:** the bar arrives on Your year when **three acts have been
+written since the last backup**, and not again until three more. Making a
+backup resets it. Nothing is time-based any more — a year in which nothing was
+written has nothing new to lose and should be silent. `BKUP_EVERY = 3`.
+
+Two counts, both in acts, both stored:
+- `S.bkupAt` — the total at the last backup. `backupMade()` sets it.
+- `S.bkupToldAt` — the total when the bar last spoke, so it cannot arrive twice
+  for the same three acts.
+
+**Both are in `serialise()` AND in `load()`.** `S.bkupTold` from 3P is gone.
+
+**The You screen line is unchanged and stays.** It is not a nag, it is the
+answer to "when did I last do this?", and it reads in coral until a backup
+exists. G considered removing it and decided against.
+
+**Verified in the browser, not by reading:** silent at 1 and 2 acts, fires at 3,
+silent at 4 and 5, fires at 6, silent at 7; backing up at 7 then silent at 8 and
+9 and firing at 10. Relaunching at 3 acts does not fire it a second time.
+
+### Still open
+
+**The three outcome chips.** G was told what removing them costs — the journal
+page and the printed book both print a line off `a.out` when it is not "Went to
+plan". Unruled; they stay in all three places until he says.
+
+---
+
+## BUILD 3S — 8 September. One wording for one question.
+
+G: *"Bring them into line."* The follow-up sheet straight after an act said
+**"Anything worth remembering?"** — a near-miss of the wording settled in 3Q.
+It now reads **"Anything you want to remember?"**, the same as the
+post-evaluation sheet.
+
+**Two things fixed in the same field, both genuine defects:**
+- Its spoken label said *"How did it go?"* — the CHIPS' question, not this
+  box's. Anyone using the app by voice or with a screen reader was being asked
+  the wrong question. It now matches what is printed above it.
+- The grey example (*"A face, a thing someone said, what you'd do
+  differently."*) came out, for the same reason it came out of the other sheet.
+
+### NOT done, and it needs a ruling, because it has a consequence
+
+The three outcome chips — Went to plan / Partly / Didn't go to plan — still
+stand in three places: the follow-up sheet (`done-out`), the Write it up screen
+(`w-out`) and the log screen (`outchips`). **They are not decoration.** The act's
+`out` value is read in two rendering paths:
+
+- the journal page (~line 5120) prints *"It half went to plan, which is its own
+  kind of story."* / the didn't-go-to-plan equivalent
+- **the printed book** (~line 5972) prints the same line in italic
+
+So removing the chips everywhere would silently delete a line from the journal
+AND from the printed book. That is why 3Q removed them from the post-evaluation
+sheet only — that sheet never set anything the book reads that the other two
+do not also set. **Do not strip the rest without telling G what the book loses.**
+
+`#f-out` on the log screen is dead: `drawLog` hides it unconditionally
+(*"now asked afterwards"*). Left in place.
+
+---
+
 ## BUILD 3R — 8 September. The way out is an answer, not a surrender.
 
 G: *"maybe just say nothing to add instead of skip."* The second button on the
