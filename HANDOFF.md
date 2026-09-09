@@ -5,15 +5,22 @@ The skill carries the standing rules and the working method; this one carries
 what is true right now. When they disagree, this file is newer — say so and fix
 the skill.
 
-Last updated: **6 September 2026**.
-Build in G's hands: **3I** — pushed and live. **The sign-up sheet in it cannot
+Last updated: **8 September 2026**.
+Build in G's hands: **3R** — pushed and live, confirmed by fetching the site.
+**3T is built, committed and mirrored, waiting on a push.**
+
+**The two paragraphs that used to sit here were garbled and both were stale.**
+They said 3I was live and that the sign-up sheet could not publish until
+`npx wrangler deploy` was run from `aog-sheets`. On the Cloudflare account the
+`aog-sheets` Worker was last deployed **7 Sept 21:39 UTC**, four minutes after
+the last local edit to `worker.js` (7 Sept 21:35 UTC). **So the deploy almost
+certainly happened and the blocker is stale — but this was inferred from
+timestamps, not by reading the deployed code.** Confirm before relying on it.
 
 **Everything not yet decided lives in `OPEN.md`, written 7 September against 3F.**
 It is one file, it says who owns each item, and where a question was old enough
 to have gone stale it records whether it is still true and how that was checked.
 Read it before asking G anything.
-publish until `npx wrangler deploy` is run from `aog-sheets`** (see the CORS
-entry below).
 
 ---
 
