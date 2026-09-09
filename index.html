@@ -1239,7 +1239,7 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
     </div>
 
     <!-- BUILD MARK — dev only, delete this div when the app ships -->
-    <div id="buildtag">BUILD 3U</div>
+    <div id="buildtag">BUILD 3V</div>
   </div>
 </section>
 
@@ -2795,7 +2795,7 @@ const IDEAS = [
 
  // ── Neighbors ──
  {t:'Bake something for new neighbors',l:'Today',s:'An hour',c:'Neighbors',
-  d:"Wrap it, add a handwritten tag. Don't overthink the allergies, the welcome is the point.",
+  d:'Wrap it, and write what is in it on the tag. That takes ten seconds and the welcome is still the point.',
   why:"",tag:"",needs:[],art:''},
  {t:"Take a neighbor's trash and recycling out, and back",l:'Today',s:'An hour',c:'Neighbors',
   d:'Collection day, both directions. Small enough to repeat every week without asking.',
@@ -2979,9 +2979,9 @@ const IDEAS = [
  {t:'Plant a tree or a wildflower strip',l:'This weekend',s:'A weekend',c:'Mother Earth',
   d:'On the strip by the street you pass daily, so you get to watch it. Spring.',
   why:"",tag:"",needs:[],art:''},
- {t:'Tools, paint and lumber to a Habitat ReStore',l:'A week or two',s:'A weekend',c:'Mother Earth',
-  d:'Usable things headed for the dump become somebody’s kitchen instead.',
-  why:"it turns a full garage into somebody's house",tag:"",needs:["Hand tools","Unopened paint","Offcut lumber","Working power tools","Fittings and fixings"],art:''},
+ {t:'Tools and lumber to a Habitat ReStore',l:'A week or two',s:'A weekend',c:'Mother Earth',
+  d:'Usable things headed for the dump become somebody’s kitchen instead. Not paint \u2014 most ReStores cannot take it. Ring the store before you load the car.',
+  why:"it turns a full garage into somebody's house",tag:"",needs:["Hand tools","Offcut lumber","Working power tools","Fittings and fixings","Doors and cabinets"],art:''},
  {t:'Organize a free clothing swap',l:'Needs a month',s:'A village',c:'Mother Earth',
   d:'Everyone brings a bag, everyone leaves with a bag, the rest goes to a shelter, washed, pockets checked.',
   why:"good clothes get a second life instead of a landfill",tag:"Bring a bag. Leave with a bag.",needs:["A folding table or two","Hangers","A long mirror","Bags for what is left","A car for the shelter run"],art:''},
@@ -3035,7 +3035,7 @@ const IDEAS = [
   d:'Platelets take 2–3 hours and no aspirin for 48 hours first. January and summer are the shortages.',
   why:"",tag:"",needs:[],art:''},
  {t:'Organ donor register and marrow registry, same day',l:'Today',s:'An hour',c:'Causes & voice',
-  d:'Two forms, ten minutes, once in a lifetime.',
+  d:'The organ register is one form, ten minutes, online. The marrow registry posts you a cheek swab \u2014 18 to 40 to join, and you stay listed until 61.',
   why:"",tag:"",needs:[],art:''},
  {t:'Adopt one local cause for the whole stretch',l:'Needs a month',s:'A village',c:'Causes & voice',
   d:'Turning up four times beats turning up once at four places.',
@@ -3065,7 +3065,7 @@ const IDEAS = [
   d:"Check your employer's matching portal first, it can double you for free.",
   why:"",tag:"",needs:[],art:''},
  {t:'Register people to vote',l:'This weekend',s:'A weekend',c:'Causes & voice',
-  d:'Nonpartisan and legal everywhere, with rules that vary by state. Your county registrar has the real ones.',
+  d:'Handing out blank forms is legal everywhere. Collecting filled ones is not \u2014 Texas wants you deputised by the county first, Florida wants you registered. Your county registrar has the real rules.',
   why:"",tag:"",needs:[],art:''},
  {t:'A postcard party before voting day',l:'Needs a month',s:'A village',c:'Causes & voice',
   d:'Friends, stamps, a stack of postcards to folks who sat out the primaries. October, ahead of November.',
@@ -4240,8 +4240,13 @@ const FLOATERS = [
   {f:y=>{const th=nth(y,10,4,4); const p=new Date(th); p.setDate(th.getDate()-1); return p;},
    t:'The prep shift, not the day',
    b:'Thanksgiving Day shifts filled weeks ago. The day before is chopping, hauling and setting out chairs, and it is always short.'},
-  {f:y=>nth(y,11,6,2), t:'Wreaths Across America',
-   b:'Second Saturday of December. An hour in a cold cemetery, laying wreaths and reading names aloud. Sponsorships close in November.'}
+  /* NOT the second Saturday, and not the third: Wreaths Across America falls on
+     the Saturday between the 13th and the 19th of December, which has held every
+     year from 2016 to 2030. The old rule sent people to a cemetery a week early.
+     19 Dec is the latest it can be, so walk back from there to the Saturday. */
+  {f:y=>{ const d=new Date(y,11,19); d.setDate(19-((d.getDay()+1)%7)); return d; },
+   t:'Wreaths Across America',
+   b:'The Saturday between the 13th and the 19th. An hour in a cold cemetery, laying wreaths and reading names aloud. Sponsorship money has to reach them by the start of December, and your local cemetery often closes earlier \u2014 check in October.'}
 ];
 const OCCASIONS = [
   {m:0,  d:1,  t:'National Blood Donor Month',
@@ -4262,12 +4267,10 @@ const OCCASIONS = [
    b:'Anything involving children, hospitals or care homes needs clearing first. Apply in March and you can say yes all year.'},
   {m:3,  d:22, t:'Earth Day',
    b:'A litter pick bolted onto a walk you were taking anyway. Or coffee for the unpaid staff at a conservation charity.'},
-  {m:4,  d:1,  t:'Teacher Appreciation Week',
-   b:'First full week of May. Ask a teacher for their classroom wish list and buy the boring things on it, the ones nobody funds.'},
   {m:4,  d:6,  t:'Nurses Week',
    b:'6 to 12 May. Coffee for the night shift, sealed and arranged through the nurse manager. Nights are the ones nobody thanks.'},
-  {m:5,  d:1,  t:'Camp season',
-   b:'Camp fees and places are decided now. A place funded in June is a summer someone else could not have paid for.'},
+  {m:1,  d:1,  t:'Camp season',
+   b:'Fees and scholarship places are decided between January and March. By June they are allocated \u2014 a place funded in February is a summer someone else could not have paid for.'},
   {m:6,  d:1,  t:'The food bank trough',
    b:'School holidays are the demand peak and the donation low. July giving is worth more than December giving.'},
   {m:7,  d:1,  t:'Back to school',
@@ -4347,7 +4350,9 @@ function drawHome(){
   const wk=Math.min(S.weeks, Math.max(1, Math.ceil((Date.now()-S.start.getTime())/6.048e8)));
   const target=Math.round(S.n*wk/S.weeks), ahead=done-target;
   $('home-h2').textContent = 'Your ' + periodNoun();
-  $('home-sub').textContent='week '+wk+' of '+S.weeks;
+  /* the week was printed twice on this screen, in the header and again in the
+     pace card below it. The pace card keeps it; it is where the count lives. */
+  $('home-sub').textContent='';
   /* "0 of 25" on day one, one screen below a letter promising nobody is
      keeping score. It says what is true instead, and becomes the count the
      moment there is a count. */

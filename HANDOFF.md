@@ -24,6 +24,82 @@ Read it before asking G anything.
 
 ---
 
+## BUILD 3V — 8 September. Eight defects from the six-reviewer panel.
+
+G ruled items 1–8 of the list; the full panel is `reviews/PANEL-04-the-six.html`.
+
+**1. Wreaths Across America was a week early, every year.** The rule was
+`nth(y,11,6,2)` — second Saturday of December. It is neither the second nor the
+third: the date is **the Saturday falling between the 13th and the 19th**, which
+has held every year from 2016 to 2030. Now computed by walking back from 19 Dec
+to the Saturday. Verified: **19 Dec 2026, 18 Dec 2027, 16 Dec 2028, 15 Dec 2029,
+14 Dec 2030** — matching Wreaths Across America's own published dates. The
+advice line said "Second Saturday" and "sponsorships close in November"; it now
+gives the real rule and says money must reach them by the start of December,
+with local coordinators often earlier.
+
+**2. Teacher Appreciation Week was in the calendar twice** — correctly as a
+floater, and again wrongly pinned to a fixed 1 May with the same advice word for
+word. The fixed one is deleted. Verified: one entry remains.
+
+**3. Camp season moved from June to February.** Fees and scholarship places are
+decided January to March; by June they are allocated. The old entry fired four
+months after the decision it was about.
+
+**4–7. Four lines in the ideas library, all wrong, all rewritten:**
+- *"Two forms, ten minutes, once in a lifetime."* The marrow registry is not a
+  form — a cheek swab kit is posted to you — and it is **age-limited, 18 to 40**.
+  A large share of readers cannot join at all. Tagged *Today · An hour*, so it is
+  written to be acted on within the hour.
+- *"Nonpartisan and legal everywhere."* Handing out blank forms is legal
+  everywhere; **collecting completed ones is not** — Texas requires county
+  deputisation, Florida requires registering as an organisation.
+- *"Tools, paint and lumber to a Habitat ReStore."* **ReStores cannot accept
+  paint.** Removed from the title, the line and the `needs` list.
+- *"Don't overthink the allergies, the welcome is the point."* The only line in
+  89 telling a reader to set aside a safety consideration. Now says to write what
+  is in it on the tag.
+
+**8. The week was printed twice on the home screen** — in the header and again
+in the pace card. The header's copy is gone; the pace card keeps it. Verified:
+"week n of n" now appears once.
+
+### Two corrections to the panel's own findings — do not carry these forward
+
+- **Ruth reported the home screen showed the WRONG week** (acts dated April under
+  "week 1 of 52"). **She was wrong, and it was my fault.** The week is computed
+  from `S.start`, and in the packet I handed her `S.start` was today while the
+  acts carried April dates. The arithmetic is correct. Only the duplication was
+  real, and that is what 3V fixed.
+- **Hollis reported the calendar array was unterminated.** Also my packet — I cut
+  the extract at line 4292, mid-array. The file closes correctly.
+
+### Item 9 — RULED, and G was right
+
+Ruth called it a contradiction: the You screen says *"Everything is saved on this
+phone… Because it never leaves the phone, it can go with the phone"* and then
+tells you to put a backup in iCloud Drive.
+
+**G: "It's YOUR iCloud. I don't understand why that's a problem."** He is right
+and the finding is withdrawn. The promise is about what the APP does — it never
+uploads anything — and the backup is the person choosing to put their own file in
+their own cloud. Read in full, the sentence is not a contradiction at all, it is
+the *argument for* backing up: because we keep no copy, the phone is the single
+point of failure. Ruth read half a sentence. **Nothing to fix. Do not re-raise.**
+
+### Still open from the list G was given
+
+- **10–12, the ones that shut people out:** the date picker's day cells are not
+  buttons (a screen-reader user can log a year but cannot plan one); five date
+  buttons carry a hardcoded label that overrides the date they hold; eight back
+  buttons have no name. All three verified in the file. Unruled.
+- **13–20, G's calls:** act 0 making 26 tiles under a heading of 25; only 11 of
+  89 ideas are free; the sign-up sheet buried in a form; backup without iCloud
+  jargon; send-to-one-person as the main road; recipients sharing a list with
+  helpers; the printed book's back-page names; the number on the card.
+
+---
+
 ## BUILD 3U — 8 September. The app stops judging how an act went.
 
 G: *"We don't need that. We just ask if there's anything you want to remember.
