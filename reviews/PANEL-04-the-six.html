@@ -1,0 +1,293 @@
+<title>The Six On Build 3U</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap">
+<style>
+:root{
+  --gold:#E1BA52; --coral:#EA634F; --coralink:#C03F2B;
+  --ink:#141210; --paper:#ffffff; --mist:#F6F4F1;
+  --line:#E4E0DA; --muted:#665F57;
+  --ground:#EDE9E3; --panel:#ffffff; --rule:#DBD5CC; --good:#2E7D57; --bad:#B3261E;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ink:#F2EEE8; --ground:#17150F; --panel:#211E18; --rule:#39342B;
+    --muted:#A79E92; --good:#63C295; --bad:#F2837A; --mist:#2A251E; --line:#39342B;
+  }
+}
+:root[data-theme="dark"]{
+  --ink:#F2EEE8; --ground:#17150F; --panel:#211E18; --rule:#39342B;
+  --muted:#A79E92; --good:#63C295; --bad:#F2837A; --mist:#2A251E; --line:#39342B;
+}
+*{box-sizing:border-box}
+body{margin:0; background:var(--ground); color:var(--ink); line-height:1.55;
+  font-family:Montserrat,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  -webkit-font-smoothing:antialiased}
+.wrap{max-width:680px; margin:0 auto; padding:26px 18px 70px; display:flex; flex-direction:column; gap:32px}
+
+header{display:flex; flex-direction:column; gap:9px}
+.kicker{font-size:11px; letter-spacing:.17em; text-transform:uppercase; color:var(--muted); font-weight:600}
+h1{margin:0; font-size:28px; line-height:1.13; font-weight:700; text-wrap:balance; letter-spacing:-.015em}
+.stand{margin:0; color:var(--muted); font-size:14.5px; max-width:54ch}
+
+h2{margin:0; font-size:20px; font-weight:700; letter-spacing:-.01em; text-wrap:balance}
+section{display:flex; flex-direction:column; gap:14px}
+
+/* the urgent one */
+.alarm{background:var(--panel); border:1px solid var(--rule); border-left:4px solid var(--bad);
+       border-radius:12px; padding:16px 16px 15px; display:flex; flex-direction:column; gap:8px}
+.alarm .t{font-size:11px; letter-spacing:.13em; text-transform:uppercase; font-weight:700; color:var(--bad)}
+.alarm h3{margin:0; font-size:17px; font-weight:700; line-height:1.3}
+.alarm p{margin:0; font-size:14px}
+.dates{display:flex; gap:10px; flex-wrap:wrap; padding-top:3px}
+.d{flex:1 1 130px; background:var(--mist); border-radius:9px; padding:9px 11px}
+.d .lb{font-size:10px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); font-weight:700}
+.d .vl{font-size:16px; font-weight:700; font-variant-numeric:tabular-nums}
+.d.wrong .vl{color:var(--bad); text-decoration:line-through}
+.d.right .vl{color:var(--good)}
+
+/* verified table */
+.scroll{overflow-x:auto; border:1px solid var(--rule); border-radius:12px; background:var(--panel)}
+table{width:100%; border-collapse:collapse; font-size:13px}
+th,td{text-align:left; padding:10px 12px; border-bottom:1px solid var(--rule); vertical-align:top}
+th{font-size:10px; letter-spacing:.11em; text-transform:uppercase; color:var(--muted); font-weight:700; white-space:nowrap}
+tr:last-child td{border-bottom:0}
+td.v{color:var(--good); font-weight:700; white-space:nowrap}
+
+.note{border-left:3px solid var(--gold); padding:2px 0 2px 14px; display:flex; flex-direction:column; gap:6px}
+.note .t{font-size:11px; letter-spacing:.13em; text-transform:uppercase; font-weight:700; color:var(--muted)}
+.note p{margin:0; font-size:14px; max-width:56ch}
+
+/* agreement */
+.agree{display:flex; flex-direction:column; gap:10px}
+.arow{background:var(--panel); border:1px solid var(--rule); border-radius:11px; padding:13px 15px;
+      display:flex; gap:12px; align-items:flex-start}
+.who{flex:none; font-size:10.5px; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
+     color:var(--coralink); width:88px; padding-top:2px; line-height:1.35}
+.arow p{margin:0; font-size:13.5px}
+
+/* reviewer */
+.rev{background:var(--panel); border:1px solid var(--rule); border-radius:14px; overflow:hidden}
+.rhead{padding:15px 16px 12px; border-bottom:1px solid var(--rule); display:flex; flex-direction:column; gap:3px}
+.rname{font-size:17px; font-weight:700; line-height:1.25}
+.rrole{font-size:12.5px; color:var(--muted)}
+.verdict{display:inline-block; margin-top:7px; font-size:11px; font-weight:700; letter-spacing:.09em;
+         text-transform:uppercase; padding:4px 9px; border-radius:6px; align-self:flex-start}
+.verdict.no{background:#FBEAE6; color:var(--bad)}
+.verdict.part{background:#FDF3D8; color:#7A5A12}
+.verdict.spec{background:var(--mist); color:var(--muted)}
+.rbody{padding:14px 16px 16px; display:flex; flex-direction:column; gap:11px}
+.rbody p{margin:0; font-size:13.5px}
+.rbody b{font-weight:700}
+blockquote{margin:0; padding:10px 13px; background:var(--mist); border-radius:9px;
+           font-size:13.5px; font-style:italic; line-height:1.55}
+.five{margin:0; padding-left:20px; display:flex; flex-direction:column; gap:5px; font-size:13px}
+.five li::marker{color:var(--coralink); font-weight:700}
+.lab{font-size:10.5px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); font-weight:700}
+.good{border-top:1px solid var(--rule); padding-top:11px; font-size:13px; color:var(--muted)}
+.good b{color:var(--ink)}
+
+ol.first{margin:0; padding-left:20px; display:flex; flex-direction:column; gap:8px; font-size:14px}
+ol.first::marker{font-weight:700}
+ol.first b{font-weight:700}
+
+footer{border-top:1px solid var(--rule); padding-top:16px; color:var(--muted); font-size:12.5px}
+footer b{color:var(--ink)}
+</style>
+
+<div class="wrap">
+
+  <header>
+    <div class="kicker">Six reviewers &middot; build 3U &middot; 8 September 2026</div>
+    <h1>The six, run separately</h1>
+    <p class="stand">None of them saw the app at the same time as another. None saw another&rsquo;s notes. None knew who else was looking. That is the whole point, and it is why the places they agree are worth something.</p>
+  </header>
+
+  <section>
+    <h2>Fix this one first</h2>
+    <div class="alarm">
+      <div class="t">Wrong, checked, and it puts somebody in the wrong place</div>
+      <h3>The app sends people to Wreaths Across America a week early. Every year.</h3>
+      <p>It is set to the second Saturday of December. The real day is the Saturday between the 13th and the 19th &mdash; it has been, every year from 2016 to 2030.</p>
+      <div class="dates">
+        <div class="d wrong"><div class="lb">What the app says</div><div class="vl">12 Dec 2026</div></div>
+        <div class="d right"><div class="lb">The actual day</div><div class="vl">19 Dec 2026</div></div>
+      </div>
+      <p>Somebody stands in a cold cemetery seven days before anyone else arrives. And the advice under it says sponsorships close in November &mdash; but the entry does not appear until December, after its own deadline has gone.</p>
+      <p><b>It is one line.</b></p>
+    </div>
+  </section>
+
+  <section>
+    <h2>Four claims I checked in your file</h2>
+    <div class="scroll">
+      <table>
+        <thead><tr><th>What they said</th><th></th></tr></thead>
+        <tbody>
+          <tr><td>The date picker&rsquo;s day cells are not buttons</td><td class="v">true</td></tr>
+          <tr><td>Five date buttons say &ldquo;pick a date&rdquo; forever, whatever date they hold</td><td class="v">true</td></tr>
+          <tr><td>Eight back buttons whose whole name is &ldquo;&lsquo;&rdquo;</td><td class="v">true</td></tr>
+          <tr><td>Wreaths Across America fires a week early</td><td class="v">true</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="note">
+      <div class="t">One alarm was mine, not the app&rsquo;s</div>
+      <p>The calendar expert reported the file ends broken. That is because I cut the extract off mid-list when I handed it to him. <b>Your file is fine.</b> Discount it.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>Three things they hit without conferring</h2>
+    <p class="stand">These are the ones to trust most &mdash; nobody could have been echoing anybody.</p>
+    <div class="agree">
+      <div class="arow"><div class="who">Eileen<br>Kayla<br>Ruth</div>
+        <p><b>The clock on the home screen.</b> &ldquo;week 1 of 52&rdquo; printed twice on one screen, over acts dated April, under a month reading September. All three stopped on it separately.</p></div>
+      <div class="arow"><div class="who">Eileen<br>Ruth</div>
+        <p><b>Twenty-six tiles under a heading that says 25.</b> Act 0 sits in the grid and nothing on that screen says what it is. Eileen counted them twice with her finger on the glass.</p></div>
+      <div class="arow"><div class="who">Eileen<br>Kayla</div>
+        <p><b>Posting is the main road; sending it to one person is the footnote.</b> Last, smallest, after everything else &mdash; and the only route either of them would ever use.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Each of them</h2>
+
+    <div class="rev">
+      <div class="rhead">
+        <div class="rname">Eileen Prosser, 68</div>
+        <div class="rrole">Does more for people than anyone on the panel. Would be locked out in a week.</div>
+        <span class="verdict no">Would not keep using it</span>
+      </div>
+      <div class="rbody">
+        <p>Stopped on the first screen &mdash; four numbers before she had done anything, two of them the same thing twice. Then the backup page: <i>&ldquo;Choose Save to Files and put it in iCloud Drive&rdquo;</i>, sitting above a coral line saying the year will be lost if she doesn&rsquo;t. <b>She does not know what Files is.</b></p>
+        <p>The app tells her she will lose everything, then gives instructions she cannot follow. That is the screen she puts the phone down on and waits for her son.</p>
+        <div class="lab">Her five</div>
+        <ol class="five">
+          <li>Backup that never mentions iCloud &mdash; email it to herself or her son</li>
+          <li>Send-to-one-person as the main road, posting as the alternative</li>
+          <li>Fix the 0 tile, or say on that screen what it is</li>
+          <li>Say each number once, and cut &ldquo;plenty of room&rdquo;</li>
+          <li>Every time the app says save or share, say <b>where it goes</b></li>
+        </ol>
+        <blockquote>&ldquo;A number like twenty-five stops being a promise and turns into a debt the moment you show it to me as a grid of empty squares with a running score at the top. I cooked for Nancy every Tuesday for eleven years without counting once.&rdquo;</blockquote>
+        <blockquote>&ldquo;I have never in my life called what I do &lsquo;acts of good&rsquo;, and if my daughter-in-law saw that phrase on my phone with my name attached to it I would want the ground to open.&rdquo;</blockquote>
+        <div class="good"><b>What she loved:</b> the ideas list, which she would read for pleasure. And &ldquo;In honor of&rdquo; &mdash; <i>&ldquo;my Don has been gone two years and there is not another app on this phone that has made room for him.&rdquo;</i></div>
+      </div>
+    </div>
+
+    <div class="rev">
+      <div class="rhead">
+        <div class="rname">Kayla Ocampo, 19</div>
+        <div class="rrole">Runs a food drive off a group chat. Broke, permanently.</div>
+        <span class="verdict no">Would not use it</span>
+      </div>
+      <div class="rbody">
+        <p><b>She went through all 89 ideas and found eleven she can do for free.</b> The rest have a receipt attached &mdash; doughnuts, pastries, adoption fees, gift cards <i>kept in the car</i> (she has no car), a stepladder, a monthly standing gift.</p>
+        <p>So she runs out of things she can afford at <b>act 11 of 25</b>, and looks at fourteen empty tiles for the rest of the year.</p>
+        <blockquote>&ldquo;That&rsquo;s not a nudge, that&rsquo;s a bill.&rdquo;</blockquote>
+        <p><b>On the card:</b> <i>&ldquo;It&rsquo;s a plaque.&rdquo;</i> A retirement gift. And it is generated <i>for</i> her &mdash; the app makes the trophy, she supplies the act. Anonymous mode posts only the card, which she called exactly backwards: the numbered trophy with the evidence stripped out.</p>
+        <div class="lab">Her five</div>
+        <ol class="five">
+          <li>A real free-only filter, with honest costs on every idea</li>
+          <li>Kill &ldquo;act 2 of 25&rdquo; from the card, or let her turn it off</li>
+          <li>Make the sign-up sheet the front door, not a paragraph inside a form</li>
+          <li>A letter written for somebody who isn&rsquo;t fifty</li>
+          <li>Let the card be ugly &mdash; no script, no balloon, no gold</li>
+        </ol>
+        <blockquote>&ldquo;The single best thing in here &mdash; a shareable list where people claim one of the things you need, nothing to sign up to &mdash; is buried in a form field. If you rebuilt the whole app around that one sentence I&rsquo;d use it on Monday.&rdquo;</blockquote>
+        <div class="good">Two of the ideas &mdash; fund a classroom wish list, clear a school&rsquo;s lunch balances &mdash; she was on the receiving end of five years ago.</div>
+      </div>
+    </div>
+
+    <div class="rev">
+      <div class="rhead">
+        <div class="rname">Desmond Iyer, 37</div>
+        <div class="rrole">Blind. Screen reader. Went through it by ear and by keyboard.</div>
+        <span class="verdict part">Can log a year. Cannot plan one.</span>
+      </div>
+      <div class="rbody">
+        <p>The spine works &mdash; setup, the letter, act 0, log it, write it up, the card, the caption. It breaks at <b>the date</b>, and the date is the entire planning half of the app.</p>
+        <div class="lab">What stops him</div>
+        <ol class="five">
+          <li><b>The date picker has no controls in it.</b> The days are not buttons. Selected is a colour; today is a border. The only date he can set is &ldquo;Today&rdquo;.</li>
+          <li><b>Every date button says the wrong thing, permanently.</b> It reads &ldquo;pick a date&rdquo; whether empty or set to next March &mdash; so he cannot read back a date already in his own journal.</li>
+          <li>Eight back buttons with no name at all</li>
+          <li>The month calendar is a wall of numbers &mdash; done, planned and today are three colours and no words</li>
+        </ol>
+        <blockquote>&ldquo;Do one and two and I&rsquo;ll use this. I mean that literally. Right now I could log it. I just couldn&rsquo;t plan it.&rdquo;</blockquote>
+        <div class="good"><b>He went out of his way on what works:</b> the 25 tiles are real buttons whose labels say their state in words. Screens announce themselves. Sheets handle focus properly. The dialogs are textbook. And <b>the card is live text, not a picture &mdash; he can read his own card, and it should never be flattened into an image.</b></div>
+      </div>
+    </div>
+
+    <div class="rev">
+      <div class="rhead">
+        <div class="rname">Ruth Kinnaird, 55</div>
+        <div class="rrole">Checked 23 claims in the ideas library. Thirteen findings.</div>
+        <span class="verdict spec">Content audit</span>
+      </div>
+      <div class="rbody">
+        <div class="lab">The three that would embarrass somebody</div>
+        <ol class="five">
+          <li><b>The organ donor / marrow line is wrong in every clause.</b> The marrow registry is not a form &mdash; a swab kit is posted to you. It is <b>age-limited, 18 to 40</b>. And it is not once in a lifetime. It is tagged <i>Today &middot; An hour</i>, so it is written to be acted on within the hour.</li>
+          <li><b>&ldquo;Registering voters is nonpartisan and legal everywhere.&rdquo;</b> The legal-everywhere half is the untrue half. Texas requires county deputisation to handle completed forms; Florida requires registering as an organisation, with real fines.</li>
+          <li><b>&ldquo;Tools, paint and lumber to a Habitat ReStore.&rdquo;</b> ReStores cannot accept paint. The reader loads the car before they find out.</li>
+        </ol>
+        <p>And one she would not ship on principle: <b>&ldquo;Don&rsquo;t overthink the allergies, the welcome is the point.&rdquo;</b> The only line in 89 that tells a reader to set aside a safety consideration.</p>
+        <p><b>Nineteen consistency findings.</b> The worst: the You screen promises <i>&ldquo;Nothing leaves it&rdquo;</i> and forty words later tells you to put it in iCloud Drive. Three screens are all headed <b>Plan &amp; Log</b>. And &ldquo;Read Jessica&rsquo;s letter again&rdquo; names her, which your own rule says never travels into anybody&rsquo;s copy.</p>
+        <div class="good"><b>Where she says the writing is genuinely good</b> &mdash; and she is not generous by default: <i>&ldquo;Dignity travels in small denominations.&rdquo;</i> &middot; <i>&ldquo;&lsquo;You are great&rsquo; evaporates, &lsquo;the way you handled June&rsquo; does not.&rdquo;</i> &middot; and on screen, <i>&ldquo;This is the journal entry. The post comes out of it, not the other way round&rdquo;</i> &mdash; which she called the clearest sentence in the product.</div>
+      </div>
+    </div>
+
+    <div class="rev">
+      <div class="rhead">
+        <div class="rname">Priya Raghunathan, 43</div>
+        <div class="rrole">What happens after the post goes up.</div>
+        <span class="verdict spec">The social read</span>
+      </div>
+      <div class="rbody">
+        <blockquote>&ldquo;The number creates demand for recipients, and nobody has asked what it is like to be the supply.&rdquo;</blockquote>
+        <p>By September, somebody who is behind does not look for the greatest need. They look for the <b>nearest</b> one &mdash; a friend, a neighbour, an older relative. Help that arrives in a cluster at the end of a quarter reads as administrative, and people can feel the difference.</p>
+        <p><b>The structural error:</b> helpers and helped share one list. The People screen holds &ldquo;everyone who&rsquo;s been part of an act&rdquo;, tagging draws from it, so the person you helped ends up beside the friend who came along, with the whole app pointed at getting their handle onto a post. <b>They must not share a list.</b> That one fix makes several others unnecessary.</p>
+        <blockquote>&ldquo;Ray took ten seconds to say yes to his bins going out. He did not say yes to being on page 114 of a book.&rdquo;</blockquote>
+        <div class="lab">Her five</div>
+        <ol class="five">
+          <li>Recipients get their own field, and never enter People or tagging</li>
+          <li>Anonymity becomes a property of the act, chosen at planning &mdash; and carries into the printed book</li>
+          <li>Split the sign-up sheet: &ldquo;I&rsquo;m organising&rdquo; and &ldquo;this is for someone&rdquo; behave nothing alike</li>
+          <li>Count the asks. Warn at the third with no yes. Let a decline leave no trace</li>
+          <li>Say once, on the home screen, that an empty tile is fine</li>
+        </ol>
+        <div class="good"><b>Where she says publicness genuinely works:</b> the acts where being seen <i>is</i> the good &mdash; a review, an email to a principal cc&rsquo;ing the teacher. Act 0 as a commitment device. And the private send offered at equal weight on the posting screen, which she called a real piece of moral design.</div>
+      </div>
+    </div>
+
+    <div class="rev">
+      <div class="rhead">
+        <div class="rname">Hollis Wray</div>
+        <div class="rrole">The calendar. Six of eight floating dates compute correctly.</div>
+        <span class="verdict spec">Calendar audit</span>
+      </div>
+      <div class="rbody">
+        <p><b>Beyond the Wreaths date:</b> Teacher Appreciation Week is in there twice &mdash; once correctly as a floating week, once wrongly pinned to a fixed 1 May with the same advice word for word. And <b>Camp season is four months late</b>: pinned to June, when fees and scholarship places close January to March.</p>
+        <p><b>Nothing religious is in the calendar at all.</b> Each kind needs different machinery &mdash; Ramadan and Eid must be computed and shown as provisional; Rosh Hashanah and Yom Kippur can be exact but begin at sundown the evening before; Diwali cannot be ruled and needs a table; Easter is ten lines of arithmetic. He supplied 2026 and 2027 dates for all of them.</p>
+        <p><b>His most valuable point is not a date.</b> The calendar fires on the day of the event, when the thing a person has to do &mdash; register, apply, sponsor, get cleared &mdash; happened weeks earlier. He rewrote the lead time for eighteen entries.</p>
+        <blockquote>The single highest-value change: <b>&ldquo;Background checks take weeks&rdquo; should fire twice a year, in January and July</b> &mdash; because everything it unlocks has an autumn intake.</blockquote>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>What I would do first</h2>
+    <ol class="first">
+      <li><b>The Wreaths date.</b> Wrong, checked, and the only finding that puts somebody somewhere on the wrong day. One line.</li>
+      <li><b>The date picker&rsquo;s days become buttons.</b> Unlocks the whole planning half of the app for anyone using a screen reader. Twenty minutes.</li>
+      <li><b>The five date buttons stop lying about the date they hold.</b> Three lines, fixes every date field at once.</li>
+      <li><b>The three wrong claims in the ideas</b> &mdash; marrow registry, voter registration, ReStore paint &mdash; and the allergies line.</li>
+      <li><b>The home screen clock</b>, which three of them stopped on separately.</li>
+    </ol>
+  </section>
+
+  <footer>
+    <div>Nothing is built from this yet. Say which, by number, and I&rsquo;ll start.</div>
+  </footer>
+
+</div>
