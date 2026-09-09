@@ -628,13 +628,21 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
 /* Above the sheets. At z-index 60 it tied with them and lost on DOM order, so
    the Undo button was visible and unpressable — and during setup the tap landed
    on "Start" underneath it, ending onboarding instead of undoing the delete. */
-#undobar,#gapbar,#bkupbar,#claimbar{position:fixed;left:50%;bottom:calc(72px + env(safe-area-inset-bottom));
+#undobar,#gapbar,#claimbar{position:fixed;left:50%;bottom:calc(72px + env(safe-area-inset-bottom));
   transform:translate(-50%,140%);z-index:79;background:var(--ink);color:#fff;
   border-radius:12px;padding:11px 14px;display:flex;align-items:center;gap:14px;
   width:max-content;max-width:min(92vw,420px);box-shadow:0 8px 24px rgba(0,0,0,.28);
   transition:transform .22s cubic-bezier(.2,.8,.3,1);
   /* parked off screen it was still catching taps meant for the button beneath it */
   pointer-events:none;visibility:hidden}
+/* 1, G: the backup toast fires once on Your year and then it is over. The one
+   time it does appear it must not sit on the tab labels — every one of the seven
+   testers hit that, on every screen. The tab bar is 88px, so it clears it. */
+#bkupbar{position:fixed;left:50%;bottom:calc(104px + env(safe-area-inset-bottom));
+  transform:translate(-50%,180%);z-index:79;background:var(--ink);color:#fff;
+  border-radius:12px;padding:11px 14px;display:flex;align-items:center;gap:14px;
+  width:max-content;max-width:min(92vw,420px);box-shadow:0 8px 24px rgba(0,0,0,.28);
+  transition:transform .22s cubic-bezier(.2,.8,.3,1);pointer-events:none;visibility:hidden}
 #undobar.up,#gapbar.up,#bkupbar.up,#claimbar.up{transform:translate(-50%,0);pointer-events:auto;visibility:visible}
 #undobar .msg,#gapbar .msg,#bkupbar .msg,#claimbar .msg{font-size:13.5px}
 /* the same bar, so the same action colour Undo uses */
@@ -1231,7 +1239,7 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
     </div>
 
     <!-- BUILD MARK — dev only, delete this div when the app ships -->
-    <div id="buildtag">BUILD 3N</div>
+    <div id="buildtag">BUILD 3R</div>
   </div>
 </section>
 
@@ -1457,7 +1465,7 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
     <div class="body" id="letter-body">
       <p>In April of 2026, I turned fifty and wanted to mark the year in a meaningful way. So, I took on a challenge: Fifty Acts of Good in Year 50. To hold myself accountable, I logged each act and shared it on social media, hoping others might see a simple gesture of kindness and think, &ldquo;Oh, I could do that.&rdquo;</p>
       <p>I quickly realized that the acts themselves were only part of the story. They became a catalyst for spending time with the people I love, whether baking for new neighbors, volunteering alongside friends, or tackling projects with family. Along the way, I kept a journal filled with ideas, notes, expenses, and memories.</p>
-      <p>This is the framework of that journal, designed to help you track your own journey and create a record of the good you put into the world. No one is keeping score. Choose a number that feels right for your life and begin when you&rsquo;re ready.</p>
+      <p>This is the framework of that journal, designed to help you track your own journey and create a record of the good you put into the world. Choose a number that feels right for your life and begin when you&rsquo;re ready.</p>
       <p class="ask">What good can you spread?</p>
     </div>
     <!-- Her actual signature, traced from her pen on 29 Aug 2026 — not a font
@@ -1471,7 +1479,7 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
 <!-- ══════════ LOG ══════════ -->
 <section id="s-log" class="hide" role="main" aria-label="Plan and log an act">
   <div class="top"><button class="back" onclick="go('home')">‹</button>
-    <h2 id="log-h2">Log an act</h2><div class="sub" id="log-no"></div></div>
+    <h2 id="log-h2">Plan &amp; Log</h2><div class="sub" id="log-no"></div></div>
   <div class="wrap">
     <div class="field"><label id="l-titlelab">What did you do?</label>
       <input id="l-title" aria-label="What did you do?" oninput="saveDraft()" placeholder="Doughnuts for the vet clinic staff"></div>
@@ -1529,7 +1537,7 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
      posting. The grid below on Home is the finished year only. -->
 <section id="s-works" class="hide" role="main" aria-label="Plan and log your acts">
   <div class="top"><button class="back" onclick="go('home')">‹</button>
-    <h2>Plan it, log it</h2><div class="sub" id="works-sub"></div></div>
+    <h2>Plan &amp; Log</h2><div class="sub" id="works-sub"></div></div>
   <div class="wrap">
     <button class="btn" style="margin-top:0" onclick="startWork()">Start a new act</button>
     <h3 class="seth" id="works-h" style="margin:20px 0 10px">Acts in the works</h3>
@@ -1539,7 +1547,7 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
 
 <section id="s-work" class="hide" role="main" aria-label="An act in the works">
   <div class="top"><button class="back" onclick="go('works')">‹</button>
-    <h2>In the works</h2><div class="sub" id="wk-sub"></div></div>
+    <h2>Plan &amp; Log</h2><div class="sub" id="wk-sub"></div></div>
   <div class="wrap">
     <div class="field"><label for="wk-t">The act <span style="text-transform:none;font-weight:400">(journal page &amp; post title)</span></label>
       <input id="wk-t" oninput="wkEdited()" placeholder="Doughnuts for the vet clinic staff"></div>
@@ -1625,12 +1633,10 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
      the next open), whose answers write straight into the journal. Asked once. -->
 <div class="sheet hide" id="sheet-eval" role="dialog" aria-modal="true"><div class="panel">
   <h3 id="ev-h3">About act 21&hellip;</h3>
-  <div class="field" style="margin-top:14px"><label>How did it go?</label>
-    <div class="chips" id="ev-out"></div></div>
-  <div class="field"><label for="ev-note">A line for the journal <span style="text-transform:none;font-weight:400">(optional)</span></label>
-    <textarea id="ev-note" style="min-height:76px" placeholder="They said thanks and went back inside, which was plenty&hellip;"></textarea></div>
+  <div class="field" style="margin-top:14px"><label for="ev-note">Anything you want to remember? <span style="text-transform:none;font-weight:400">(optional)</span></label>
+    <textarea id="ev-note" style="min-height:76px"></textarea></div>
   <button class="btn" onclick="evalDone(true)">Into the journal</button>
-  <button class="btn ghost" style="margin-top:10px" onclick="evalDone(false)">Skip</button>
+  <button class="btn ghost" style="margin-top:10px" onclick="evalDone(false)">Nothing to add</button>
   <p class="note" style="margin-top:10px">Asked once, never twice. Everything stays editable on the act forever.</p>
 </div></div>
 
@@ -2222,7 +2228,7 @@ function serialise(){
                                 start:y.start||'', end:y.end||'', zero:y.zero||null,
                                 acts:y.acts||[] })),
     people:S.people, platforms:S.platforms,
-    started:S.started, letterSeen:!!S.letterSeen, bkup:S.bkup||'', bkupNag:S.bkupNag||'',
+    started:S.started, letterSeen:!!S.letterSeen, bkup:S.bkup||'', bkupNag:S.bkupNag||'', bkupTold:S.bkupTold||'',
     finShown:S.finShown?1:0, halfShown:S.halfShown?1:0, fin:S.fin||null, celLast:S.celLast||'', celBag:S.celBag||'', zero:S.zero||null, tabToured:!!S.tabToured, opens:S.opens||0, todoOpens:S.todoOpens||0, plans:slimPlans(), handles:S.handles||{}, places:S.places||{},
     works:(S.works||[]).map(w=>({ pid:w.pid, t:w.t||'', d:w.d||'', who:w.who||[], hon:w.hon||'',
                           cost:w.cost||0, spends:w.spends||[], story:w.story||'', exp:w.exp||'',
@@ -2323,7 +2329,7 @@ async function load(){
   if(isNaN(S.start.getTime())) S.start = new Date();          // "week NaN of 52"
   S.past = Array.isArray(o.past) ? o.past : [];
   S.people=o.people||[]; S.platforms=o.platforms||S.platforms;
-  S.started=!!o.started; S.letterSeen=!!o.letterSeen; S.bkup=o.bkup||''; S.bkupNag=o.bkupNag||'';
+  S.started=!!o.started; S.letterSeen=!!o.letterSeen; S.bkup=o.bkup||''; S.bkupNag=o.bkupNag||''; S.bkupTold=o.bkupTold||'';
   S.finShown=o.finShown?1:0; S.halfShown=o.halfShown?1:0;
   /* which act moment came up last, so the next one is never the same. Named in
      BOTH halves on purpose: this file has shipped a one-sided field three
@@ -6255,17 +6261,18 @@ function ripenWords(w){
    answered, and the note writes straight into the story — which IS the
    journal page. */
 let EVAL_ACT=null;
-/* Act 0 is a declaration, not an outing. "About act 0… How did it go? Went to
-   plan / Partly / Didn't go to plan" is the app asking whether deciding
-   something went to plan. */
+/* Act 0 is a declaration, not an outing, so it is never asked about.
+   G, 8 Sept: the three outcome chips are gone from this sheet. It asks ONE
+   question now — "Anything you want to remember?" — and the answer goes
+   straight into the journal. This OVERTURNS the older ruling that kept "How
+   did it go?" here. The same question still stands on the follow-up sheet
+   (#sheet-done) and on the log screen (#f-out); neither was asked about. */
 function askEval(a){
   if(arguments[0] && (arguments[0].zero || arguments[0].fin)) return;
   if(!a || a.evalAsked) return;
   EVAL_ACT=a;
   const tt=(a.t||'').toLowerCase();
   $('ev-h3').textContent='About act '+a.no+(tt?', '+(tt.length>34?tt.slice(0,34).trimEnd():tt):'')+'\u2026';
-  chips($('ev-out'),['Went to plan','Partly',"Didn't go to plan"],
-        ()=>a.out||'', v=>{ a.out=v; save(); });   // no default: nothing claimed until she says it
   $('ev-note').value='';
   sheet('eval');
 }
@@ -7405,7 +7412,10 @@ function logMode(){
                                        : 'Complete this act';
   if(save2) save2.classList.toggle('hide', future);
   if(save2) save2.textContent = 'Save it, write it up later';
-  if(head)  head.textContent  = future ? 'Plan an act' : 'Log an act';
+  /* 5, G: one name for one screen. The tab, this screen and the act all say
+     the same thing now, so a plan and a log no longer arrive under two
+     different titles. */
+  if(head)  head.textContent  = 'Plan \u0026 Log';
   /* a plan hasn't happened yet, so the past-tense fields step aside */
   const t=$('l-titlelab'), w=$('l-wholab');
   if(t) t.textContent = future ? 'What are you thinking?' : 'What did you do?';
@@ -9051,11 +9061,15 @@ function bkupAgeDays(){
   return t ? Math.floor((Date.now()-t)/86400000) : -1;   // -1 means never
 }
 function bkupDue(){
+  /* G, 8 Sept: "once we fire the toast on the main page, it's over." It is said
+     ONCE, ever — not once a fortnight — and after that the app never puts a bar
+     over the buttons again. What it must not do is stop caring: if the backup
+     still has not been made, the You screen says so in coral for as long as that
+     stays true, which is the reminder that has no cost to anybody. */
+  if(S.bkupTold) return false;
   if((S.acts||[]).length + (S.works||[]).length < 2) return false;
   const d = bkupAgeDays();
   if(d >= 0 && d <= BKUP_STALE_DAYS) return false;
-  const said = S.bkupNag ? Date.parse(S.bkupNag) : 0;
-  if(said && (Date.now()-said)/86400000 < BKUP_QUIET_DAYS) return false;
   return true;
 }
 function bkupBar(){
@@ -9068,7 +9082,8 @@ function bkupBar(){
   const ac=$('actcf'); if(ac && ac.classList.contains('up')) return;
   if(!bkupDue()) return;
   BKUPBAR_SHOWN = true;
-  S.bkupNag = new Date().toISOString(); save();
+  /* said once, and that is the end of it */
+  S.bkupTold = new Date().toISOString(); save();
   const d = bkupAgeDays();
   bar.querySelector('.msg').textContent = d < 0
     ? 'Nothing is backed up yet.'

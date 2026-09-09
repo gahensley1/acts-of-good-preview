@@ -1,0 +1,299 @@
+<title>The Shrug and the Score</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap">
+<style>
+:root{
+  --gold:#E1BA52; --coral:#EA634F; --coralink:#C03F2B;
+  --ink:#141210; --paper:#ffffff; --mist:#F6F4F1;
+  --line:#E4E0DA; --muted:#665F57;
+  --ground:#EDE9E3; --panel:#ffffff; --rule:#DBD5CC;
+  --good:#2E7D57;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ink:#F2EEE8; --ground:#17150F; --panel:#211E18;
+    --rule:#39342B; --muted:#A79E92; --good:#63C295;
+  }
+}
+:root[data-theme="dark"]{
+  --ink:#F2EEE8; --ground:#17150F; --panel:#211E18;
+  --rule:#39342B; --muted:#A79E92; --good:#63C295;
+}
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--ground); color:var(--ink);
+  font-family:Montserrat,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  -webkit-font-smoothing:antialiased; line-height:1.5;
+}
+.wrap{max-width:660px; margin:0 auto; padding:26px 18px 64px; display:flex; flex-direction:column; gap:36px}
+
+header{display:flex; flex-direction:column; gap:9px}
+.kicker{font-size:11px; letter-spacing:.17em; text-transform:uppercase; color:var(--muted); font-weight:600}
+h1{margin:0; font-size:27px; line-height:1.16; font-weight:700; text-wrap:balance; letter-spacing:-.015em}
+.stand{margin:0; color:var(--muted); font-size:14.5px; max-width:52ch}
+
+/* settled strip */
+.settled{display:flex; flex-direction:column; gap:0; border:1px solid var(--rule);
+         border-radius:12px; background:var(--panel); overflow:hidden}
+.settled .sh{font-size:11px; letter-spacing:.14em; text-transform:uppercase; font-weight:700;
+             color:var(--good); padding:12px 15px 9px}
+.srow{display:flex; gap:11px; padding:9px 15px; border-top:1px solid var(--rule); align-items:baseline}
+.srow .sk{flex:none; font-size:12px; font-weight:700; color:var(--good); width:34px;
+          font-variant-numeric:tabular-nums}
+.srow .sv{font-size:13.5px; line-height:1.45}
+.srow .sv i{color:var(--muted); font-style:normal}
+
+.item{display:flex; flex-direction:column; gap:16px}
+.itemhead{display:flex; gap:12px; align-items:baseline}
+.num{font-size:13px; font-weight:700; color:var(--coralink); flex:none; font-variant-numeric:tabular-nums}
+h2{margin:0; font-size:19.5px; font-weight:700; line-height:1.25; letter-spacing:-.01em; text-wrap:balance}
+.said{margin:0; color:var(--muted); font-size:14px; max-width:56ch}
+.said b{color:var(--ink); font-weight:600}
+.you{margin:0; font-size:14px; max-width:56ch; border-left:3px solid var(--gold); padding-left:13px;
+     color:var(--ink)}
+.you span{display:block; font-size:11px; letter-spacing:.13em; text-transform:uppercase;
+          color:var(--muted); font-weight:700; padding-bottom:4px}
+
+.screens{display:flex; flex-wrap:wrap; gap:14px}
+.screen{flex:1 1 240px; min-width:236px; display:flex; flex-direction:column}
+.slab{font-size:11px; letter-spacing:.12em; text-transform:uppercase; font-weight:600;
+      color:var(--muted); padding-bottom:7px}
+.phone{background:var(--paper); border:1px solid var(--rule);
+       border-radius:16px; overflow:hidden; box-shadow:0 1px 2px rgba(0,0,0,.05)}
+.phbody{padding:15px 15px 17px; display:flex; flex-direction:column; gap:11px; color:#141210}
+
+.jtitle{font-size:9.5px; letter-spacing:.15em; text-transform:uppercase; color:#8B837A; font-weight:600}
+.jact{font-size:15px; font-weight:700; line-height:1.25}
+.box{border:1px solid var(--line); border-radius:8px; padding:9px 10px; min-height:54px;
+     font-size:13px; color:#B4ADA4; line-height:1.5}
+.box.bad{color:var(--coralink); background:#FBEAE6; border-color:#F2CFC7}
+.btns{display:flex; gap:8px}
+.b1{flex:1; text-align:center; background:var(--coral); color:#fff; border-radius:9px;
+    padding:9px; font-size:13px; font-weight:600}
+.b2{flex:none; text-align:center; border:1px solid var(--line); border-radius:9px;
+    padding:9px 14px; font-size:13px; font-weight:600; color:#665F57}
+
+.letter{background:#fff; border:1px solid var(--line); border-radius:16px; padding:20px 18px;
+        display:flex; flex-direction:column; gap:11px}
+.letter p{margin:0; font-size:12.5px; line-height:1.66; color:#3A342E}
+.letter .hit{background:#FBEAE6; color:var(--coralink); font-weight:600; border-radius:4px; padding:1px 4px}
+.letter .tell{background:#FDF3D8; border-radius:4px; padding:1px 3px; color:#141210}
+.letter .ask{font-size:15px; color:#141210; font-weight:600; padding-top:2px}
+.sig{padding-top:6px; border-top:1px solid var(--line); display:flex; flex-direction:column; gap:2px}
+.sig .nm{font-size:20px; color:var(--coralink)}
+.sig .pl{font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:#8B837A; font-weight:600}
+.lbtn{text-align:center; background:var(--gold); color:#141210; border-radius:9px;
+      padding:10px; font-size:13.5px; font-weight:700; margin-top:4px}
+
+.finding{border-left:3px solid var(--good); padding:2px 0 2px 14px; display:flex; flex-direction:column; gap:7px}
+.finding .ftag{font-size:11px; letter-spacing:.13em; text-transform:uppercase; font-weight:700; color:var(--good)}
+.finding p{margin:0; font-size:14px; line-height:1.55; max-width:56ch}
+.finding code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12.5px;
+              background:var(--mist); color:#3A342E; border-radius:4px; padding:1px 5px}
+
+.ruling{background:var(--panel); border:1px solid var(--rule); border-radius:14px; padding:16px 16px 6px;
+        display:flex; flex-direction:column}
+.rtag{font-size:11px; letter-spacing:.14em; text-transform:uppercase; font-weight:700; color:var(--muted);
+      padding-bottom:11px}
+.opt{display:flex; gap:12px; padding:12px 0; border-top:1px solid var(--rule)}
+.opt.first{border-top:0; padding-top:0}
+.key{flex:none; min-width:34px; height:30px; padding:0 7px; border-radius:8px; background:var(--gold);
+     color:#141210; display:grid; place-items:center; font-weight:700; font-size:12.5px}
+.opt .col{display:flex; flex-direction:column; gap:4px}
+.opt .ot{font-size:14.5px; font-weight:600; line-height:1.35}
+.opt .od{font-size:12.5px; color:var(--muted); line-height:1.45}
+.words{font-size:14.5px; line-height:1.5; color:var(--ink); background:var(--mist);
+       border-radius:7px; padding:8px 10px}
+.words .dec{display:block; color:var(--muted); font-size:12.5px; padding-top:3px}
+.rest{font-size:12.5px; color:var(--muted); padding:11px 0 12px; border-top:1px solid var(--rule); margin-top:2px}
+
+footer{border-top:1px solid var(--rule); padding-top:16px; color:var(--muted); font-size:12.5px;
+       display:flex; flex-direction:column; gap:5px}
+footer b{color:var(--ink)}
+</style>
+
+<div class="wrap">
+
+  <header>
+    <div class="kicker">Seven testers &middot; build 3N &middot; second pass</div>
+    <h1>The shrug and the score</h1>
+    <p class="stand">Rewrite any line on this page over the top of mine and I&rsquo;ll build what you&rsquo;ve written. You don&rsquo;t have to explain the change.</p>
+  </header>
+
+  <div class="settled">
+    <div class="sh">Ruled &mdash; not open</div>
+    <div class="srow"><span class="sk">1A+B</span><span class="sv">The backup bar comes off the bottom, and once dismissed it stays gone.</span></div>
+    <div class="srow"><span class="sk">2</span><span class="sv">The app asks whether they want to add anything, and gives them a clean way to say no. <i>Wording below.</i></span></div>
+    <div class="srow"><span class="sk">4A</span><span class="sv">&ldquo;No one is keeping score&rdquo; comes out of the letter. <i>What replaces it, below.</i></span></div>
+  </div>
+
+  <!-- ─────────── 3 ─────────── -->
+  <section class="item">
+    <div class="itemhead">
+      <span class="num">3</span>
+      <h2>Where the letter is</h2>
+    </div>
+    <p class="said">You asked where this lives. It is the <b>first thing anybody sees</b> &mdash; a full-screen sheet that comes up before the year does, with her signature at the bottom and one button out of it. Here it is, whole. The gold marks are the words that gave it away.</p>
+
+    <div class="letter">
+      <p><span class="tell">In April of 2026, I turned fifty</span> and wanted to mark the year in a meaningful way. So, <span class="tell">I</span> took on a challenge: Fifty Acts of Good in Year 50. To hold myself accountable, I logged each act and <span class="tell">shared it on social media</span>, hoping others might see a simple gesture of kindness and think, &ldquo;Oh, I could do that.&rdquo;</p>
+      <p>I quickly realized that the acts themselves were only part of the story. They became a catalyst for spending time with <span class="tell">the people I love</span>, whether baking for new neighbors, volunteering alongside friends, or tackling projects with family. Along the way, I kept a journal filled with ideas, notes, expenses, and memories.</p>
+      <p>This is the framework of that journal, designed to help you track your own journey and create a record of the good you put into the world. <span class="hit">No one is keeping score.</span> Choose a number that feels right for your life and begin when you&rsquo;re ready.</p>
+      <p class="ask">What good can you spread?</p>
+      <div class="sig">
+        <div class="nm">Jessica</div>
+        <div class="pl">Savannah, GA</div>
+      </div>
+      <div class="lbtn">Start your year</div>
+    </div>
+
+    <div class="finding">
+      <div class="ftag">What they did with it</div>
+      <p>Nobody was told anything about Jessica. Four of the seven worked it out from this page alone &mdash; a real person, a real birthday, a real town, signed. Trent got out here too, at <i>&ldquo;shared it on social media&rdquo;</i> in the first paragraph: <b>&ldquo;I knew then. I kept going because I wanted to be wrong.&rdquo;</b></p>
+      <p>Dana: <b>&ldquo;I&rsquo;m allowed to use it. I&rsquo;m not who it&rsquo;s for.&rdquo;</b> &nbsp; Paula: <b>&ldquo;it is her book with my acts pasted in.&rdquo;</b></p>
+      <p>The other four things on the list are repairs. This one decides what the app <i>is</i> &mdash; a keepsake of her year that other people may borrow, or their own tool that happens to have started with her.</p>
+    </div>
+
+    <div class="ruling">
+      <div class="rtag">Yours &mdash; and the only one that changes what the app is</div>
+      <div class="opt first">
+        <div class="key">3A</div>
+        <div class="col">
+          <div class="ot">Leave it exactly as it is</div>
+          <div class="od">It is true, it is where the app came from, and it is the warmest page in the product. The cost is that some people will always read the rest as somebody else&rsquo;s.</div>
+        </div>
+      </div>
+      <div class="opt">
+        <div class="key">3B</div>
+        <div class="col">
+          <div class="ot">The welcome speaks as the app; her letter moves</div>
+          <div class="od">First screen greets them in the app&rsquo;s own voice and hands them the year. Her letter stays in the app, one tap away, where it reads as the story of where this came from rather than the front door.</div>
+        </div>
+      </div>
+      <div class="opt">
+        <div class="key">3C</div>
+        <div class="col">
+          <div class="ot">Keep her letter, but say up front that it is hers</div>
+          <div class="od">One line above it &mdash; something like <i>&ldquo;This app started with one person&rsquo;s year. Here she is, in her own words.&rdquo;</i> Nobody has to work it out, and nobody feels they caught something they weren&rsquo;t meant to.</div>
+        </div>
+      </div>
+      <div class="rest">Whichever you pick, <b>4A</b> takes &ldquo;No one is keeping score&rdquo; out of this page &mdash; so paragraph three is being touched regardless.</div>
+    </div>
+  </section>
+
+  <!-- ─────────── 2 ─────────── -->
+  <section class="item">
+    <div class="itemhead">
+      <span class="num">2</span>
+      <h2>Asking, and letting them say no</h2>
+    </div>
+    <p class="you"><span>Your ruling</span>&ldquo;Maybe we ask, do you want to add anything &mdash; and give them a way to say no thanks.&rdquo;</p>
+
+    <p class="said">Worth knowing: <b>this is nearly built already.</b> After an act goes up, a small sheet asks <i>How did it go?</i> and has a Skip. What is wrong with it is the wording &mdash; the box puts words in their mouth before they start, and the way out is called Skip, which reads like giving up rather than choosing.</p>
+
+    <div class="screens">
+      <div class="screen">
+        <div class="slab">Now</div>
+        <div class="phone"><div class="phbody">
+          <div class="jtitle">About act 21&hellip;</div>
+          <div class="jact">How did it go?</div>
+          <div class="box bad">They said thanks and went back inside, which was plenty&hellip;</div>
+          <div class="btns"><div class="b1">Into the journal</div><div class="b2">Skip</div></div>
+        </div></div>
+      </div>
+      <div class="screen">
+        <div class="slab">The shape you asked for</div>
+        <div class="phone"><div class="phbody">
+          <div class="jtitle">About act 21&hellip;</div>
+          <div class="jact">Anything you want to remember?</div>
+          <div class="box">&nbsp;</div>
+          <div class="btns"><div class="b1">Into the journal</div><div class="b2">Nothing to add</div></div>
+        </div></div>
+      </div>
+    </div>
+
+    <div class="ruling">
+      <div class="rtag">Pick the ask and its way out &mdash; or write your own over the top</div>
+      <div class="opt first">
+        <div class="key">2&middot;1</div>
+        <div class="col">
+          <div class="words">Anything you want to remember?<span class="dec">Nothing to add</span></div>
+          <div class="od">Puts the reason for writing in the question. The way out is a full answer, not a surrender.</div>
+        </div>
+      </div>
+      <div class="opt">
+        <div class="key">2&middot;2</div>
+        <div class="col">
+          <div class="words">Want to add a line?<span class="dec">Not this time</span></div>
+          <div class="od">The lightest of the three. &ldquo;Not this time&rdquo; leaves the door open without nagging.</div>
+        </div>
+      </div>
+      <div class="opt">
+        <div class="key">2&middot;3</div>
+        <div class="col">
+          <div class="words">How did it go?<span class="dec">Leave it blank</span></div>
+          <div class="od">Keeps the question you already have and only fixes the way out.</div>
+        </div>
+      </div>
+      <div class="rest">The grey example inside the box goes in all three. There is a second one like it on the full act page &mdash; <i>&ldquo;Whatever happened, as it happened. (The awkward parts are allowed too.)&rdquo;</i> &mdash; say if that goes too.</div>
+    </div>
+  </section>
+
+  <!-- ─────────── 4 ─────────── -->
+  <section class="item">
+    <div class="itemhead">
+      <span class="num">4</span>
+      <h2>The line comes out. Does anything take its place?</h2>
+    </div>
+    <p class="you"><span>Your ruling and your question</span>&ldquo;Just remove &lsquo;no one is keeping score&rsquo; &mdash; but you are just giving them tools. How is it perceived as keeping score? This is a tracker.&rdquo;</p>
+
+    <div class="finding">
+      <div class="ftag">You are right, and that is exactly why the line hurts</div>
+      <p>It is a tracker. Nobody objected to being able to count &mdash; they objected to being told nobody is counting <b>by the thing doing the counting</b>. The sentence apologises for the app&rsquo;s own job, and an apology is what makes the count feel like a judgement.</p>
+      <p>Sherri said it straight: <b>&ldquo;Don&rsquo;t hand me a counter and then apologize for it.&rdquo;</b> Take the apology out and the counter is just a counter.</p>
+      <p>The other true thing you can lean on: <b>nothing leaves the phone unless they post it.</b> There is no account, no server, nobody else&rsquo;s year to be measured against.</p>
+    </div>
+
+    <div class="ruling">
+      <div class="rtag">Replace it with &mdash; or nothing</div>
+      <div class="opt first">
+        <div class="key">4&middot;1</div>
+        <div class="col">
+          <div class="ot">Nothing. Just delete it.</div>
+          <div class="words">&hellip;create a record of the good you put into the world. Choose a number that feels right for your life and begin when you&rsquo;re ready.</div>
+          <div class="od">Reads clean. The paragraph does not miss it.</div>
+        </div>
+      </div>
+      <div class="opt">
+        <div class="key">4&middot;2</div>
+        <div class="col">
+          <div class="ot">Say what it is</div>
+          <div class="words">It keeps the count so you don&rsquo;t have to.</div>
+          <div class="od">Your framing exactly &mdash; it is a tool doing a job. Turns the count into a service instead of a verdict.</div>
+        </div>
+      </div>
+      <div class="opt">
+        <div class="key">4&middot;3</div>
+        <div class="col">
+          <div class="ot">Say who it is for</div>
+          <div class="words">The only person who ever sees this is you.</div>
+          <div class="od">True of the whole app, answers the real fear underneath, and is the one sentence that would have satisfied all three who flinched.</div>
+        </div>
+      </div>
+      <div class="opt">
+        <div class="key">4&middot;4</div>
+        <div class="col">
+          <div class="ot">Both</div>
+          <div class="words">It keeps the count so you don&rsquo;t have to, and the only person who ever sees it is you.</div>
+          <div class="od">Longer, in a paragraph that is already long.</div>
+        </div>
+      </div>
+      <div class="rest">Renata and Brianne flinched at the <b>money row</b> at the top of Your year, not the count. That is a separate change and still unruled &mdash; say if you want it drawn.</div>
+    </div>
+  </section>
+
+  <footer>
+    <div><b>Still open:</b> 3 &mdash; and 5, the screen with four names (Log an act / In the works / Acts in the works / Plan &amp; Log).</div>
+    <div>Nothing is built yet. Answer by letter and number and I&rsquo;ll start.</div>
+  </footer>
+
+</div>

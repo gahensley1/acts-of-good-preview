@@ -17,6 +17,144 @@ entry below).
 
 ---
 
+## BUILD 3R — 8 September. The way out is an answer, not a surrender.
+
+G: *"maybe just say nothing to add instead of skip."* The second button on the
+post-evaluation sheet now reads **Nothing to add**.
+
+Worth recording WHY this works now and did not before. G was offered exactly
+this wording earlier the same day and **kept Skip** — correctly, because the
+sheet still carried "How did it go?" and three chips above the note, so
+"Nothing to add" would have been answering the wrong question. With the chips
+removed in 3Q the sheet asks one thing, and the button is now a direct answer
+to it. Both rulings were right for the sheet in front of him at the time.
+
+---
+
+## BUILD 3Q — 8 September. The post-evaluation asks one question.
+
+G: *"Remove 'how did it go' and the options to pick. Just put anything to
+remember."* Done. The sheet after an act now carries the heading, one field —
+**Anything you want to remember? (optional)** — and Into the journal / Skip.
+The three chips (Went to plan / Partly / Didn't go to plan) are gone from it.
+
+**This overturns a ruling the skill lists among "the settled three".** Recorded
+here so a later session does not restore it as a defect. It was G's own call,
+made 8 September, after seeing the sheet with both questions stacked on it.
+
+**Only the post-evaluation sheet was touched.** The same three chips still
+stand in two other places, and neither was asked about:
+- the follow-up sheet straight after completing an act (`#sheet-done`)
+- the hidden outcome field on the log screen (`#f-out`)
+The act's `out` field therefore still exists and is still written by those two,
+so nothing that reads it broke. Say if they should go the same way.
+
+---
+
+## BUILD 3P — 8 September. The backup toast, and one name for the screen.
+
+**1 — the toast says it once and then it is over.** G: *"once we fire the toast
+on the main page, it's over... but I don't wanna be the reason why they haven't
+backed up. Under the You page, it fires there."*
+
+- It fires **once, ever** — not once a fortnight. New state `S.bkupTold`, and it
+  is in **both** `serialise()` and `load()`. It was one-sided on the first pass
+  and the bar came straight back on the next launch; caught in the browser, not
+  by reading. This file has now shipped a one-sided field four times.
+- `#bkupbar` has its **own position rule**, out of the shared one with
+  `#undobar` / `#gapbar` / `#claimbar`, and sits at `bottom:104px + inset`. The
+  tab bar is 83-88px, so the one time it appears it clears the labels. Measured
+  in the browser: bar bottom 740, tab top 761.
+- **The You screen is the standing reminder** and needed no change — the coral
+  line under Create a backup already reads *"No backup yet. If this phone goes,
+  the year goes with it."* and stays until a backup is made. That is the half
+  that must never stop.
+- `BKUP_QUIET_DAYS` is now unused. Left in place, not removed.
+- **The other three bars were not moved.** Only the backup one was complained
+  about. If undo/gap/claim should clear the tabs too, that is unruled.
+
+**5 — one name for one screen. G ruled: Plan & Log.** The tab already said it.
+Now `s-works` is headed **Plan & Log** (was "Plan it, log it"), `s-work` is
+headed **Plan & Log** (was "In the works"), and `s-log` is headed **Plan & Log**
+(was "Log an act" / "Plan an act" — the future/past split in `drawLog` is gone,
+both now read the same). Verified in the browser.
+
+**Named, not built:** the list heading inside the screen still reads **"Acts in
+the works · N"**. It labels the list rather than the screen, so it is not a
+fifth name for the destination, and changing it was not asked for. Say if it
+should go.
+
+---
+
+## BUILD 3O — 8 September. Two of the panel's five, ruled and built.
+
+The panel notes are in `reviews/PANEL-01-first-read.md`; the drawn page G ruled
+from is `reviews/PANEL-02-shrug-and-score.html` (same URL across revisions).
+
+**2 — the ask after an act.** The post-evaluation sheet's free-text field was
+labelled *"A line for the journal (optional)"* over a box pre-filled with a grey
+example, *"They said thanks and went back inside, which was plenty…"*. G ruled
+option 2·1: the label is now **"Anything you want to remember?"** and the grey
+example is gone from the box. **He explicitly kept "Skip"** — I had proposed
+"Nothing to add" and he overruled it. Skip stays. Do not re-open it.
+
+**Why the panel raised it at all is worth recording, because the headline
+finding was false.** Five of seven objected to *"It went about as well as these
+things go"* appearing in several journal entries and pre-written into their
+captions. **That sentence is not in the app and never was.** It is the seed
+story in `reviews/test-rig.py` line 67, dropped into 70% of the practice acts
+before the panel was handed the phone. It belongs with the two lines the
+reviewer already told us to discount. The app only ever posts words the person
+typed; everything else it adds is scaffolding — "Act n of N", "In honor of —",
+"With —", the hashtag. Checked in `buildCaption()`.
+
+**4 — the apology comes out of the letter.** The letter's third paragraph said
+*"…create a record of the good you put into the world. No one is keeping score.
+Choose a number…"*. **"No one is keeping score." is deleted. Nothing replaces
+it** (G ruled 4·1 over three alternatives).
+
+G's own framing, which is the right one and should survive into the voice doc:
+*"you are just giving them tools. How is it perceived as keeping score? This is
+a tracker."* He is right, and it is why the line hurt — the sentence apologised
+for the app's own job, and the apology is what turned a count into a judgement.
+Sherri: *"Don't hand me a counter and then apologize for it."*
+
+**Also established while checking 4:** the promise and the counting were never
+on the same screen. The letter shows once on first run; the count is on Your
+year. Brianne's complaint was right about the app and wrong about the screen.
+
+### Still open from the panel's five
+
+- **1 — the backup bar.** Seven for seven, the cheapest fix on the list, and
+  **still not built.** G answered "1A and 1B", which are two different things:
+  1A dismisses it for good, 1B takes it off the bottom and moves it onto the
+  You screen. Both need a mechanism he has not chosen. **Draw it, do not pick.**
+  The bar is `#bkupbar`, fixed at `bottom:calc(72px + inset)`, sharing that rule
+  with `#undobar`, `#gapbar` and `#claimbar` — the tab bar is 88px, which is why
+  it covers the labels. It auto-hides after 9s and has no dismiss control.
+- **3 — the letter is hers, and they know it.** Four of seven worked it out
+  unprompted and read every screen after as somebody else's project. Options
+  drawn as 3A leave it / 3B app's own voice with her letter moved / 3C keep it
+  and say up front it is hers. **Unruled. This is the one that decides what the
+  app is.**
+- **5 — one screen, four names.** The tab says **Plan & Log**, it opens a screen
+  headed **In the works**, which contains a section headed **Acts in the works**,
+  and the act itself opens under **Log an act** (or "Plan an act" if it is
+  future-dated). Five of seven got lost. Unruled — the name is G's.
+
+### Named, not built
+
+- The second grey example, on the full act page: `wk-story` still says
+  *"Whatever happened, as it happened. (The awkward parts are allowed too.)"*.
+  Flagged to G with 2; he did not answer it. Left alone.
+- `"Anything you want to remember? (optional)"` — "(optional)" now sits oddly
+  after a question that already invites a no, and Skip is right there. Not
+  changed; not his instruction.
+- The money row at the top of Your year. Renata and Brianne both flinched at it
+  specifically, not at the count. Separate change, unruled.
+
+---
+
 ## Where everything is
 
 - The app: **`C:\Users\tony\Documents\acts of good\index.html`** — one file, ~1 MB,
