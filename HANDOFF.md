@@ -24,6 +24,66 @@ Read it before asking G anything.
 
 ---
 
+## BUILD 3Y — 8 September. THE-IDEAS.md is now the only place ideas are written.
+
+G asked whether the ideas needed a Worker, as `aog-sheets` has. **No** — it would
+cost the app the thing it is best at: no network calls, works with no signal.
+Ideas behind a Worker means a blank Ideas screen whenever the signal drops, and
+the people this app is hardest for are on the patchiest phones. Recorded so it
+is not proposed again.
+
+**What was actually wrong** was that the ideas existed in two places — the
+readable file and the app — and a person moved them across by hand. That is
+fixed by a build step, not a server.
+
+### `build-ideas.py` — new, in this folder, never ships
+
+Reads `THE-IDEAS.md`, rebuilds the `IDEAS` array in `index.html`, touches nothing
+else. `--check` reports without writing. It refuses and changes nothing if a
+`when` / `size` / `cost` is not one of the allowed values, if two ideas share a
+title, or if an idea sits outside a category heading — and names the line.
+
+- **The heading an idea sits under IS its category.** Move the block, move the
+  idea. No second field to disagree with it.
+- **`ideas-art.json`** holds the one idea with a picture (a 47KB data URI, the
+  postcard party). It stays out of the readable file and is re-attached by title.
+- Writes `index.html.bak` before touching anything; `.gitignore` added for it.
+- **The `IDEAS` array in index.html now carries a banner saying DO NOT EDIT HERE.**
+  Jessica's 29 Aug provenance comment was *inside* the array and would have been
+  destroyed by the first rebuild — it has been lifted out above the declaration.
+
+**A bug worth remembering:** the first bracket-scanner read the apostrophe in
+*"Jessica's edit"* — inside a comment — as the start of a string, and swallowed
+the rest of the file. The scanner now skips `/* */` and `//` before it looks at
+quotes.
+
+### Proved, not assumed
+
+The 89 ideas were pulled out of the running app as data, written to the file, and
+built back in. Then compared field by field against the original: **89 ideas, 0
+differences** across `t, l, s, c, d, why, tag, art, needs`, and the 47118-byte
+picture came back byte-identical in length. The only thing that changed is the
+field that was added.
+
+### The cost pass — 14B
+
+Every idea now carries `cost`: **Free 42 · Under $20 25 · $20 or more 22.**
+
+**This is my first pass and it is a judgement call on every line.** It is written
+into `THE-IDEAS.md` where G can correct any of it — same as the words: rewrite
+the line, run the builder. Some are genuinely arguable (is baking free if you own
+flour; is a Meals on Wheels route free if you buy the gas).
+
+It shows on the Ideas screen beside the size — `AN HOUR · UNDER $20` — in the
+line the idea already had. **No third row of filter chips**, per G's 14B. An idea
+with no cost set says nothing rather than implying free.
+
+Kayla's "only 11 of 89 are free" was **never verified and looks wrong** — the
+honest count on a first pass is 42 free. Her point about them being unfindable
+was the real one, and that is what this fixes.
+
+---
+
 ## BUILD 3X — 8 September. The accessibility audit is closed.
 
 G: *"Fix it all while we're doing this. So this is resolved."* Everything left
