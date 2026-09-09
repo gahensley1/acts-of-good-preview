@@ -6,9 +6,9 @@ what is true right now. When they disagree, this file is newer — say so and fi
 the skill.
 
 Last updated: **9 September 2026**.
-Build in G's hands: **3R** — pushed and live, confirmed by fetching the site.
+Build in G's hands: **3Z** — pushed and live, confirmed by fetching the site.
 
-## 3Z is VERIFIED and MIRRORED. It is not yet committed or pushed. (9 September)
+## 3Z is VERIFIED, MIRRORED, COMMITTED AND LIVE. (9 September)
 
 **`aog-push\index.html` and the mirror are both at BUILD 3Z and byte-identical.**
 The one change in 3Z:
@@ -34,19 +34,22 @@ The one change in 3Z:
    clear air above and below.
 4. Copied to the mirror; both files verified identical.
 
-**Still to do: the commit and the push.** The session that verified this had no
-shell on G's machine — the desktop bridge could mount the folders for reading and
-writing but `device_bash` could not mount them at all, so `git` could not be run.
-Nothing is committed. Run from `aog-push`:
+**Committed and pushed by G, 9 September, `427da7e` — "3Z: Ask for help moves up
+under In honor of".** The live site was then fetched with a cache-buster: it reads
+**BUILD 3Z** and its act screen lists *In honor of* → **Ask for help** → *Keep a
+tally of your costs*. All three copies agree.
 
-```
-git add index.html HANDOFF.md
-git commit -m "3Z: Ask for help moves up under In honor of"
-git push
-```
+**Worth knowing for next time.** The first push carried nothing — the change had
+never been committed, so `git push` had nothing to send, and the live site sat on
+3Y while `aog-push` sat on 3Z. It was caught by reading the repo's own commit list
+rather than trusting the push. **Check the newest commit, not just the site**: a
+stale page can also be a slow Pages rebuild, and the commit list tells the two
+apart in one look.
 
-Then fetch the live site with a cache-buster and read its build mark before
-telling G it is live.
+**No shell on G's machine this session.** The desktop bridge could read and write
+files in both folders but could not run commands, so `git` had to be run by G.
+If a future session finds the same, hand him the three lines rather than trying to
+work around it.
 
 **The two paragraphs that used to sit here were garbled and both were stale.**
 They said 3I was live and that the sign-up sheet could not publish until
@@ -55,6 +58,50 @@ They said 3I was live and that the sign-up sheet could not publish until
 the last local edit to `worker.js` (7 Sept 21:35 UTC). **So the deploy almost
 certainly happened and the blocker is stale — but this was inferred from
 timestamps, not by reading the deployed code.** Confirm before relying on it.
+
+## The panel's list — 14 of 20 ruled. Six left. (9 September)
+
+Ruled and built: **1–8** (3V), **9** withdrawn by G, **10–12** (3W/3X), **14B**
+the cost pass (3Y), **15** Ask for help moved up (3Z).
+
+**RULED 9 Sept, in one sitting: 13B, 19B, 20A, and the wording for 17.**
+**Still open: 16 and 18**, plus two placement questions drawn in
+`reviews/PANEL-06-13B-and-the-note.html`
+(https://claude.ai/code/artifact/caefd8ba-4d3b-4373-b9f4-cdae0cb04dd9).
+
+- **13B** — the heading names the extra square: *"25 acts, and the day you said
+  so."* **Nothing on Your year currently says 25 except the pace card's count**,
+  and `#home-sub` beside the `Your year` heading is empty and unused. Two homes
+  were rendered: (1) in `#home-sub`, one line at 390px, recommended; (2) as a
+  `.lab` under `#p-week` inside the pace card, where it wraps to two lines and
+  crowds "0 of 25". Awaiting 1 or 2. **Nothing built.**
+- **19B** — the printed book's index names only the people who HELPED, never the
+  people helped. Recorded; the index is unbuilt, so nothing to change yet.
+- **20A** — the number stays on the card. **CLOSED FOR GOOD. Do not raise it
+  again, and do not carry Kayla's "it's a plaque" forward as an open finding.**
+- **17** — G's branded wording: **"Send it as a personal note to someone."**
+  Touch points: `index.html` ~1789 (posting page envelope, `#cm-env`), ~5186 and
+  ~5187 (the journal envelope and its spoken name), and `HAND_LABEL.private`
+  (~8137, currently `'Send it'`). **Open: words only, or words plus position** —
+  the panel's finding was that it sits last and smallest, and Eileen and Kayla
+  both said it is the only route they would use. Awaiting 1 or 2. **Nothing built.**
+
+Drawn as a page he can rule from, with lettered options on each:
+`reviews/PANEL-05-the-last-six.html`, live at
+https://claude.ai/code/artifact/34d31d95-1bdd-4eb4-9a03-fd5aed961432
+
+- **13** act 0 making 26 squares under a heading of 25 — leave it / the heading
+  names it / the counter names it. (Gold outline and a separate line above the
+  grid are already rejected; do not re-offer them.)
+- **16** the backup naming iCloud Drive to someone who does not know what Files is.
+- **17** send-to-one-person as the main road, not the footnote.
+- **18** helpers and the helped sharing one People list.
+- **19** the printed book's back-page index of names.
+- **20** the number on the card. **Note:** this collides with the settled three.
+  The page says so plainly and offers 20A as a final close. If he says 20A it is
+  shut for good.
+
+**Nothing here gets built without a letter.**
 
 **Everything not yet decided lives in `OPEN.md`, written 7 September against 3F.**
 It is one file, it says who owns each item, and where a question was old enough

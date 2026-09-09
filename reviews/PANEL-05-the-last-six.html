@@ -1,0 +1,250 @@
+<title>The Panel's Last Six</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap">
+<style>
+  :root{
+    --paper:#FFFFFF;
+    --mist:#F6F4F1;
+    --ink:#14110E;
+    --muted:#665F57;
+    --line:#E4E0DA;
+    --coral:#EA634F;
+    --coralink:#C03F2B;
+    --gold:#C99A2E;
+    --goldmark:#E1BA52;
+    --chipbg:#FBEDE9;
+    --shadow:0 1px 2px rgba(20,17,14,.05);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --paper:#1E1A15;
+      --mist:#16130F;
+      --ink:#F3EEE6;
+      --muted:#A79C8E;
+      --line:#342C23;
+      --coral:#F0836E;
+      --coralink:#F09079;
+      --gold:#E1BA52;
+      --goldmark:#E1BA52;
+      --chipbg:#33231E;
+      --shadow:none;
+    }
+  }
+  :root[data-theme="dark"]{
+    --paper:#1E1A15;
+    --mist:#16130F;
+    --ink:#F3EEE6;
+    --muted:#A79C8E;
+    --line:#342C23;
+    --coral:#F0836E;
+    --coralink:#F09079;
+    --gold:#E1BA52;
+    --goldmark:#E1BA52;
+    --chipbg:#33231E;
+    --shadow:none;
+  }
+
+  body{
+    background:var(--mist);
+    color:var(--ink);
+    font-family:Montserrat,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    font-size:16px;
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+  .page{max-width:680px;margin:0 auto;padding:34px 20px 90px;}
+
+  .eyebrow{
+    font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--muted);margin:0 0 14px;
+  }
+  h1{
+    font-size:clamp(30px,7vw,42px);line-height:1.08;font-weight:800;
+    letter-spacing:-.02em;margin:0 0 14px;text-wrap:balance;
+  }
+  .stand{font-size:17px;color:var(--muted);margin:0 0 26px;max-width:52ch;}
+  .stand b{color:var(--ink);font-weight:600;}
+
+  .tally{
+    display:flex;flex-wrap:wrap;gap:10px;margin:0 0 34px;
+  }
+  .tally div{
+    flex:1 1 130px;background:var(--paper);border:1px solid var(--line);
+    border-radius:12px;padding:12px 14px;box-shadow:var(--shadow);
+  }
+  .tally .n{
+    font-size:27px;font-weight:800;line-height:1.1;font-variant-numeric:tabular-nums;
+    letter-spacing:-.02em;
+  }
+  .tally .l{
+    font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+    color:var(--muted);margin-top:3px;
+  }
+  .tally .open .n{color:var(--coralink);}
+
+  h2.rule{
+    font-size:12px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;
+    color:var(--muted);margin:0 0 14px;padding-bottom:9px;border-bottom:1px solid var(--line);
+  }
+
+  .settled{
+    background:var(--paper);border:1px solid var(--line);border-radius:12px;
+    padding:6px 16px;margin:0 0 40px;box-shadow:var(--shadow);
+  }
+  .settled p{
+    display:flex;gap:12px;margin:0;padding:11px 0;border-bottom:1px solid var(--line);
+    font-size:14.5px;color:var(--muted);
+  }
+  .settled p:last-child{border-bottom:0;}
+  .settled span.no{
+    flex:0 0 44px;font-weight:700;color:var(--gold);font-variant-numeric:tabular-nums;
+    font-size:13px;letter-spacing:.02em;padding-top:1px;
+  }
+  .settled b{color:var(--ink);font-weight:600;}
+
+  .item{
+    background:var(--paper);border:1px solid var(--line);border-radius:14px;
+    padding:22px 20px;margin:0 0 16px;box-shadow:var(--shadow);
+  }
+  .head{display:flex;align-items:baseline;gap:14px;margin-bottom:4px;}
+  .no{
+    font-size:34px;font-weight:800;line-height:1;color:var(--goldmark);
+    font-variant-numeric:tabular-nums;letter-spacing:-.03em;flex:0 0 auto;
+  }
+  .who{
+    font-size:10.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--muted);
+  }
+  h3{font-size:20px;font-weight:700;line-height:1.25;margin:6px 0 12px;letter-spacing:-.01em;text-wrap:balance;}
+  .item p{margin:0 0 11px;font-size:15.5px;}
+  .item p.why{color:var(--muted);}
+
+  .opts{margin:16px 0 0;display:flex;flex-direction:column;gap:8px;}
+  .opt{
+    display:flex;gap:12px;align-items:flex-start;
+    border:1px solid var(--line);border-radius:10px;padding:11px 13px;
+    font-size:15px;background:var(--mist);
+  }
+  .opt .k{
+    flex:0 0 auto;min-width:30px;text-align:center;
+    background:var(--chipbg);color:var(--coralink);
+    font-size:12.5px;font-weight:800;letter-spacing:.03em;
+    border-radius:6px;padding:3px 6px;margin-top:1px;
+  }
+  .opt.keep .k{background:transparent;color:var(--muted);border:1px solid var(--line);}
+
+  .flag{
+    margin:16px 0 0;padding:11px 0 11px 14px;border-left:3px solid var(--coral);
+    font-size:14.5px;color:var(--muted);
+  }
+  .flag b{color:var(--ink);font-weight:600;}
+
+  .foot{
+    margin:38px 0 0;padding:18px 20px;background:var(--paper);
+    border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);
+  }
+  .foot p{margin:0 0 8px;font-size:15px;}
+  .foot p:last-child{margin:0;color:var(--muted);font-size:14px;}
+  .foot b{font-weight:700;}
+</style>
+
+<div class="page">
+
+  <p class="eyebrow">50 Acts of Good · the six-reviewer panel</p>
+  <h1>The Panel's Last Six</h1>
+  <p class="stand">Twenty findings came out of the panel on build 3U. Fourteen are ruled and built. <b>Six are still yours.</b> None of them is a fault — they are all decisions about what the app should be.</p>
+
+  <div class="tally">
+    <div><div class="n">20</div><div class="l">findings</div></div>
+    <div><div class="n">14</div><div class="l">ruled &amp; built</div></div>
+    <div class="open"><div class="n">6</div><div class="l">waiting on you</div></div>
+  </div>
+
+  <h2 class="rule">Already done — nothing here needs you</h2>
+  <div class="settled">
+    <p><span class="no">1–8</span><span><b>The wrong dates and the wrong claims.</b> Wreaths, Teacher Appreciation twice, camp season, the four bad lines in the ideas, the week printed twice.</span></p>
+    <p><span class="no">9</span><span><b>The backup contradiction — withdrawn.</b> Your call: it is your own iCloud, and the promise is about what the app does.</span></p>
+    <p><span class="no">10–12</span><span><b>The app can be used without sight.</b> The date picker, the date buttons, the back buttons.</span></p>
+    <p><span class="no">14</span><span><b>Every idea now says what it costs.</b> Free 42 · Under $20 25 · $20 or more 22.</span></p>
+    <p><span class="no">15</span><span><b>Ask for help moved up.</b> Live now, in build 3Z.</span></p>
+  </div>
+
+  <h2 class="rule">Still yours to rule</h2>
+
+  <div class="item">
+    <div class="head"><span class="no">13</span><span class="who">Eileen · Ruth</span></div>
+    <h3>Twenty-six squares under a heading that says twenty-five.</h3>
+    <p>Act 0 sits in the grid as an ordinary square, and nothing on that screen says what it is. Eileen counted the squares twice with her finger. Ruth called it a straight contradiction between the heading, the grid and the counter.</p>
+    <p class="why">You have already ruled that the zero square is normal — no gold outline, no separate line above the grid. So this is only about whether anything on the screen explains the extra square.</p>
+    <div class="opts">
+      <div class="opt keep"><span class="k">13A</span><span>Leave it. The heading counts the year; the declaration isn't one of the twenty-five, and nobody has to be told that.</span></div>
+      <div class="opt"><span class="k">13B</span><span>The heading says it: <b>"25 acts, and the day you said so."</b></span></div>
+      <div class="opt"><span class="k">13C</span><span>The counter under the grid says it, and the heading stays clean: <b>"1 of 25 · and your declaration."</b></span></div>
+    </div>
+  </div>
+
+  <div class="item">
+    <div class="head"><span class="no">16</span><span class="who">Eileen</span></div>
+    <h3>The backup tells her she'll lose everything, then gives her instructions she can't follow.</h3>
+    <p>The You screen says to choose Save to Files and put it in iCloud Drive, over a coral line warning that the year will be lost otherwise. She does not know what Files is. That is the screen she puts the phone down on.</p>
+    <p class="why">She is the person who does the most good and would be lost first. This is the only place in the app where a warning is followed by a wall.</p>
+    <div class="opts">
+      <div class="opt keep"><span class="k">16A</span><span>Leave the words as they are.</span></div>
+      <div class="opt"><span class="k">16B</span><span>Stop naming the place. <b>"Your phone will ask where to keep it. Anywhere you can find it again is fine."</b></span></div>
+      <div class="opt"><span class="k">16C</span><span>Offer the two routes she'd actually use, by name — <b>email it to yourself</b>, or <b>save it to this phone</b> — and drop the cloud words entirely.</span></div>
+    </div>
+  </div>
+
+  <div class="item">
+    <div class="head"><span class="no">17</span><span class="who">Eileen · Kayla, separately</span></div>
+    <h3>Sending it to one person is the footnote. For two of them it's the only road.</h3>
+    <p>On the posting page, "Send it as a note to someone" comes last and smallest, after everything else. Both women said, without conferring, that it is the only route they would ever use.</p>
+    <p class="why">Priya called the private send offered at equal weight <em>a real piece of moral design</em> — but it isn't at equal weight yet.</p>
+    <div class="opts">
+      <div class="opt keep"><span class="k">17A</span><span>Leave the order as it is.</span></div>
+      <div class="opt"><span class="k">17B</span><span>Equal weight — post it and send it to one person, the same size, side by side.</span></div>
+      <div class="opt"><span class="k">17C</span><span>Ask once, in setup, which one you want first — and put that one on top from then on.</span></div>
+    </div>
+  </div>
+
+  <div class="item">
+    <div class="head"><span class="no">18</span><span class="who">Priya</span></div>
+    <h3>The person you helped is in the same list as the friend who came along.</h3>
+    <p>The People screen holds everyone who's been part of an act, and tagging draws from that one list. So the app ends up pointing at getting a handle onto the name of somebody who was helped.</p>
+    <p class="why">Priya's words: the app has worked hard to protect you from guilt and not at all to protect the people around you from becoming inventory. She says this one fix makes several of her others unnecessary.</p>
+    <div class="opts">
+      <div class="opt keep"><span class="k">18A</span><span>Leave it as one list.</span></div>
+      <div class="opt"><span class="k">18B</span><span>Two lists on the same screen — <b>who you did it with</b> and <b>who it was for</b>. The "for" side is never asked for a handle and never offered for tagging.</span></div>
+      <div class="opt"><span class="k">18C</span><span>One list, but each person carries which they were, and tagging only ever reaches the "with" side.</span></div>
+    </div>
+  </div>
+
+  <div class="item">
+    <div class="head"><span class="no">19</span><span class="who">Priya</span></div>
+    <h3>The book's back page is an index of everyone in your life who needed something.</h3>
+    <p>The printed book ends with "the names it was all for". Her line: <em>Ray took ten seconds to say yes to his bins going out. He did not say yes to being on page 114 of a book.</em></p>
+    <p class="why">Nothing is built yet, so this costs nothing to decide now and a great deal to decide after the first book is printed.</p>
+    <div class="opts">
+      <div class="opt keep"><span class="k">19A</span><span>Keep the index as planned.</span></div>
+      <div class="opt"><span class="k">19B</span><span>The index names only the people who helped — never the people helped.</span></div>
+      <div class="opt"><span class="k">19C</span><span>No names page at all. The book carries the acts and the stories, and a name appears only where you wrote it yourself.</span></div>
+    </div>
+  </div>
+
+  <div class="item">
+    <div class="head"><span class="no">20</span><span class="who">Kayla</span></div>
+    <h3>The number on the card. She called it a plaque.</h3>
+    <p>Gold, a balloon, and a number — a retirement gift, generated for her. Her objection is that the app makes the trophy and she supplies the act.</p>
+    <div class="flag"><b>You have ruled this once already.</b> "Act n of N" is on your settled list. Two of the other three settled items — half acts, and "How did it go?" — you have since overturned yourself, so it is fair to put this in front of you one more time. <b>Saying 20A closes it for good.</b></div>
+    <div class="opts">
+      <div class="opt keep"><span class="k">20A</span><span>It stays. Closed, and not raised again.</span></div>
+      <div class="opt"><span class="k">20B</span><span>The number comes off the card. It stays in the caption and in the journal, where it is yours rather than on display.</span></div>
+      <div class="opt"><span class="k">20C</span><span>The number stays, and one switch in You takes it off every card for people who don't want it.</span></div>
+    </div>
+  </div>
+
+  <div class="foot">
+    <p><b>Answer by number and letter.</b> "13A 16C 17B 18B 19B 20A" is a complete answer and nothing gets built until you give one.</p>
+    <p>Two of these change words only (16, 13). Three change a screen (17, 18, 20). One is about a book that hasn't been printed (19).</p>
+  </div>
+
+</div>
