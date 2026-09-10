@@ -1,0 +1,248 @@
+<title>The Growing Line</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap">
+<style>
+  :root{
+    --paper:#FFFFFF; --mist:#F6F4F1; --card:#F1EEE9; --ink:#14110E; --muted:#665F57;
+    --line:#E4E0DA; --track:#E8E3DC; --coral:#EA634F; --coralink:#C03F2B; --gold:#C99A2E;
+    --chipbg:#FBEDE9; --shadow:0 1px 2px rgba(20,17,14,.05);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --paper:#1E1A15; --mist:#16130F; --card:#242019; --ink:#F3EEE6; --muted:#A79C8E;
+      --line:#342C23; --track:#3A322A; --coral:#F0836E; --coralink:#F09079; --gold:#E1BA52;
+      --chipbg:#33231E; --shadow:none;
+    }
+  }
+  :root[data-theme="dark"]{
+    --paper:#1E1A15; --mist:#16130F; --card:#242019; --ink:#F3EEE6; --muted:#A79C8E;
+    --line:#342C23; --track:#3A322A; --coral:#F0836E; --coralink:#F09079; --gold:#E1BA52;
+    --chipbg:#33231E; --shadow:none;
+  }
+
+  body{background:var(--mist);color:var(--ink);
+    font-family:Montserrat,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased;}
+  .page{max-width:840px;margin:0 auto;padding:34px 20px 90px;}
+
+  .eyebrow{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--muted);margin:0 0 14px;}
+  h1{font-size:clamp(28px,6.6vw,38px);line-height:1.1;font-weight:800;letter-spacing:-.02em;
+    margin:0 0 16px;text-wrap:balance;}
+  .stand{font-size:17px;margin:0 0 8px;max-width:58ch;}
+  .stand b{font-weight:700;}
+  .hint{font-size:14.5px;color:var(--muted);margin:0 0 24px;max-width:58ch;}
+
+  /* controls */
+  .bar-controls{position:sticky;top:0;z-index:5;background:var(--mist);
+    padding:12px 0 14px;border-bottom:1px solid var(--line);margin-bottom:26px;
+    display:flex;flex-wrap:wrap;gap:9px;align-items:center;}
+  button.ctl{font-family:inherit;font-size:14px;font-weight:700;color:var(--ink);
+    background:var(--paper);border:1px solid var(--line);border-radius:10px;
+    padding:9px 14px;cursor:pointer;}
+  button.ctl.main{background:var(--coral);border-color:var(--coral);color:#fff;}
+  button.ctl:focus-visible{outline:2px solid var(--ink);outline-offset:2px;}
+  .count-badge{margin-left:auto;font-size:13px;font-weight:700;color:var(--coralink);
+    background:var(--chipbg);border-radius:8px;padding:6px 11px;font-variant-numeric:tabular-nums;}
+
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+  @media (max-width:760px){.grid{grid-template-columns:1fr;}}
+
+  .opt{background:var(--paper);border:1px solid var(--line);border-radius:14px;
+    padding:18px;box-shadow:var(--shadow);}
+  .opt.now{border-style:dashed;}
+  .hd{display:flex;align-items:center;gap:10px;margin-bottom:6px;}
+  .k{background:var(--chipbg);color:var(--coralink);font-size:13px;font-weight:800;
+    border-radius:6px;padding:4px 11px;}
+  .tag{font-size:10.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--coralink);}
+  h3{font-size:17px;font-weight:700;line-height:1.3;margin:2px 0 8px;letter-spacing:-.01em;}
+  .opt p{margin:0 0 4px;font-size:14.5px;color:var(--muted);}
+
+  /* the phone card */
+  .phone{background:var(--card);border-radius:14px;padding:16px 16px 20px;margin:14px 0 0;}
+  .big{font-size:22px;font-weight:700;letter-spacing:-.03em;line-height:1.15;}
+  .lab{font-size:11.5px;color:var(--muted);letter-spacing:.02em;margin-top:2px;}
+  .lab.coral{color:var(--coralink);font-weight:600;}
+  .stage{margin-top:16px;height:22px;display:flex;align-items:center;}
+
+  /* A — as it is now */
+  .track{position:relative;height:6px;background:var(--track);border-radius:99px;width:100%;}
+  .fill{height:100%;background:var(--coral);border-radius:99px;transition:width .5s cubic-bezier(.2,.9,.25,1);}
+  .tick{position:absolute;top:-3px;width:2px;height:12px;background:var(--ink);opacity:.45;}
+  .tickcall{position:absolute;top:-24px;transform:translateX(-50%);font-size:10px;font-weight:700;
+    letter-spacing:.08em;text-transform:uppercase;color:var(--ink);white-space:nowrap;opacity:.55;}
+
+  /* B / D — marks */
+  .marks{display:flex;gap:2px;width:100%;align-items:center;height:8px;}
+  .mk{height:5px;border-radius:99px;background:var(--coral);transform-origin:left center;}
+  .mk.fresh{animation:draw .7s cubic-bezier(.2,.9,.25,1);}
+  @keyframes draw{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+  .mk.wet{animation:draw .7s cubic-bezier(.2,.9,.25,1), dry 2.2s ease-out .5s both;}
+  @keyframes dry{from{background:var(--coralink);height:7px}to{background:var(--coral);height:5px}}
+  .gap{flex:1 1 auto;}
+
+  /* C — weight */
+  .weight{width:100%;background:var(--coral);border-radius:99px;
+    transition:height .6s cubic-bezier(.2,.9,.25,1), opacity .6s ease;}
+
+  .note{font-size:13.5px;color:var(--muted);margin:12px 2px 0;}
+  .foot{margin:32px 0 0;padding:18px 20px;background:var(--paper);border:1px solid var(--line);
+    border-radius:12px;box-shadow:var(--shadow);}
+  .foot p{margin:0 0 9px;font-size:15.5px;}
+  .foot p:last-child{margin:0;color:var(--muted);font-size:14px;}
+  @media (prefers-reduced-motion: reduce){
+    .mk.fresh,.mk.wet{animation:none;}
+    .fill,.weight{transition:none;}
+  }
+</style>
+
+<div class="page">
+
+<p class="eyebrow">50 Acts of Good &middot; the line under the count</p>
+<h1>The growing line</h1>
+<p class="stand">Four ways the line could work. <b>Press <em>Log an act</em> and watch all four at once</b> &mdash; that is the whole point of this page.</p>
+<p class="hint">Every one of these is CSS in the one file. No pictures, no library, nothing to download.</p>
+
+<div class="bar-controls">
+  <button class="ctl main" id="add">Log an act</button>
+  <button class="ctl" data-set="1">Act 1</button>
+  <button class="ctl" data-set="13">Halfway</button>
+  <button class="ctl" data-set="25">The end</button>
+  <button class="ctl" data-set="0">Empty</button>
+  <span class="count-badge" id="badge">0 of 25</span>
+</div>
+
+<div class="grid">
+
+  <div class="opt now">
+    <div class="hd"><span class="k">A</span><span class="tag">as it is now</span></div>
+    <h3>A bar that fills up.</h3>
+    <p>A grey track with coral poured into it &mdash; and the dark notch is the <b>pace tick</b>, marking where you are expected to be by today.</p>
+    <div class="phone">
+      <div class="big" id="a-count">0 of 25 acts of good</div>
+      <div class="lab" id="a-lab">week 1 of 52</div>
+      <div class="stage">
+        <div class="track">
+          <div class="fill" id="a-fill" style="width:0%"></div>
+          <div class="tick" style="left:40%"></div>
+          <div class="tickcall" style="left:40%">where you should be</div>
+        </div>
+      </div>
+    </div>
+    <p class="note">The grey is the part you have not done. It is a picture of what is missing, and the notch says whether you are late.</p>
+  </div>
+
+  <div class="opt">
+    <div class="hd"><span class="k">B</span><span class="tag">a record</span></div>
+    <h3>One mark per act, made by hand.</h3>
+    <p>No track at all. Twenty-five marks exist only once they are made &mdash; and no two are quite the same length or weight.</p>
+    <div class="phone">
+      <div class="big" id="b-count">0 of 25 acts of good</div>
+      <div class="lab" id="b-lab">week 1 of 52</div>
+      <div class="stage"><div class="marks" id="b-marks"></div></div>
+    </div>
+    <p class="note">Nothing is ever empty, because empty is not drawn. What you see is what happened, in the order it happened.</p>
+  </div>
+
+  <div class="opt">
+    <div class="hd"><span class="k">C</span><span class="tag">accrual</span></div>
+    <h3>A line that thickens instead of lengthening.</h3>
+    <p>Always the full width, from the very first act. Every act lays another thread along it, so it gets heavier and deeper rather than longer.</p>
+    <div class="phone">
+      <div class="big" id="c-count">0 of 25 acts of good</div>
+      <div class="lab" id="c-lab">week 1 of 52</div>
+      <div class="stage"><div class="weight" id="c-line" style="height:1px;opacity:.35"></div></div>
+    </div>
+    <p class="note">Day one already has a whole line, just a quiet one. There is no gap, so there is nothing to be behind on.</p>
+  </div>
+
+  <div class="opt">
+    <div class="hd"><span class="k">D</span><span class="tag">my pick</span></div>
+    <h3>The marks, and the newest one is still wet.</h3>
+    <p>B, with one behaviour added: the act you just logged arrives darker and a little thicker, then dries to match the others over a couple of seconds. Everything older is dead still.</p>
+    <div class="phone">
+      <div class="big" id="d-count">0 of 25 acts of good</div>
+      <div class="lab" id="d-lab">week 1 of 52</div>
+      <div class="stage"><div class="marks" id="d-marks"></div></div>
+    </div>
+    <p class="note">It moves on the day you did something, and never on the days you did not. No pulse, no idle loop, nothing keeping time.</p>
+  </div>
+
+</div>
+
+<div class="foot">
+  <p><b>Say A, B, C or D.</b> And separately: <b>the pace tick</b> &mdash; keep it or cut it. It is on the bar today, and it is the last thing on that screen that knows what day it is.</p>
+  <p>Nothing here is built. This page is a drawing you can press.</p>
+</div>
+</div>
+
+<script>
+(function(){
+  var N = 25, n = 0, prev = 0;
+  var jitter = [];
+  for (var i = 0; i < N; i++) {
+    // fixed, not random per render: the same hand every time
+    var s = Math.sin((i + 1) * 12.9898) * 43758.5453;
+    jitter.push(s - Math.floor(s));
+  }
+
+  function marks(el, wet){
+    el.innerHTML = '';
+    for (var i = 0; i < n; i++) {
+      var d = document.createElement('div');
+      d.className = 'mk';
+      var j = jitter[i];
+      d.style.flex = '1 1 ' + (0.82 + j * 0.42) + 'em';
+      d.style.height = (4.4 + j * 1.4).toFixed(1) + 'px';
+      d.style.opacity = (0.86 + j * 0.14).toFixed(2);
+      if (i === n - 1 && n > prev) d.className = 'mk ' + (wet ? 'wet' : 'fresh');
+      el.appendChild(d);
+    }
+    var g = document.createElement('div');
+    g.className = 'gap';
+    g.style.flex = '1 1 ' + Math.max(0, (N - n)) + 'em';
+    el.appendChild(g);
+  }
+
+  function labelFor(){
+    if (n >= N) return ['the year is complete', true];
+    if (n === Math.ceil(N / 2)) return ['halfway there', true];
+    return ['week ' + Math.max(1, Math.min(52, Math.round(n * 2 + 1))) + ' of 52', false];
+  }
+
+  function draw(){
+    var countText = (n === 0 ? '0' : n) + ' of ' + N + ' acts of good';
+    var lab = labelFor();
+    ['a','b','c','d'].forEach(function(k){
+      document.getElementById(k + '-count').textContent = countText;
+      var l = document.getElementById(k + '-lab');
+      l.textContent = lab[0];
+      l.className = 'lab' + (lab[1] ? ' coral' : '');
+    });
+    document.getElementById('badge').textContent = n + ' of ' + N;
+
+    document.getElementById('a-fill').style.width = (n / N * 100) + '%';
+
+    marks(document.getElementById('b-marks'), false);
+    marks(document.getElementById('d-marks'), true);
+
+    var c = document.getElementById('c-line');
+    c.style.height = (1 + (n / N) * 5).toFixed(2) + 'px';
+    c.style.opacity = (0.35 + (n / N) * 0.65).toFixed(2);
+
+    prev = n;
+  }
+
+  document.getElementById('add').addEventListener('click', function(){
+    if (n < N) { prev = n; n++; draw(); }
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('[data-set]'), function(b){
+    b.addEventListener('click', function(){
+      prev = 999; n = parseInt(b.getAttribute('data-set'), 10); draw();
+    });
+  });
+
+  prev = 999;
+  n = 13;
+  draw();
+})();
+</script>

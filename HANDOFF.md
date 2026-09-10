@@ -6,7 +6,7 @@ what is true right now. When they disagree, this file is newer — say so and fi
 the skill.
 
 Last updated: **9 September 2026**.
-Build in G's hands: **3Z** — pushed and live, confirmed by fetching the site.
+Build in G's hands: **3Z** live; **4G** is on disk in both folders, mirrored, uncommitted.
 
 ## 3Z is VERIFIED, MIRRORED, COMMITTED AND LIVE. (9 September)
 
@@ -46,6 +46,23 @@ rather than trusting the push. **Check the newest commit, not just the site**: a
 stale page can also be a slow Pages rebuild, and the commit list tells the two
 apart in one look.
 
+**The shell on G's machine — solved 9 Sept, worth two minutes of anyone's time.**
+`device_bash` refused all session. The diagnosis, in order:
+1. First error: *no Plan9 drive shares mounted* — looks like a folder problem, isn't.
+2. After a reboot the error changed to *the isolated Linux environment failed to start*,
+   which is the real fault. **A new chat does not fix this** — G had already tried.
+3. Task Manager → Performance → CPU showed **Virtualization: Enabled**, so not BIOS.
+   It also showed **Up time 17:58:54 after a "reboot"** — Windows Fast Startup means
+   *Shut down* hibernates. **Only Start → Power → Restart is a real restart.**
+4. The fix was **Windows Features → Virtual Machine Platform** (checkbox, not a
+   command). After that restart the VM starts again.
+5. **The folder shares still did not attach to this task's workspace** — the error
+   went back to message 1. A NEW task, started once the VM can boot, is what mounts
+   them. That is the only time "start a new chat" is the right advice here.
+
+Also learned: **computer use cannot run git.** Terminals resolve at tier `click` —
+see and left-click only, no typing. Do not plan around driving PowerShell.
+
 **No shell on G's machine this session.** The desktop bridge could read and write
 files in both folders but could not run commands, so `git` had to be run by G.
 If a future session finds the same, hand him the three lines rather than trying to
@@ -59,22 +76,342 @@ the last local edit to `worker.js` (7 Sept 21:35 UTC). **So the deploy almost
 certainly happened and the blocker is stale — but this was inferred from
 timestamps, not by reading the deployed code.** Confirm before relying on it.
 
+## BUILD 4G — 10 September. The calendar icon: RULED 3C, and the icon work is closed.
+
+The icon was worked through four rounds in one sitting, all drawn at true size in
+`reviews/CALENDAR-ICON.html`
+(https://claude.ai/code/artifact/8688b596-b863-4799-bdf5-382590492252):
+six filled squares → ruled grids at several weights → hollow squares → eight
+squares four across → **the day's date in the box**.
+
+**G ruled 3C and stopped there: a ruled grid, six cells, at half the weight of
+the outline.** Built into **all four copies** of the icon.
+
+`<path d="M9 10.4v10.6M15 10.4v10.6M3 13.7h18M3 17.3h18" stroke-width=".5"/>`
+
+**THE FOUR COPIES — this is the trap.** Three sit in the markup (the sheet, the
+month header, and *hand the day to your phone's calendar* on an act) and **the
+fourth is built as a string inside `drawMonth` at `#calbtn`** — the one on the
+month card, and the one that was missed on the first pass. Verified in the
+browser after the change. **Change one, change four.**
+
+**THE DATE IDEA — drawn, argued for, and NOT taken.** G's own proposal: put the
+day's number in the box instead of any grid. It was drawn at five weights, with
+the header rule kept, raised, removed, and at a larger size; the recommendation
+was to remove the rule and keep the size, since the rule was spending a third of
+the box on nothing once the days became a number. **He looked and chose 3C.**
+The drawings are kept on that page. If it ever reopens, the finding worth
+carrying is that **the icon appears on the act screen's "hand this day to your
+calendar" button, where today's date would be the wrong number** — that button
+is about the act's day, which may be months away.
+
+## RULED, NOT BUILT — the progress bar stays exactly as it is (10 September)
+
+G asked whether the growing line could be something more; two creative seats were
+put on it and four working versions were drawn as a page you can press
+(`reviews/GROWING-LINE.html`,
+https://claude.ai/code/artifact/e8e90be5-e4f9-4b40-8821-6fa6e3ba7aef):
+A the bar as it is, B one uneven mark per act with no track at all, C a line that
+thickens instead of lengthening, D the marks with the newest one still wet.
+
+**G: *"Let's leave the baseline how it is now. I don't like any of those. Not
+creative enough. Let's just leave it."* CLOSED.** Nothing was built. Do not
+re-propose marks, thickening lines, growth metaphors, plants, jars or streaks —
+and note that the creative work itself was judged and found wanting, so a second
+round of the same shape is not wanted either.
+
+**Worth keeping from that review even though the designs were rejected:** the
+argument that a left-to-right fill is a picture of what is MISSING rather than
+what was done. If the bar is ever reopened, that is the thesis to start from.
+
+**STILL OPEN — the pace tick.** `.bar u` is a 2px dark mark on the bar showing
+where the person is expected to be by today. **It is the last thing on that
+screen that knows what day it is**, and it survived the week in which every
+judging line was deleted, because it is geometry rather than words. G's last
+message was garbled where it referred to it. **Ask before touching it.**
+
+## BUILD 4F — 10 September. The pace clock is gone, and the calendar has days.
+
+Four rulings in one sitting, all built and all rendered and looked at.
+
+**1. ONE LINE UNDER THE COUNT, AND MILESTONES TAKE IT OVER.** Settled after two
+wrong turns of mine, so the ruling is written out in full:
+
+> G: *"It stays there until that point. And when it hits midpoint you can say
+> you are halfway there. And then the year is complete — you basically replace
+> it with the coral milestones."*
+
+`#p-week` is gone as an element. **`#p-state` is the single slot** under the
+count, and it carries:
+
+| when | it says | colour |
+|---|---|---|
+| most of the year | `week 12 of 52` | muted |
+| on the act that crosses halfway | `halfway there` | **coral** |
+| year finished | `the year is complete` | **coral** |
+
+Verified by playing three real years through the pipeline: at 3 acts *week 1 of
+52*, muted; at 13 *halfway there*, coral; at 25 *the year is complete*, coral.
+
+**Halfway uses the app's own threshold** — `done === Math.ceil(S.n/2)`, the same
+number `checkMilestones()` fires the halfway moment on. **It shows only while the
+count sits on that act** (13 of 25), so it marks the crossing and hands the line
+straight back to the week. If G wants it to stand for the whole back half, that
+is the one number to change.
+
+**`nothing logged yet` is gone.** The week already says where you are and does
+not comment on you.
+
+**My two wrong turns, recorded so nobody repeats them:** I first read "replace
+the week blank of blank" as *delete the week* and removed it — he asked why, and
+it came back. I then stacked week AND state as two separate lines, which was
+also not it. **He meant one slot that the milestones take over.** When a sentence
+could mean delete, ask.
+
+**2. The line moved out from beside the count and underneath it**, styled `.lab`. G: *"put 'the year is complete'
+underneath it. Leave the 25 of 25 acts of good, go straight across."*
+**Why it mattered, measured:** with the state line beside the count, the finished
+screen ran *"25 of 25 acts of good"* and *"the year is complete"* into **two lines
+each** — 66px at 390, and the same at 320 and 430. Stacked, the count is **33px,
+one line, every width.** The one screen that should feel like an arrival was the
+one screen that broke.
+
+**3. The calendar icon has days in it — ruled 2, six squares.**
+`<rect 2.4×2.4 rx .6>` at x 6.8/10.8/14.8, y 12.8/16.8, filled coral, no stroke.
+**FOUR copies of this icon exist and all four now match** — three in the markup
+(the sheet, the month header, and *hand the day to your phone's calendar* on an
+act) and **a fourth built in JavaScript inside `drawMonth`** at the `calbtn`
+button, which is the one on the month card and the one that was missed first
+time round. **If this icon ever changes again, change all four.**
+
+**4. The floating heart comes twice as often.** G: *"they're randomly floating
+hearts, it's awesome — make it happen twice as much."* `strayGap()` halved from
+2–5 minutes to **1–2.5 minutes**, and the first appearance from 25–65s to
+**12.5–32.5s**. Every rule it obeys is unchanged: one at a time, Your year only,
+never over a sheet or a moment, nothing under reduced motion, and it cannot take
+a tap.
+
+Verified: `node --check` clean; the ordinary screen, the finished screen and the
+month card all rendered at 390 and looked at.
+
+**Mirrored. NOT committed** — no shell on G's machine.
+
+## BUILD 4E — 10 September. Finding 4: the top of Your year, ruled.
+
+**Six alternatives and G's own seventh were drawn** (`reviews/PANEL-10-top-of-your-year.html`,
+https://claude.ai/code/artifact/6f0cd613-ec50-4dcb-8b5a-15b06c8e6c43).
+**G ruled: leave the screen as it is**, with one change.
+
+> *"Say one of twenty five acts of good, and remove one so far."*
+
+1. **The count names what it counts.** `p-count` now reads **"3 of 25 acts of
+   good"** instead of "3 of 25". `Begun` is unchanged for a year with only act 0.
+2. **The running commentary is gone.** `p-state` no longer says *one so far*,
+   *N so far, plenty of room*, or *taking your time*. Those were the app's
+   judgement about his number, which §3 says comes out. **Two lines survive and
+   neither is a measurement:** *nothing logged yet* on an empty year, and 5A's
+   *the year is complete* at the end.
+
+**G's own idea, drawn as G and NOT taken:** the month card leading the screen and
+listing only what is PLANNED, with completed acts left to the grid. He looked at
+it and kept the current screen. **It was the strongest option on that page — if
+this ever reopens, start there, and the empty-month state is drawn too.**
+
+**MEASURED, AND IT NEEDS A RULING.** `p-count` sits in a flex row beside
+`p-state`, and with both filled the longer count wraps to two lines: at 390px,
+"25 of 25 acts of good" beside "the year is complete" measures **66px tall —
+two lines**. It does not wrap in ordinary use, because `p-state` is now empty
+whenever any act is logged. **The only screen that wraps is the finished year.**
+Three ways out, none built: leave it; put the finished line under the count
+rather than beside it; or drop the words on the finished screen so it reads
+"25 of 25" while the coral line says the rest.
+
+Verified: `node --check` clean, rendered at 390×844 and looked at — one line,
+no "so far" line, nothing else on the screen moved.
+
+**Mirrored. NOT committed** — no shell on G's machine.
+
+## THE PANEL IS FINISHED — 20 of 20, 10 September.
+
+**18 — RULED 18A. Leave it. Nothing is built and nothing changes.**
+
+**Correct the finding before anyone repeats it.** Priya reported that helpers and
+the helped share one data structure, that the People screen holds both, and that
+the app then goes after the helped person's handle. **Checked against the file
+and that is not what happens.** `S.people` holds only people who were WITH you —
+invited, added by hand, or claimants off a sign-up sheet. That is what carries
+handles and what `tagsFor()` reads. **The person an act was FOR lives in `hon`, a
+plain text field. It never enters `S.people`, never gets a handle, never gets
+tagged.** Do not carry the one-list version forward.
+
+**What was actually true, and what G ruled on.** `buildCaption` writes `hon`
+into the public caption automatically — *"Act 3 of 25: In honor of Ray."* — with
+no choice offered, and it appears in the journal (`jhon`) and the printed book
+(`bhon`) as well. **The existing protection is anonymous mode**, which returns
+early with `'Act n of N.'` and carries no honoree at all.
+
+He was given three: leave it (18A), keep the name out of the post unless typed in
+by hand (18B), or ask once per act with the default off (18C). **He ruled 18A.**
+The argument on his side is Eileen's own: the box is more often a tribute than a
+person in need — *"my Don has been gone two years and there is not another app on
+this phone that has made room for him"* — and taking the name out of the post
+takes that away too. **Closed. Do not re-raise honoree naming from the panel
+notes.**
+
+### The twenty, all ruled
+
+1–8 wrong dates and claims (3V) · 9 withdrawn by G · 10–12 the app without sight
+(3W/3X) · 13A the twenty-six squares stay · 14B the cost pass (3Y) · 15 Ask for
+help moved up (3Z) · 16 the backup popup, the pair, and restore in setup (4C/4D)
+· 17 the envelope stays, words only (4B) · 18A leave it · 19B the book names only
+helpers · 20A the number stays on the card.
+
+**Unbuilt but ruled, waiting on nothing but a printing:** 19B — the book's "names
+it was all for" index must list only people who HELPED. The index does not exist
+yet; build it that way when it does.
+
+## BUILD 4D — 10 September. FINDING 16 IS CLOSED. The backup popup.
+
+**RULED L2.** The eight-line grey paragraph is gone from the You screen. What is
+left is what a backup *is*, then a coral line **"Show me how, step by step"**
+which opens a new sheet, then **Create backup | Restore backup on one row**.
+
+**`sheet-bkup` is new** and is registered in BOTH sheet lists (`sheet()` at the
+hide-all line, and the is-a-sheet-open helper) — miss either and it cannot close
+or it leaks focus. It carries G's three steps and ends in a coral
+**Create backup** that closes the sheet and runs `exportJournal()`.
+
+**The labels dropped their articles.** *Restore a backup* wrapped to two lines at
+390px while *Create a backup* sat on one, and the pair looked lopsided. Measured
+after the change: both buttons top 971, width 170, height 51 — a true pair.
+The setup button still reads *Restore from a backup* (full width, room for it).
+**Same action, two names — G has not been asked to settle that.**
+
+**Named, not built:** *Create backup* now exists twice — on the You row and at
+the foot of the popup. Deliberate (read the steps, act without going back), but
+he ruled "two buttons side by side, and that's it", so it is his to remove.
+
+Verified: `node --check` clean, rendered at 390×844 and looked at, popup opens
+from the line and closes to `‹ Done`, zero page errors.
+
+**Finding 16 is closed. Only 18 is left on the panel's list of twenty.**
+
+**Mirrored. NOT committed** — no shell on G's machine.
+
+## BUILD 4C — 10 September. Restore, where somebody who lost their phone can reach it.
+
+**The defect this closes.** *Restore from a backup* lived only on the You screen,
+and the tab bar stays hidden until act 0 exists. **So a person who had just lost
+their phone had to invent a name, a number, a reason and perform a declaration
+before they could get their real year back.** Found while answering G's question
+about new phones; he ruled it the same night.
+
+**RULED R2.** On sheet 1 (*First, a bit about you* — the page with the name), a
+line reading **Had this app before?** and a **Restore from a backup** button,
+directly under the name field. **No explanation there** — G: *"I don't think you
+need any explanation there. I think you need the explanation after you hit
+restore from backup."*
+
+Built as `#you-restore`, a `.field` that clicks the existing `imp-file` input, so
+nothing about the import path changed. **Setup only** — `sheet()` toggles it on
+`S.started`, so it is gone once the year is under way and does not duplicate the
+You screen's own button. Verified both ways in the browser: shown on a fresh
+install, hidden on a started year, zero page errors.
+
+**The words moved into the confirm**, per G. `importJournal`'s dialog now reads
+*"N acts, saved DATE. Everything comes back exactly as it was — every act, every
+photograph, every person. It replaces what is on this phone now."*
+
+**Named, not built:**
+- That dialog's left button says **Keep it**. On a new phone with nothing on it,
+  that is a strange thing to be offered. It wants a different word on this route.
+- The setup button says *Restore from a backup*; the You screen pair (drawn, not
+  built) says *Restore backup*. Same action, two names.
+
+**Still unbuilt and waiting on a letter: the popup.** G ruled **16B in a popup**
+rather than stacked on the You screen, with **Create backup / Restore backup side
+by side** and a coral line above them that opens it. Three wordings for that line
+are drawn as L1/L2/L3 in `reviews/PANEL-09-losing-the-phone.html`
+(https://claude.ai/code/artifact/a861ab8c-2a07-47b4-a0ad-4ba44cd8a9b9).
+**G has not given a letter. Do not build it until he does.**
+
+**Also ruled there:** Restore stays on the You screen as well as setup — setup
+runs once, and the ordinary case is setting the new phone up and only then
+finding the file.
+
+**Mirrored. NOT committed** — no shell on G's machine.
+
+## BUILD 4B — 9 September. 17 is RULED 1: the envelope does not move.
+
+**G:** *"keep the envelope where it is. I think it's fine, because you need
+these sending copies the caption, hands the card and photos to Instagram. You
+need the explanation, because it's kind of hard to understand if you don't have
+that underneath it. So it should read Send to Instagram, just copy the caption,
+the sending-copies-the-caption explanation, and then you have the envelope."*
+
+**His reason is better than the panel's finding.** The explanation paragraph is
+load-bearing — the hand-off to Instagram is genuinely confusing without it — and
+it has to sit under the buttons it explains. Raising the envelope would have
+split the buttons from their own explanation. **17 is closed. Do not re-raise
+the position, and do not carry Eileen's or Kayla's "it's a footnote" forward.**
+
+**Words only, and they are his:** the posting page envelope now reads
+*"Send it as a personal note to someone, or send it later."* and the journal
+envelope reads *"Send this one as a personal note."* The journal's spoken name
+already said "as a personal note" and was left alone.
+
+**Named, not built:** `HAND_LABEL.private` is still the bare word `'Send it'` —
+the button label once the private route is chosen. It was not part of his ruling.
+
+Verified: scripts `node --check` clean, posting page rendered and looked at, the
+order reads Send to Instagram · Just copy the caption · the explanation · the
+envelope. **Mirrored. NOT committed** — no shell on G's machine.
+
+## BUILD 4A — 9 September. The story moves under the photos.
+
+**G:** *"Add photos should be above the story. So it should go notes, photos,
+your story, and it happened posted."*
+
+The act screen (`s-work`) field order is now: the act · expected/aiming ·
+invite · in honor of · **Ask for help** · tally · **notes · photos · the story**
+· It happened. Post it. The story block moved down, nothing else changed.
+Reasoning kept in a comment beside it: the story is the last thing you write
+before you post, so it sits directly above the two finish buttons, under the
+photos it describes.
+
+Verified: scripts `node --check` clean, rendered at 390x844 and looked at.
+**Mirrored. NOT committed** — no shell on G's machine.
+
+## THE DOCKET — read this before asking G anything (9 September)
+
+Everything waiting on him, in one page, with each list's own numbering kept
+intact: `reviews/THE-DOCKET.html`, live at
+https://claude.ai/code/artifact/5c3a02b9-0210-4504-8bd9-db8109722017
+
+Top of it, in order: **17's placement (1 or 2), then 16, then 18** — those three
+close the panel. Then the two big ones from `DECISIONS-OPEN` (4, the four numbers
+before anybody's name; 8, the You screen without a touchscreen). Then the small
+single-word calls, the Jessica/artwork questions, and the unfinished work.
+
+**Two numbering systems are in play and they collide.** The panel runs 1–20; the
+older `DECISIONS-OPEN` list runs 1–17; `OPEN.md` uses A1–A8. The docket labels
+which is which. **When G rules by bare number, check which list he means.**
+
 ## The panel's list — 14 of 20 ruled. Six left. (9 September)
 
 Ruled and built: **1–8** (3V), **9** withdrawn by G, **10–12** (3W/3X), **14B**
 the cost pass (3Y), **15** Ask for help moved up (3Z).
 
-**RULED 9 Sept, in one sitting: 13B, 19B, 20A, and the wording for 17.**
+**RULED 9 Sept, in one sitting: 13A, 19B, 20A, and the wording for 17.**
 **Still open: 16 and 18**, plus two placement questions drawn in
 `reviews/PANEL-06-13B-and-the-note.html`
 (https://claude.ai/code/artifact/caefd8ba-4d3b-4373-b9f4-cdae0cb04dd9).
 
-- **13B** — the heading names the extra square: *"25 acts, and the day you said
-  so."* **Nothing on Your year currently says 25 except the pace card's count**,
-  and `#home-sub` beside the `Your year` heading is empty and unused. Two homes
-  were rendered: (1) in `#home-sub`, one line at 390px, recommended; (2) as a
-  `.lab` under `#p-week` inside the pace card, where it wraps to two lines and
-  crowds "0 of 25". Awaiting 1 or 2. **Nothing built.**
+- **13A — FINAL. G first said 13B, then corrected himself: "13a not b... use 13a."**
+  **The twenty-six squares stay exactly as they are. No line is added anywhere**
+  — not in `#home-sub`, not in the pace card. The two placements that were
+  rendered are dead; do not offer them again, and do not re-raise Eileen's and
+  Ruth's counting finding. **Closed.**
 - **19B** — the printed book's index names only the people who HELPED, never the
   people helped. Recorded; the index is unbuilt, so nothing to change yet.
 - **20A** — the number stays on the card. **CLOSED FOR GOOD. Do not raise it

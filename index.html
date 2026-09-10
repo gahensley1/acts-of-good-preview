@@ -1174,13 +1174,25 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
   <div class="top"><h2 id="home-h2">Your year</h2><div class="sub" id="home-sub"></div></div>
   <div class="wrap">
     <div class="pace joint-top">
-      <div class="row">
-        <div><div class="big" id="p-count">0 of 25</div>
-             <div class="lab" id="p-week"></div></div>
-        <!-- no longer shouted in the accent colour: it is a note, not a score -->
-        <div style="text-align:right;max-width:52%"><div id="p-state"
-             style="font-size:12.5px;
-             line-height:1.4"></div></div>
+      <!-- G, 10 Sept: "put 'the year is complete' underneath it. Leave the
+           25 of 25 acts of good, go straight across." The state line used to sit
+           to the right of the count, which cost the count half the card — and
+           once the count named what it counts, "25 of 25 acts of good" beside
+           "the year is complete" wrapped BOTH to two lines on the one screen
+           that should feel like an arrival. Measured at 390: 66px, two lines.
+           Stacked, the count runs the full width on one line: 33px. -->
+      <div class="row" style="display:block">
+        <div class="big" id="p-count">0 of 25</div>
+        <!-- G, 10 Sept: the state line moved out from beside the count and
+             underneath it, because "25 of 25 acts of good" next to "the year is
+             complete" wrapped both to two lines on the one screen that should
+             feel like an arrival. Measured: 66px beside, 33px stacked.
+             ONE line, one slot. G: "it stays there until that point... when it
+             hits midpoint you can say you are halfway there, and then the year
+             is complete — you basically replace it with the coral milestones."
+             So the slot carries "week n of N" by default, and a milestone takes
+             it over in coral when there is one. It is a note, not a score. -->
+        <div id="p-state" class="lab"></div>
       </div>
       <div class="bar"><i id="p-bar" style="width:0%"></i><u id="p-mark"></u></div>
       <div id="p-spend" class="hide" style="margin-top:14px;padding-top:12px;
@@ -1239,7 +1251,7 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
     </div>
 
     <!-- BUILD MARK — dev only, delete this div when the app ships -->
-    <div id="buildtag">BUILD 3Z</div>
+    <div id="buildtag">BUILD 4G</div>
   </div>
 </section>
 
@@ -1438,7 +1450,7 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
     <input id="pl-when" type="hidden" aria-hidden="true">
     <div class="datewrap">
       <button class="datebtn" id="pl-when-btn" onclick="openDate('pl-when')" data-lab="When" aria-label="When, pick a date" ></button>
-      <button class="calgo" onclick="openCal()" aria-label="Month calendar"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--coral)" stroke-width="1.5"><rect x="3" y="5" width="18" height="16" rx="2.5"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></button>
+      <button class="calgo" onclick="openCal()" aria-label="Month calendar"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--coral)" stroke-width="1.5"><rect x="3" y="5" width="18" height="16" rx="2.5"/><path d="M3 10h18M8 3v4M16 3v4"/><path d="M9 10.4v10.6M15 10.4v10.6M3 13.7h18M3 17.3h18" stroke-width=".5"/></svg></button>
     </div>
     <p class="note" style="margin-top:8px">Tap the date to pick a day. Leave it if
       you do not know yet.</p></div>
@@ -1497,7 +1509,7 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
       <input id="l-when" type="hidden" aria-hidden="true">
       <div class="datewrap">
         <button class="datebtn" id="l-when-btn" onclick="openDate('l-when')" data-lab="When" aria-label="When, pick a date" ></button>
-        <button class="calgo" onclick="openCal()" aria-label="Month calendar"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--coral)" stroke-width="1.5"><rect x="3" y="5" width="18" height="16" rx="2.5"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></button>
+        <button class="calgo" onclick="openCal()" aria-label="Month calendar"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--coral)" stroke-width="1.5"><rect x="3" y="5" width="18" height="16" rx="2.5"/><path d="M3 10h18M8 3v4M16 3v4"/><path d="M9 10.4v10.6M15 10.4v10.6M3 13.7h18M3 17.3h18" stroke-width=".5"/></svg></button>
       </div>
       <div style="display:flex;gap:10px;margin-top:10px">
         <button class="btn mini ghost" style="margin:0" onclick="actToCalendar()">
@@ -1561,7 +1573,7 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
         <input id="wk-when" type="hidden" aria-hidden="true">
         <div class="datewrap">
           <button class="datebtn" id="wk-when-btn" onclick="openDate('wk-when')" data-lab="Aiming for" aria-label="Aiming for, pick a date" ></button>
-          <button class="calgo" onclick="workToCalendar()" aria-label="Hand the day to your phone's calendar"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--coral)" stroke-width="1.5"><rect x="3" y="5" width="18" height="16" rx="2.5"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></button>
+          <button class="calgo" onclick="workToCalendar()" aria-label="Hand the day to your phone's calendar"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--coral)" stroke-width="1.5"><rect x="3" y="5" width="18" height="16" rx="2.5"/><path d="M3 10h18M8 3v4M16 3v4"/><path d="M9 10.4v10.6M15 10.4v10.6M3 13.7h18M3 17.3h18" stroke-width=".5"/></svg></button>
         </div>
         <p class="note" style="margin-top:8px">Today unless you change it. Tap the
           date to pick another day.</p></div>
@@ -1595,15 +1607,18 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
       </div>
       <p class="note" id="wk-spendnote" style="margin-top:8px">One number is fine. Or the calculator keeps a tally as you buy things.</p></div>
 
-    <div class="field"><label for="wk-story">The story <span style="text-transform:none;font-weight:400">(becomes your post)</span></label>
-      <textarea id="wk-story" oninput="wkEdited()" placeholder="Whatever happened, as it happened. (The awkward parts are allowed too.)"></textarea></div>
-
     <div class="field"><label>Notes <span style="text-transform:none;font-weight:400">(private, never printed)</span></label>
       <div id="wk-notes"></div></div>
 
     <div class="field"><label>Photos <span style="text-transform:none;font-weight:400">(these ride on your post)</span></label>
       <div class="photos" id="wk-photos"></div>
       <input type="file" id="wk-file" accept="image/*" multiple hidden></div>
+
+    <!-- G, 9 Sept: "notes, photos, your story, and it happened posted." The story
+         is the last thing you write before you post, so it now sits directly
+         above the two finish buttons, under the photos it describes. -->
+    <div class="field"><label for="wk-story">The story <span style="text-transform:none;font-weight:400">(becomes your post)</span></label>
+      <textarea id="wk-story" oninput="wkEdited()" placeholder="Whatever happened, as it happened. (The awkward parts are allowed too.)"></textarea></div>
 
     <button class="btn" onclick="finishWork(false)">It happened. Post it</button>
     <button class="btn ghost" style="margin-top:10px;border-width:2px" onclick="finishWork(true)">Anonymous act. Just the card posts</button>
@@ -1786,7 +1801,7 @@ What you actually did. Why it mattered. Say the awkward parts."></textarea>
     <!-- the envelope: giving quietly gets an object, not a channel (ruled 2B) -->
     <button type="button" class="envnote" id="cm-env" onclick="envNote()">
       <span class="flap" aria-hidden="true"></span>
-      <span class="etxt"><b>Send it as a note to someone</b>, or send it later.<br>
+      <span class="etxt"><b>Send it as a personal note to someone</b>, or send it later.<br>
       <span style="opacity:.8">It awaits in your journal page. A text or an email to one
       person. No act number, no hashtag, nothing posted.</span></span>
     </button>
@@ -1914,17 +1929,22 @@ What you actually did. Why it mattered. Say the awkward parts."></textarea>
       <p class="note" style="margin-top:10px">Because it never leaves the phone, it
         can go with the phone. A backup is one file with everything in it: every act,
         every photograph, every person.</p>
-      <p class="note" style="margin-top:10px"><b>How to keep one safe.</b> Tap
-        <i>Create a backup</i> and your phone offers to share the file. Choose
-        <b>Save to Files</b> and put it in <b>iCloud Drive</b>, or on an Android
-        phone, save it to <b>Google Drive</b>. Anywhere that is not only this phone.
-        <b>Once a month is plenty</b>, and again after any act you would hate to
-        lose. The line under the button tells you when the last one was.</p>
-      <button class="btn ghost" style="margin-top:12px" onclick="exportJournal()">
-        Create a backup</button>
+      <!-- G, 10 Sept, ruled L2 + the pair. The eight-line grey paragraph is gone:
+           this screen keeps what a backup IS, and the doing of it moved into
+           sheet-bkup. The two buttons share a line because as a pair they say
+           what a backup is better than the paragraph did — make one, bring one
+           back. Labels dropped their articles so both sit on one line at 390px;
+           "Restore a backup" wrapped and the pair looked lopsided. -->
+      <button type="button" id="bkup-how" onclick="sheet('bkup')"
+        style="display:block;text-align:left;color:var(--coralink);font-weight:600;
+        font-size:15px;padding:12px 0 2px;background:none;border:0">Show me how, step by step</button>
+      <div style="display:flex;gap:10px;margin-top:12px">
+        <button class="btn ghost" style="flex:1;margin:0" onclick="exportJournal()">
+          Create backup</button>
+        <button class="btn ghost" style="flex:1;margin:0" onclick="$('imp-file').click()">
+          Restore backup</button>
+      </div>
       <p class="note" id="bkupwhen" style="margin:8px 0 0"></p>
-      <button class="btn ghost" style="margin-top:14px" onclick="$('imp-file').click()">
-        Restore from a backup</button>
       <input type="file" id="imp-file" accept="application/json,.json" class="hide" aria-label="Choose a backup file"
         onchange="importJournal(this)">
     </div>
@@ -1980,6 +2000,16 @@ What you actually did. Why it mattered. Say the awkward parts."></textarea>
   <div class="field"><label>Your name</label>
     <input id="you-name" aria-label="Your name" placeholder="Your first name"></div>
 
+  <!-- G, 10 Sept, ruled R2. Restore used to live only on the You screen, and the
+       tab bar stays hidden until act 0 exists — so somebody who had just lost
+       their phone had to invent a name, a number, a reason and a declaration
+       before they could get their real year back. It sits on step one now.
+       No explanation beside it: the words are in the confirm, after the tap.
+       Setup only, hidden once the year has started (see sheet()). -->
+  <div class="field hide" id="you-restore" style="margin-top:18px;margin-bottom:26px">
+    <p class="note" style="margin:0 0 10px;font-weight:600;color:var(--ink)">Had this app before?</p>
+    <button class="btn ghost" type="button" onclick="$('imp-file').click()">Restore from a backup</button></div>
+
   <div class="field"><label for="bday-month">Your birthday</label>
     <div style="display:flex;gap:10px">
       <select id="bday-month" aria-label="Birth month" style="flex:1.3"></select>
@@ -2011,6 +2041,28 @@ What you actually did. Why it mattered. Say the awkward parts."></textarea>
      offered to help. Removed on G's ruling, 30 Aug: an introduction should not
      open by asking you to recruit. People are still added, with the same names
      and places, from the People tab whenever someone actually offers. -->
+<!-- ══ SHEET — how to keep a backup safe ══
+     G, 10 Sept: 16B, but "I wanna be able to have it as a pop up window, so it's
+     not all the information stuck on one window." The You screen keeps what a
+     backup IS; the doing of it lives here, and the button to do it sits at the
+     foot of the instructions rather than back behind them. -->
+<div class="sheet hide" id="sheet-bkup" role="dialog" aria-modal="true" aria-labelledby="bk-h3"><div class="panel">
+  <button class="sheetback" onclick="sheet(null)">‹ Done</button>
+  <div class="steps">A backup</div>
+  <h3 id="bk-h3">How to keep one safe</h3>
+  <ol style="margin:0 0 14px;padding-left:22px">
+    <li style="margin-bottom:10px">Tap <b>Create backup</b>.</li>
+    <li style="margin-bottom:10px">A panel slides up from the bottom with a row of
+      icons. Choose <b>Save to Files</b> &mdash; your phone&rsquo;s own filing cabinet.</li>
+    <li style="margin-bottom:10px">Pick <b>iCloud Drive</b> and tap Save. On an
+      Android phone it is <b>Google Drive</b>.</li>
+  </ol>
+  <p class="note">Anywhere that is not only this phone. <b>Once a month is plenty</b>,
+    and again after any act you would hate to lose.</p>
+  <button class="btn" style="margin-top:18px" onclick="sheet(null);exportJournal()">
+    Create backup</button>
+</div></div>
+
 <div class="sheet hide" id="sheet-social" role="dialog" aria-modal="true" aria-labelledby="social-h3"><div class="panel">
   <button class="sheetback" onclick="sheet(null); drawSetup();">‹ Back</button>
   <div class="steps">Step 3 of 3</div>
@@ -2586,7 +2638,9 @@ function importJournal(input){
     checkFirst('Bring this copy back?',
       o.acts.length+' act'+(o.acts.length===1?'':'s')+', saved '+
       (o.exported ? shortDate(o.exported.slice(0,10)) : 'earlier')+
-      '. It replaces what is on this phone now.', 'Replace it', async ()=>{
+      '. Everything comes back exactly as it was \u2014 every act, every '+
+      'photograph, every person. It replaces what is on this phone now.',
+      'Replace it', async ()=>{
         /* Nothing old is destroyed until the new copy is safely written. This
            used to clear the photo store first, so an import that then failed
            left the original journal intact and every one of its photos deleted. */
@@ -3351,11 +3405,13 @@ function drawZero(){
    nothing under reduced motion; and it cannot be tapped, so it can never take
    a tap meant for a square.                                                  */
 let STRAY_T = null, STRAY_ON = 0;
-function strayGap(){ return 120000 + Math.random()*180000; }   // 2 to 5 minutes
+/* G, 10 Sept: "they're randomly floating hearts, it's awesome — make it happen
+   twice as much as it happens now." Both waits halved. */
+function strayGap(){ return 60000 + Math.random()*90000; }     // 1 to 2.5 minutes
 function strayStop(){ if(STRAY_T) clearTimeout(STRAY_T); STRAY_T = null; }
 function strayPlan(first){
   strayStop();
-  STRAY_T = setTimeout(strayGo, first ? 25000 + Math.random()*40000 : strayGap());
+  STRAY_T = setTimeout(strayGo, first ? 12500 + Math.random()*20000 : strayGap());
 }
 function strayGo(){
   /* Where it is gets checked BEFORE the next one is planned. Re-planning first
@@ -4343,9 +4399,10 @@ function drawHome(){
   /* "0 of 25" on day one, one screen below a letter promising nobody is
      keeping score. It says what is true instead, and becomes the count the
      moment there is a count. */
-  $('p-count').textContent = (done===0 && S.zero) ? 'Begun' : done+' of '+S.n;
+  /* G, 10 Sept: "say one of twenty five acts of good, and remove one so far."
+     The count names what it is counting instead of standing as a bare score. */
+  $('p-count').textContent = (done===0 && S.zero) ? 'Begun' : done+' of '+S.n+' acts of good';
   $('p-count').classList.toggle('finished', yearDone());
-  $('p-week').textContent='week '+wk+' of '+S.weeks;
   /* This is the sentence sitting one screen below a letter that says nobody is
      keeping score, and it read like a scoreboard: "1 ahead", "3 to catch up",
      against a target that moves every week. It still tells you where you are —
@@ -4360,13 +4417,23 @@ function drawHome(){
      enough. G ruled 5A: "the year is complete", in coral, so it reads as the
      one line on that screen that is not a measurement. */
   const fin = yearDone();
+  /* G, 10 Sept: "remove one so far." The running commentary is gone — 'one so
+     far', 'N so far, plenty of room' and 'taking your time' were all the app's
+     judgement about your number, which is exactly what §3 says comes out. Two
+     lines survive and neither is a measurement: the empty year says so plainly,
+     and the finished year keeps 5A. */
+  /* One slot, three things. The week is what it says most of the year; a
+     milestone takes the line over, in coral, and hands it straight back.
+     'halfway there' shows only while you are ON the act that crossed it —
+     act 13 of 25 — so it marks the crossing instead of sitting there for the
+     back half of the year. 'nothing logged yet' is gone: week 1 of 52 already
+     says where you are and does not comment on you. */
+  const halfway = !fin && S.n && done === Math.ceil(S.n/2);
   $('p-state').textContent =
-      fin        ? 'the year is complete'
-    : done===0   ? 'nothing logged yet'
-    : done===1   ? 'one so far'
-    : ahead >= 0 ? done+' so far, plenty of room'
-    : 'taking your time';
-  $('p-state').classList.toggle('complete', fin);
+      fin     ? 'the year is complete'
+    : halfway ? 'halfway there'
+    : 'week '+wk+' of '+S.weeks;
+  $('p-state').classList.toggle('complete', fin || halfway);
   /* the year is over, and the app is not */
   let ny = $('p-again');
   if(fin && !ny){
@@ -4987,7 +5054,13 @@ function drawMonth(){
     '<svg width="36" height="36" viewBox="0 0 24 24" fill="none" '+
     'stroke="var(--coral)" stroke-width="1.6">'+
     '<rect x="3" y="5" width="18" height="16" rx="2.5"/>'+
-    '<path d="M3 10h18M8 3v4M16 3v4"/></svg></button>';
+    '<path d="M3 10h18M8 3v4M16 3v4"/>'+
+    /* G, 10 Sept, ruled 3C: a ruled grid, six cells, at half the weight of
+       the box. FOUR copies of this icon exist — three in the markup and this
+       one, built here because the month card is drawn in code. Keep all four
+       in step; this is the copy that gets missed. */
+    '<path d="M9 10.4v10.6M15 10.4v10.6M3 13.7h18M3 17.3h18" stroke-width=".5"/>'+
+    '</svg></button>';
   box.innerHTML = html;
 }
 
@@ -5183,7 +5256,7 @@ function drawJournal(){
        on social, long after the post */
     const env=document.createElement('button');
     env.type='button'; env.className='jenv';
-    env.innerHTML='<span class="flap" aria-hidden="true"></span><span>Send this one as a note to someone</span>';
+    env.innerHTML='<span class="flap" aria-hidden="true"></span><span>Send this one as a personal note</span>';
     env.setAttribute('aria-label','Send act '+a.no+' as a personal note');
     env.onclick=()=>{ S.current=a; CM_PLAT='private'; openCompose(); };
     pg.appendChild(env);
@@ -9282,8 +9355,9 @@ function checkFirst(title, note, okLabel, then, cancelLabel){
 let SHEET_FROM = null;
 function sheet(which){
   dropUndo();      // an offer does not follow you into or out of a sheet
-  ['you','social','spend','plan','person','cal','date','ask','done','finish','eval','pv'].forEach(x=>{ const el=$('sheet-'+x); if(el) el.classList.add('hide'); });
+  ['you','social','spend','plan','person','cal','date','ask','done','finish','eval','pv','bkup'].forEach(x=>{ const el=$('sheet-'+x); if(el) el.classList.add('hide'); });
   if(which){ $('sheet-'+which).classList.remove('hide'); }
+  if(which==='you'){ const r=$('you-restore'); if(r) r.classList.toggle('hide', !!S.started); }
   if(which==='social') drawPlats();
   if(which==='cal') drawCal();
   if(which==='done') drawDone();
@@ -9488,7 +9562,7 @@ function readBday(){
    in the viewport AND with no sheet covering it. An IntersectionObserver alone
    can't tell: an element behind a full-screen overlay still 'intersects'. */
 function sheetOpen(){
-  return ['you','social','spend','plan','person','cal','date','ask','done'].some(x=>!$('sheet-'+x).classList.contains('hide'));
+  return ['you','social','spend','plan','person','cal','date','ask','done','bkup'].some(x=>!$('sheet-'+x).classList.contains('hide'));
 }
 function tourIfVisible(){
   if(S.toneToured || sheetOpen()) return;
