@@ -6,8 +6,8 @@ what is true right now. When they disagree, this file is newer — say so and fi
 the skill.
 
 Last updated: **9 September 2026**.
-Build in G's hands: **4G** is live. **4H** is on disk in both folders — patch 05
-applied and verified, not yet committed.
+Build in G's hands: **4H** is live. **4I** is on disk in both folders — the
+Instagram margin, applied and measured, not yet committed.
 
 ## 3Z is VERIFIED, MIRRORED, COMMITTED AND LIVE. (9 September)
 
@@ -77,7 +77,46 @@ the last local edit to `worker.js` (7 Sept 21:35 UTC). **So the deploy almost
 certainly happened and the blocker is stale — but this was inferred from
 timestamps, not by reading the deployed code.** Confirm before relying on it.
 
-## BUILD 4H — 11 September. PATCH 05: the card's type is placed by baseline.
+## BUILD 4I — 11 September. THE INSTAGRAM MARGIN. The card survives being posted.
+
+**G believed patch 04 was already applied. It was not, and the card settled it**
+— `CARD_SAFE` appeared zero times, and the rendered card's ink measured
+**4.72% – 95.56%** of its width, edge to edge. An 11% crop cuts at 11 and 89, so
+both ends were outside it. **When a claim about the build can be measured,
+measure it; do not argue from either side's memory.**
+
+**The card was never drawn wrong.** What cut "thirty-seven" in half is
+Instagram: a square dropped into a story or a reel is scaled up and cropped
+about 11% off each side. So the fix is the margin, not the drawing.
+
+`renderCard` now draws the whole composition at **`CARD_SAFE = 0.82`** of its
+size, centred, on the same white square — one `save/translate/scale` after the
+white fill, one `restore` before `return c`. **Every proportion inside the card
+is untouched.** It is Jessica's composition, unchanged, standing further back
+from the edge, and the band Instagram eats is white.
+
+**Measured after:** ink runs **12.87% – 87.31%** at every script-word length
+tested, and an 11%-a-side crop simulated on the result takes nothing — the *t*
+of "thirty" and the whole balloon survive. `node --check` clean, zero page
+errors, both cards looked at.
+
+**The trade, and it is one character.** A square posts uncropped in the feed, so
+there the card now carries a wider white border. Raise `CARD_SAFE` toward 1 for
+a bolder card that risks the crop; lower it for more protection.
+
+**Saved as `patches/patch-04-card-safe.py` in both folders.** Note this is the
+CARD half of what `README-PATCHES.md` calls patch 04. **The field-width half —
+"Which act", the shorter placeholder, the three-letter month on the date button
+— is still NOT applied**, and neither is **patch 03**. `fieldDate` exists and
+carries the apostrophe-year, but it still spells the month in full.
+
+## BUILD 4H — 11 September. PATCH 05, and it is LIVE (commit `d75a96e`).
+
+**Pages took about four minutes to publish this one** — three fetches read 4G
+before the fourth read 4H. Earlier pushes had gone live inside ninety seconds.
+**Do not conclude a push failed from one stale fetch; wait and fetch again.**
+Note also that fetching the site returns the page as text, so **strings inside
+`<script>` cannot be checked that way** — check visible copy, or the build mark.
 
 `patch-05-card-spacing.py` applied to 4G, clean — all three anchors matched
 exactly once. **The script is saved to `patches/` in both folders**, because 04

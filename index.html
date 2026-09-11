@@ -1251,7 +1251,7 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
     </div>
 
     <!-- BUILD MARK — dev only, delete this div when the app ships -->
-    <div id="buildtag">BUILD 4H</div>
+    <div id="buildtag">BUILD 4I</div>
   </div>
 </section>
 
@@ -8887,6 +8887,28 @@ async function renderCard(a, W){
   const g = c.getContext('2d');
   g.fillStyle = '#FFFFFF'; g.fillRect(0,0,W,W);
 
+  /* THE INSTAGRAM MARGIN — patch 04, 11 September.
+     The card was never drawn wrong: measured at 1080 the ink cleared the left
+     edge by 4.7% and the right by 4.4%. What cut "thirty-seven" in half was
+     INSTAGRAM — a square dropped into a story or a reel is scaled up and
+     cropped about 11% off each side. Crop a correct card by 11% a side and you
+     get G's screenshot exactly: the t gone on the left, the outside of the
+     balloon gone on the right.
+
+     So the fix is the margin, not the drawing. The whole composition is drawn
+     at CARD_SAFE of its size, centred, on the same white square. EVERY
+     PROPORTION INSIDE THE CARD IS UNTOUCHED — it is Jessica's composition,
+     unchanged, standing further back from the edge — and the band Instagram
+     eats is white.
+
+     Raise CARD_SAFE toward 1 for a bolder card that risks the crop; lower it
+     for more protection. The cost is a wider white border in the feed, where a
+     square posts uncropped. That is the trade, and it is one character. */
+  const CARD_SAFE = 0.82;
+  g.save();
+  g.translate(W*(1-CARD_SAFE)/2, W*(1-CARD_SAFE)/2);
+  g.scale(CARD_SAFE, CARD_SAFE);
+
   /* canvas won't fall back to a face the page happens to be using — each
      weight has to be explicitly loaded before it can be drawn with */
   if(document.fonts){
@@ -8971,6 +8993,7 @@ async function renderCard(a, W){
   g.fillText(parts[1], x, base); x += wB;
   g.fillText(parts[2], x, base);
 
+  g.restore();                 // out of the safe-margin transform
   return c;
 }
 
