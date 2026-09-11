@@ -6,8 +6,8 @@ what is true right now. When they disagree, this file is newer — say so and fi
 the skill.
 
 Last updated: **9 September 2026**.
-Build in G's hands: **4H** is live. **4I** is on disk in both folders — the
-Instagram margin, applied and measured, not yet committed.
+Build in G's hands: **4H** is live. **4J** is on disk in both folders — the
+Instagram margin and the field row, applied and measured, not yet committed.
 
 ## 3Z is VERIFIED, MIRRORED, COMMITTED AND LIVE. (9 September)
 
@@ -76,6 +76,35 @@ They said 3I was live and that the sign-up sheet could not publish until
 the last local edit to `worker.js` (7 Sept 21:35 UTC). **So the deploy almost
 certainly happened and the blocker is stale — but this was inferred from
 timestamps, not by reading the deployed code.** Confirm before relying on it.
+
+## BUILD 4J — 11 September. The left-hand field stops wrapping.
+
+From G's own screenshot: **"EXPECTED ACT" was wrapping to two lines** and the box
+beside it read **`auto (4`** with the bracket cut off. Three changes, all of
+which buy width:
+
+1. **"Expected act" → "Which act."** Three characters shorter, and it is already
+   the app's own wording — `renumberAct` asks *"Which act is this?"*
+2. **Placeholder `auto (4)` → `4`.** G: *"remove auto, just say what is
+   expected."* The grey already says the number is provisional; "auto" spent
+   five characters saying it a second time.
+3. **The date button says `11 Sep '26`.** **This is the one that actually does
+   the work.** The button cannot wrap, so its full width was setting the floor
+   for the whole row and the left column got whatever was left over. September
+   is the longest month there is; three letters hand back about 55px.
+
+**`longDate` is untouched** — invitations, messages, the journal and the calendar
+all still say **September** in full. This is the button alone, through
+`fieldDate`.
+
+**Measured at 320, 360, 390 and 430:** both labels on one line, both controls
+starting at the same top, no horizontal scroll at any width. Looked at, at 390.
+
+**Also checked while in there, because G said "the number is rendering wrong in
+the card":** the exported card's *act 3 of 25* renders correctly and centred at
+1080 after both patches. The number that was rendering wrong is the one in the
+screenshot — the clipped `auto (4` in the field — and that is what this fixes.
+**If a card ever does render its number wrong, it will not be this.**
 
 ## BUILD 4I — 11 September. THE INSTAGRAM MARGIN. The card survives being posted.
 

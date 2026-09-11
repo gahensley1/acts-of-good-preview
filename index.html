@@ -1251,7 +1251,7 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
     </div>
 
     <!-- BUILD MARK — dev only, delete this div when the app ships -->
-    <div id="buildtag">BUILD 4I</div>
+    <div id="buildtag">BUILD 4J</div>
   </div>
 </section>
 
@@ -1567,7 +1567,7 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
       <input id="wk-t" oninput="wkEdited()" placeholder="Doughnuts for the vet clinic staff"></div>
 
     <div style="display:flex;gap:10px">
-      <div class="field" style="flex:1"><label for="wk-exp">Expected act</label>
+      <div class="field" style="flex:1"><label for="wk-exp">Which act</label>
         <input id="wk-exp" oninput="wkEdited()" inputmode="decimal"></div>
       <div class="field" style="flex:1.4"><label for="wk-when-btn">Aiming for</label>
         <input id="wk-when" type="hidden" aria-hidden="true">
@@ -4761,7 +4761,13 @@ function longDate(iso){
 function fieldDate(iso){
   if(!iso) return 'Pick a date';
   const p=iso.split('-');
-  return +p[2]+' '+MONTHS_LONG[+p[1]-1]+' \u2019'+p[0].slice(2);
+  /* G, 11 Sept: abbreviate the month. The button cannot wrap, so its full width
+     was setting the floor for the whole row and the left column got whatever was
+     left over - which is why "Expected act" went to two lines and the number in
+     the box lost its bracket. September is the longest month there is; three
+     letters hand back about 55px. longDate is untouched: invitations, messages,
+     the journal and the calendar all still say September in full. */
+  return +p[2]+' '+MONTHS_LONG[+p[1]-1].slice(0,3)+' \u2019'+p[0].slice(2);
 }
 /* spoken, not printed: no apostrophe-year, no abbreviation */
 function longDate(iso){
@@ -6214,7 +6220,10 @@ function openWork(w){
   WK = w;
   $('wk-t').value = w.t||'';
   $('wk-exp').value = w.exp||'';
-  $('wk-exp').placeholder = 'auto ('+nextSlot(true)+')';
+  /* G, 11 Sept: "remove auto, just say what is expected." The grey already says
+     the number is provisional; "auto" spent five characters saying it a second
+     time, and the brackets were being cut off inside the box. */
+  $('wk-exp').placeholder = String(nextSlot(true));
   /* G, 8 Sept: "the pick a date should be filled with the current date. If
      not, they'll have to pick the calendar to change it." Starting empty made
      every act in the works begin with no day at all, which meant a tap before
