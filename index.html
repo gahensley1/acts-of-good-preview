@@ -1251,7 +1251,7 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
     </div>
 
     <!-- BUILD MARK — dev only, delete this div when the app ships -->
-    <div id="buildtag">BUILD 4G</div>
+    <div id="buildtag">BUILD 4H</div>
   </div>
 </section>
 
@@ -8856,9 +8856,26 @@ function inviteBlob(a){
    camera roll, or posted. Every number here is the same parameter the CSS
    uses, expressed as a percentage of the card's width, so the two cannot
    drift apart.                                                              */
+/* BASELINES, as a percentage of the card's width - not ink tops. The HTML card
+   stacks line boxes, so what is fixed there is each line's baseline; the canvas
+   used to place by ink top, the two only agree by coincidence, and they had
+   stopped agreeing. "acts of good" was starting 1.09% of the card's width ABOVE
+   where the 25's ink stops, so on every exported card the 5 sat inside the
+   words, while the card on screen had a clean 2.0% gap.
+
+   Every number below is measured off the card on screen. If one is ever touched
+   again, measure the screen card and match it - two drawings of one thing will
+   drift apart unless something forces them together, and this is the something.
+
+   The script is the exception: it is the only line whose size changes, because a
+   long word shrinks to clear the balloon, and on screen its line box is 0.9em
+   with a -0.04em top margin, so its baseline rises as it shrinks. Measured at
+   four widths from "six" down to "one hundred and one", the screen's baseline is
+   linear in the size to within 0.05%:  35.53 + 0.631 x size.                  */
 const CARD = {
-  nTop: 12.7, aogTop: 23.0, iyTop: 28.8, scrTop: 34.3,   // ink tops, % of width
-  artTop: 6.4, ruleY: 65.9, actTop: 75.1,
+  nBase: 24.09, aogBase: 29.55, iyBase: 34.50,           // baselines, % of width
+  scrBase0: 35.53, scrBaseK: 0.631,                      // scr baseline = B0 + K*size
+  artTop: 6.4, ruleY: 65.8, actBase: 83.17,
   nSize: 15.6, aogSize: 4.9, iySize: 3.6, scrSize: 25, actSize: 10.4
 };
 
@@ -8910,18 +8927,21 @@ async function renderCard(a, W){
   const objL  = MARK_INSET*100 + ((100 - MARK_INSET*200) - objW)/2;
   const cx    = objL + textW/2;
 
-  const line = (txt, size, weight, family, colour, inkTop) => {
+  /* baseY is a BASELINE, the way the HTML card's line boxes fix a baseline, so
+     the two stay in step whatever letters the string happens to contain */
+  const line = (txt, size, weight, family, colour, baseY) => {
     if(!txt) return;
     g.font = f(size, weight, family);
     g.fillStyle = colour;
     const m = g.measureText(txt);
     g.textBaseline = 'alphabetic';
-    g.fillText(txt, cx*k - m.width/2, inkTop*k + (m.actualBoundingBoxAscent||size*k*0.72));
+    g.fillText(txt, cx*k - m.width/2, baseY*k);
   };
-  line(nTxt,           CARD.nSize,   800, 'Montserrat', gold,      CARD.nTop);
-  line('acts of good', CARD.aogSize, 700, 'Montserrat', '#000000', CARD.aogTop);
-  line(iyTxt,          CARD.iySize,  500, 'Montserrat', '#000000', CARD.iyTop);
-  line(scrTxt,         scrSize,      '',  'Great Vibes', gscr,     CARD.scrTop);
+  line(nTxt,           CARD.nSize,   800, 'Montserrat', gold,      CARD.nBase);
+  line('acts of good', CARD.aogSize, 700, 'Montserrat', '#000000', CARD.aogBase);
+  line(iyTxt,          CARD.iySize,  500, 'Montserrat', '#000000', CARD.iyBase);
+  line(scrTxt,         scrSize,      '',  'Great Vibes', gscr,
+       CARD.scrBase0 + CARD.scrBaseK*scrSize);
 
   /* the artwork — the PNG carries transparent margin, so place by its ink */
   const art = document.querySelector('#cardface .handimg');
@@ -8945,7 +8965,7 @@ async function renderCard(a, W){
         wC = g.measureText(parts[2]).width;
   const total = wA+wB+wC;
   let x = W/2 - total/2;
-  const base = CARD.actTop*k + (g.measureText('act').actualBoundingBoxAscent || CARD.actSize*k*0.72);
+  const base = CARD.actBase*k;
   g.fillStyle = coral;
   g.fillText(parts[0], x, base); x += wA;
   g.fillText(parts[1], x, base); x += wB;

@@ -6,7 +6,8 @@ what is true right now. When they disagree, this file is newer — say so and fi
 the skill.
 
 Last updated: **9 September 2026**.
-Build in G's hands: **3Z** live; **4G** is on disk in both folders, mirrored, uncommitted.
+Build in G's hands: **4G** is live. **4H** is on disk in both folders — patch 05
+applied and verified, not yet committed.
 
 ## 3Z is VERIFIED, MIRRORED, COMMITTED AND LIVE. (9 September)
 
@@ -75,6 +76,61 @@ They said 3I was live and that the sign-up sheet could not publish until
 the last local edit to `worker.js` (7 Sept 21:35 UTC). **So the deploy almost
 certainly happened and the blocker is stale — but this was inferred from
 timestamps, not by reading the deployed code.** Confirm before relying on it.
+
+## BUILD 4H — 11 September. PATCH 05: the card's type is placed by baseline.
+
+`patch-05-card-spacing.py` applied to 4G, clean — all three anchors matched
+exactly once. **The script is saved to `patches/` in both folders**, because 04
+and 05 had been written in a session whose working folder was erased and only
+their write-up survived. **Save every patch script beside the file it patches.**
+
+**What it fixes.** The card exists twice — HTML on *Your card*, canvas in
+`renderCard` for every copy that leaves the app — and the two had drifted,
+invisibly, because the screen shows one and Instagram shows the other. The HTML
+fixes each line's **baseline**; the canvas was placing by **ink top**. Exported,
+"acts of good" began 1.09% of the card's width above where the 25's ink stops,
+so the 5 sat inside the words on every card that left the app.
+
+`CARD` now carries baselines — `nBase 24.09 · aogBase 29.55 · iyBase 34.50 ·
+actBase 83.17` — and the script word, the one line whose size changes, is placed
+by `35.53 + 0.631 × size`.
+
+**Verified here, not taken on trust.** `node --check` clean. The exported card
+rendered at 1080 at four script widths (six · fifty · thirty-seven · one hundred
+and one) and the ink bands measured off the pixels: **the numeral ends at 24.17
+and "acts of good" begins at 25.83 — a 1.66% gap, no collision.** Both cards
+looked at. Zero page errors.
+
+**Worth watching:** on the longest word the script clears "in year" by only
+**0.37%** of the card's width. It does not touch, at any of the four widths
+tested. If the script word ever grows a taller ascender, check this first.
+
+**STILL NOT APPLIED — and this is the one that matters for Instagram.** Patch 04
+is what stops the crop: `CARD_SAFE`, drawing the whole composition at 0.82 of the
+card so the 11% Instagram eats off each side is white. **`CARD_SAFE` is absent
+from 4H.** Patch 05 fixed the spacing INSIDE the card; the card is still drawn
+edge to edge, so "thirty-seven" will still lose its *t* in a story or a reel.
+**Patch 03 is also unapplied** (no `JUST_LOGGED`; the Expected act / Aiming for
+row is still the old flex pair). **Neither script exists on disk — only their
+write-ups in `README-PATCHES.md`.**
+
+## 4G IS LIVE — pushed 10 September, commit `4fd301f`
+
+Everything from the long session of 9–10 September went up in one push: 4A
+through 4G. Verified by fetching the site with a cache-buster — the build mark
+reads **BUILD 4G**, *Show me how, step by step* is on the You screen, *Had this
+app before?* is on setup sheet 1, *Send it as a personal note to someone* is on
+the posting page, and `p-week` is gone from the markup.
+
+**Two things worth carrying, both learned the hard way this session:**
+1. **A push is not a commit.** The first two attempts pushed nothing because the
+   change had never been committed, and a later one committed only the files it
+   was told to name. **Use `git add -A` when a session has touched index.html,
+   the handoff AND the review pages.** Then read the repo's own commit list
+   rather than trusting the push.
+2. **G's terminal doubles pasted commands** — `git pushgit push`. Multi-line
+   blocks arrive concatenated. **Give him one short command on its own line and
+   tell him to type it**, not paste it.
 
 ## BUILD 4G — 10 September. The calendar icon: RULED 3C, and the icon work is closed.
 
