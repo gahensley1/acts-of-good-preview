@@ -1301,7 +1301,7 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
     </div>
 
     <!-- BUILD MARK — dev only, delete this div when the app ships -->
-    <div id="buildtag">BUILD 4R</div>
+    <div id="buildtag">BUILD 4S</div>
   </div>
 </section>
 
@@ -1849,8 +1849,7 @@ What you actually did. Why it mattered. Say the awkward parts."></textarea>
          thing your thumb finds. The instructions follow BOTH buttons rather
          than sitting between them. -->
     <div id="cm-open" class="hide">
-      <button class="btn ghost openig" type="button" onclick="openInstagram()">
-        Open Instagram</button>
+      <button class="btn ghost openig" type="button" onclick="openTheApp()"></button>
     </div>
     <p class="note" style="margin-top:12px" id="cm-how"></p>
     <button class="btn ghost quietcopy" type="button" onclick="copyCaption()">
@@ -8500,13 +8499,21 @@ const HAND_HOW = {
              'The card is the first picture waiting. Hold down the caption box '+
              'and tap <b>Paste</b>.'+
              '<br><br>Instagram is in the grey panel too, if you spot it &mdash; '+
-             'that way is quicker and skips step two. And if <b>Open Instagram</b> '+
-             'does nothing at all, Instagram is not on this phone; the card is '+
-             'saved either way and will keep.',
-  facebook:  'Sending copies the caption and hands Facebook the card and your photos '+
-             'together. Long press and paste when the post opens.',
-  threads:   'Sending copies the caption and hands the card and photos to Threads. '+
-             'Long press and paste when it opens.',
+             'that way is quicker and skips step two.',
+  /* Facebook and Threads take the words THROUGH the sheet, so there is no
+     pasting to explain and no second step to walk anybody through. Saying
+     "long press and paste" here was telling people to do work the phone had
+     already done. The door below is for finding the app, not for the words. */
+  facebook:  '<b>1.</b> Tap the button above and choose <b>Facebook</b>. '+
+             'The card, your photos and your words all go over together &mdash; '+
+             'nothing to paste.'+
+             '<br><br>Can\u2019t see Facebook in the grey panel? Use <b>Open Facebook</b> '+
+             'instead, and choose <b>Save Image</b> first so the card is in your photos.',
+  threads:   '<b>1.</b> Tap the button above and choose <b>Threads</b>. '+
+             'The card, your photos and your words all go over together &mdash; '+
+             'nothing to paste.'+
+             '<br><br>Can\u2019t see Threads in the grey panel? Use <b>Open Threads</b> '+
+             'instead, and choose <b>Save Image</b> first so the card is in your photos.',
   private:   'Your phone will ask whether to text it, mail it, or send it another '+
              'way. The card, the photos and the words travel together, and nothing '+
              'is posted anywhere.'
@@ -8635,12 +8642,15 @@ function drawGoState(){
      nobody is left standing outside them. */
   const d = $('cm-open');
   if(d){
-    d.classList.toggle('hide', CM_PLAT !== 'instagram');
+    /* every destination with a door gets one — Instagram, Facebook, Threads.
+       A personal note has no app to open and never did. */
+    const has = !!APP_SCHEME[CM_PLAT];
+    d.classList.toggle('hide', !has);
     const ob = d.querySelector('.openig');
-    if(ob && !ob.dataset.drawn){
-      ob.dataset.drawn = '1';
+    if(ob && has){
       ob.innerHTML = '<span class="glyph"><svg viewBox="0 0 24 24">'+
-        SEND_GLYPH.instagram+'</svg></span><span>Open Instagram</span>';
+        (SEND_GLYPH[CM_PLAT]||'')+'</svg></span><span>Open '+
+        esc(platLabel(CM_PLAT))+'</span>';
     }
   }
 }
@@ -8662,28 +8672,27 @@ const SHARES_FILES = { instagram:1, facebook:1, threads:1, private:1 };
    He is right, and it is the small grey row of app icons that does it. The
    share sheet DOES open Instagram — but only if you can pick its icon out of a
    row of fourteen, sometimes after scrolling that row sideways and finding
-   "More". That is a needle-hunt dressed as a convenience.
+   "More". That is a needle-hunt dressed as a convenience. So there is a button
+   now, the size of a button meant to be pressed, and it opens the app.
 
-   So there is a button now. It says Open Instagram, it is the size of a button
-   meant to be pressed, and it opens Instagram. Nothing to find.
+   CORRECTION, same day. The first version of this was a new function that set
+   `location.href` and hoped. It was a worse copy of `openApp()`, which has been
+   in this file all along doing the job properly — copying the caption, watching
+   for the tab going to the background to know whether the app really caught it,
+   falling back to the WEBSITE when it did not, and handling the installed-app
+   case where there is no back button to rescue anybody. It was only ever
+   reachable from inside a failure path, so nothing ever pressed it.
 
-   THE HONEST LIMIT, and it decides the whole shape: a button can open
-   Instagram or hand Instagram the picture, never both. Opening is a door;
-   handing over is the share sheet. So the screen is two plain steps — save the
-   picture, then open the app — and the picture is waiting at the top of their
-   camera roll when they tap the plus.
+   So this is a wrapper, not an implementation. Three things follow for free:
+   Facebook and Threads work too, "nothing happened" stops being possible
+   because the website opens instead, and the caption is copied on the way.
 
-   If Instagram is not installed, tapping a link like this does NOTHING AT ALL,
-   silently — no error, no page, nothing. So this can never be the only route,
-   and the saving step has to stand on its own feet. It does. */
-function openInstagram(){
-  /* 'instagram://camera' lands on making a post rather than the home feed,
-     which is one fewer tap and the right room to arrive in. */
-  try{ location.href = 'instagram://camera'; }catch(_){}
-  /* Nothing follows. There is no reliable way for a page to learn whether the
-     app opened, and a guess dressed as a message would be worse than silence —
-     it would tell somebody their phone had failed when it had not. The line
-     under the button already says what to do if nothing happens. */
+   THE HONEST LIMIT, unchanged: a button can open an app or hand it the picture,
+   never both. Opening is a door; handing over is the share sheet. So the screen
+   is two plain steps, and the picture is waiting in the camera roll. */
+function openTheApp(){
+  const a = S.current || S.acts[S.acts.length-1];
+  openApp(a ? (()=>markLeaving(a)) : null);
 }
 
 function handOff(){
