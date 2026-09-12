@@ -61,6 +61,46 @@ returns a blank browser error, and paper outlives the act it advertises.
 Six rulings are now waiting on G, written up plainly as items **18–23** in
 `DECISIONS-OPEN.md`. Nothing is built.
 
+## BUILD 4K — the notes panel holds prose (12 September, ON DISK, NOT PUSHED)
+
+**`index.html` changed for the first time today.** Both folders are at **4K** and byte-identical;
+the live site is still 4J until G pushes.
+
+**The finding that came with it: the notes panel was already built.** `SHEETS-AND-NOTES.md` said
+"designed and drawn, nothing built" and had said so for days. The panel — `drawNotes`, `noteTap`,
+`noteKey`, the coral dot on a known name, the journal tick — was already in the shipped file, as a
+**checklist only**. So the whole B-with-1 conversation was about changing live code, and nobody
+knew until the file was opened. **Read the source before believing any "not built" line in any
+document here.** Corrected in the brief.
+
+**What 4K does.** A note row can now be plain as well as circled. Return on an empty circled line
+takes the circle off and leaves the caret there — it ends the *list*, not the note — so you carry
+on in sentences; Return on an empty plain line still ends the note and drops the keyboard. A new
+line inherits the kind of the line it came from. Backspace at the start of a circled line takes the
+circle off and does not merge; only a plain line merges upward. And on a plain line the circle is
+hidden rather than removed, so **the text column never moves**, fading in dashed and coral on the
+line you are standing on — tap it and the line rejoins the list.
+
+**Verified, not assumed.** Scripts extracted and `node --check` — clean. Driven in headless
+Chromium at 390×844: two names typed, Return on the empty one, two paragraphs written, the ghost
+circle tapped, Backspace at the start of a circled line, then **a real save and reload** — four rows
+back, two of them plain, the `p` flag persisted, **zero page errors**. Screenshot taken and looked
+at: the two circled names carry their person-dots, the two paragraphs carry none, and the text
+column is flush all the way down.
+
+**Copy change, §2.** The hint under the list described the old behaviour.
+was: *Return for the next one. Return twice to stop.*
+now: *Return for the next one. Return on an empty one to write in sentences.*
+
+**G still has to push it.** From `aog-push`: `git add -A && git commit -m "4K: notes hold prose as
+well as ticks" && git push` — then check the site reads BUILD 4K.
+
+**Pushed 12 September as `ae91433` (`b746d97..ae91433`), 13 files — the three
+documents and seven review pages. Verified from the repo afterwards: every file
+fetches at the right size, `index.html` is byte-identical in the repo and on
+disk, and the live site still reads **BUILD 4J**, which is correct — the app was
+not touched today. All three copies agree.**
+
 **RULING 18A IS LIVE ON `actsofgood.app`, 12 September 2026.** Worker version
 `46bc45cb-4ac1-40f4-80ac-109d902cb2ad`, and the `release_hash` column is on the
 remote database — a repeat of the migration answered *duplicate column name*,

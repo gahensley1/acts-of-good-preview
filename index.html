@@ -179,6 +179,12 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
 .nbox{width:21px;height:21px;border-radius:50%;border:1.6px solid #CFC7B8;box-sizing:border-box;
   display:flex;align-items:center;justify-content:center}
 .nbox.on{background:var(--gold);border-color:var(--gold)}
+/* A line with no circle. The gutter stays exactly where it was — a line
+   changing kind must never shift the text under your thumb while you are
+   dictating — so the circle is hidden rather than removed, and it comes back
+   faintly on the line you are standing on. Tapping it joins the list again. */
+.nrow.plain .nbox{opacity:0;transition:opacity .14s}
+.nrow.plain:focus-within .nbox{opacity:1;border-style:dashed;border-color:var(--coral)}
 .nbox svg{display:block}
 .ntx{flex:1;border:0;background:none;font:inherit;font-size:15px;line-height:1.35;color:var(--ink);
   padding:7px 0 6px;resize:none;overflow:hidden;min-height:34px;width:100%}
@@ -1251,7 +1257,7 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
     </div>
 
     <!-- BUILD MARK — dev only, delete this div when the app ships -->
-    <div id="buildtag">BUILD 4J</div>
+    <div id="buildtag">BUILD 4K</div>
   </div>
 </section>
 
@@ -5388,16 +5394,17 @@ function drawNotes(){
   const rows=noteList();
   if(!rows.length) rows.push({t:'',d:0});
   box.innerHTML = rows.map((n,i)=>
-    '<div class="nrow'+(n.d?' done':'')+'">'+
-      '<button class="nhit" type="button" aria-label="'+(n.d?'Undo':'Tick')+'" '+
+    '<div class="nrow'+(n.p?' plain':'')+(!n.p&&n.d?' done':'')+'">'+
+      '<button class="nhit" type="button" aria-label="'+
+        (n.p?'Make this a checklist line':(n.d?'Undo':'Tick'))+'" '+
         'onpointerdown="return noteTap(event,'+i+')" onclick="return false"><span class="nbox'+
-        (n.d?' on':'')+'">'+(n.d?NTICK:'')+'</span></button>'+
+        (!n.p&&n.d?' on':'')+'">'+(!n.p&&n.d?NTICK:'')+'</span></button>'+
       (noteIsPerson(n.t)?'<span class="npd" aria-hidden="true"></span>':'')+
       '<textarea class="ntx" rows="1" enterkeyhint="next" data-i="'+i+'" '+
         'oninput="noteInput(this)" onkeydown="noteKey(event,this)" '+
         'aria-label="Note"></textarea>'+
     '</div>').join('') +
-    '<p class="nhint">Return for the next one. Return twice to stop.</p>'+
+    '<p class="nhint">Return for the next one. Return on an empty one to write in sentences.</p>'+
     '<div class="njr"><button type="button" aria-pressed="'+(WK && WK.njr?'true':'false')+'" '+
       'onclick="noteJournal()"><span class="sq'+(WK && WK.njr?' on':'')+'">'+
       (WK && WK.njr?NTICK:'')+'</span></button>Keep these notes in the journal</div>';
@@ -5412,7 +5419,10 @@ function noteGrow(el){ el.style.height='auto'; el.style.height=(el.scrollHeight)
 function noteTap(e,i){
   e.preventDefault();
   const rows=noteList(); if(!rows[i]) return false;
-  rows[i].d = rows[i].d ? 0 : 1;
+  /* On a line with no circle the faint circle is the way back into a list, so
+     the tap gives it one rather than ticking it. */
+  if(rows[i].p){ delete rows[i].p; rows[i].d=0; }
+  else rows[i].d = rows[i].d ? 0 : 1;
   noteSave(); drawNotes();
   return false;
 }
@@ -5434,23 +5444,42 @@ function noteKey(e,el){
   if(e.key==='Enter'){
     e.preventDefault();
     rows[i].t = el.value;
-    if(!rows[i].t.trim()){                 // Return on an empty line ends the list
+    if(!rows[i].t.trim()){
+      /* Ruled 12 Sep: an empty circled line does not end the note, it ends the
+         LIST. The circle comes off, the caret stays put, and you carry on in
+         sentences. Her own note is a checklist of nine names and then two
+         paragraphs; a panel that only holds the names sends her back to Apple
+         Notes for the rest, which is the problem it was drawn to solve. */
+      if(!rows[i].p){ rows[i].p=1; rows[i].d=0; noteSave(); drawNotes(); noteFocus(i,0); return; }
+      /* An empty line that is already plain is the way out of the field. */
       if(rows.length>1) rows.splice(i,1);
       noteSave(); drawNotes(); el.blur();
       return;
     }
     const at = el.selectionStart, tail = rows[i].t.slice(at);
     rows[i].t = rows[i].t.slice(0,at);
-    rows.splice(i+1,0,{t:tail,d:0});
+    rows.splice(i+1,0,{t:tail,d:0,p:rows[i].p?1:0});   // the new line is the same kind
+    if(!rows[i+1].p) delete rows[i+1].p;
     noteSave(); drawNotes(); noteFocus(i+1,0);
     return;
   }
-  if(e.key==='Backspace' && el.selectionStart===0 && el.selectionEnd===0 && i>0){
-    e.preventDefault();
-    const join = (rows[i-1].t||'').length;
-    rows[i-1].t = (rows[i-1].t||'') + (el.value||'');
-    rows.splice(i,1);
-    noteSave(); drawNotes(); noteFocus(i-1,join);
+  if(e.key==='Backspace' && el.selectionStart===0 && el.selectionEnd===0){
+    /* The circle comes off first; only a plain line merges into the one above.
+       One deliberate step out of the list, so a name is never accidentally
+       glued onto the end of the line before it. */
+    if(!rows[i].p){
+      e.preventDefault();
+      rows[i].p=1; rows[i].d=0;
+      noteSave(); drawNotes(); noteFocus(i,0);
+      return;
+    }
+    if(i>0){
+      e.preventDefault();
+      const join = (rows[i-1].t||'').length;
+      rows[i-1].t = (rows[i-1].t||'') + (el.value||'');
+      rows.splice(i,1);
+      noteSave(); drawNotes(); noteFocus(i-1,join);
+    }
   }
 }
 

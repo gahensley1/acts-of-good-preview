@@ -7,8 +7,10 @@ Two pieces of work, one shipped and one drawn:
 
 1. **The sign-up sheet.** Backend is **live in production** on `actsofgood.app`. The app side
    is not built at all. **Reviewed by the panel 12 Sep 2026 — see "What the panel found" below.**
-2. **The notes panel.** Designed and drawn, nothing built. **Its shape was ruled 12 Sep 2026 —
-   see "RULED: B with 1" in Part Two.**
+2. **The notes panel.** **BUILT AND LIVE IN `index.html` SINCE BEFORE 12 SEP — this brief said
+   "nothing built" and was wrong for days.** It shipped as a checklist only. Ruling B-with-1 on
+   12 Sep turned it into a note that also holds prose; that change is **build 4K**, on disk in both
+   folders and pushed by G. See "RULED: B with 1" and "What 4K actually changed" in Part Two.
 
 `index.html` has **not been touched** *by this brief*. (It was build 1W on 6 Sep; the pushed build
 as of 12 Sep is **4J**, from other work.)
@@ -409,7 +411,51 @@ real change to the app's character and G accepted it knowingly.
 
 ---
 
-# PART TWO — THE NOTES PANEL (ruled, not built)
+# PART TWO — THE NOTES PANEL (ruled, and built as 4K)
+
+## What 4K actually changed — and the drift that hid it
+
+**The panel was already in the app.** `drawNotes`, `noteTap`, `noteKey`, `noteSave`, the `.ntx`
+fields, the coral dot on a name the app knows, the "keep these notes in the journal" tick — all of
+it shipped some time after 6 September, and this brief went on saying "nothing built" until
+12 September. The whole B-with-1 discussion was therefore about **changing live code**, not writing
+new code, and nobody realised until the file was opened. *Read the source before trusting any
+"not built" line in this document.*
+
+What shipped was **option A: checklist only.** Every row carried a circle; Return on an empty line
+deleted the row and dropped you out of the field entirely. There was no way to write a paragraph.
+
+**Build 4K makes it the note that was ruled.** Five changes, all in `index.html`:
+
+1. A row can now be **plain** — `p:1` on the row object. Absent means circled, so every note anyone
+   had already written stays exactly as it was.
+2. **Return on an empty circled line takes the circle off** and leaves the caret there, instead of
+   deleting the row and blurring. Return on an empty *plain* line still ends the note and drops the
+   keyboard, which keeps the old way out of the field.
+3. Return from a line with text in it **makes the next line the same kind** as the one it came from.
+4. **Backspace at the start of a circled line takes the circle off and does not merge.** Only a
+   plain line merges into the one above.
+5. The **ghost circle**: on a plain line the circle is hidden rather than removed, so the gutter and
+   the text column never move, and it fades in — dashed, coral — on the line you are standing on.
+   Tapping it joins the list again.
+
+**Both halves, verified by a real save and reload**, not by reading: `notes` was already passed
+through whole on both the write and the read, so the new flag rode along for nothing. Driven in a
+headless browser at phone size — two names, Return on the empty one, two paragraphs typed, the
+ghost circle tapped, Backspace at the start, then a reload: four rows back, two of them plain, zero
+page errors.
+
+**Copy changed, under working-rule §2** — the hint line under the list had to stop describing the
+old behaviour:
+
+- was: *Return for the next one. Return twice to stop.*
+- now: *Return for the next one. Return on an empty one to write in sentences.*
+
+Reversible; say the word.
+
+**Still not built, and named rather than done:** the hold-a-line menu (add to your people / invite
+them / put it on the sign-up sheet / leave it as words), and the coral mark on a line that has gone
+onto a public sheet. Both are described below and neither was asked for.
 
 ## Why
 
@@ -566,8 +612,8 @@ G's own forcing function: **Jessica's postcard party is 8 October.** Both pieces
 
 Recommended order:
 
-1. **The notes panel.** She is using Apple Notes for it today. Needs no domain, no printing, no
-   strangers, no network. **Its shape is now ruled and prototyped — this is ready to build.**
+1. ~~**The notes panel.**~~ **DONE — build 4K, 12 September 2026.** It holds prose as well as
+   ticks. What remains of it is the hold-a-line menu and the public-line mark, neither asked for.
 2. **The app side of the sign-up sheet.** Two testers said no at six weeks for this reason alone.
    Wait for G's rulings on items 18–23 first; item 18 changes what the app has to read back.
 3. **THE-WORDS.md** — eleven decisions on the finish, the halfway note and the closing card. These
