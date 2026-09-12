@@ -1,0 +1,317 @@
+<title>Can You Just Write A Note</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap">
+<style>
+:root{
+  --paper:#FFFFFF;--mist:#F6F4F1;--ink:#14110E;--muted:#665F57;--line:#E4E0DA;
+  --coral:#EA634F;--coralink:#C03F2B;--gold:#C99A2E;--chipbg:#FBEDE9;
+  --shadow:0 1px 2px rgba(20,17,14,.05);--shadow2:0 2px 10px rgba(20,17,14,.06);
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#1E1A15;--mist:#16130F;--ink:#F3EEE6;--muted:#A79C8E;--line:#342C23;
+  --coral:#F0836E;--coralink:#F09079;--gold:#E1BA52;--chipbg:#33231E;
+  --shadow:none;--shadow2:none;}}
+:root[data-theme="dark"]{
+  --paper:#1E1A15;--mist:#16130F;--ink:#F3EEE6;--muted:#A79C8E;--line:#342C23;
+  --coral:#F0836E;--coralink:#F09079;--gold:#E1BA52;--chipbg:#33231E;
+  --shadow:none;--shadow2:none;}
+
+*{box-sizing:border-box}
+body{background:var(--mist);color:var(--ink);
+  font-family:Montserrat,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased;}
+.page{max-width:1000px;margin:0 auto;padding-block:34px 90px;padding-left:20px;padding-right:20px;}
+
+.eyebrow{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--muted);margin:0 0 14px;}
+h1{font-size:clamp(28px,6.4vw,40px);line-height:1.08;font-weight:800;letter-spacing:-.022em;
+  margin:0 0 16px;text-wrap:balance;max-width:16ch;}
+.stand{font-size:17px;color:var(--muted);margin:0 0 8px;max-width:56ch;}
+.stand b{color:var(--ink);font-weight:600;}
+
+h2{font-size:12px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);
+  margin:40px 0 16px;padding-bottom:9px;border-bottom:1px solid var(--line);}
+
+/* ── the three renders ───────────────────────────── */
+.three{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;align-items:start;}
+@media (max-width:800px){.three{grid-template-columns:1fr;}}
+
+.opt{background:var(--paper);border:1px solid var(--line);border-radius:14px;
+  box-shadow:var(--shadow2);overflow:hidden;display:flex;flex-direction:column;}
+.opt > header{padding:15px 16px 13px;border-bottom:1px solid var(--line);
+  display:flex;gap:10px;align-items:baseline;}
+.opt .k{font-size:12.5px;font-weight:800;color:var(--coralink);background:var(--chipbg);
+  border-radius:6px;padding:2px 8px;flex:0 0 auto;}
+.opt .kn{font-size:15px;font-weight:700;letter-spacing:-.01em;}
+
+/* the mock note panel */
+.note{padding:14px 16px 16px;background:var(--paper);flex:1;}
+.note .hd{font-size:10.5px;font-weight:700;letter-spacing:.11em;text-transform:uppercase;
+  color:var(--muted);margin:0 0 11px;}
+.ln{display:flex;gap:10px;align-items:flex-start;padding:5px 0;font-size:14px;line-height:1.45;}
+.ln .o{flex:0 0 auto;width:15px;height:15px;border-radius:50%;border:1.5px solid var(--line);
+  margin-top:3px;background:transparent;}
+.ln .o.on{border-color:var(--coral);background:var(--coral);position:relative;}
+.ln .o.on::after{content:"";position:absolute;left:4px;top:1.5px;width:4px;height:8px;
+  border:solid var(--paper);border-width:0 1.6px 1.6px 0;transform:rotate(42deg);}
+.ln.dim{color:var(--muted);}
+.ln .cap{flex:1;min-width:0;}
+
+.prose{font-size:14px;line-height:1.5;color:var(--ink);margin:4px 0 0;}
+.prose.two{margin-top:12px;}
+.gap{height:1px;background:var(--line);margin:13px 0;border:0;}
+.gaplbl{display:flex;align-items:center;gap:9px;margin:13px 0;}
+.gaplbl::before,.gaplbl::after{content:"";flex:1;height:1px;background:var(--line);}
+.gaplbl span{font-size:9.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--gold);white-space:nowrap;}
+
+.sub{background:var(--mist);border:1px solid var(--line);border-radius:9px;padding:11px 12px;margin:12px 0 0;}
+.sub .sl{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--muted);margin:0 0 7px;}
+
+.bad{color:var(--coralink);font-weight:600;}
+
+/* ── the way back ───────────────────────────── */
+.ways{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;align-items:start;}
+@media (max-width:800px){.ways{grid-template-columns:1fr;}}
+.way{background:var(--paper);border:1px solid var(--line);border-radius:14px;
+  box-shadow:var(--shadow2);overflow:hidden;display:flex;flex-direction:column;}
+.way.out{opacity:.72;}
+.way > header{padding:15px 16px 13px;border-bottom:1px solid var(--line);
+  display:flex;gap:10px;align-items:baseline;}
+.way .k{font-size:12.5px;font-weight:800;color:var(--coralink);background:var(--chipbg);
+  border-radius:6px;padding:2px 8px;flex:0 0 auto;}
+.way.out .k{color:var(--muted);background:var(--mist);}
+.way .kn{font-size:15px;font-weight:700;letter-spacing:-.01em;}
+.demo{padding:16px;background:var(--paper);flex:1;}
+
+/* a line with the ghost circle out in the margin */
+.gline{display:flex;gap:9px;align-items:flex-start;padding:5px 0;font-size:14px;line-height:1.45;}
+.gline .ghost{flex:0 0 auto;width:15px;height:15px;border-radius:50%;
+  border:1.5px dashed var(--coral);margin-top:3px;background:transparent;}
+.gline .pad{flex:0 0 auto;width:15px;}
+.caret{border-left:1.5px solid var(--coral);padding-left:1px;margin-left:-1px;}
+
+/* the hold menu */
+.menu{border:1px solid var(--line);border-radius:10px;overflow:hidden;margin:10px 0 0;
+  background:var(--mist);}
+.menu div{font-size:13px;padding:8px 11px;border-bottom:1px solid var(--line);
+  display:flex;gap:9px;color:var(--muted);}
+.menu div:last-child{border-bottom:0;}
+.menu div.hi{background:var(--chipbg);color:var(--coralink);font-weight:600;}
+.menu div .g{flex:0 0 14px;text-align:center;}
+
+.typed{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13.5px;
+  background:var(--mist);border:1px solid var(--line);border-radius:7px;padding:9px 11px;
+  display:inline-block;margin:2px 0 0;}
+.strike{text-decoration:line-through;text-decoration-color:var(--coral);}
+
+.verd{padding:13px 16px 15px;border-top:1px solid var(--line);background:var(--mist);font-size:13.5px;
+  color:var(--muted);}
+.verd b{color:var(--ink);font-weight:600;}
+.verd .tag{display:inline-block;font-size:10px;font-weight:800;letter-spacing:.09em;
+  text-transform:uppercase;padding:2px 7px;border-radius:5px;margin:0 0 8px;}
+.tag.no{background:var(--chipbg);color:var(--coralink);}
+.tag.yes{background:rgba(201,154,46,.16);color:var(--gold);}
+
+/* ── evidence ───────────────────────────── */
+.ev{background:var(--paper);border:1px solid var(--line);border-radius:14px;
+  padding:20px;box-shadow:var(--shadow);}
+.ev h3{font-size:18px;font-weight:700;margin:0 0 6px;letter-spacing:-.012em;}
+.ev .src{font-size:12.5px;color:var(--muted);margin:0 0 16px;}
+.evgrid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+@media (max-width:640px){.evgrid{grid-template-columns:1fr;}}
+.evcol .cl{font-size:10.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--muted);margin:0 0 9px;}
+.names{display:flex;flex-wrap:wrap;gap:6px;}
+.names span{font-size:12.5px;background:var(--mist);border:1px solid var(--line);
+  border-radius:20px;padding:3px 10px;}
+blockquote{margin:0;font-size:14px;line-height:1.55;color:var(--ink);
+  border-left:2px solid var(--gold);padding-left:13px;}
+.ev .pt{margin:18px 0 0;padding-top:16px;border-top:1px solid var(--line);font-size:15px;}
+.ev .pt b{font-weight:600;}
+
+/* ── close ───────────────────────────── */
+.close{margin:32px 0 0;background:var(--paper);border:1px solid var(--line);border-radius:12px;
+  padding:19px 20px;box-shadow:var(--shadow);}
+.close p{margin:0 0 10px;font-size:15.5px;}
+.close p:last-child{margin:0;}
+.close .rec{font-weight:600;}
+.close .rec em{font-style:normal;color:var(--coralink);font-weight:700;}
+.sm{font-size:13.5px;color:var(--muted);}
+</style>
+
+<div class="page">
+
+<p class="eyebrow">50 Acts of Good &middot; the notes panel</p>
+<h1>Can you just write a note?</h1>
+<p class="stand">As drawn, no. Every line in the panel carries a circle, so the only thing you
+can put in it is something to tick. <b>Jessica&rsquo;s own note is two-thirds prose.</b></p>
+
+<h2>Three shapes</h2>
+<div class="three">
+
+  <!-- A -->
+  <section class="opt">
+    <header><span class="k">A</span><span class="kn">Checklist only</span></header>
+    <div class="note">
+      <p class="hd">Postcard party &middot; 8 Oct</p>
+      <div class="ln"><span class="o on"></span><span class="cap dim">Ginger</span></div>
+      <div class="ln"><span class="o on"></span><span class="cap dim">Betsy</span></div>
+      <div class="ln"><span class="o"></span><span class="cap">Laura</span></div>
+      <div class="ln"><span class="o"></span><span class="cap">Tiffani</span></div>
+      <div class="ln"><span class="o"></span><span class="cap">Nan</span></div>
+      <div class="ln"><span class="o"></span><span class="cap bad">Come write postcards with me on
+        the 8th &mdash; no experience needed, I&rsquo;ll have stamps&hellip;</span></div>
+      <div class="ln"><span class="o"></span><span class="cap bad">$5 towards postage if you&rsquo;d
+        like to, in no way required</span></div>
+    </div>
+    <div class="verd"><span class="tag no">what happens</span><br>
+      Her invitation becomes a to-do with a circle beside it. <b>You can tick her own words off.</b>
+      It is the shape the brief currently specifies.</div>
+  </section>
+
+  <!-- B -->
+  <section class="opt">
+    <header><span class="k">B</span><span class="kn">Apple Notes</span></header>
+    <div class="note">
+      <p class="hd">Postcard party &middot; 8 Oct</p>
+      <div class="ln"><span class="o on"></span><span class="cap dim">Ginger</span></div>
+      <div class="ln"><span class="o on"></span><span class="cap dim">Betsy</span></div>
+      <div class="ln"><span class="o"></span><span class="cap">Laura</span></div>
+      <div class="ln"><span class="o"></span><span class="cap">Tiffani</span></div>
+      <div class="ln"><span class="o"></span><span class="cap">Nan</span></div>
+      <div class="gaplbl"><span>Return on an empty line</span></div>
+      <p class="prose">Come write postcards with me on the 8th &mdash; no experience needed,
+        I&rsquo;ll have stamps and addresses ready.</p>
+      <p class="prose two">In no way required to attend, but if you&rsquo;d like to donate $5
+        towards the cost of the postage, it would be much appreciated.</p>
+      <div class="gaplbl"><span>a new list starts anywhere</span></div>
+      <div class="ln"><span class="o"></span><span class="cap">Buy stamps</span></div>
+    </div>
+    <div class="verd"><span class="tag yes">what happens</span><br>
+      One field. Circles where you want them, paragraphs where you don&rsquo;t, in any order.
+      <b>This is the note she actually wrote</b>, in the app instead of Apple Notes.</div>
+  </section>
+
+  <!-- C -->
+  <section class="opt">
+    <header><span class="k">C</span><span class="kn">Two boxes</span></header>
+    <div class="note">
+      <p class="hd">Postcard party &middot; 8 Oct</p>
+      <div class="ln"><span class="o on"></span><span class="cap dim">Ginger</span></div>
+      <div class="ln"><span class="o on"></span><span class="cap dim">Betsy</span></div>
+      <div class="ln"><span class="o"></span><span class="cap">Laura</span></div>
+      <div class="ln"><span class="o"></span><span class="cap">Tiffani</span></div>
+      <div class="ln"><span class="o"></span><span class="cap">Nan</span></div>
+      <div class="sub">
+        <p class="sl">Notes</p>
+        <p class="prose">Come write postcards with me on the 8th &mdash; no experience needed,
+          I&rsquo;ll have stamps and addresses ready.</p>
+        <p class="prose two">In no way required to attend, but if you&rsquo;d like to donate $5
+          towards the cost of the postage, it would be much appreciated.</p>
+      </div>
+    </div>
+    <div class="verd"><span class="tag no">what happens</span><br>
+      Works, and it is the easiest to build. But it decides for her that the list comes first and
+      the words come after &mdash; <b>and &ldquo;Buy stamps&rdquo; has nowhere to go</b> once
+      she&rsquo;s in the prose box.</div>
+  </section>
+</div>
+
+<h2>If B ends the list &mdash; how do you get a circle back?</h2>
+<p class="stand" style="margin-bottom:18px">The brief forbids a toolbar. Return on an empty line
+ends the list. <b>As written there is no way back</b> &mdash; so B needs one of these before it
+can be ruled.</p>
+
+<div class="ways">
+
+  <div class="way">
+    <header><span class="k">1</span><span class="kn">The ghost circle</span></header>
+    <div class="demo">
+      <div class="gline"><span class="pad"></span><span>I&rsquo;ll have stamps and addresses
+        ready.</span></div>
+      <div class="gline"><span class="ghost"></span><span class="caret">Buy stamps</span></div>
+      <div class="gline"><span class="pad"></span><span style="color:var(--muted)">&nbsp;</span></div>
+      <p class="prose" style="color:var(--muted);font-size:13px;margin-top:6px">A hollow circle
+        appears in the margin of <b style="color:var(--ink)">the line you&rsquo;re on</b>, and
+        nowhere else. Tap it and the line joins the list.</p>
+    </div>
+    <div class="verd"><span class="tag yes">works dictating</span><br>
+      No chrome, no mode, and it obeys the rule as written &mdash; <b>you still tap a circle.</b>
+      The circle is simply always there, just unlit until you&rsquo;re on the line.</div>
+  </div>
+
+  <div class="way">
+    <header><span class="k">2</span><span class="kn">The hold menu</span></header>
+    <div class="demo">
+      <div class="gline"><span class="pad"></span><span>Buy stamps</span></div>
+      <div class="menu">
+        <div><span class="g">+</span>Add to your people</div>
+        <div><span class="g">&#9993;</span>Invite them to this act</div>
+        <div class="hi"><span class="g">&#9711;</span>Make it a checklist line</div>
+        <div><span class="g">&times;</span>Leave it as words</div>
+      </div>
+      <p class="prose" style="color:var(--muted);font-size:13px;margin-top:10px">This menu is
+        <b style="color:var(--ink)">already in the brief</b>. It gains one row.</p>
+    </div>
+    <div class="verd"><span class="tag yes">costs nothing</span><br>
+      Nothing new to design or explain. But a hold is a deep gesture for something she&rsquo;ll do
+      constantly &mdash; <b>that menu was drawn for occasional decisions</b>, not everyday typing.</div>
+  </div>
+
+  <div class="way out">
+    <header><span class="k">3</span><span class="kn">Type a dash</span></header>
+    <div class="demo">
+      <p class="typed strike">- buy stamps</p>
+      <p class="prose" style="color:var(--muted);font-size:13px;margin-top:12px">The trick every
+        notes app uses: a dash or a bracket at the start of a line turns it into a list item.</p>
+    </div>
+    <div class="verd"><span class="tag no">reject</span><br>
+      <b>G dictates everything.</b> Speech never reliably produces a leading dash or bracket, so
+      this is a door only a typist can open &mdash; in an app built around the opposite assumption.</div>
+  </div>
+</div>
+
+<p class="stand" style="margin:20px 0 0"><b>And going the other way:</b> backspace at the start of
+an empty circled line takes the circle off, which is what Apple Notes does and what the
+separate-field architecture already handles as Backspace-at-0.</p>
+
+<h2>What she actually wrote</h2>
+<div class="ev">
+  <h3>The note she is keeping in Apple Notes today</h3>
+  <p class="src">Her postcard party, 8 October &mdash; the reason the panel is being built at all.</p>
+  <div class="evgrid">
+    <div class="evcol">
+      <p class="cl">A checklist of nine names</p>
+      <div class="names">
+        <span>Ginger</span><span>Betsy</span><span>Laura</span><span>Laura</span>
+        <span>Tiffani</span><span>Nan</span><span>Leisel</span><span>Jenny</span><span>Eva</span>
+      </div>
+    </div>
+    <div class="evcol">
+      <p class="cl">Then her invitation draft, then the ask</p>
+      <blockquote>In no way required to attend, but if you&rsquo;d like to donate $5 towards the
+        cost of the postage, it would be much appreciated.</blockquote>
+    </div>
+  </div>
+  <p class="pt"><b>Three things, one note, in her order.</b> A panel that only holds the first of
+  them sends her back to Apple Notes for the other two &mdash; which is the exact problem the panel
+  was drawn to solve.</p>
+</div>
+
+<div class="close">
+  <p class="rec">My recommendation is <em>B with 1</em>.</p>
+  <p>The brief already specifies the mechanic that makes B work &mdash; <i>Return on an empty line
+  ends the list</i> &mdash; it just never says what you land in afterwards. Answer: a plain line, no
+  circle. That is one sentence added, not a redesign, and the separate-textarea architecture handles
+  a circleless line the same way it handles a circled one.</p>
+  <p>The ghost circle is the way back because it is <b>the same gesture as the rule already
+  written</b>. &ldquo;You tap the circle&rdquo; stays literally true &mdash; on a plain line the
+  circle is simply unlit until you&rsquo;re standing on it. Nothing is added to the screen, and
+  nothing has to be learned.</p>
+  <p class="sm">One letter and one number &mdash; and I&rsquo;ll write it into
+  <b>sheets-and-notes.md</b>. Nothing gets built either way; the notes panel is still first in the
+  queue, ahead of the sign-up sheet.</p>
+</div>
+
+</div>

@@ -5,6 +5,152 @@ Answer by number — "1 yes, 4 show me" is plenty.
 
 ---
 
+## NEWEST — the sign-up sheet (12 September)
+
+Seven testers looked at the poster, the page behind the code, and the claim.
+It is all drawn here, with the options rendered:
+**`reviews/PANEL-11-the-sign-up-sheet.html`**
+
+All seven stopped at the same thing, which has never happened before.
+
+**18. Giving a thing back. — RULED 18A, 12 September. BUILT, waiting on you to
+put it live.** Two commands, from `Documents\aog-sheets`, in this order:
+
+    npx wrangler d1 execute aog --remote --command "ALTER TABLE slots ADD COLUMN release_hash TEXT"
+    npx wrangler deploy
+
+Nothing breaks if you run them out of order or not at all — until the first one
+is run, the sheet simply behaves as it does today. Drawn and driven in a browser
+first: `reviews/PANEL-11a-item-18-spelled-out.html`.
+
+**What it does.** The row you took stays marked **Yours**, and underneath it sits
+one line — *I can't after all* — right up to the day. Tap it and it asks once:
+*Hand it back? Keep it / Yes.* The row opens again for the next person. No name
+is shown, nothing is sent, nobody explains themselves. Only the phone that took
+the row ever sees the way out; everybody else still reads *In good hands*. And
+the form now says so before you commit, which is the part that actually matters:
+people take things when taking them is not a trap.
+
+*The original question, for the record:* Someone takes the pans, then can't — a night shift,
+a sick child, a Saturday that goes wrong. There is no way to hand it back, so
+they go quiet, and the page still says "In good hands" until nobody turns up.
+Four of them said they would rather take nothing at all than risk being the hole.
+That means a sheet nobody dares claim from looks exactly like a quiet sheet.
+
+  - **18A** — the page remembers on their phone that the row is theirs, and
+    offers "I can't after all" right up to the day. The row simply opens again.
+  - **18B** — the same, but it comes back to the top of your list marked *came
+    back*, so you see it rather than find a gap.
+  - **18C** — leave it. They text you, with a number they were never given.
+
+**18, continued — how they get back to the list at all.** Raised by you, not by
+the panel, and it was a hole: the way out of a claim is useless if there is no
+way back to the page. A claimer has no app and no account, and the poster may be
+somewhere they never pass again.
+
+- **18·1 — the calendar.** DONE, unasked, because it was already your ruling:
+  *your app shows what is outstanding, their calendar reminds them.* The reminder
+  now carries the link. Only reaches people who add it.
+- **18·2 — show the link on the page** after they take something, so they can
+  screenshot it or text it to themselves. **Still open.**
+- **18·3 — your message carries the link. RULED 12 September.** When the app
+  writes the message telling them where and when, the link rides along in it.
+  Then every single person who took a row has it in a text from someone they
+  know. **Nothing to build today** — the app side of the sheet does not exist
+  yet; this is now a requirement written into its spec so it cannot be missed.
+  *Next question when that gets built: the actual words of that message. Named,
+  not drafted.*
+- **18·4 — tell them the poster works.** Scanning the code again already
+  recognises them; nothing says so. Tested four ways: same phone recognises,
+  another phone does not, a different browser on the same phone does not.
+  **Still open**, and it is free.
+- **18·5 — put that line on the printed poster too. RULED IN, 12 September**,
+  against my recommendation. The poster now closes:
+  *Point a camera at it. Choose your one thing — no account, no app to install.*
+  *Scan it again any time to edit.*
+  The paper is now the mechanism as well as the advertisement. Recorded in the
+  poster spec in `SHEETS-AND-NOTES.md`; nothing is printed yet because the app
+  side that generates the poster is not built.
+
+**19. The poster that outlived its act. — I owe you a correction here.** I told
+you a dead code gives a blank error page. It does not: it gives a proper page of
+ours that says *"Nothing here — that link does not lead anywhere."* I had read a
+fetch failure as a blank page without checking the code, and I was wrong.
+
+The finding still stands, smaller than I said it was. That page is cold, and it
+cannot tell a **finished** sheet from a **wrong** link — so the person who scans
+your poster a month late is told they made a mistake, when what actually happened
+is that a good thing finished.
+
+  - **19A** — a finished sheet keeps its page and says so kindly, ending on the
+    creed.
+  - **19B** — the same, and it says what the act became: "Eight firefighters got
+    dinner. Thank you for scanning."
+  - **19C** — leave the error page.
+
+**20. How many are still wanted.** One line, one person is a shopping list, not
+a sign-up sheet. Ask a church for pantry staples and eleven bags of rice arrive.
+
+  - **20A** — a row can want more than one: "six dozen cookies — two dozen still
+    wanted."
+  - **20B** — a row can be taken by several people, with no number: "a few of
+    these."
+  - **20C** — leave it at one each.
+
+**21. What you are promising, before you promise it.** Four of them stopped on
+the same line — *"Someone with a van, Saturday morning."* Which Saturday, and how
+far. **Nobody asked for the address**; they asked whether they could keep the
+promise.
+
+  - **21A** — the date and the rough area only: "Saturday the 14th, east side."
+    The street still arrives privately.
+  - **21B** — the date only.
+  - **21C** — leave it; they find out after saying yes.
+
+  *This brushes a ruling you already closed — the page never shows where and
+  when. That was written to stop a church wall broadcasting a drop-off address,
+  which 21A does not do. Your ruling, so your call whether to reopen it.*
+
+**22. The poster looks finished.** It reads as an order of service — the
+official one, already dealt with. Beside a handwritten flyer with tear-off tabs
+it is the one nobody scans. Jessica's own flyer worked partly because it looked
+home-made. Both of these are looks, so both are yours:
+
+  - **22A — RULED 12 September, and built into the spec.** Neither line got
+    smaller; both grew, by different amounts. The coral ask is up **25%** and is
+    now plainly the headline. The black title is up **15%**, which keeps it out
+    of the ask's way and fixes something we had not noticed: it used to be
+    *smaller than the paragraph underneath it*, which is backwards and was part
+    of why the top read as flat. Drawn, shrunk and re-checked at walking
+    distance: `reviews/POSTER-TOP.html`.
+  - **22B** — the thin gold frame comes off **the printed sheet only**. A home
+    printer pulls paper a millimetre crooked and a crooked frame is the one thing
+    everybody notices.
+  - **22C** — leave the poster exactly as it is.
+
+**23. The example on the poster.** Two testers, from opposite directions. One
+counted that **every one of the four things costs money** — bedding, pans,
+staples, a van — and she has four dollars a week and two hands. The other said a
+family arriving in March is the one example half her nine thousand women would
+read as a political position rather than a kindness.
+
+  - **23A** — change the example to act 22's shape: a meal for the fire station.
+    A pan of something hot. A gallon of sweet tea. An hour on Saturday to carry
+    boxes. No politics, and not everything costs.
+  - **23B** — bigger: the app always nudges you to include at least one row that
+    costs nothing, so a sheet is never a wall of receipts.
+  - **23C** — leave the example alone.
+
+**Also named, not built:** the front page's "put a little more good into the
+world" reads to one tester as one side of her town — while "a neighbor, a
+congregation or a staff room" in the next paragraph she praised unprompted. Say
+the word and I'll draw options.
+
+**Ruled and closed on 12 September, so not on this list:** the notes panel holds
+prose as well as ticks ("B with 1"). See `SHEETS-AND-NOTES.md`.
+
+---
+
 ## FIRST — the end of the year
 
 A full 25-act year was played through the app on 2 September. It never crashed

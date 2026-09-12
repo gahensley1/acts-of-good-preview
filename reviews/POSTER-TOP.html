@@ -1,0 +1,289 @@
+<title>Would 25% Do It</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap">
+<style>
+:root{
+  --paper:#FFFFFF;--mist:#F6F4F1;--ink:#14110E;--muted:#665F57;--line:#E4E0DA;
+  --coral:#EA634F;--coralink:#C03F2B;--gold:#C99A2E;--plate:#D9BC6B;--chipbg:#FBEDE9;
+  --shadow:0 1px 2px rgba(20,17,14,.05);--shadow2:0 3px 18px rgba(20,17,14,.08);--wall:#EDE9E2;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --mist:#16130F;--ink:#F3EEE6;--muted:#A79C8E;--line:#342C23;--coral:#F0836E;--coralink:#F09079;
+  --gold:#E1BA52;--chipbg:#33231E;--shadow:none;--shadow2:0 3px 18px rgba(0,0,0,.45);--wall:#100E0B;}}
+:root[data-theme="dark"]{
+  --mist:#16130F;--ink:#F3EEE6;--muted:#A79C8E;--line:#342C23;--coral:#F0836E;--coralink:#F09079;
+  --gold:#E1BA52;--chipbg:#33231E;--shadow:none;--shadow2:0 3px 18px rgba(0,0,0,.45);--wall:#100E0B;}
+
+*{box-sizing:border-box}
+body{background:var(--mist);color:var(--ink);
+  font-family:Montserrat,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased;}
+.page{max-width:940px;margin:0 auto;padding-block:32px 90px;padding-left:20px;padding-right:20px;}
+.eyebrow{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--muted);margin:0 0 13px;}
+h1{font-size:clamp(29px,6.6vw,42px);line-height:1.06;font-weight:800;letter-spacing:-.025em;
+  margin:0 0 14px;text-wrap:balance;max-width:14ch;}
+.stand{font-size:17.5px;color:var(--muted);margin:0;max-width:58ch;}
+.stand b{color:var(--ink);font-weight:600;}
+h2{font-size:12px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);
+  margin:42px 0 18px;padding-bottom:9px;border-bottom:1px solid var(--line);}
+
+/* ── the four tops ── */
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px;}
+@media (max-width:760px){.grid{grid-template-columns:1fr;}}
+.opt{background:var(--paper);border:1px solid var(--line);border-radius:14px;overflow:hidden;
+  box-shadow:var(--shadow);}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .opt{background:#1E1A15;}}
+:root[data-theme="dark"] .opt{background:#1E1A15;}
+.opt > header{padding:14px 17px 12px;border-bottom:1px solid var(--line);display:flex;gap:10px;
+  align-items:baseline;}
+.opt .k{font-size:12.5px;font-weight:800;color:var(--coralink);background:var(--chipbg);
+  border-radius:6px;padding:2px 9px;flex:0 0 auto;}
+.opt.pick .k{background:rgba(201,154,46,.17);color:var(--gold);}
+.opt .kn{font-size:15px;font-weight:700;letter-spacing:-.01em;}
+.opt .wall{background:var(--wall);padding:20px 16px;display:flex;justify-content:center;}
+.opt .say{padding:14px 17px 16px;font-size:14px;color:var(--muted);border-top:1px solid var(--line);}
+.opt .say b{color:var(--ink);font-weight:600;}
+
+/* the poster fragment, at true size */
+.frag{position:relative;background:#fff;border:1px solid #E5DCC9;border-radius:4px;width:100%;
+  max-width:430px;padding:40px 26px 26px;box-shadow:var(--shadow2);color:#231F1B;}
+.frag .plate{position:absolute;left:13px;right:13px;top:13px;bottom:13px;border:1px solid #D9BC6B;
+  border-bottom:0;border-radius:2px 2px 0 0;pointer-events:none;}
+.mk{width:28px;display:block;margin:0 auto 14px;}
+.ask{text-transform:uppercase;letter-spacing:.19em;color:#C03F2B;font-weight:700;margin:0;
+  text-align:center;font-size:10.5px;line-height:1.35;}
+.gr{width:38px;border-top:2px solid #C99A2E;margin:21.5px auto;}
+.why{font-weight:700;text-transform:uppercase;letter-spacing:.13em;color:#000;line-height:1.5;
+  margin:0 0 12px;text-align:center;text-wrap:balance;font-size:10.5px;}
+.lede{font-size:13.5px;line-height:1.65;color:#3A342C;margin:0;}
+
+/* B — the ask 15% bigger */
+.b .ask{font-size:13.1px;}
+/* C — 15% bigger and the rule belongs to it */
+.c .ask{font-size:13.1px;}
+.c .gr{margin:11px auto 27px;}
+/* D — the reason leads */
+.d .why{font-size:15px;letter-spacing:.1em;}
+/* F — the ask 25%, the black title 15% */
+.f .ask{font-size:13.1px;}
+.f .why{font-size:12.1px;}
+/* E — your 25% kept, and the reason grows too */
+.e .ask{font-size:13.1px;}
+.e .gr{margin:11px auto 27px;}
+.e .why{font-size:15px;letter-spacing:.1em;}
+
+/* ── across the room ── */
+.room{background:var(--wall);border:1px solid var(--line);border-radius:14px;padding:26px 16px;}
+.strip{display:flex;gap:18px;justify-content:center;flex-wrap:wrap;}
+.mini{width:150px;}
+.mini .lbl{font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--muted);text-align:center;margin:0 0 8px;}
+.mini .box{background:#fff;border:1px solid #E5DCC9;border-radius:3px;padding:14px 9px 12px;
+  filter:blur(1.15px);}
+.mini .ask{font-size:3.7px;letter-spacing:.19em;margin:0;}
+.mini .gr{width:13px;border-top:1px solid #C99A2E;margin:7.5px auto;}
+.mini .why{font-size:3.7px;letter-spacing:.13em;margin:0 0 5px;}
+.mini .lede{font-size:4.7px;line-height:1.6;}
+.mini.b .ask{font-size:4.63px;}
+.mini.c .ask{font-size:4.63px;}
+.mini.c .gr{margin:4px auto 9.5px;}
+.mini.d .why{font-size:5.3px;letter-spacing:.1em;}
+.mini.f .ask{font-size:4.63px;}
+.mini.f .why{font-size:4.26px;}
+.mini.e .ask{font-size:4.63px;}
+.mini.e .gr{margin:4px auto 9.5px;}
+.mini.e .why{font-size:5.3px;letter-spacing:.1em;}
+
+.note{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:19px 20px;
+  margin:0 0 13px;box-shadow:var(--shadow);}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .note{background:#1E1A15;}}
+:root[data-theme="dark"] .note{background:#1E1A15;}
+.note h3{margin:0 0 9px;font-size:17.5px;font-weight:700;letter-spacing:-.012em;}
+.note p{margin:0 0 9px;font-size:14.8px;}
+.note p:last-child{margin:0;}
+.note b{font-weight:600;}
+.cap{font-size:13px;color:var(--muted);text-align:center;margin:15px 0 0;}
+.cap b{color:var(--ink);font-weight:600;}
+.foot{margin:30px 0 0;padding:19px 20px;background:var(--paper);border:1px solid var(--line);
+  border-radius:12px;box-shadow:var(--shadow);}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .foot{background:#1E1A15;}}
+:root[data-theme="dark"] .foot{background:#1E1A15;}
+.foot p{margin:0 0 10px;font-size:15px;}
+.foot p:last-child{margin:0;color:var(--muted);font-size:13.5px;}
+</style>
+
+<div class="page">
+<p class="eyebrow">50 Acts of Good &middot; the poster &middot; item 22</p>
+<h1>The top of the poster</h1>
+<p class="stand">Drawn at the size it prints and checked from across the room, three times over.
+<b>Ruled: F.</b> The ask up a quarter, the black title up fifteen.</p>
+
+<h2>The top of the sheet, actual size</h2>
+<div class="grid">
+
+  <section class="opt">
+    <header><span class="k">A</span><span class="kn">As it stands</span></header>
+    <div class="wall"><div class="frag a"><div class="plate"></div>
+      <img class="mk" alt="" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDUgMTMyIj48cGF0aCBkPSJNNTIuNSA0NEM0OCAzMCAzNCAyNCAyMyAzMCAxMCAzNyA4IDU2IDIwIDY5YzkgMTAgMjIgMTggMzIuNSAyNkM2MyA4NyA3NiA3OSA4NSA2OWMxMi0xMyAxMC0zMi0zLTM5LTExLTYtMjUgMC0yOS41IDE0WiIgZmlsbD0iI0VBNjM0RiIgc3Ryb2tlPSIjMjMxRjFCIiBzdHJva2Utd2lkdGg9IjMuNSIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPjxwYXRoIGQ9Ik01Mi41IDk1djM0IiBzdHJva2U9IiMyMzFGMUIiIHN0cm9rZS13aWR0aD0iMy41IiBzdHJva2UtbGluZWNhcD0icm91bmQiLz48L3N2Zz4=">
+      <p class="ask">We could use a hand</p><div class="gr"></div>
+      <p class="why">For a family arriving in March</p>
+      <p class="lede">A few of us are putting a box together to meet them.</p>
+    </div></div>
+    <p class="say">Both lines the same size, the rule evenly spaced between them.
+      <b>Nothing yields, so nothing leads.</b></p>
+  </section>
+
+  <section class="opt">
+    <header><span class="k">B</span><span class="kn">Your 25%</span></header>
+    <div class="wall"><div class="frag b"><div class="plate"></div>
+      <img class="mk" alt="" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDUgMTMyIj48cGF0aCBkPSJNNTIuNSA0NEM0OCAzMCAzNCAyNCAyMyAzMCAxMCAzNyA4IDU2IDIwIDY5YzkgMTAgMjIgMTggMzIuNSAyNkM2MyA4NyA3NiA3OSA4NSA2OWMxMi0xMyAxMC0zMi0zLTM5LTExLTYtMjUgMC0yOS41IDE0WiIgZmlsbD0iI0VBNjM0RiIgc3Ryb2tlPSIjMjMxRjFCIiBzdHJva2Utd2lkdGg9IjMuNSIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPjxwYXRoIGQ9Ik01Mi41IDk1djM0IiBzdHJva2U9IiMyMzFGMUIiIHN0cm9rZS13aWR0aD0iMy41IiBzdHJva2UtbGluZWNhcD0icm91bmQiLz48L3N2Zz4=">
+      <p class="ask">We could use a hand</p><div class="gr"></div>
+      <p class="why">For a family arriving in March</p>
+      <p class="lede">A few of us are putting a box together to meet them.</p>
+    </div></div>
+    <p class="say">The ask now leads, and it is the line that stops people &mdash;
+      <b>&ldquo;that&rsquo;s how a man asks for help.&rdquo;</b> But the rule still sits evenly
+      between, so it reads as a divider, not as part of anything.</p>
+  </section>
+
+  <section class="opt pick">
+    <header><span class="k">C</span><span class="kn">Your 25%, and the rule moves up</span></header>
+    <div class="wall"><div class="frag c"><div class="plate"></div>
+      <img class="mk" alt="" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDUgMTMyIj48cGF0aCBkPSJNNTIuNSA0NEM0OCAzMCAzNCAyNCAyMyAzMCAxMCAzNyA4IDU2IDIwIDY5YzkgMTAgMjIgMTggMzIuNSAyNkM2MyA4NyA3NiA3OSA4NSA2OWMxMi0xMyAxMC0zMi0zLTM5LTExLTYtMjUgMC0yOS41IDE0WiIgZmlsbD0iI0VBNjM0RiIgc3Ryb2tlPSIjMjMxRjFCIiBzdHJva2Utd2lkdGg9IjMuNSIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPjxwYXRoIGQ9Ik01Mi41IDk1djM0IiBzdHJva2U9IiMyMzFGMUIiIHN0cm9rZS13aWR0aD0iMy41IiBzdHJva2UtbGluZWNhcD0icm91bmQiLz48L3N2Zz4=">
+      <p class="ask">We could use a hand</p><div class="gr"></div>
+      <p class="why">For a family arriving in March</p>
+      <p class="lede">A few of us are putting a box together to meet them.</p>
+    </div></div>
+    <p class="say">Same 25%. The gold rule tucks up under the ask and the air goes underneath it
+      instead. Now <b>the ask and its rule are one thing</b>, and the reason stands on its own
+      below. Two objects, not three.</p>
+  </section>
+
+  <section class="opt">
+    <header><span class="k">D</span><span class="kn">The other way round</span></header>
+    <div class="wall"><div class="frag d"><div class="plate"></div>
+      <img class="mk" alt="" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDUgMTMyIj48cGF0aCBkPSJNNTIuNSA0NEM0OCAzMCAzNCAyNCAyMyAzMCAxMCAzNyA4IDU2IDIwIDY5YzkgMTAgMjIgMTggMzIuNSAyNkM2MyA4NyA3NiA3OSA4NSA2OWMxMi0xMyAxMC0zMi0zLTM5LTExLTYtMjUgMC0yOS41IDE0WiIgZmlsbD0iI0VBNjM0RiIgc3Ryb2tlPSIjMjMxRjFCIiBzdHJva2Utd2lkdGg9IjMuNSIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPjxwYXRoIGQ9Ik01Mi41IDk1djM0IiBzdHJva2U9IiMyMzFGMUIiIHN0cm9rZS13aWR0aD0iMy41IiBzdHJva2UtbGluZWNhcD0icm91bmQiLz48L3N2Zz4=">
+      <p class="ask">We could use a hand</p><div class="gr"></div>
+      <p class="why">For a family arriving in March</p>
+      <p class="lede">A few of us are putting a box together to meet them.</p>
+    </div></div>
+    <p class="say">The reason leads instead. You can read <b>what the poster is about</b> from
+      across a hall &mdash; but the line that actually stopped people gets demoted, and it starts
+      to look like a notice rather than somebody asking.</p>
+  </section>
+
+  <section class="opt pick">
+    <header><span class="k">E</span><span class="kn">Your 25%, and the reason grows too</span></header>
+    <div class="wall"><div class="frag e"><div class="plate"></div>
+      <img class="mk" alt="" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDUgMTMyIj48cGF0aCBkPSJNNTIuNSA0NEM0OCAzMCAzNCAyNCAyMyAzMCAxMCAzNyA4IDU2IDIwIDY5YzkgMTAgMjIgMTggMzIuNSAyNkM2MyA4NyA3NiA3OSA4NSA2OWMxMi0xMyAxMC0zMi0zLTM5LTExLTYtMjUgMC0yOS41IDE0WiIgZmlsbD0iI0VBNjM0RiIgc3Ryb2tlPSIjMjMxRjFCIiBzdHJva2Utd2lkdGg9IjMuNSIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPjxwYXRoIGQ9Ik01Mi41IDk1djM0IiBzdHJva2U9IiMyMzFGMUIiIHN0cm9rZS13aWR0aD0iMy41IiBzdHJva2UtbGluZWNhcD0icm91bmQiLz48L3N2Zz4=">
+      <p class="ask">We could use a hand</p><div class="gr"></div>
+      <p class="why">For a family arriving in March</p>
+      <p class="lede">A few of us are putting a box together to meet them.</p>
+    </div></div>
+    <p class="say">Both lines grow, and the rule tucks up under the ask. Up close the coral opens
+      the sheet; <b>at distance the black line is what arrives.</b> The two lines stop competing by
+      doing different jobs rather than by one of them losing.</p>
+  </section>
+
+  <section class="opt pick">
+    <header><span class="k">F</span><span class="kn">B, and the black title up 15%</span></header>
+    <div class="wall"><div class="frag f"><div class="plate"></div>
+      <img class="mk" alt="" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDUgMTMyIj48cGF0aCBkPSJNNTIuNSA0NEM0OCAzMCAzNCAyNCAyMyAzMCAxMCAzNyA4IDU2IDIwIDY5YzkgMTAgMjIgMTggMzIuNSAyNkM2MyA4NyA3NiA3OSA4NSA2OWMxMi0xMyAxMC0zMi0zLTM5LTExLTYtMjUgMC0yOS41IDE0WiIgZmlsbD0iI0VBNjM0RiIgc3Ryb2tlPSIjMjMxRjFCIiBzdHJva2Utd2lkdGg9IjMuNSIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPjxwYXRoIGQ9Ik01Mi41IDk1djM0IiBzdHJva2U9IiMyMzFGMUIiIHN0cm9rZS13aWR0aD0iMy41IiBzdHJva2UtbGluZWNhcD0icm91bmQiLz48L3N2Zz4=">
+      <p class="ask">We could use a hand</p><div class="gr"></div>
+      <p class="why">For a family arriving in March</p>
+      <p class="lede">A few of us are putting a box together to meet them.</p>
+    </div></div>
+    <p class="say">Both lines lift off the body copy, and the ask still leads &mdash; but the gap
+      between the two of them narrows from a quarter to about <b>a twelfth</b>. The question is
+      whether that is still a hierarchy or back to a tie.</p>
+  </section>
+</div>
+
+<h2>The same six, from about three feet away</h2>
+<div class="room">
+  <div class="strip">
+    <div class="mini a"><p class="lbl">A</p><div class="box">
+      <p class="ask">We could use a hand</p><div class="gr"></div>
+      <p class="why">For a family arriving in March</p>
+      <p class="lede">A few of us are putting a box together to meet them.</p></div></div>
+    <div class="mini b"><p class="lbl">B</p><div class="box">
+      <p class="ask">We could use a hand</p><div class="gr"></div>
+      <p class="why">For a family arriving in March</p>
+      <p class="lede">A few of us are putting a box together to meet them.</p></div></div>
+    <div class="mini c"><p class="lbl">C</p><div class="box">
+      <p class="ask">We could use a hand</p><div class="gr"></div>
+      <p class="why">For a family arriving in March</p>
+      <p class="lede">A few of us are putting a box together to meet them.</p></div></div>
+    <div class="mini d"><p class="lbl">D</p><div class="box">
+      <p class="ask">We could use a hand</p><div class="gr"></div>
+      <p class="why">For a family arriving in March</p>
+      <p class="lede">A few of us are putting a box together to meet them.</p></div></div>
+    <div class="mini f"><p class="lbl">F</p><div class="box">
+      <p class="ask">We could use a hand</p><div class="gr"></div>
+      <p class="why">For a family arriving in March</p>
+      <p class="lede">A few of us are putting a box together to meet them.</p></div></div>
+    <div class="mini e"><p class="lbl">E</p><div class="box">
+      <p class="ask">We could use a hand</p><div class="gr"></div>
+      <p class="why">For a family arriving in March</p>
+      <p class="lede">A few of us are putting a box together to meet them.</p></div></div>
+  </div>
+  <p class="cap">Shrunk and softened, which is roughly what a noticeboard does to a sheet of paper
+    at walking distance. <b>Squint at these rather than reading them</b> &mdash; the question is
+    which line arrives first, not what it says.</p>
+</div>
+
+<h2>The honest answer</h2>
+
+<div class="note">
+  <h3>F is right, and it fixes something neither of us had named.</h3>
+  <p>I expected narrowing the gap between the two lines from a quarter to about a twelfth to undo
+  the hierarchy. It doesn&rsquo;t &mdash; shrunk down, the ask still arrives first, because size was
+  never the only thing carrying it. <b>Coral against black, centred, wider letter-spacing, and
+  first on the page</b> all still point the same way.</p>
+  <p>And there was a real fault underneath your instinct. In A and B the black title sits at the
+  same size as it always did &mdash; <b>smaller than the paragraph directly beneath it.</b> A title
+  smaller than its own body copy is backwards, and it is part of why the top of this sheet reads as
+  flat no matter what the coral line does. Fifteen per cent lifts it clear of that without letting
+  it challenge the ask.</p>
+</div>
+
+<div class="note">
+  <h3>I drew 15% on the ask first and it did almost nothing. You were right to push that too.</h3>
+  <p>At fifteen, the four tops were near enough indistinguishable in the strip above &mdash; a
+  pixel and a half at that size, swallowed by distance. Worse, what was arriving first in every
+  one of them was <b>the colour, not the size</b>: coral against black does the work at ten feet,
+  and a small size step underneath it is noise.</p>
+  <p>Twenty-five is past that threshold. The ask is now unmistakably the headline both up close and
+  shrunk down, and the poster still reads as composed rather than shouty. <b>Your number, and it is
+  the right one.</b></p>
+</div>
+
+<div class="note">
+  <h3>And 25 quietly settles the thing I was going to argue about.</h3>
+  <p>At fifteen I was going to push you to <b>C</b>, because the size step was too weak to carry
+  the hierarchy on its own and the gold rule &mdash; equal air above and below &mdash; was reading
+  as a fence between two equal things.</p>
+  <p>At twenty-five the size does carry it, so the even rule stops mattering. <b>C is now a
+  refinement, not a fix.</b> Take it if you like the tighter grouping; leave it and nothing is
+  wrong.</p>
+</div>
+
+<div class="note">
+  <h3>Why I would still not go to D, even though it fixes Paula&rsquo;s exact complaint.</h3>
+  <p>She said you cannot tell what the poster is about. D fixes that literally. But the line that
+  made Trent stop reading was <b>&ldquo;WE COULD USE A HAND&rdquo;</b> &mdash; <i>&ldquo;that&rsquo;s
+  how a man asks for help&rdquo;</i> &mdash; and Marcus knew what the sheet was before he read a
+  word, because the shape said it.</p>
+  <p>A poster on a wall has one job first: <b>stop somebody.</b> Explaining comes second, and the
+  reason is still right there, a line below. D wins the argument and loses the wall.</p>
+</div>
+
+<div class="foot">
+  <p><b>Ruled: F &mdash; the ask at 25%, the black title at 15%.</b> Written into the poster
+  spec.</p>
+  <p>Nothing is printed yet &mdash; the poster is generated by the app side of the sheet, which
+  isn&rsquo;t built. This settles it so it is right the first time it comes off a printer. <b>22B</b>
+  (the gold frame off the printed sheet) is still open, and so is <b>C</b> if you ever want the
+  rule tucked up.</p>
+</div>
+</div>

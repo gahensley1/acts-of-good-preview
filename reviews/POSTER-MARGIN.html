@@ -1,0 +1,224 @@
+<title>How Far In The Frame Sits</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap">
+<style>
+:root{
+  --paper:#FFFFFF;--mist:#F6F4F1;--ink:#14110E;--muted:#665F57;--line:#E4E0DA;
+  --coral:#EA634F;--coralink:#C03F2B;--gold:#C99A2E;--plate:#D9BC6B;--chipbg:#FBEDE9;
+  --shadow:0 1px 2px rgba(20,17,14,.05);--shadow2:0 3px 18px rgba(20,17,14,.09);--wall:#E7E3DB;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --mist:#16130F;--ink:#F3EEE6;--muted:#A79C8E;--line:#342C23;--coral:#F0836E;--coralink:#F09079;
+  --gold:#E1BA52;--chipbg:#33231E;--shadow:none;--shadow2:0 3px 18px rgba(0,0,0,.45);--wall:#0F0D0A;}}
+:root[data-theme="dark"]{
+  --mist:#16130F;--ink:#F3EEE6;--muted:#A79C8E;--line:#342C23;--coral:#F0836E;--coralink:#F09079;
+  --gold:#E1BA52;--chipbg:#33231E;--shadow:none;--shadow2:0 3px 18px rgba(0,0,0,.45);--wall:#0F0D0A;}
+
+*{box-sizing:border-box}
+body{background:var(--mist);color:var(--ink);
+  font-family:Montserrat,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased;}
+.page{max-width:860px;margin:0 auto;padding-block:32px 90px;padding-left:20px;padding-right:20px;}
+.eyebrow{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--muted);margin:0 0 13px;}
+h1{font-size:clamp(29px,6.6vw,42px);line-height:1.06;font-weight:800;letter-spacing:-.025em;
+  margin:0 0 14px;text-wrap:balance;max-width:15ch;}
+.stand{font-size:17.5px;color:var(--muted);margin:0;max-width:58ch;}
+.stand b{color:var(--ink);font-weight:600;}
+h2{font-size:12px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);
+  margin:42px 0 18px;padding-bottom:9px;border-bottom:1px solid var(--line);}
+
+/* ── sheets of A4 ── */
+.row{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+@media (max-width:720px){.row{grid-template-columns:1fr;max-width:320px;margin:0 auto;}}
+.col .hd{display:flex;gap:9px;align-items:baseline;margin:0 0 10px;}
+.col .k{font-size:12px;font-weight:800;color:var(--coralink);background:var(--chipbg);
+  border-radius:6px;padding:2px 8px;}
+.col.pick .k{background:rgba(201,154,46,.17);color:var(--gold);}
+.col .kn{font-size:14px;font-weight:700;letter-spacing:-.01em;}
+.stage{background:var(--wall);border:1px solid var(--line);border-radius:12px;padding:14px;}
+
+/* A4: 210 x 297. 1.28px per mm at this size. */
+.a4{position:relative;width:100%;aspect-ratio:210/297;background:#fff;
+  box-shadow:var(--shadow2);border:1px solid #E5DCC9;overflow:hidden;color:#231F1B;}
+.nope{position:absolute;inset:6px;border:1px dashed #E0B4AA;pointer-events:none;}
+.frm{position:absolute;border:1px solid #D9BC6B;pointer-events:none;}
+.m6  .frm{inset:8px;}    /* ~6.3mm  */
+.m9  .frm{inset:11.5px;} /* ~9mm    */
+.m13 .frm{inset:16px;}   /* ~12.7mm */
+.inner{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;
+  text-align:center;}
+.m6  .inner{padding:24px 20px;}
+.m9  .inner{padding:27px 23px;}
+.m13 .inner{padding:32px 28px;}
+.hh{width:9px;height:11px;background:#EA634F;border-radius:50% 50% 45% 45%;margin:0 0 7px;}
+.ask{font-size:4.6px;text-transform:uppercase;letter-spacing:.19em;color:#C03F2B;font-weight:700;
+  margin:0;line-height:1.3;}
+.gr{width:13px;border-top:1px solid #C99A2E;margin:7px auto;}
+.why{font-size:4.25px;font-weight:700;text-transform:uppercase;letter-spacing:.13em;color:#000;
+  margin:0 0 5px;line-height:1.45;}
+.led{font-size:4.7px;line-height:1.62;color:#3A342C;margin:0 0 6px;text-align:left;width:100%;}
+.ned{font-size:4.7px;line-height:1.8;color:#231F1B;margin:0 0 6px;text-align:left;width:100%;}
+.qr{width:34px;height:34px;background:
+  repeating-conic-gradient(#231F1B 0 25%, #fff 0 50%) 0 0/5px 5px;margin:4px 0 6px;position:relative;}
+.qr::after{content:"";position:absolute;inset:11px;background:#EA634F;border-radius:50% 50% 45% 45%;}
+.fin{font-size:3.9px;color:#665F57;line-height:1.6;margin:0 0 6px;}
+.brd{font-size:3.9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;margin:0;}
+.say{font-size:13.5px;color:var(--muted);margin:11px 0 0;}
+.say b{color:var(--ink);font-weight:600;}
+
+.key{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;margin:16px 0 0;
+  font-size:12.5px;color:var(--muted);}
+.key span{display:flex;gap:7px;align-items:center;}
+.key i{display:block;width:16px;height:0;border-top:1px dashed #E0B4AA;}
+.key i.g{border-top:1px solid var(--plate);}
+
+.note{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:19px 20px;
+  margin:0 0 13px;box-shadow:var(--shadow);}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .note{background:#1E1A15;}}
+:root[data-theme="dark"] .note{background:#1E1A15;}
+.note h3{margin:0 0 9px;font-size:17.5px;font-weight:700;letter-spacing:-.012em;}
+.note p{margin:0 0 9px;font-size:14.8px;}
+.note p:last-child{margin:0;}
+.note b{font-weight:600;}
+.foot{margin:30px 0 0;padding:19px 20px;background:var(--paper);border:1px solid var(--line);
+  border-radius:12px;box-shadow:var(--shadow);}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .foot{background:#1E1A15;}}
+:root[data-theme="dark"] .foot{background:#1E1A15;}
+.foot p{margin:0 0 10px;font-size:15px;}
+.foot p:last-child{margin:0;color:var(--muted);font-size:13.5px;}
+</style>
+
+<div class="page">
+<p class="eyebrow">50 Acts of Good &middot; the poster &middot; ruling 22B</p>
+<h1>How far in the frame sits</h1>
+<p class="stand"><b>Ruled: 1 &mdash; the frame stays exactly where it was.</b> Which is fine, as
+long as the sheet is never sent to a printer at full bleed. That is now a build requirement rather
+than a design change.</p>
+
+<h2>The same sheet, three margins</h2>
+<div class="row">
+
+  <div class="col pick">
+    <div class="hd"><span class="k">1</span><span class="kn">As specified &mdash; RULED</span></div>
+    <div class="stage"><div class="a4 m6">
+      <div class="nope"></div><div class="frm"></div>
+      <div class="inner"><div class="hh"></div>
+        <p class="ask">We could use a hand</p><div class="gr"></div>
+        <p class="why">For a family arriving in March</p>
+        <p class="led">A few of us are putting a box together to meet them. Four things are still
+          missing, and any one of them would be a help.</p>
+        <p class="ned">&mdash; New bedding, double<br>&mdash; A set of pans<br>&mdash; Pantry
+          staples &mdash; rice, oil, tea<br>&mdash; Someone with a van, Saturday morning</p>
+        <p class="led">Take whichever is easiest for you. That&rsquo;s the whole of it.</p>
+        <div class="qr"></div>
+        <p class="fin">Point your camera. Choose what you can.<br>Scan it again any time to edit.</p>
+        <p class="brd">50 acts of good</p>
+      </div>
+    </div></div>
+    <p class="say"><b>The frame is sitting on the line</b> most home printers cannot cross. On a
+      bad day it prints three sides and loses the fourth.</p>
+  </div>
+
+  <div class="col">
+    <div class="hd"><span class="k">2</span><span class="kn">Half again</span></div>
+    <div class="stage"><div class="a4 m9">
+      <div class="nope"></div><div class="frm"></div>
+      <div class="inner"><div class="hh"></div>
+        <p class="ask">We could use a hand</p><div class="gr"></div>
+        <p class="why">For a family arriving in March</p>
+        <p class="led">A few of us are putting a box together to meet them. Four things are still
+          missing, and any one of them would be a help.</p>
+        <p class="ned">&mdash; New bedding, double<br>&mdash; A set of pans<br>&mdash; Pantry
+          staples &mdash; rice, oil, tea<br>&mdash; Someone with a van, Saturday morning</p>
+        <p class="led">Take whichever is easiest for you. That&rsquo;s the whole of it.</p>
+        <div class="qr"></div>
+        <p class="fin">Point your camera. Choose what you can.<br>Scan it again any time to edit.</p>
+        <p class="brd">50 acts of good</p>
+      </div>
+    </div></div>
+    <p class="say">Clear of the danger line on most machines, tight on a few. Costs almost nothing
+      inside.</p>
+  </div>
+
+  <div class="col">
+    <div class="hd"><span class="k">3</span><span class="kn">Double</span></div>
+    <div class="stage"><div class="a4 m13">
+      <div class="nope"></div><div class="frm"></div>
+      <div class="inner"><div class="hh"></div>
+        <p class="ask">We could use a hand</p><div class="gr"></div>
+        <p class="why">For a family arriving in March</p>
+        <p class="led">A few of us are putting a box together to meet them. Four things are still
+          missing, and any one of them would be a help.</p>
+        <p class="ned">&mdash; New bedding, double<br>&mdash; A set of pans<br>&mdash; Pantry
+          staples &mdash; rice, oil, tea<br>&mdash; Someone with a van, Saturday morning</p>
+        <p class="led">Take whichever is easiest for you. That&rsquo;s the whole of it.</p>
+        <div class="qr"></div>
+        <p class="fin">Point your camera. Choose what you can.<br>Scan it again any time to edit.</p>
+        <p class="brd">50 acts of good</p>
+      </div>
+    </div></div>
+    <p class="say"><b>Clear on everything.</b> A wider white border, and the frame reads as
+      deliberate rather than as an edge that nearly missed.</p>
+  </div>
+</div>
+
+<div class="key">
+  <span><i></i> roughly where a home printer stops printing</span>
+  <span><i class="g"></i> the gold frame</span>
+</div>
+
+<h2>Why this matters more than crookedness</h2>
+
+<div class="note">
+  <h3>Almost no home printer can print to the edge of the paper.</h3>
+  <p>Most inkjets and nearly every laser printer hold back a strip around all four sides &mdash;
+  usually around a quarter of an inch, sometimes more at the bottom where the rollers grip. Anything
+  inside that strip is simply not printed.</p>
+  <p>The frame is currently specified about <b>a quarter of an inch in from the paper edge</b>,
+  which is exactly on that line. It will print beautifully on some machines and lose part of a side
+  on others &mdash; and because it is a continuous rectangle, <b>losing part of one side is far
+  uglier than losing part of a margin.</b> A frame with a gap in it looks broken, not close.</p>
+</div>
+
+<div class="note">
+  <h3>Moving it in fixes the crooked problem too, for free.</h3>
+  <p>Nobody can see that a frame is crooked on its own. They see it by comparing it to the edge of
+  the paper next to it. <b>The closer those two lines are, the louder the mismatch</b> &mdash; a
+  millimetre of feed skew is obvious at a quarter-inch gap and invisible at half an inch.</p>
+  <p>So one change answers both: the frame survives every printer, and the small skew every home
+  printer has stops being visible.</p>
+</div>
+
+<div class="note">
+  <h3>What it costs, honestly.</h3>
+  <p>The text block gets narrower &mdash; about a fifteenth of the width at option 3. The list of
+  needs wraps a little sooner on a long line, and the whole sheet sits in more white.</p>
+  <p>That is not only a cost. <b>Paula&rsquo;s note was that this poster reads as finished and
+  official</b>, and a wide quiet border is the most formal thing on a page &mdash; so option 3 pulls
+  slightly in the direction she warned about. Option 2 is the compromise if that worries you more
+  than a broken frame does.</p>
+</div>
+
+<h2>Something else, now that it is on a real sheet of paper</h2>
+
+<div class="note">
+  <h3>The poster fills about two-thirds of the page and the frame encloses the rest.</h3>
+  <p>Look at any of the three above. <b>The bottom third is empty</b>, inside the gold line. That is
+  not a margin choice &mdash; it is because this was designed as a card that flows to whatever
+  height it needs, and it has never once been laid out on the paper it prints on.</p>
+  <p>A frame around a lot of nothing reads as a page that ran out, which is the opposite of the
+  &ldquo;finished and official&rdquo; problem &mdash; it looks unfinished. Three ways out: the
+  content sits centred in the frame rather than at the top; the type grows to fill an A4 sheet
+  properly; or the frame stops where the content does and the sheet is trimmed or folded.</p>
+  <p><b>Named, not built.</b> It is a separate decision from the margin and a bigger one, and it
+  wants its own look. Say the word when you want it drawn.</p>
+</div>
+
+<div class="foot">
+  <p><b>Ruled: 1.</b> The inset stays at 13px and this is closed.</p>
+  <p>The risk it was drawn to answer moves to the printing: <b>the printable poster must never be
+  produced at full bleed.</b> Normal page margins on the print, or scale-to-fit &mdash; then the
+  sheet lands inside every printer's printable area and the frame is safe exactly as designed.
+  Written into the spec as a build requirement on the app side.</p>
+</div>
+</div>

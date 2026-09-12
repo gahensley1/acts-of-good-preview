@@ -6,10 +6,12 @@ Written 6 September 2026. Everything here was decided or built in one session wi
 Two pieces of work, one shipped and one drawn:
 
 1. **The sign-up sheet.** Backend is **live in production** on `actsofgood.app`. The app side
-   is not built at all.
-2. **The notes panel.** Designed and drawn, nothing built.
+   is not built at all. **Reviewed by the panel 12 Sep 2026 — see "What the panel found" below.**
+2. **The notes panel.** Designed and drawn, nothing built. **Its shape was ruled 12 Sep 2026 —
+   see "RULED: B with 1" in Part Two.**
 
-`index.html` has **not been touched**. It is still build **1W**.
+`index.html` has **not been touched** *by this brief*. (It was build 1W on 6 Sep; the pushed build
+as of 12 Sep is **4J**, from other work.)
 
 ---
 
@@ -28,6 +30,156 @@ From the `acts-of-good` skill, and they hold here without exception:
 ---
 
 # PART ONE — THE SIGN-UP SHEET (live)
+
+## Where it came from — act 22
+
+**Confirmed by G, 12 September 2026.** The sign-up sheet exists because of
+**act 22** — Jessica's neighborhood meal for the eight firefighters at Station
+No. 1, in honor of September 11. She ran that act on **SignUpGenius**, built
+the menu around a Boston butt with the sides filled in around it, and put a
+paper flyer on **all 28 doors of the two closest blocks**. The app could not
+hold any part of it, so she went elsewhere — the same shape of evidence that
+produced the notes panel (Apple Notes, the postcard party).
+
+Act 22 is therefore the sheet's **proof case**, and it should be read against
+this brief whenever something here is in doubt. Four things it settles or
+sharpens:
+
+- **The poster is real and it works.** Her flyer on 28 doors is the thing the
+  poster section below describes, done by hand, before the app could print
+  one. Compare the drawn poster against her actual flyer before finalising the
+  copy. *(Her flyer carries a real street address and a live QR code — see the
+  production flag in `act-library.md`; it never travels into a published page.)*
+- **"Tell me what holes you have and I'll fill them."** David Costrini, a
+  friend a few streets down, said that to her. It is a person asking, in
+  plain words, for the thing `/a/:id` renders: what is still outstanding.
+  That single line is the strongest argument in the corpus for the sheet, and
+  it should be quoted whenever the feature has to justify its cost.
+- **Quantities per slot is not optional.** It is in "Still open" below. A
+  potluck for eight, anchored on one protein, is precisely where "two dozen
+  taken" decides whether two people bring the same pans. Act 22 moves this
+  from nice-to-have to required.
+- **The recipient count is known before the sheet is made.** She knew it was
+  eight. Whatever the app asks for when a sheet is created, *how many people
+  is this for* is a real field she would have filled in.
+
+## What the panel found — 12 September 2026
+
+Seven testers reviewed the poster, the page behind the code, and the claim.
+`reviews/PANEL-11-the-sign-up-sheet.html`. **All seven stopped in the same
+place, which has never happened on this panel before.**
+
+**THE FINDING — nobody can hand a thing back.** Each of them took something in
+their head, thought about the Saturday that goes wrong, and took nothing.
+Marcus: *"That is not a claim lost. That is worse — that is a hole with a lid
+on it."* The page says **"In good hands"**, the organiser believes it, nobody
+turns up. Four of them said they would rather take nothing than risk being the
+hole — so the damage is invisible: **a sheet nobody dares claim from looks
+exactly like a quiet sheet.** This is listed third in "Still open" below. The
+panel says it is not third; it is the credibility of the whole feature.
+
+**Six of seven — the dead poster.** *Corrected 12 Sep: a dead code does NOT
+return a blank browser error — it returns our own `shell()` page reading
+"Nothing here — that link does not lead anywhere." The review page said
+otherwise; that was a fetch failure read as a blank page without checking the
+source. Do not repeat the original claim.* The finding survives in reduced
+form: that page is cold, and **it cannot tell a finished sheet from a wrong
+link**, so somebody scanning a month-old poster is told they made a mistake
+rather than that a good thing finished. Paper outlives the act it advertises;
+one tester said *"My church has a flyer up from 2019. Somebody's mother is
+going to scan that."*
+
+**Four of seven — what you are promising, before you promise it.** They all
+stopped on *"Someone with a van, Saturday morning."* Which Saturday, how far.
+**Nobody asked for the address**; they asked whether they could keep the
+promise. This brushes ruling 9 below, which exists to stop a church wall
+broadcasting a drop-off address — a date and a rough area would not do that.
+G's closed ruling, so G's to reopen or leave shut.
+
+**Paula, on the printed object.** She read it as an order of service — the
+finished, official one. *"Finished things don't get scanned."* Beside a
+handwritten flyer with tear-off tabs, ours is the one nobody touches, and
+Jessica's real flyer worked partly because it looked home-made. Her three craft
+notes: the coral line and the black line are the same size with an even rule
+between them, so neither is the headline; a hairline frame inset from the sheet
+edge will print visibly crooked on a home printer, and a crooked frame is what
+everyone sees; the dashed list will not hang straight under a centred block.
+
+**Renata and Sherri, from opposite directions, on the example.** Renata counted
+that **every one of the four demo items costs money** — bedding, pans, staples,
+a van: *"I have four dollars and two hands and you've asked for neither."*
+Sherri, separately: a family arriving in March is the one example half her nine
+thousand women would read as **a political position** rather than a kindness.
+She praised *"a neighbor, a congregation or a staff room"* in the same breath,
+so the voice can do it.
+
+**Two said no at six weeks — Marcus and Brianne — for one reason only: the
+organiser's side does not exist.** That is a vote for the build order below, not
+a mark against the design.
+
+**Six rulings are waiting on G, written plainly as items 18–23 in
+`DECISIONS-OPEN.md`.** Nothing from this review is built.
+
+## Handing a thing back — LIVE 12 September 2026 (ruling 18A)
+
+**Deployed and verified the same day.** Worker version `46bc45cb-4ac1-40f4-80ac-109d902cb2ad`;
+the `release_hash` column confirmed present on the remote `aog` database (a repeat of the migration
+answered *duplicate column name*, which is the proof). Verified against the live site afterwards:
+`POST /a/:id/release` answers as JSON — proving the route exists and the new code is serving —
+while a made-up path beside it still returns the HTML not-found page, and the splash and dead-link
+pages are both healthy.
+
+*Not yet exercised end to end in the wild, because that needs a real sheet: **the first sheet
+anybody publishes is the real test.** Take a row on it, close the page, scan the poster again, and
+confirm the row reads "Yours" with "I can't after all" underneath.*
+
+The panel's unanimous finding, answered. **In `worker.js` and `schema.sql`, not
+in `index.html`**, which is untouched. It went live with two commands run from
+`Documents\aog-sheets` — and they must be run **from that folder**: run them from `aog-push` and
+wrangler finds no settings, offers to create a stray Worker named after the app repo, and asks for
+a name. *If wrangler ever asks you to name the Worker, you are in the wrong folder.*
+
+    npx wrangler d1 execute aog --remote --command "ALTER TABLE slots ADD COLUMN release_hash TEXT"
+    npx wrangler deploy
+
+**How it works, and why it works this way.** There is no account here, so the
+proof that a row is yours cannot be a login. When you take a row your own phone
+makes a random key, keeps it in that browser, and sends only its SHA-256 to the
+Worker (`slots.release_hash`) — exactly how the owner token is handled. Send the
+key back to **`POST /a/:id/release`** and the row opens again. The condition
+lives in the SQL, like the claim it undoes:
+
+    UPDATE slots SET name = NULL, contact = NULL, note = NULL,
+                     release_hash = NULL, claimed_at = NULL
+    WHERE sheet_id = ? AND pos = ? AND name IS NOT NULL AND release_hash = ?
+
+**What a person sees.** Their row reads **Yours** and carries one quiet line,
+*I can't after all*. Tapping asks once — *Hand it back? Keep it / Yes* — using
+the app's own "Keep it" idiom for the cancel. Everybody else still reads *In
+good hands* with no control at all. The claim form and the thank-you both now
+say the way out exists **before** you commit, which is the real mechanism: four
+of seven testers said they would rather take nothing than risk being the hole,
+so **the button's job is mostly to be there, not to be pressed.**
+
+**Three decisions inside it, all reversible:**
+- **The thank-you page keeps the list** when a sheet fills up, hidden unless
+  this phone is holding a row. A sheet filling must never trap the one person
+  who can no longer come. Ruling 7's gracious close is unchanged for everyone
+  else.
+- **Lose the phone and you lose the way out.** That is the honest price of never
+  asking anyone to sign up for anything. The organiser is still reachable.
+- **The give-back reads quieter than the take** — sentence case against the
+  uppercase *I'LL BRING IT*. Aesthetic, therefore G's; say the word and it
+  changes.
+
+**The key is wiped with the phone number**, thirty days after the day, in the
+same nightly job.
+
+**Verified before it was handed over:** driven in a headless browser at phone
+size — take a row, reload, confirm it still reads *Yours* with the way out while
+another person's row reads *In good hands* with none, hand it back, confirm the
+row reopens and stays open after a reload. Zero page errors. A release sent with
+a wrong key is refused.
 
 ## What it is
 
@@ -115,12 +267,17 @@ shows; their calendar reminds. That is what keeps it small and out of deliverabi
 - A subdomain (`sheets.actsofgood.app`) would push it to 41×41 at 2.98px — measurably worse in
   print. Don't.
 - Generate offline. `datalog/qrcode-svg`, MIT, zero deps, single SVG path.
+- *Panel note: one tester said "Nobody needed the heart. Take the heart out." It is G's aesthetic
+  call and the heart decodes at size — recorded, not proposed.*
 
 ## The poster
 
-    WE COULD USE A HAND            (coral, small caps)
+    WE COULD USE A HAND            (coral, small caps — RULED 12 Sep at +25% on
+                                    the old size. The headline of the sheet.)
     ———                            (gold rule, 21.5px above and below — equal)
-    FOR A FAMILY ARRIVING IN MARCH (bold, all caps, black, same size as the line above)
+    FOR A FAMILY ARRIVING IN MARCH (bold, all caps, black — RULED 12 Sep at +15%
+                                    on the old size, so it clears the paragraph
+                                    beneath it without challenging the ask)
 
     A few of us are putting a box together to meet them. Four things are still
     missing, and any one of them would be a help.
@@ -134,11 +291,86 @@ shows; their calendar reminds. That is what keeps it small and out of deliverabi
 
     [the code, heart in the middle]
 
-    Point a camera at it. Choose your one thing — no account, no app to install.
+    Point your camera. Choose what you can. No account, no app to install.
+    Scan it again any time to edit.
 
     50 acts of good
 
 Gold hairline plate inset 13px, as the letter and every journal page carry it.
+
+**RULED 12 September 2026 (22B): the frame stays, at the inset as specified — 13px.** G kept the
+frame and, shown three margins on real A4, chose the existing one. **The inset does not change.
+Do not re-propose widening it.**
+
+**But the risk it was drawn to answer is real, so it moves to the printing instead.** At this inset
+the frame sits almost exactly on the line most home printers cannot cross — they hold back roughly
+a quarter of an inch on all four sides, more at the bottom where the rollers grip — so a sheet sent
+at full size, edge to edge, can print three sides of the frame and lose the fourth. A continuous
+rectangle with a gap in it looks broken rather than close.
+
+**So the printable poster must never be produced at full bleed.** Whatever generates it has to hand
+the printer a page that already sits inside the printable area: normal page margins on the print,
+or scale-to-fit, never borderless-at-full-size. Done that way the design is safe exactly as
+specified and the whole question goes away — which is why the inset did not need to move. This is a
+build requirement on the app side of the sheet, not a design change. Drawn at three margins for the
+record in `reviews/POSTER-MARGIN.html`.
+
+**A separate finding from that drawing, named and not built:** on a real A4 sheet the poster fills
+about two thirds of the page and **the frame encloses an empty bottom third.** It was designed as a
+card that flows to whatever height it needs and has never been laid out on the paper it prints on.
+A frame around nothing reads as a page that ran out. Three ways out — centre the content in the
+frame, grow the type to fill A4, or end the frame where the content ends — and it wants its own
+drawing before anyone chooses.
+
+**The two top lines — RULED 22A, 12 September 2026, at 25%.** They used to be the same size, so
+neither was the headline and at walking distance you could not tell what the poster was about. G
+asked whether 15% would do it; drawn and checked shrunk-and-blurred, **15% did almost nothing** —
+at that distance the coral/black colour difference was doing all the work and a 1.5px size step was
+noise. He moved it to **25%** himself, which is past the threshold: the ask is unmistakably the
+headline both up close and at distance. Working page: `reviews/POSTER-TOP.html`.
+
+G then ruled the black title up **15%** as well. I expected that to undo the hierarchy — it takes
+the gap between the two lines from a quarter down to about a twelfth — and drawn and re-checked, it
+does not. The ask still arrives first, because size was never the only thing carrying it: coral
+against black, centred, wider tracking, and first on the page all point the same way.
+
+**It also fixes a fault neither of us had named.** The black title used to sit at the same size as
+the body paragraph directly beneath it — in fact slightly smaller. **A title smaller than its own
+body copy is backwards**, and it is part of why the top of the sheet read as flat no matter what
+the coral line did. Check this whenever the poster is re-set: the title must clear the lede.
+
+*Consequence worth knowing: the size difference now carries the hierarchy on its own, so the gold
+rule's equal spacing stops mattering. The "tuck the rule up under the ask" option is a refinement,
+not a fix. **22B** — the gold frame off the printed sheet — is still open.*
+
+**The first line under the code is RULED 12 September 2026**, replacing *"Point a camera at it.
+Choose your one thing — no account, no app to install."* Three things changed and one of them
+matters:
+
+- *Point your camera* — second person, shorter, and it is the instruction, not a description.
+- **"Choose what you can" replaces "choose your one thing", and that is a promise change, not a
+  rewording.** The old line was deliberately singular: it made the ask feel tiny, which is most of
+  why people say yes at all. The new one lets a person take two or three. Nothing in the app ever
+  stopped them; the poster simply never said so. G was told this before ruling and ruled it in —
+  **do not quietly revert it to the singular.** It also answers the tester who counted that every
+  row on the sheet cost money: *what you can* acknowledges capacity without ever mentioning it.
+- *No account, no app to install* is now its own sentence rather than a trailing clause.
+
+**The second line under the code is RULED 18·5, 12 September 2026, and it is G's, against my
+recommendation** — I argued the poster already reads as too finished and this is a fourth line of
+small print. He ruled it in. It earns its place: scanning the code again already recognises the
+person and offers them the way out, and until this line existed nothing anywhere told them so. The
+paper is now the mechanism as well as the advertisement.
+
+*Note for whoever sets this: rulings 18·5 and 22 touch the same object. If 22A or 22B is ever
+ruled — the two top lines stop competing, or the gold frame comes off the printed sheet — this line
+is part of what has to still fit. Do not quietly drop it to make the layout work; take it back to G.*
+
+**Check this against Jessica's real act-22 flyer before it ships.** Hers went on 28 doors and
+worked. It is the only field test this design will get before a stranger's wall.
+
+**The panel read this poster as finished rather than asking** — see "What the panel found" above,
+and items 22 and 23 in `DECISIONS-OPEN.md`.
 
 ## What the app side still needs (NOT BUILT)
 
@@ -150,6 +382,14 @@ In `index.html`, on an act in the works:
 - Draw the QR offline
 - The printable poster
 - Read claims back: poll `/a/:id.json` when the act is opened, show name and contact, free a row
+  (the Worker already accepts an owner release — see "Handing a thing back")
+- **The message you send them must carry the sheet link — RULED 18·3, 12 September 2026.** When
+  the app writes the message telling a claimer where and when, **the link to the sheet rides along
+  in it.** This is not a nicety: a claimer has no app, no account and no bookmark, so without it
+  the way out of a claim is unreachable for anyone who cannot walk past the poster again. Putting
+  it in the message is the only route that reaches **everybody** who took a row, rather than only
+  the calendar-keepers or only the neighbours. Do not build the messaging step without it.
+  *Open when that is built: the actual wording of the message.*
 
 Roughly 25–35KB against a 1.05MB file. **This ends "no network calls."** The app stays offline-first
 — you can write an act on a plane — but publishing and reading claims need the network. That is a
@@ -157,16 +397,19 @@ real change to the app's character and G accepted it knowingly.
 
 ## Still open on the sheet
 
+- ~~**Letting a claimer cancel.**~~ **RULED 18A AND BUILT, 12 September 2026 — not open.** See
+  "Handing a thing back" below.
 - **Quantities per slot** — "six dozen cookies, two dozen taken". Half the village-size acts want it.
-- **Letting a claimer cancel** — if someone can't back out gracefully, they don't back out, they
-  just don't turn up. Cheapest version: the page remembers on their phone that the row is theirs.
+  **Act 22 promotes this to required**, and three of seven testers hit it independently. Item **20**.
+- **The sheet that has finished** — a code with nowhere to go returns a blank browser error. Six of
+  seven. Item **19**.
 - **Verification.** A typed name and email are not accountability; anyone can type anything.
   Only a confirmation link makes an address real, and that means sending mail — which costs an
   email service and breaks "the app never sends anything". G has not ruled.
 
 ---
 
-# PART TWO — THE NOTES PANEL (drawn, not built)
+# PART TWO — THE NOTES PANEL (ruled, not built)
 
 ## Why
 
@@ -182,16 +425,61 @@ Two things it revealed:
 2. **She asked for money.** *"In no way required to attend, but if you'd like to donate $5 towards
    the cost of the postage, it would be much appreciated."*
 
+---
+
+## RULED 12 September 2026 — **B with 1**: it is a note, not a checklist
+
+G's question that forced it: *"is it just a checklist function, or can one write just notes?"*
+As the brief stood, the answer was **no** — every line carried a circle, so the only thing the
+panel could hold was something to tick. **Her own note is two-thirds prose.** A panel that holds
+only the names sends her back to Apple Notes for the invitation and the ask, which is the exact
+problem it was drawn to solve.
+
+**The ruling, in five parts:**
+
+1. **One field, mixed freely.** Circled lines and plain lines live in the same note, in any order,
+   as many times as she likes. Not a checklist with a notes box bolted under it — that would decide
+   for her that the list comes first and the words come after, and leave "Buy stamps" nowhere to go.
+2. **Return on an empty circled line lands on a plain line.** The brief already specified that this
+   *ends the list*; it never said what you land in. Now it does: the circle comes off, the caret
+   stays put, and you carry on in sentences.
+3. **The way back is the ghost circle.** Stand on any plain line and a faint dashed circle appears
+   in the margin **of that line only**. Tap it and the line joins a list. No toolbar, no mode
+   button, and the rule as written — *you tap the circle* — stays literally true: the circle is
+   always there, just unlit until you are on the line.
+4. **Backspace at the start of a circled line takes the circle off. It does not merge.** Only a
+   plain line merges into the one above. One deliberate step out of the list, so a name is never
+   accidentally glued onto the line before it.
+5. **The text column never moves.** Apple Notes shifts a line right when it becomes a checklist
+   item. This does not. The gutter is always present, holding a circle, a ghost circle, or nothing,
+   so a line changing kind never makes the page jump under your thumb. This matters more here than
+   in Notes **because he dictates rather than watches the screen.**
+
+**Rejected, with the reason — the typed trigger.** Every notes app turns `- ` or `[] ` at the start
+of a line into a list item. Not here: **speech does not reliably produce a leading dash or
+bracket**, so it is a door only a typist can open, in a panel whose entire architecture was chosen
+because the user speaks. Do not re-propose it as "just a convenience".
+
+**A working prototype exists**, published 12 Sep 2026 — the real mechanic, seeded with her actual
+postcard-party note: `claude.ai/code/artifact/f7f22793-4cc3-46ac-8ec6-902a60b5dad1`, saved as
+`reviews/NOTES-PANEL-working.html`. Whoever builds this into `index.html` should use it as the
+spec; its script is ~90 lines and already handles Return-splits-at-caret, Return-on-empty,
+Backspace-at-0, autogrow, arrow navigation between fields, and pointerdown on the circle. The
+options that lost are at `claude.ai/code/artifact/9d5899aa-60c4-4969-990f-540a2a200d76`, saved as
+`reviews/NOTES-PANEL-three-shapes.html`.
+
+---
+
 ## The design
 
-**One list per act. It behaves exactly like Apple Notes.**
+**One list per act. It behaves exactly like Apple Notes** — except for the no-shift rule above.
 
 - **No mode button.** No "tick a line" toolbar. You tap the circle.
-- **Return makes the next line. Return on an empty line ends the list.** That last one is the
-  behaviour that makes Notes feel like nothing at all, and it is the one everybody forgets.
-- Return is **not** state-aware — it always inserts a new unchecked line.
+- **Return makes the next line. Return on an empty line ends the list** and leaves you on a plain
+  line to keep writing.
+- Return is **not** state-aware — it always inserts a new unchecked line of the same kind.
 - Checked text does **not** strike through. Apple doesn't, and it reads as punishment.
-- The list takes anything: names, things to buy, calls to make.
+- The list takes anything: names, things to buy, calls to make — **and paragraphs.**
 - **Private. Never printed, never on a card or a poster.** In the journal only if you tick a box,
   off by default.
 - The notes survive into the finished act.
@@ -222,6 +510,10 @@ undo.
 
 A name the app already knows gets a small **coral dot**. Names it doesn't know stay plain words.
 
+*Note: "make it a checklist line" was considered for this menu and **not** chosen — a hold is too
+deep a gesture for something done constantly, and this menu is for occasional decisions. The ghost
+circle carries it instead.*
+
 **Public is marked on the line.** Any line that has gone onto the sign-up sheet says so, in coral,
 on the line. The documented way small apps hurt people is a private page quietly exposing a child
 page — a private note sitting beside a public sheet is exactly that shape, so the mark is a safety
@@ -244,16 +536,19 @@ stable integer caret model, working `enterkeyhint`, and dictation landing in a p
 diff. You hand-roll Return (split at `selectionStart`, focus the new field, caret to 0),
 Backspace-at-0 (merge up), and autogrow.
 
+**Never re-render or move selection during an input event.** Read the DOM, update state, write back
+on blur or debounced. In the prototype the `input` handler does exactly three things — store the
+value, grow the field, stop. Every re-render is triggered by Return, Backspace or a circle tap,
+never by typing or dictation.
+
 **Do not use an editor library.** Editor.js's checklist tool is deprecated. Quill, ProseMirror,
 Lexical, Tiptap and Milkdown all solve rich-text problems this doesn't have, want React, and none
 of them give Return-on-empty-ends-list for free. Hand-roll it.
 
 **The circle:** 21px inside a 34px hit area. It must be a **sibling** of the field, not inside it,
 and `preventDefault()` on `pointerdown` — not `click` — so tapping it never moves the caret or
-drops the keyboard.
-
-**Never re-render or move selection during an input event.** Read the DOM, update state, write back
-on blur or debounced.
+drops the keyboard. The ghost circle sits in the same slot and is shown with `:focus-within` on the
+row, which needs no JavaScript at all.
 
 ## Settled
 
@@ -261,6 +556,7 @@ on blur or debounced.
   Her own words are the model. The old blanket rule that invitations never mention money is
   **softened** — it must never read as a price, and never as required.
 - One circle, no label.
+- **It holds prose as well as ticks** — ruled 12 Sep 2026, above.
 
 ---
 
@@ -271,33 +567,36 @@ G's own forcing function: **Jessica's postcard party is 8 October.** Both pieces
 Recommended order:
 
 1. **The notes panel.** She is using Apple Notes for it today. Needs no domain, no printing, no
-   strangers, no network.
-2. **The app side of the sign-up sheet.**
+   strangers, no network. **Its shape is now ruled and prototyped — this is ready to build.**
+2. **The app side of the sign-up sheet.** Two testers said no at six weeks for this reason alone.
+   Wait for G's rulings on items 18–23 first; item 18 changes what the app has to read back.
 3. **THE-WORDS.md** — eleven decisions on the finish, the halfway note and the closing card. These
    finish the *year*, which is the actual product, and they have been waiting.
 
-Nothing else should be added until something ships. This session added sheets, posters, codes, a
-domain, a splash page and a notes panel, and `index.html` did not change once.
+Nothing else should be added until something ships. The 6 Sep session added sheets, posters, codes,
+a domain, a splash page and a notes panel, and `index.html` did not change once.
 
 ---
 
 # OPEN, AND G'S TO RULE
 
+- **DECISIONS-OPEN.md** — twenty-three now. Items **18–23** are the sign-up sheet, from the panel.
 - **THE-WORDS.md** — eleven, unanswered. `3E·1 4A·1 5A 6 all 9A yes yes strip 7 later` clears them.
 - **THE-IDEAS.md** — 89 ideas to rewrite over the top of.
-- **DECISIONS-OPEN.md** — seventeen.
 - **X** — `HANDLE_KEYS` includes it, `PLATS` excludes it. One or the other, not both.
 - **Post-page copy overlap** — `#cm-how` duplicates the coral paste line.
 - **The free/no-planning gap** in the library. Measured: about 13 of 89 acts cost nothing. Thinner
-  than it should be, not the desert `act-library.md` describes.
+  than it should be, not the desert `act-library.md` describes. *One tester made this concrete: on
+  a sheet where every row costs money, she has nothing to give but her hands.*
 
 # KNOWN DOC DRIFT — DO NOT TRUST BLINDLY
 
-- `claude/handoff.md` in the project describes **build 1A**. The live build is **1W**.
+- `claude/handoff.md` in the project describes **build 1A**. The pushed build as of 12 Sep is **4J**.
 - `panel-full-review.md` says "Nothing fixed yet; G to rule." **Every item is implemented** —
   verified in source.
 - `pipeline-review.md` says the post-evaluation popup "was G's explicit choice… do not
-  relitigate." The build has **no popups anywhere**.
+  relitigate." That was written when the build had no popups anywhere; 16B was then ruled as a
+  popup on 9 Sep and `sheet-bkup` exists.
 - `decisions.md` #10 still poses the traveling category as open. It was **declined 30 August**.
 - `aesthetic-decisions.html` shows two share chips; `posting.md` ships four.
 

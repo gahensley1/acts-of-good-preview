@@ -1,0 +1,245 @@
+<title>The Notes Panel</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap">
+<style>
+:root{
+  --paper:#FFFFFF;--mist:#F6F4F1;--ink:#14110E;--muted:#665F57;--line:#E4E0DA;
+  --coral:#EA634F;--coralink:#C03F2B;--gold:#C99A2E;--chipbg:#FBEDE9;
+  --shadow:0 2px 14px rgba(20,17,14,.07);
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#1E1A15;--mist:#16130F;--ink:#F3EEE6;--muted:#A79C8E;--line:#342C23;
+  --coral:#F0836E;--coralink:#F09079;--gold:#E1BA52;--chipbg:#33231E;--shadow:none;}}
+:root[data-theme="dark"]{
+  --paper:#1E1A15;--mist:#16130F;--ink:#F3EEE6;--muted:#A79C8E;--line:#342C23;
+  --coral:#F0836E;--coralink:#F09079;--gold:#E1BA52;--chipbg:#33231E;--shadow:none;}
+
+*{box-sizing:border-box}
+body{background:var(--mist);color:var(--ink);
+  font-family:Montserrat,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased;}
+.page{max-width:520px;margin:0 auto;padding-block:30px 80px;padding-left:20px;padding-right:20px;}
+
+.eyebrow{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--muted);margin:0 0 12px;}
+h1{font-size:clamp(26px,6.2vw,34px);line-height:1.1;font-weight:800;letter-spacing:-.022em;
+  margin:0 0 12px;text-wrap:balance;}
+.stand{font-size:16px;color:var(--muted);margin:0 0 26px;}
+.stand b{color:var(--ink);font-weight:600;}
+
+/* ── the panel ───────────────────────────── */
+.panel{background:var(--paper);border:1px solid var(--line);border-radius:14px;
+  box-shadow:var(--shadow);padding:5px;}
+.plate{border:1px solid var(--gold);border-radius:10px;padding:18px 16px 20px;}
+.ttl{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--muted);margin:0 0 14px;}
+
+#list{display:block}
+.row{position:relative;padding-left:32px;}
+.circ{position:absolute;left:-2px;top:1px;width:34px;height:34px;padding:0;margin:0;
+  border:0;background:none;display:grid;place-items:center;cursor:pointer;
+  -webkit-tap-highlight-color:transparent;}
+.circ .d{width:19px;height:19px;border-radius:50%;border:1.6px solid var(--line);
+  background:transparent;position:relative;transition:border-color .12s,background .12s;}
+.circ.ghost .d{border-style:dashed;border-color:var(--coral);opacity:0;transition:opacity .14s;}
+.row:focus-within .circ.ghost .d{opacity:1;}
+.circ.on .d{border-color:var(--coral);background:var(--coral);}
+.circ.on .d::after{content:"";position:absolute;left:6px;top:2.5px;width:4px;height:9px;
+  border:solid var(--paper);border-width:0 1.7px 1.7px 0;transform:rotate(42deg);}
+.circ:focus-visible{outline:2px solid var(--coral);outline-offset:2px;border-radius:8px;}
+
+textarea{display:block;width:100%;border:0;padding:5px 0;margin:0;resize:none;overflow:hidden;
+  background:transparent;color:inherit;font:inherit;font-size:15.5px;line-height:1.5;
+  outline:none;}
+textarea::placeholder{color:var(--muted);opacity:.6;}
+.row.done textarea{color:var(--muted);}
+
+.hint{margin:20px 0 0;font-size:13.5px;color:var(--muted);line-height:1.6;}
+.hint b{color:var(--ink);font-weight:600;}
+.hint .kb{font-size:12px;font-weight:700;letter-spacing:.02em;background:var(--mist);
+  border:1px solid var(--line);border-radius:5px;padding:1px 6px;color:var(--ink);
+  white-space:nowrap;}
+.hint ul{margin:10px 0 0;padding-left:0;list-style:none;display:grid;gap:7px;}
+.hint li{display:flex;gap:10px;}
+.hint li::before{content:"";flex:0 0 5px;height:5px;border-radius:50%;background:var(--gold);
+  margin-top:9px;}
+
+.bar{display:flex;gap:10px;align-items:center;justify-content:space-between;margin:22px 0 0;}
+.reset{font:inherit;font-size:13px;font-weight:600;color:var(--coralink);background:none;
+  border:0;padding:6px 0;cursor:pointer;}
+.reset:hover{text-decoration:underline;}
+.count{font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums;}
+
+.foot{margin:30px 0 0;padding:17px 18px;background:var(--paper);border:1px solid var(--line);
+  border-radius:12px;font-size:14.5px;}
+.foot p{margin:0 0 9px;}
+.foot p:last-child{margin:0;color:var(--muted);font-size:13.5px;}
+.foot b{font-weight:600;}
+</style>
+
+<div class="page">
+  <p class="eyebrow">50 Acts of Good &middot; B with 1, working</p>
+  <h1>The notes panel</h1>
+  <p class="stand">Jessica&rsquo;s postcard-party note, in the app instead of Apple Notes.
+    <b>Use it</b> &mdash; it is the real mechanic, not a picture of one.</p>
+
+  <div class="panel">
+    <div class="plate">
+      <p class="ttl">Postcard party &middot; 8 October</p>
+      <div id="list"></div>
+    </div>
+  </div>
+
+  <div class="bar">
+    <span class="count" id="count"></span>
+    <button class="reset" id="reset" type="button">Put her note back</button>
+  </div>
+
+  <div class="hint">
+    <ul>
+      <li><b>Tap a circle</b> to tick it. Ticked text goes quiet &mdash; it never strikes through.</li>
+      <li><span class="kb">Return</span> makes the next line, and it inherits the circle.</li>
+      <li><span class="kb">Return</span> on an <b>empty circled line</b> drops the circle and ends
+        the list. Carry on writing in sentences.</li>
+      <li>Stand on any plain line and a <b>faint circle</b> appears in the margin. Tap it and the
+        line joins a list again.</li>
+      <li><span class="kb">Backspace</span> at the start of a circled line takes the circle off.
+        At the start of a plain line it joins the line above.</li>
+    </ul>
+  </div>
+
+  <div class="foot">
+    <p><b>The text column never moves.</b> Apple Notes shifts a line right when it becomes a
+      checklist item; this doesn&rsquo;t. The gutter is always there, holding a circle, a faint
+      circle, or nothing &mdash; so a line changing kind never makes the page jump under your
+      thumb mid-sentence.</p>
+    <p>Every line is its own field, which is what keeps dictation from landing in the wrong place.
+      Nothing here is in the build yet.</p>
+  </div>
+</div>
+
+<script>
+var SEED = [
+  {t:'Ginger',   list:true,  done:true },
+  {t:'Betsy',    list:true,  done:true },
+  {t:'Laura',    list:true,  done:false},
+  {t:'Laura',    list:true,  done:false},
+  {t:'Tiffani',  list:true,  done:false},
+  {t:'Nan',      list:true,  done:false},
+  {t:'Leisel',   list:true,  done:false},
+  {t:'Jenny',    list:true,  done:false},
+  {t:'Eva',      list:true,  done:false},
+  {t:'Come write postcards with me on the 8th — no experience needed, I’ll have stamps and addresses ready.', list:false, done:false},
+  {t:'In no way required to attend, but if you’d like to donate $5 towards the cost of the postage, it would be much appreciated.', list:false, done:false},
+  {t:'Buy stamps', list:true, done:false}
+];
+var L = SEED.map(function(o){ return {t:o.t, list:o.list, done:o.done}; });
+var listEl = document.getElementById('list');
+
+function grow(ta){ ta.style.height = 'auto'; ta.style.height = ta.scrollHeight + 'px'; }
+
+function tally(){
+  var n = 0, d = 0;
+  L.forEach(function(l){ if(l.list){ n++; if(l.done) d++; } });
+  document.getElementById('count').textContent =
+    n ? d + ' of ' + n + ' ticked' : 'nothing to tick';
+}
+
+function focusLine(i, pos){
+  var ta = listEl.querySelector('textarea[data-i="' + i + '"]');
+  if(!ta) return;
+  ta.focus();
+  var p = (pos === 'end' || pos > ta.value.length) ? ta.value.length : pos;
+  try{ ta.setSelectionRange(p, p); }catch(e){}
+}
+
+function render(){
+  listEl.textContent = '';
+  L.forEach(function(l, i){
+    var row = document.createElement('div');
+    row.className = 'row' + (l.list && l.done ? ' done' : '');
+
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'circ' + (l.list ? (l.done ? ' on' : '') : ' ghost');
+    btn.setAttribute('aria-label', l.list
+      ? (l.done ? 'Untick this line' : 'Tick this line')
+      : 'Make this a checklist line');
+    btn.appendChild(document.createElement('span')).className = 'd';
+    /* pointerdown, not click — so tapping never moves the caret or drops the keyboard */
+    btn.addEventListener('pointerdown', function(e){ e.preventDefault(); });
+    btn.addEventListener('click', function(){
+      var ta = listEl.querySelector('textarea[data-i="' + i + '"]');
+      var pos = ta ? ta.selectionStart : 0;
+      if(l.list){ l.done = !l.done; } else { l.list = true; l.done = false; }
+      render(); focusLine(i, pos);
+    });
+    row.appendChild(btn);
+
+    var ta = document.createElement('textarea');
+    ta.rows = 1;
+    ta.value = l.t;
+    ta.dataset.i = i;
+    ta.id = 'ln-' + i;
+    ta.enterKeyHint = 'enter';
+    if(!l.t) ta.placeholder = l.list ? 'One more…' : 'Write anything…';
+
+    /* never re-render during input — read, store, grow, nothing else */
+    ta.addEventListener('input', function(){ l.t = ta.value; grow(ta); });
+
+    ta.addEventListener('keydown', function(e){
+      var pos = ta.selectionStart, end = ta.selectionEnd;
+
+      if(e.key === 'Enter'){
+        e.preventDefault();
+        /* an empty circled line is how you say "the list is finished" */
+        if(l.list && !ta.value.trim()){
+          l.list = false; l.done = false;
+          render(); focusLine(i, 0);
+          return;
+        }
+        var before = ta.value.slice(0, pos), after = ta.value.slice(pos);
+        l.t = before;
+        L.splice(i + 1, 0, {t: after, list: l.list, done: false});
+        render(); focusLine(i + 1, 0);
+        return;
+      }
+
+      if(e.key === 'Backspace' && pos === 0 && end === 0){
+        /* the circle comes off first; the line only merges once it is plain */
+        if(l.list){
+          e.preventDefault();
+          l.list = false; l.done = false;
+          render(); focusLine(i, 0);
+          return;
+        }
+        if(i === 0) return;
+        e.preventDefault();
+        var keep = L[i - 1].t.length;
+        L[i - 1].t += ta.value;
+        L.splice(i, 1);
+        render(); focusLine(i - 1, keep);
+        return;
+      }
+
+      if(e.key === 'ArrowUp' && pos === 0 && i > 0){
+        e.preventDefault(); focusLine(i - 1, 'end'); return;
+      }
+      if(e.key === 'ArrowDown' && pos === ta.value.length && i < L.length - 1){
+        e.preventDefault(); focusLine(i + 1, 0); return;
+      }
+    });
+
+    row.appendChild(ta);
+    listEl.appendChild(row);
+    grow(ta);
+  });
+  tally();
+}
+
+document.getElementById('reset').addEventListener('click', function(){
+  L = SEED.map(function(o){ return {t:o.t, list:o.list, done:o.done}; });
+  render();
+});
+
+render();
+</script>

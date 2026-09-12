@@ -1,0 +1,384 @@
+<title>A Hole With A Lid On It</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap">
+<style>
+:root{
+  --paper:#FFFFFF;--mist:#F6F4F1;--ink:#14110E;--muted:#665F57;--line:#E4E0DA;
+  --coral:#EA634F;--coralink:#C03F2B;--gold:#C99A2E;--chipbg:#FBEDE9;
+  --shadow:0 1px 2px rgba(20,17,14,.05);--shadow2:0 2px 12px rgba(20,17,14,.06);
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#1E1A15;--mist:#16130F;--ink:#F3EEE6;--muted:#A79C8E;--line:#342C23;
+  --coral:#F0836E;--coralink:#F09079;--gold:#E1BA52;--chipbg:#33231E;
+  --shadow:none;--shadow2:none;}}
+:root[data-theme="dark"]{
+  --paper:#1E1A15;--mist:#16130F;--ink:#F3EEE6;--muted:#A79C8E;--line:#342C23;
+  --coral:#F0836E;--coralink:#F09079;--gold:#E1BA52;--chipbg:#33231E;
+  --shadow:none;--shadow2:none;}
+
+*{box-sizing:border-box}
+body{background:var(--mist);color:var(--ink);
+  font-family:Montserrat,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased;}
+.page{max-width:760px;margin:0 auto;padding-block:32px 90px;padding-left:20px;padding-right:20px;}
+
+.eyebrow{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--muted);margin:0 0 13px;}
+h1{font-size:clamp(30px,7vw,44px);line-height:1.05;font-weight:800;letter-spacing:-.025em;
+  margin:0 0 14px;text-wrap:balance;max-width:15ch;}
+.stand{font-size:17.5px;color:var(--muted);margin:0 0 4px;max-width:56ch;}
+.stand b{color:var(--ink);font-weight:600;}
+
+h2{font-size:12px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);
+  margin:42px 0 16px;padding-bottom:9px;border-bottom:1px solid var(--line);}
+
+/* ── the headline finding ── */
+.hero{background:var(--paper);border:1px solid var(--line);border-radius:16px;
+  box-shadow:var(--shadow2);overflow:hidden;margin:30px 0 0;}
+.hero .tally{background:var(--coral);color:#fff;padding:12px 20px;font-size:12.5px;
+  font-weight:800;letter-spacing:.1em;text-transform:uppercase;}
+.hero .body{padding:22px 20px 24px;}
+.hero h3{font-size:clamp(21px,4.6vw,27px);font-weight:700;line-height:1.22;margin:0 0 12px;
+  letter-spacing:-.016em;text-wrap:balance;}
+.hero p{margin:0 0 12px;font-size:15.5px;}
+.hero p:last-child{margin:0;}
+.pull{margin:18px 0;padding:16px 18px;background:var(--mist);border-left:3px solid var(--coral);
+  border-radius:0 9px 9px 0;}
+.pull q{quotes:none;display:block;font-size:16.5px;line-height:1.45;font-weight:500;}
+.pull cite{display:block;font-style:normal;font-size:12px;font-weight:700;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--muted);margin-top:10px;}
+
+/* ── second finding ── */
+.second{background:var(--paper);border:1px solid var(--line);border-radius:14px;
+  padding:19px 20px;box-shadow:var(--shadow);margin:16px 0 0;}
+.second .cnt{font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--coralink);background:var(--chipbg);border-radius:5px;padding:3px 8px;
+  display:inline-block;margin:0 0 10px;}
+.second h3{font-size:19px;font-weight:700;margin:0 0 9px;letter-spacing:-.012em;}
+.second p{margin:0 0 9px;font-size:15px;}
+.second p:last-child{margin:0;}
+
+/* ── rulings ── */
+.rule{background:var(--paper);border:1px solid var(--line);border-radius:14px;
+  box-shadow:var(--shadow);margin:0 0 15px;overflow:hidden;}
+.rule > header{padding:16px 19px 14px;border-bottom:1px solid var(--line);}
+.rule .no{font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--muted);margin:0 0 6px;}
+.rule .no b{color:var(--coralink);}
+.rule h3{font-size:18.5px;font-weight:700;margin:0 0 8px;letter-spacing:-.013em;text-wrap:balance;}
+.rule .why{margin:0;font-size:14.5px;color:var(--muted);}
+.rule .why b{color:var(--ink);font-weight:600;}
+.opts{padding:13px 19px 17px;display:flex;flex-direction:column;gap:8px;}
+.opt{display:flex;gap:12px;align-items:flex-start;border:1px solid var(--line);border-radius:10px;
+  padding:11px 13px;font-size:14.5px;background:var(--mist);}
+.opt .n{flex:0 0 auto;min-width:28px;text-align:center;background:var(--paper);border:1px solid var(--line);
+  color:var(--coralink);font-size:12px;font-weight:800;border-radius:6px;padding:3px 6px;margin-top:1px;}
+.opt.pick{border-color:var(--gold);background:var(--paper);}
+.opt.pick .n{background:rgba(201,154,46,.15);border-color:transparent;color:var(--gold);}
+.opt .tx{flex:1;min-width:0;}
+.opt .tx b{font-weight:600;}
+.mine{font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--gold);
+  display:block;margin-top:6px;}
+.flag{margin:11px 19px 0;padding:10px 12px;background:var(--chipbg);border-radius:9px;
+  font-size:13.5px;color:var(--coralink);}
+.flag b{font-weight:700;}
+.opts + .flag{margin-top:-4px;margin-bottom:15px;}
+
+/* ── the seven ── */
+.who{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:17px 19px;
+  margin:0 0 12px;box-shadow:var(--shadow);}
+.who .hd{display:flex;flex-wrap:wrap;gap:9px;align-items:baseline;margin:0 0 10px;}
+.who .nm{font-size:16px;font-weight:700;letter-spacing:-.01em;}
+.who .rl{font-size:12.5px;color:var(--muted);}
+.who .six{margin-left:auto;font-size:10.5px;font-weight:800;letter-spacing:.08em;
+  text-transform:uppercase;padding:3px 8px;border-radius:5px;}
+.six.y{background:rgba(201,154,46,.16);color:var(--gold);}
+.six.n{background:var(--chipbg);color:var(--coralink);}
+.six.split{background:var(--mist);color:var(--muted);border:1px solid var(--line);}
+.who p{margin:0 0 9px;font-size:14.5px;}
+.who p:last-child{margin:0;}
+.who q{quotes:none;font-style:normal;border-left:2px solid var(--gold);padding-left:11px;
+  display:block;margin:10px 0;color:var(--ink);}
+
+.foot{margin:34px 0 0;padding:19px 20px;background:var(--paper);border:1px solid var(--line);
+  border-radius:12px;box-shadow:var(--shadow);}
+.foot p{margin:0 0 10px;font-size:15px;}
+.foot p:last-child{margin:0;color:var(--muted);font-size:13.5px;}
+</style>
+
+<div class="page">
+
+<p class="eyebrow">50 Acts of Good &middot; panel 11 &middot; the sign-up sheet</p>
+<h1>A hole with a lid on it</h1>
+<p class="stand">Seven people looked at the poster, the page behind the code, and the claim.
+<b>All seven stopped at the same place</b> &mdash; and it is not a place anyone has looked before.</p>
+
+<div class="hero">
+  <p class="tally">Seven of seven &mdash; unanimous, a first for this panel</p>
+  <div class="body">
+    <h3>Nobody can hand a thing back.</h3>
+    <p>Every one of them took something in their head, and every one of them then thought about the
+    Saturday that goes wrong &mdash; a night shift, a fever, a mother in hospital. There is no way
+    to give it back, so they don&rsquo;t take anything at all.</p>
+    <div class="pull">
+      <q>That is not a claim lost. That is worse &mdash; that is a hole with a lid on it.</q>
+      <cite>Marcus, who would publish these by the dozen</cite>
+    </div>
+    <p>The page says <b>&ldquo;In good hands.&rdquo;</b> The organiser believes it. Nobody turns up.
+    Four of them said they would rather take nothing than risk being the hole, which means the
+    damage is invisible &mdash; <b>it looks exactly like a quiet sheet.</b></p>
+    <p>This is already written down as &ldquo;still open&rdquo; on the sheet, third in a list of
+    three. The panel says it is not third. It is the whole credibility of the thing.</p>
+  </div>
+</div>
+
+<div class="second">
+  <span class="cnt">Six of seven</span>
+  <h3>The poster outlives the act, and then it breaks.</h3>
+  <p>A flyer stays on a wall for years. Scan an old one today and you get a blank browser error.
+  Four of them said the same thing unprompted: they would assume they had done something wrong.
+  Trent read it as a scam. Sherri: <b>&ldquo;My church has a flyer up from 2019. Somebody&rsquo;s
+  mother is going to scan that.&rdquo;</b></p>
+  <p>The front door was deliberately made warm rather than a tidy error. The sheet that has finished
+  never was.</p>
+</div>
+
+<h2>What I need you to rule &mdash; six things</h2>
+
+<div class="rule">
+  <header>
+    <p class="no">Ruling <b>1</b> &middot; all seven</p>
+    <h3>Giving a thing back</h3>
+    <p class="why">Someone takes the pans, then can&rsquo;t. Today their only option is to go quiet.
+    <b>Quiet is worse than no.</b></p>
+  </header>
+  <div class="opts">
+    <div class="opt pick"><span class="n">1A</span><span class="tx">The page remembers, on that
+      phone, that the row is theirs &mdash; and offers <b>&ldquo;I can&rsquo;t after all&rdquo;</b>
+      right up to the day. The row simply opens again. No name, no explanation, nobody told off.
+      <span class="mine">my recommendation</span></span></div>
+    <div class="opt"><span class="n">1B</span><span class="tx">The same, but the row comes back to
+      the top of your list marked <b>came back</b>, so you see it rather than discovering a gap.</span></div>
+    <div class="opt"><span class="n">1C</span><span class="tx">Leave it. They text you &mdash; with
+      a number they were never given.</span></div>
+  </div>
+</div>
+
+<div class="rule">
+  <header>
+    <p class="no">Ruling <b>2</b> &middot; six of seven</p>
+    <h3>The poster that outlived its act</h3>
+    <p class="why">A code that leads nowhere is the normal ending for a piece of paper, not an edge
+    case.</p>
+  </header>
+  <div class="opts">
+    <div class="opt"><span class="n">2A</span><span class="tx">A finished sheet keeps its page and
+      says so kindly &mdash; <b>this one is done, thank you for stopping</b> &mdash; ending on the
+      creed, the same as when everything is taken.</span></div>
+    <div class="opt pick"><span class="n">2B</span><span class="tx">The same, and it says what the
+      act became: <b>&ldquo;Eight firefighters got dinner. Thank you for scanning.&rdquo;</b> The
+      stranger who was thirty seconds too late still gets something.
+      <span class="mine">my recommendation</span></span></div>
+    <div class="opt"><span class="n">2C</span><span class="tx">Leave the blank error page.</span></div>
+  </div>
+</div>
+
+<div class="rule">
+  <header>
+    <p class="no">Ruling <b>3</b> &middot; three of seven, and act 22 agrees</p>
+    <h3>How many are still wanted</h3>
+    <p class="why">Marcus asks for eight casseroles and nineteen arrive. Brianne runs every sheet in
+    numbers. <b>One line, one person is a shopping list, not a sign-up sheet.</b></p>
+  </header>
+  <div class="opts">
+    <div class="opt pick"><span class="n">3A</span><span class="tx">A row can want more than one:
+      <b>six dozen cookies &mdash; two dozen still wanted.</b>
+      <span class="mine">my recommendation</span></span></div>
+    <div class="opt"><span class="n">3B</span><span class="tx">A row can simply be taken by several
+      people, with no number at all &mdash; <b>&ldquo;a few of these&rdquo;</b>.</span></div>
+    <div class="opt"><span class="n">3C</span><span class="tx">Leave it at one each.</span></div>
+  </div>
+</div>
+
+<div class="rule">
+  <header>
+    <p class="no">Ruling <b>4</b> &middot; four of seven</p>
+    <h3>What you are promising, before you promise it</h3>
+    <p class="why">They all stopped on the same line: <b>&ldquo;Someone with a van, Saturday
+    morning.&rdquo;</b> Which Saturday. How far. Brianne&rsquo;s husband works nights; Trent does
+    shifts. <b>Nobody asked for the address</b> &mdash; they asked whether they can keep the
+    promise.</p>
+  </header>
+  <div class="opts">
+    <div class="opt pick"><span class="n">4A</span><span class="tx">The date and the rough area, and
+      nothing more &mdash; <b>Saturday the 14th, east side of town.</b> The street still only arrives
+      in a private message. <span class="mine">my recommendation</span></span></div>
+    <div class="opt"><span class="n">4B</span><span class="tx">The date only. No area.</span></div>
+    <div class="opt"><span class="n">4C</span><span class="tx">Leave it &mdash; they find out after
+      they have said yes.</span></div>
+  </div>
+  <div class="flag"><b>Fair warning:</b> this brushes a ruling you already closed &mdash; the page
+    never shows where and when. That ruling was written to stop a church wall broadcasting a
+    drop-off address, and 4A does not do that. But it is your closed ruling, so it is yours to
+    reopen or leave shut.</div>
+</div>
+
+<div class="rule">
+  <header>
+    <p class="no">Ruling <b>5</b> &middot; Paula, on the printing</p>
+    <h3>The poster looks finished</h3>
+    <p class="why">She read it as an order of service. <b>&ldquo;Finished things don&rsquo;t get
+    scanned.&rdquo;</b> On a board beside a handwritten flyer with tear-off tabs, ours reads as the
+    official one that has already been dealt with &mdash; and the 28-door flyer that actually worked
+    was made at a kitchen table. Two separate notes, both yours because both are looks:</p>
+  </header>
+  <div class="opts">
+    <div class="opt"><span class="n">5A</span><span class="tx">The two lines at the top stop
+      competing &mdash; at the moment the coral line and the black line are the same size with an
+      even rule between them, so <b>neither one is the headline</b>. One of them gets smaller.</span></div>
+    <div class="opt"><span class="n">5B</span><span class="tx">The thin gold frame comes off
+      <b>the printed sheet only</b>, and stays everywhere else. A home printer pulls paper a
+      millimetre or two crooked and a crooked frame is the one thing everybody sees.</span></div>
+    <div class="opt"><span class="n">5C</span><span class="tx">Leave the poster exactly as it
+      is.</span></div>
+  </div>
+</div>
+
+<div class="rule">
+  <header>
+    <p class="no">Ruling <b>6</b> &middot; Renata and Sherri, from opposite directions</p>
+    <h3>The example on the poster</h3>
+    <p class="why">Renata: <b>every one of those four things costs money</b> &mdash; bedding, pans,
+    staples, a van. She has four dollars a week and two hands, and the poster asked for neither.
+    Sherri, separately: a family arriving in March is the one example half her nine thousand women
+    would read as <b>a political position</b> rather than a kindness.</p>
+  </header>
+  <div class="opts">
+    <div class="opt pick"><span class="n">6A</span><span class="tx">Change the example to act
+      22&rsquo;s own shape &mdash; a meal for the fire station. <b>A pan of something hot. A gallon
+      of sweet tea. An hour on Saturday to carry boxes.</b> No politics, and not everything costs.
+      <span class="mine">my recommendation</span></span></div>
+    <div class="opt"><span class="n">6B</span><span class="tx">Bigger than the example: the app
+      always nudges you to include <b>at least one row that costs nothing</b> &mdash; an hour, a
+      lift, a pair of hands &mdash; so the sheet is never a wall of receipts.</span></div>
+    <div class="opt"><span class="n">6C</span><span class="tx">Leave the example alone.</span></div>
+  </div>
+  <div class="flag">Sherri also named the front page: <b>&ldquo;put a little more good into the
+    world&rdquo;</b> reads to her as one side of her town. She praised <b>&ldquo;a neighbor, a
+    congregation or a staff room&rdquo;</b> in the same breath &mdash; so the voice can do it. Named,
+    not built; say the word and I&rsquo;ll draw options.</div>
+</div>
+
+<h2>The sentence to read twice</h2>
+<div class="hero" style="margin-top:0">
+  <div class="body">
+    <div class="pull" style="margin:0">
+      <q>This page is the only part of it built for someone with nobody. No account, no tab of faces,
+      no <i>who&rsquo;s in it with you</i>. You&rsquo;ve accidentally built the version that works
+      for me and put it on the outside of the building.</q>
+      <cite>Dana &mdash; two friends, and the app&rsquo;s sharpest blind spot</cite>
+    </div>
+  </div>
+</div>
+
+<h2>The seven, shortest first</h2>
+
+<div class="who">
+  <div class="hd"><span class="nm">Trent</span><span class="rl">doesn&rsquo;t want to be here</span>
+    <span class="six split">scan yes &middot; app no</span></div>
+  <p>Read it as a lost-dog poster, then a church one. <b>&ldquo;WE COULD USE A HAND&rdquo; is the
+  only reason I kept reading &mdash; that&rsquo;s how a man asks for help.&rdquo;</b> Went straight
+  to the list and skipped everything above it: <i>&ldquo;that&rsquo;s a parts list. I know what to
+  do with a parts list.&rdquo;</i></p>
+  <p>Stopped at the bottom line, <b>50 acts of good</b> &mdash; the moment it stopped being a family
+  needing pans and became somebody&rsquo;s year. And: <i>&ldquo;Nobody needed the heart. Take the
+  heart out.&rdquo;</i> He would take the van job again and would never install anything.</p>
+</div>
+
+<div class="who">
+  <div class="hd"><span class="nm">Dana</span><span class="rl">two friends, and content</span>
+    <span class="six split">sheet yes &middot; app no</span></div>
+  <p>Her hand was moving before she read a word &mdash; <i>&ldquo;it doesn&rsquo;t look like an app,
+  that&rsquo;s why it works.&rdquo;</i> Then stopped on <b>&ldquo;A few of us&rdquo;</b>: <i>&ldquo;I&rsquo;m
+  not us, I&rsquo;m the wall it&rsquo;s pinned to.&rdquo;</i></p>
+  <q>The one I won&rsquo;t say out loud: I&rsquo;d take the pans partly so someone would have to
+  message me on Saturday.</q>
+  <p>Praised <b>&ldquo;In good hands&rdquo;</b> as the only screen in the app that has never asked
+  her how many people she has.</p>
+</div>
+
+<div class="who">
+  <div class="hd"><span class="nm">Brianne</span><span class="rl">four children, no hands</span>
+    <span class="six split">sheet yes &middot; app no</span></div>
+  <p>Understood it in five seconds. Stopped dead at <b>Saturday morning</b> &mdash; her husband works
+  nights, and a blind Saturday is the one thing she cannot promise. Took the pans instead:
+  <i>&ldquo;the one with no hidden cost.&rdquo;</i></p>
+  <p>The thing she wouldn&rsquo;t say: <b>she would never print the poster.</b> <i>&ldquo;Nobody at
+  my church reads the noticeboard. It goes in the group text, and the poster is clearly the part
+  you&rsquo;re proudest of.&rdquo;</i> No for six weeks, for one reason only &mdash; the organiser
+  side isn&rsquo;t built, and she is the organiser.</p>
+</div>
+
+<div class="who">
+  <div class="hd"><span class="nm">Renata</span><span class="rl">four dollars a week</span>
+    <span class="six y">yes &mdash; as the maker</span></div>
+  <q>There is nothing on that poster I can take. I have four dollars and two hands and you&rsquo;ve
+  asked for neither.</q>
+  <p>Sorts on cheapest, not easiest &mdash; and the cheapest row goes first, <i>&ldquo;because
+  everyone like me goes straight to it.&rdquo;</i> Would rather take nothing than be the hole. Then
+  the finding inside the finding: asked what she&rsquo;d tell a friend, she said <b>&ldquo;a list of
+  things a family needs&rdquo;</b> and caught herself &mdash; <i>&ldquo;I said things. Not
+  help.&rdquo;</i></p>
+  <p>Yes at six weeks, but as the one who <b>makes</b> the list: <i>&ldquo;I can feed eight
+  firefighters on nothing. I just can&rsquo;t buy pans.&rdquo;</i></p>
+</div>
+
+<div class="who">
+  <div class="hd"><span class="nm">Marcus</span><span class="rl">the whole address book</span>
+    <span class="six n">no &mdash; until the app side exists</span></div>
+  <p>Read it as a bereavement notice, and meant it as praise: <i>&ldquo;it looks like it belongs on
+  a wall in my church and not like software.&rdquo;</i> Noticed <b>congregation</b> on the front page
+  with no scripture stapled to it &mdash; <i>&ldquo;the absence of the flinch.&rdquo;</i></p>
+  <p>Stopped at <b>rice, oil, tea</b> as a single line: <i>&ldquo;ask my church for pantry staples
+  and you will get eleven bags of rice in a hall on a Tuesday.&rdquo;</i></p>
+  <q>I would run a fake sheet first, with my husband and two choir mothers, before I let this
+  anywhere near my actual list. Not because I doubt the taste. Because SignUpGenius is ugly as sin
+  and it has never once made me look like a man who does not know what he asked for.</q>
+</div>
+
+<div class="who">
+  <div class="hd"><span class="nm">Paula</span><span class="rl">the one who&rsquo;d finish the year</span>
+    <span class="six y">yes</span></div>
+  <p>An order of service. Gold hairline, coral small caps, everything centred and calm &mdash; she
+  thought it was an invitation to something <b>already arranged</b>.</p>
+  <q>On a church board this sits beside a flyer with tear-off tabs and a handwritten PLEASE, and it
+  reads as the finished, official one. Finished things don&rsquo;t get scanned.</q>
+  <p>Three craft notes, all in ruling 5: the two top lines are the same size with an even rule
+  between them, <i>&ldquo;like a referee&rdquo;</i>, so neither is the headline; the hairline frame
+  will print crooked and a crooked frame is what everyone sees; the dashed list won&rsquo;t hang
+  straight under a centred block. She also named the trust gap plainly: <b>total privacy for the
+  taker, total anonymity for the asker</b> &mdash; and the second one costs you.</p>
+</div>
+
+<div class="who">
+  <div class="hd"><span class="nm">Sherri</span><span class="rl">nine thousand women</span>
+    <span class="six y">yes &mdash; quietly first</span></div>
+  <p>Knew what it was before reading a word. <i>&ldquo;Somebody wrote that who has actually asked a
+  room for help and been afraid of sounding needy.&rdquo;</i></p>
+  <q>You have picked, as your one demonstration, the single act of good that half my nine thousand
+  women would read as a position&hellip; you have made a political decision while believing you made
+  a warm one.</q>
+  <p>But she stopped, in the end, on the same thing as everyone else &mdash; <b>you cannot back
+  out</b>: <i>&ldquo;Women in my world hand things back constantly. That is not flakiness, that is a
+  life with children in it.&rdquo;</i> Yes at six weeks, used quietly in her own circles first,
+  because <i>&ldquo;the app&rsquo;s voice keeps wanting to write the poster for me.&rdquo;</i></p>
+</div>
+
+<div class="foot">
+  <p><b>Answer by letter and number</b> &mdash; 1A 2B 3A 4C 5B 6A, or whatever you actually think.
+  Nothing here is built.</p>
+  <p>Two of them said no for six weeks, and both for the same reason: the organiser&rsquo;s side of
+  this doesn&rsquo;t exist yet. That isn&rsquo;t a finding against the design, it&rsquo;s a vote for
+  the build order you already have.</p>
+</div>
+
+</div>

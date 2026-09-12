@@ -1,0 +1,334 @@
+<title>How Do They Find It Again</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap">
+<style>
+:root{
+  --paper:#FFFFFF;--mist:#F6F4F1;--ink:#14110E;--muted:#665F57;--line:#E4E0DA;
+  --coral:#EA634F;--coralink:#C03F2B;--gold:#C99A2E;--chipbg:#FBEDE9;
+  --shadow:0 1px 2px rgba(20,17,14,.05);--shadow2:0 3px 16px rgba(20,17,14,.07);
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#1E1A15;--mist:#16130F;--ink:#F3EEE6;--muted:#A79C8E;--line:#342C23;
+  --coral:#F0836E;--coralink:#F09079;--gold:#E1BA52;--chipbg:#33231E;
+  --shadow:none;--shadow2:none;}}
+:root[data-theme="dark"]{
+  --paper:#1E1A15;--mist:#16130F;--ink:#F3EEE6;--muted:#A79C8E;--line:#342C23;
+  --coral:#F0836E;--coralink:#F09079;--gold:#E1BA52;--chipbg:#33231E;
+  --shadow:none;--shadow2:none;}
+
+*{box-sizing:border-box}
+body{background:var(--mist);color:var(--ink);
+  font-family:Montserrat,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased;}
+.page{max-width:740px;margin:0 auto;padding-block:32px 90px;padding-left:20px;padding-right:20px;}
+
+.eyebrow{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--muted);margin:0 0 13px;}
+h1{font-size:clamp(30px,7vw,43px);line-height:1.06;font-weight:800;letter-spacing:-.025em;
+  margin:0 0 14px;text-wrap:balance;max-width:15ch;}
+.stand{font-size:17.5px;color:var(--muted);margin:0;max-width:56ch;}
+.stand b{color:var(--ink);font-weight:600;}
+
+h2{font-size:12px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);
+  margin:42px 0 18px;padding-bottom:9px;border-bottom:1px solid var(--line);}
+
+.q{background:var(--paper);border:1px solid var(--line);border-radius:16px;
+  box-shadow:var(--shadow2);overflow:hidden;margin:0 0 16px;}
+.q .cap{padding:11px 20px;font-size:11.5px;font-weight:800;letter-spacing:.1em;
+  text-transform:uppercase;color:#fff;}
+.cap.hole{background:var(--coral);}
+.cap.fine{background:var(--gold);}
+.q .in{padding:21px 20px;}
+.q h3{font-size:clamp(19px,4.2vw,24px);font-weight:700;line-height:1.26;margin:0 0 12px;
+  letter-spacing:-.015em;text-wrap:balance;}
+.q p{margin:0 0 12px;font-size:15.5px;}
+.q p:last-child{margin:0;}
+.q b{font-weight:600;}
+.you{margin:0 0 16px;padding:13px 16px;background:var(--mist);border-left:3px solid var(--coralink);
+  border-radius:0 9px 9px 0;font-size:15.5px;font-style:italic;color:var(--ink);}
+
+.done{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:18px 20px;
+  margin:0 0 13px;box-shadow:var(--shadow);}
+.done .tag{display:inline-block;font-size:10px;font-weight:800;letter-spacing:.09em;
+  text-transform:uppercase;padding:3px 8px;border-radius:5px;margin:0 0 10px;
+  background:rgba(201,154,46,.17);color:var(--gold);}
+.done h4{margin:0 0 9px;font-size:17px;font-weight:700;letter-spacing:-.01em;}
+.done p{margin:0 0 9px;font-size:14.8px;}
+.done p:last-child{margin:0;}
+
+/* the calendar entry, drawn */
+.cal{background:var(--paper);border:1px solid var(--line);border-radius:12px;overflow:hidden;
+  margin:14px 0 0;box-shadow:var(--shadow);max-width:340px;}
+.cal .bar{background:var(--coral);height:5px;}
+.cal .body{padding:14px 15px;}
+.cal .ttl{font-size:15px;font-weight:700;margin:0 0 3px;}
+.cal .dt{font-size:12.5px;color:var(--muted);margin:0 0 10px;}
+.cal .dsc{font-size:12.5px;line-height:1.5;color:var(--ink);margin:0 0 8px;}
+.cal .lnk{font-size:12.5px;color:var(--coralink);font-weight:600;word-break:break-all;}
+
+.opt{display:flex;gap:14px;align-items:flex-start;background:var(--paper);border:1px solid var(--line);
+  border-radius:13px;padding:16px 18px;margin:0 0 11px;box-shadow:var(--shadow);}
+.opt.pick{border-color:var(--gold);}
+.opt.did{border-color:var(--line);background:var(--mist);}
+.opt .n{flex:0 0 auto;min-width:46px;text-align:center;background:var(--mist);border:1px solid var(--line);
+  color:var(--coralink);font-size:12.5px;font-weight:800;border-radius:7px;padding:5px 7px;}
+.opt.pick .n{background:rgba(201,154,46,.15);border-color:transparent;color:var(--gold);}
+.opt.did .n{background:var(--paper);color:var(--muted);}
+.opt .tx{flex:1;min-width:0;}
+.opt .tx h4{margin:0 0 7px;font-size:16.5px;font-weight:700;letter-spacing:-.01em;}
+.opt .tx p{margin:0 0 7px;font-size:14.5px;}
+.opt .tx p:last-child{margin:0;}
+.opt .tx .cost{color:var(--muted);font-size:13.5px;}
+.mine{font-size:10.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--gold);}
+
+.why{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:16px 0 0;}
+@media (max-width:640px){.why{grid-template-columns:1fr;}}
+.why div{background:var(--mist);border:1px solid var(--line);border-radius:11px;padding:14px 15px;}
+.why .h{font-size:10.5px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--coralink);margin:0 0 7px;}
+.why p{font-size:14px;margin:0;}
+
+.tests{display:flex;flex-direction:column;gap:8px;margin:16px 0 0;}
+.t{display:flex;gap:13px;align-items:flex-start;border:1px solid var(--line);border-radius:10px;
+  padding:11px 13px;background:var(--mist);font-size:14.3px;}
+.t .r{flex:0 0 172px;font-weight:700;font-size:12.5px;}
+.t.ok .r{color:var(--gold);}
+.t.no .r{color:var(--muted);}
+.t .w{flex:1;min-width:0;color:var(--muted);}
+@media (max-width:560px){.t{flex-direction:column;gap:3px;}.t .r{flex:none;}}
+
+.ba{margin:14px 0 0;border:1px solid var(--line);border-radius:11px;overflow:hidden;}
+.ba div{display:flex;gap:13px;padding:11px 13px;font-size:14.3px;border-bottom:1px solid var(--line);}
+.ba div:last-child{border-bottom:0;}
+.ba .l{flex:0 0 48px;font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--muted);padding-top:3px;}
+.ba .now{color:var(--muted);}
+.ba .new b{font-weight:600;}
+
+.foot{margin:32px 0 0;padding:19px 20px;background:var(--paper);border:1px solid var(--line);
+  border-radius:12px;box-shadow:var(--shadow);}
+.foot p{margin:0 0 10px;font-size:15px;}
+.foot p:last-child{margin:0;color:var(--muted);font-size:13.5px;}
+</style>
+
+<div class="page">
+
+<p class="eyebrow">50 Acts of Good &middot; the sign-up sheet &middot; item 18, continued</p>
+<h1>How do they find it again?</h1>
+<p class="stand">You asked the question that breaks what I built an hour ago.
+<b>You were right.</b> Here is what it was, what I have already done, and the part
+that is still yours.</p>
+
+<h2>Your first question</h2>
+
+<div class="q">
+  <p class="cap hole">A real hole &mdash; my miss</p>
+  <div class="in">
+    <p class="you">&ldquo;How do they get back to the list without having the app?&rdquo;</p>
+    <h3>They couldn&rsquo;t. The way out only works if you can get back to the page,
+    and nothing took them there.</h3>
+    <p>No account, no app, no bookmark. Once they close the page the only routes back are
+    walking past the poster again &mdash; which might be a church hallway they visit once a year
+    &mdash; or still having the tab open a week later. <b>So the give-back was a button almost
+    nobody could reach.</b></p>
+    <p>It is exactly the kind of thing that looks finished in a test and isn&rsquo;t finished in a
+    life. I should have caught it; you did.</p>
+  </div>
+</div>
+
+<h2>What I&rsquo;ve already changed</h2>
+
+<div class="done">
+  <span class="tag">done &middot; built and tested</span>
+  <h4>The calendar reminder is now the door back.</h4>
+  <p>You had already ruled this and I hadn&rsquo;t used it: <b>your app shows what is outstanding,
+  their calendar reminds them.</b> The reminder is the one thing of ours that lands on their phone
+  and stays there &mdash; so it now carries the link.</p>
+  <p>Nothing is sent, nothing is stored, and it cost one line.</p>
+  <div class="cal">
+    <div class="bar"></div>
+    <div class="body">
+      <p class="ttl">A set of pans</p>
+      <p class="dt">Saturday 3 October &middot; all day</p>
+      <p class="dsc">For a family arriving in March &mdash; you said you would bring this.</p>
+      <p class="dsc">If your week changes you can hand it back, right up to the day:</p>
+      <p class="lnk">actsofgood.app/a/k3n8fq2wpd</p>
+    </div>
+  </div>
+</div>
+
+<div class="done">
+  <span class="tag">done &middot; and it closes the same hole again</span>
+  <h4>You can free a row yourself.</h4>
+  <p>Because most people who can&rsquo;t come <b>won&rsquo;t open the page at all</b> &mdash;
+  they will text you, because that is what anybody does. You had their number; you had no way to
+  put the pans back on the list.</p>
+  <p>Now the phone that made the sheet can open a row without anybody&rsquo;s permission. Which is
+  right: it is your sheet, and somebody just told you they can&rsquo;t make Saturday.</p>
+</div>
+
+<h2>Your second question</h2>
+
+<div class="q">
+  <p class="cap fine">Working as intended &mdash; but worth explaining</p>
+  <div class="in">
+    <p class="you">&ldquo;And also doesn&rsquo;t it have a name and number requirement when you
+    take it? We built that.&rdquo;</p>
+    <h3>We did, and it is still there. It just can&rsquo;t be the thing that proves the row is
+    yours.</h3>
+    <p>The name and number go <b>to you</b>, so you can message someone about where and when.
+    That is the whole job they do.</p>
+    <p>The moment they also become the way back in, two things go wrong:</p>
+    <div class="why">
+      <div>
+        <p class="h">A number is not a secret</p>
+        <p>Anyone on that street who knows Dana&rsquo;s number could open her row &mdash; or take
+        a thing off the list in her name. The poster is on a public wall.</p>
+      </div>
+      <div>
+        <p class="h">It becomes a login</p>
+        <p>&ldquo;Enter your phone number to continue&rdquo; is the exact thing this page was
+        built to avoid. And it still would not help &mdash; they need the link before they can
+        type anything into it.</p>
+      </div>
+    </div>
+    <p style="margin-top:14px">So the proof stays invisible: <b>when they take a row, their own
+    phone quietly keeps a key.</b> Nothing to remember, nothing to type, nothing on the page that
+    anyone else can see.</p>
+    <p class="cost" style="color:var(--muted);font-size:14.5px">The honest trade: a new phone, or
+    clearing the browser, loses the way out. That is the price of never asking anyone to sign up
+    for anything &mdash; and it is covered, because you can free the row yourself when they text
+    you.</p>
+  </div>
+</div>
+
+<h2>Your third question &mdash; and you spotted the shape of it exactly</h2>
+
+<div class="q">
+  <p class="cap fine">Yes &mdash; already working, and I checked rather than assumed</p>
+  <div class="in">
+    <p class="you">&ldquo;Can the person scanning the QR code scan it again to gain access and be
+    recognised? That seems like that will help one side.&rdquo;</p>
+    <h3>They can. Scanning the poster a second time is the way back, and it costs nothing
+    because it is already built.</h3>
+    <p>The code points at the page; the key sits in that browser against that address. So scanning
+    the same poster a week later opens the same page and <b>it knows the row is theirs</b> &mdash;
+    no login, no typing, nothing to remember. I ran it four ways on a phone-sized screen:</p>
+    <div class="tests">
+      <div class="t ok"><span class="r">Yours, way out there</span>
+        <span class="w">Dana closes the page entirely, then scans the poster again a week later</span></div>
+      <div class="t ok"><span class="r">Yours, way out there</span>
+        <span class="w">Same, with junk on the end of the address, as some scanners add</span></div>
+      <div class="t no"><span class="r">In good hands &middot; nothing to press</span>
+        <span class="w">A different person&rsquo;s phone, scanning the same poster</span></div>
+      <div class="t no"><span class="r">In good hands &middot; nothing to press</span>
+        <span class="w">Her own phone, but opened in a different browser</span></div>
+    </div>
+    <p style="margin-top:16px">The bottom two are the privacy you wanted, working: the row is only
+    ever hers <i>on the thing she scanned with</i>. Nobody else can see or touch it, and the page
+    still says nothing about who anyone is.</p>
+  </div>
+</div>
+
+<div class="q">
+  <p class="cap hole">And here is the one side, which is what you were getting at</p>
+  <div class="in">
+    <h3>It completely solves the neighbours. It does nothing for the hallway.</h3>
+    <div class="why">
+      <div>
+        <p class="h">Where it wins outright</p>
+        <p><b>Act 22 is exactly this shape.</b> Twenty-eight flyers on twenty-eight front doors.
+        Those people walk past the poster every single day. For them the paper <i>is</i> the way
+        back, and there is nothing to build, explain or remember.</p>
+      </div>
+      <div>
+        <p class="h">Where it does nothing</p>
+        <p>The church noticeboard you pass on a Sunday. The staff room you have left. The shop
+        window you walked by once. <b>They scanned it somewhere they are not going back to</b>, and
+        for them the poster might as well not exist.</p>
+      </div>
+    </div>
+    <p style="margin-top:15px">So it is free, strong, and half the audience &mdash; which is why it
+    sits alongside the calendar and your message rather than replacing them. <b>The only thing
+    actually missing is that nobody is told it works.</b></p>
+  </div>
+</div>
+
+<h2>What&rsquo;s left for you</h2>
+
+<div class="opt did">
+  <span class="n">18&middot;1</span>
+  <div class="tx">
+    <h4>The calendar, and nothing more</h4>
+    <p>What is built now. Clean, quiet, uses a thing you had already decided.</p>
+    <p class="cost">The catch: it only reaches people who actually tap <i>Put it in my
+    calendar</i>. Plenty won&rsquo;t.</p>
+  </div>
+</div>
+
+<div class="opt pick">
+  <span class="n">18&middot;2</span>
+  <div class="tx">
+    <h4>Show them the link as well <span class="mine">&nbsp;my recommendation</span></h4>
+    <p>After they take something, the page shows the address in plain text under the calendar
+    button &mdash; small, quiet, copyable. People screenshot it, or text it to themselves. That is
+    what they already do with everything else.</p>
+    <p class="cost">Costs one line on the page and reaches everybody, not just the calendar-keepers.</p>
+  </div>
+</div>
+
+<div class="opt pick">
+  <span class="n">18&middot;3</span>
+  <div class="tx">
+    <h4>Your message carries it <span class="mine">&nbsp;my recommendation</span></h4>
+    <p>When the app writes the message telling them where and when, <b>the link rides along in
+    it</b>. Then every single person who took a row has it in a text from someone they know, which
+    is where they will actually look.</p>
+    <p class="cost">This one is in the app, and the app side of the sheet isn&rsquo;t built yet
+    &mdash; so it is a note on the spec rather than work today. It is the strongest of the three.</p>
+  </div>
+</div>
+
+<div class="opt pick">
+  <span class="n">18&middot;4</span>
+  <div class="tx">
+    <h4>Tell them the poster works <span class="mine">&nbsp;my recommendation</span></h4>
+    <p>One line on the page after they take something. Costs nothing, and it is the only part of
+    this that is already built and simply unsaid.</p>
+    <div class="ba">
+      <div><span class="l">now</span><span class="now">The reminder keeps a link back to this page,
+        which is the only way back to it &mdash; there is no app and no account, and the poster may
+        be somewhere you don&rsquo;t pass again.</span></div>
+      <div><span class="l">new</span><span class="new">Two ways back if your week changes:
+        <b>scan the poster again</b> &mdash; this page will know it&rsquo;s yours &mdash; or keep
+        the reminder, which holds a link.</span></div>
+    </div>
+    <p class="cost" style="margin-top:11px">It also quietly stops the sentence apologising for
+    itself. The current line leads on what is missing; the new one leads on what works.</p>
+  </div>
+</div>
+
+<div class="opt">
+  <span class="n">18&middot;5</span>
+  <div class="tx">
+    <h4>Put it on the poster too</h4>
+    <p>A line under the code on the printed sheet, so the paper says what it can do.</p>
+    <div class="ba">
+      <div><span class="l">now</span><span class="now">Point a camera at it. Choose your one thing
+        &mdash; no account, no app to install.</span></div>
+      <div><span class="l">new</span><span class="new">Point a camera at it. Choose your one thing
+        &mdash; no account, no app to install. <b>Scan it again any time to change your mind.</b></span></div>
+    </div>
+    <p class="cost" style="margin-top:11px">Against it: Paula already read this poster as <i>too
+    finished</i>, and this is a fourth line of small print under the code. It may be the line that
+    tips it from an invitation into a form. <b>Your call, and I would understand a no.</b></p>
+  </div>
+</div>
+
+<div class="foot">
+  <p><b>Pick any or all &mdash; 18&middot;2, 18&middot;3, 18&middot;4, 18&middot;5, or leave it at
+  the calendar.</b></p>
+  <p>The two things marked done are on your machine and go live with the same two commands as
+  before. 19 through 23 are still untouched.</p>
+</div>
+
+</div>

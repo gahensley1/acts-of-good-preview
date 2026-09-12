@@ -1,0 +1,211 @@
+<title>The Poster On The Wall</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap">
+<style>
+:root{
+  --paper:#FFFFFF;--mist:#F6F4F1;--ink:#14110E;--muted:#665F57;--line:#E4E0DA;
+  --coral:#EA634F;--coralink:#C03F2B;--gold:#C99A2E;--plate:#D9BC6B;--chipbg:#FBEDE9;
+  --shadow:0 1px 2px rgba(20,17,14,.05);--shadow2:0 4px 22px rgba(20,17,14,.09);
+  --wall:#EDE9E2;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --mist:#16130F;--ink:#F3EEE6;--muted:#A79C8E;--line:#342C23;
+  --coral:#F0836E;--coralink:#F09079;--gold:#E1BA52;--chipbg:#33231E;
+  --shadow:none;--shadow2:0 4px 22px rgba(0,0,0,.45);--wall:#100E0B;}}
+:root[data-theme="dark"]{
+  --mist:#16130F;--ink:#F3EEE6;--muted:#A79C8E;--line:#342C23;
+  --coral:#F0836E;--coralink:#F09079;--gold:#E1BA52;--chipbg:#33231E;
+  --shadow:none;--shadow2:0 4px 22px rgba(0,0,0,.45);--wall:#100E0B;}
+
+*{box-sizing:border-box}
+body{background:var(--mist);color:var(--ink);
+  font-family:Montserrat,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased;}
+.page{max-width:800px;margin:0 auto;padding-block:32px 90px;padding-left:20px;padding-right:20px;}
+
+.eyebrow{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--muted);margin:0 0 13px;}
+h1{font-size:clamp(29px,6.6vw,42px);line-height:1.06;font-weight:800;letter-spacing:-.025em;
+  margin:0 0 14px;text-wrap:balance;max-width:15ch;}
+.stand{font-size:17.5px;color:var(--muted);margin:0;max-width:56ch;}
+.stand b{color:var(--ink);font-weight:600;}
+h2{font-size:12px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);
+  margin:42px 0 18px;padding-bottom:9px;border-bottom:1px solid var(--line);}
+
+/* ── the wall ── */
+.wall{background:var(--wall);border:1px solid var(--line);border-radius:16px;
+  padding:30px 20px;display:flex;justify-content:center;}
+
+/* ── the poster, to the spec ── */
+.sheet{position:relative;background:#fff;border:1px solid #E5DCC9;border-radius:4px;
+  width:100%;max-width:430px;padding:44px 26px 32px;box-shadow:var(--shadow2);color:#231F1B;}
+.plate{position:absolute;inset:13px;border:1px solid var(--plate);border-radius:2px;
+  pointer-events:none;}
+.mark{width:31px;display:block;margin:0 auto 15px;}
+.eye{font-size:13.1px;text-transform:uppercase;letter-spacing:.19em;color:#C03F2B;
+  font-weight:700;margin:0;text-align:center;}
+.grule{width:38px;border-top:2px solid #C99A2E;margin:21.5px auto;}
+.reason{font-size:12.1px;font-weight:700;text-transform:uppercase;letter-spacing:.13em;
+  color:#000;line-height:1.5;margin:0 0 13px;text-align:center;text-wrap:balance;}
+.lede{font-size:13.5px;line-height:1.65;color:#3A342C;margin:0 0 15px;}
+.needs{list-style:none;margin:0 0 15px;padding:0;}
+.needs li{font-size:13.5px;line-height:1.75;color:#231F1B;display:flex;gap:8px;}
+.needs li span{flex:0 0 auto;}
+.close{font-size:13.5px;line-height:1.65;color:#3A342C;margin:0 0 20px;}
+.codewrap{display:flex;justify-content:center;margin:0 0 16px;}
+.code{position:relative;width:146px;height:146px;}
+.code canvas{display:block;width:146px;height:146px;image-rendering:pixelated;}
+.heartbox{position:absolute;inset:0;display:grid;place-items:center;pointer-events:none;}
+.heartbox img{width:30px;}
+.howto{font-size:11px;color:#665F57;line-height:1.62;margin:0 0 20px;text-align:center;}
+.howto .ruled{color:#C03F2B;font-weight:600;}
+.brand{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+  color:#231F1B;margin:0;text-align:center;}
+
+.cap{font-size:13px;color:var(--muted);text-align:center;margin:16px 0 0;}
+.cap b{color:var(--ink);font-weight:600;}
+
+/* ── notes ── */
+.note{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:19px 20px;
+  margin:0 0 13px;box-shadow:var(--shadow);}
+.note .tag{display:inline-block;font-size:10px;font-weight:800;letter-spacing:.09em;
+  text-transform:uppercase;padding:3px 8px;border-radius:5px;margin:0 0 10px;}
+.tag.ruled{background:rgba(201,154,46,.17);color:var(--gold);}
+.tag.open{background:var(--chipbg);color:var(--coralink);}
+.note h3{margin:0 0 9px;font-size:17.5px;font-weight:700;letter-spacing:-.012em;}
+.note p{margin:0 0 9px;font-size:14.8px;}
+.note p:last-child{margin:0;}
+.note b{font-weight:600;}
+.opt3{display:flex;flex-direction:column;gap:9px;margin:0 0 4px;}
+.opt3 .o{display:flex;gap:13px;align-items:flex-start;background:var(--paper);
+  border:1px solid var(--line);border-radius:12px;padding:14px 16px;box-shadow:var(--shadow);}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .opt3 .o{background:#1E1A15;}}
+:root[data-theme="dark"] .opt3 .o{background:#1E1A15;}
+.opt3 .n{flex:0 0 auto;min-width:28px;text-align:center;background:var(--chipbg);color:var(--coralink);
+  font-size:12.5px;font-weight:800;border-radius:6px;padding:4px 7px;margin-top:1px;}
+.opt3 .t{flex:1;min-width:0;font-size:15px;}
+.opt3 em{display:block;font-style:normal;color:var(--muted);font-size:13.5px;margin-top:6px;}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .note{background:#1E1A15;}}
+:root[data-theme="dark"] .note{background:#1E1A15;}
+</style>
+
+<div class="page">
+
+<p class="eyebrow">50 Acts of Good &middot; the sign-up sheet &middot; ruling 18&middot;5</p>
+<h1>The poster on the wall</h1>
+<p class="stand">Both top lines now at the sizes you ruled &mdash; the ask up a quarter, the black
+title up fifteen. <b>Nobody had ever actually looked at this poster</b>; it was only a description
+in a document. Here it is as a piece of paper.</p>
+
+<div class="wall">
+  <div class="sheet">
+    <div class="plate"></div>
+    <img class="mark" alt="" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDUgMTMyIj48cGF0aCBkPSJNNTIuNSA0NEM0OCAzMCAzNCAyNCAyMyAzMCAxMCAzNyA4IDU2IDIwIDY5YzkgMTAgMjIgMTggMzIuNSAyNkM2MyA4NyA3NiA3OSA4NSA2OWMxMi0xMyAxMC0zMi0zLTM5LTExLTYtMjUgMC0yOS41IDE0WiIgZmlsbD0iI0VBNjM0RiIgc3Ryb2tlPSIjMjMxRjFCIiBzdHJva2Utd2lkdGg9IjMuNSIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPjxwYXRoIGQ9Ik01Mi41IDk1djM0IiBzdHJva2U9IiMyMzFGMUIiIHN0cm9rZS13aWR0aD0iMy41IiBzdHJva2UtbGluZWNhcD0icm91bmQiLz48L3N2Zz4=">
+    <p class="eye">We could use a hand</p>
+    <div class="grule"></div>
+    <p class="reason">For a family arriving in March</p>
+    <p class="lede">A few of us are putting a box together to meet them. Four things are still
+      missing, and any one of them would be a help.</p>
+    <ul class="needs">
+      <li><span>&mdash;</span>New bedding, double</li>
+      <li><span>&mdash;</span>A set of pans</li>
+      <li><span>&mdash;</span>Pantry staples &mdash; rice, oil, tea</li>
+      <li><span>&mdash;</span>Someone with a van, Saturday morning</li>
+    </ul>
+    <p class="close">Take whichever is easiest for you. That&rsquo;s the whole of it.</p>
+    <div class="codewrap"><div class="code">
+      <canvas id="qr" width="37" height="37"></canvas>
+      <div class="heartbox"><img alt="" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDUgMTMyIj48cGF0aCBkPSJNNTIuNSA0NEM0OCAzMCAzNCAyNCAyMyAzMCAxMCAzNyA4IDU2IDIwIDY5YzkgMTAgMjIgMTggMzIuNSAyNkM2MyA4NyA3NiA3OSA4NSA2OWMxMi0xMyAxMC0zMi0zLTM5LTExLTYtMjUgMC0yOS41IDE0WiIgZmlsbD0iI0VBNjM0RiIgc3Ryb2tlPSIjMjMxRjFCIiBzdHJva2Utd2lkdGg9IjMuNSIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPjxwYXRoIGQ9Ik01Mi41IDk1djM0IiBzdHJva2U9IiMyMzFGMUIiIHN0cm9rZS13aWR0aD0iMy41IiBzdHJva2UtbGluZWNhcD0icm91bmQiLz48L3N2Zz4="></div>
+    </div></div>
+    <p class="howto"><span class="ruled">Point your camera. Choose what you can. No account, no
+      app to install.</span><br><span class="ruled">Scan it again any time to edit.</span></p>
+    <p class="brand">50 acts of good</p>
+  </div>
+</div>
+<p class="cap">Printed at actual size on a sheet of A4. <b>The coral line is the one you just
+  ruled in.</b> The code is drawn to the right shape &mdash; 37 squares across, heart in the middle
+  &mdash; but it is a stand-in, not a live one.</p>
+
+<p class="cap" style="margin-top:10px"><b>Both coral lines are yours</b>, and both are now
+  ruled and in the spec.</p>
+
+<h2>The line under the code</h2>
+
+<div class="note">
+  <span class="tag ruled">ruled &middot; &ldquo;choose what you can&rdquo;</span>
+  <h3>&ldquo;One thing&rdquo; was doing quiet work, and your version lets it go &mdash;
+  deliberately.</h3>
+  <p>The old line said <b>your one thing</b> &mdash; singular, and deliberately so. It made the ask
+  feel tiny, which is most of why people say yes to it at all. Your <b>item(s)</b> opens it to more
+  than one.</p>
+  <p>That is a real trade, not a typo, and it cuts both ways: <b>the generous person can now take
+  three</b>, which is exactly what Marcus and Sherri would do &mdash; and the hesitant person is
+  being asked for a slightly bigger thing than they were yesterday. Nothing in the app stopped
+  anyone taking two rows before; the poster just never said so.</p>
+  <p><b>Ruled in, knowingly.</b> It also answers Renata, who counted that every row on that sheet
+  cost money: <i>what you can</i> acknowledges what somebody has to give without ever mentioning
+  it. No parentheses either &mdash; brackets on a poster read as a form.</p>
+</div>
+
+<div class="opt3">
+  <div class="o"><span class="n">was</span><span class="t" style="color:var(--muted)">Point a
+    camera at it. Choose your one thing &mdash; no account, no app to install.</span></div>
+  <div class="o"><span class="n">now</span><span class="t">Point your camera. <b>Choose what you
+    can.</b> No account, no app to install.<em>Ruled 12 September. In the spec.</em></span></div>
+</div>
+
+<h2>What it does for you</h2>
+
+<div class="note">
+  <span class="tag ruled">18&middot;5 &middot; ruled in</span>
+  <h3>The paper is now the mechanism, not just the advertisement.</h3>
+  <p>Scanning the code a second time already recognises the person and offers them the way out
+  &mdash; that was true before today and <b>nothing anywhere said so.</b> One line turns a thing
+  that quietly worked into a thing people know they can use.</p>
+  <p>And it lands hardest exactly where the sheet came from: <b>twenty-eight flyers on twenty-eight
+  front doors.</b> Those neighbours pass the paper every day. For them this line is the whole
+  recovery story, and it needs nothing built.</p>
+</div>
+
+<div class="note">
+  <span class="tag open">still open &middot; item 22</span>
+  <h3>I argued against it, and I was looking at the wrong thing.</h3>
+  <p>My objection was that the poster already reads as <i>too finished</i> and this is a fourth line
+  of small print. Looking at it printed, the crowding is not this line &mdash; it is the top. The
+  coral line and the black line are <b>the same size with an even rule between them</b>, so neither
+  one is the headline, and at three feet on a noticeboard you cannot tell what the poster is about.</p>
+  <p>That is Paula&rsquo;s note, and it is <b>item 22</b>, still yours to rule. Your line is fine
+  where it is.</p>
+</div>
+
+<div class="note">
+  <span class="tag open">a caution for later</span>
+  <h3>Don&rsquo;t let a layout fix quietly eat it.</h3>
+  <p>If you later rule <b>22A</b> (the two top lines stop competing) or <b>22B</b> (the gold frame
+  comes off the printed sheet), this line has to still fit. I&rsquo;ve written that into the spec so
+  nobody drops it to make a layout work without bringing it back to you first.</p>
+</div>
+
+<script>
+/* A stand-in code, drawn to the real proportions: 37 modules across, quiet
+   border, three finders. Deterministic so it looks the same every time. */
+(function(){
+  var c=document.getElementById('qr'); if(!c) return;
+  var g=c.getContext('2d'), N=37, s=1;
+  g.fillStyle='#fff'; g.fillRect(0,0,N,N);
+  var seed=20260912;
+  function rnd(){ seed=(seed*1664525+1013904223)%4294967296; return seed/4294967296; }
+  g.fillStyle='#231F1B';
+  for(var y=0;y<N;y++) for(var x=0;x<N;x++){
+    if(x<8&&y<8)continue; if(x>=N-8&&y<8)continue; if(x<8&&y>=N-8)continue;
+    if(x>13&&x<24&&y>13&&y<24)continue;            // cleared centre for the mark
+    if(rnd()<0.46) g.fillRect(x,y,s,s);
+  }
+  function finder(ox,oy){
+    g.fillStyle='#231F1B'; g.fillRect(ox,oy,7,7);
+    g.fillStyle='#fff';    g.fillRect(ox+1,oy+1,5,5);
+    g.fillStyle='#231F1B'; g.fillRect(ox+2,oy+2,3,3);
+  }
+  finder(0,0); finder(N-7,0); finder(0,N-7);
+})();
+</script>
+</div>

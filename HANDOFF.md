@@ -5,9 +5,113 @@ The skill carries the standing rules and the working method; this one carries
 what is true right now. When they disagree, this file is newer — say so and fix
 the skill.
 
-Last updated: **9 September 2026**.
-Build in G's hands: **4H** is live. **4J** is on disk in both folders — the
-Instagram margin and the field row, applied and measured, not yet committed.
+Last updated: **12 September 2026**.
+Build in G's hands: **4J** is live, committed as `b746d97` and verified on the
+site. All three copies agree. Nothing is waiting to be pushed.
+
+## 12 September — act 22, the notes panel ruled, the sheet reviewed
+
+**No change to `index.html`.** Everything below is corpus, rulings and review.
+
+**Act 22 is in the corpus.** Jessica's neighborhood meal for the eight
+firefighters at Station No. 1, in honor of September 11 — sign-up genius, a menu
+built around a Boston butt, a flyer on all 28 doors of the two closest blocks.
+Filed to `the-posts.md` as PARTIAL: only David Costrini's line *"Tell me what
+holes you have and I'll fill them"* is confirmed word-for-word, the rest needs
+re-transcribing from the images. **Ripple check run against every name in the
+corpus: no repeats.** Costrini is a first appearance, flagged to watch — his
+line is instigator behaviour arriving on somebody's first act.
+
+**PRODUCTION FLAG — the act-22 flyer photograph carries a real street address
+and a live QR code.** It never travels into a published page, printable or the
+book without being cropped. Recorded in three project docs.
+
+**G confirmed where the sign-up sheet came from: act 22.** She ran that act on
+SignUpGenius and a paper flyer because the app could hold none of it — the same
+shape of evidence that produced the notes panel. That provenance is now at the
+top of Part One of `SHEETS-AND-NOTES.md`, along with what it settles: quantities
+per slot is promoted from nice-to-have to **required**, and her real flyer is the
+only field test the drawn poster will get.
+
+**THE NOTES PANEL IS RULED — "B with 1".** The panel holds prose as well as
+ticks. Five parts: one field with circled and plain lines mixed freely in any
+order; Return on an empty circled line lands on a plain line; the way back is a
+**ghost circle** that appears in the margin of the line you are on; Backspace at
+the start of a circled line takes the circle off rather than merging; and **the
+text column never moves** when a line changes kind, because he dictates rather
+than watches the screen. A typed `- ` trigger was **rejected** — speech does not
+produce it. Full ruling in `SHEETS-AND-NOTES.md` Part Two.
+
+A **working prototype** exists and should be used as the build spec — about 90
+lines, already handling Return-splits-at-caret, Return-on-empty, Backspace-at-0,
+autogrow, arrow keys between fields and pointerdown on the circle:
+`claude.ai/code/artifact/f7f22793-4cc3-46ac-8ec6-902a60b5dad1`. Saved as
+`reviews/NOTES-PANEL-working.html`; the options page is
+`reviews/NOTES-PANEL-three-shapes.html`.
+
+**PANEL 11 — the sign-up sheet, and the panel's first unanimous finding.**
+`reviews/PANEL-11-the-sign-up-sheet.html`. All seven testers stopped in the same
+place: **nobody can hand a thing back.** They each took something in their head,
+thought about the Saturday that goes wrong, and took nothing. Marcus: *"That is
+not a claim lost. That is worse — that is a hole with a lid on it."* The damage
+is invisible, because a sheet nobody dares claim from looks exactly like a quiet
+sheet. Six of seven also hit **the dead poster** — a code for a finished sheet
+returns a blank browser error, and paper outlives the act it advertises.
+
+Six rulings are now waiting on G, written up plainly as items **18–23** in
+`DECISIONS-OPEN.md`. Nothing is built.
+
+**RULING 18A IS LIVE ON `actsofgood.app`, 12 September 2026.** Worker version
+`46bc45cb-4ac1-40f4-80ac-109d902cb2ad`, and the `release_hash` column is on the
+remote database — a repeat of the migration answered *duplicate column name*,
+which is the proof it had run. Checked against the live site afterwards: the
+release route answers as JSON while a made-up path beside it still returns the
+not-found page, so the new code is definitely the code serving. **It has not
+been exercised end to end in the wild** — that needs a real sheet, so the first
+one published is the real test.
+
+**Two traps, both hit, both worth a minute of the next session's time.**
+(1) The wrangler commands must run from `Documents\aog-sheets`, never from
+`aog-push`: from the app repo wrangler finds no settings and offers to create a
+stray Worker named `aog-push` out of the app folder. **If it asks you to name
+the Worker, you are in the wrong folder** — the right one already knows its
+name. (2) `npx` will stop to ask *Ok to proceed?* before installing wrangler;
+typing the next command at that prompt feeds it to the question instead of
+running it. One command at a time, and let each finish.
+
+**RULING 18A, AND IT IS BUILT.** G ruled item 18 the same day the panel raised
+it. The way out of a claim now exists: the claimer's phone makes a key, keeps
+it, and sends only its fingerprint; sending it back opens the row. Changed
+files are **`worker.js` and `schema.sql` in `C:\Users\tony\Documents\aog-sheets`**
+— **not `index.html`**, which is untouched and still 4J. Folder access to
+`aog-sheets` was granted this session; it is not one of the two standing
+folders.
+
+**It is NOT live yet.** G runs two commands from that folder, in this order:
+
+    npx wrangler d1 execute aog --remote --command "ALTER TABLE slots ADD COLUMN release_hash TEXT"
+    npx wrangler deploy
+
+The Worker tolerates the column being absent — claims still work, releases
+answer "not yet" — so deploy order cannot break anything. Full write-up in
+`SHEETS-AND-NOTES.md` under "Handing a thing back". Verified in a headless
+browser at phone size before hand-off: claim, reload, release, reload, zero page
+errors, and a release with a wrong key refused.
+
+**A correction I owe, recorded so it is not repeated.** Panel 11 says a dead
+code returns a blank browser error. **It does not** — it returns our own page
+reading "Nothing here — that link does not lead anywhere." I read a fetch
+failure as a blank page without checking the source. Item 19 survives in reduced
+form: that page is cold and cannot tell a finished sheet from a wrong link. The
+published review page still carries the original wording; `DECISIONS-OPEN.md`
+and `SHEETS-AND-NOTES.md` carry the correction.
+
+**The shell is down again, and it is not his machine.** `device_bash` reports
+*no Plan9 drive shares mounted*; the tool itself says a **Windows update released
+8 September** stops the workspace reaching files this way. The file tools
+(`device_list_dir`, `device_stage_files`, `device_commit_files`) work normally,
+so reading and writing his folders is unaffected — only the shell, and therefore
+git, is out. **Pushes stay his.**
 
 ## 3Z is VERIFIED, MIRRORED, COMMITTED AND LIVE. (9 September)
 

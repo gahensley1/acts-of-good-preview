@@ -1,0 +1,312 @@
+<title>The Pans That Never Came</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap">
+<style>
+:root{
+  --paper:#FFFFFF;--mist:#F6F4F1;--ink:#14110E;--muted:#665F57;--line:#E4E0DA;
+  --coral:#EA634F;--coralink:#C03F2B;--gold:#C99A2E;--chipbg:#FBEDE9;
+  --shadow:0 1px 2px rgba(20,17,14,.05);--shadow2:0 3px 16px rgba(20,17,14,.07);
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#1E1A15;--mist:#16130F;--ink:#F3EEE6;--muted:#A79C8E;--line:#342C23;
+  --coral:#F0836E;--coralink:#F09079;--gold:#E1BA52;--chipbg:#33231E;
+  --shadow:none;--shadow2:none;}}
+:root[data-theme="dark"]{
+  --paper:#1E1A15;--mist:#16130F;--ink:#F3EEE6;--muted:#A79C8E;--line:#342C23;
+  --coral:#F0836E;--coralink:#F09079;--gold:#E1BA52;--chipbg:#33231E;
+  --shadow:none;--shadow2:none;}
+
+*{box-sizing:border-box}
+body{background:var(--mist);color:var(--ink);
+  font-family:Montserrat,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased;}
+.page{max-width:820px;margin:0 auto;padding-block:32px 90px;padding-left:20px;padding-right:20px;}
+
+.eyebrow{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--muted);margin:0 0 13px;}
+h1{font-size:clamp(30px,7vw,44px);line-height:1.05;font-weight:800;letter-spacing:-.025em;
+  margin:0 0 14px;text-wrap:balance;max-width:14ch;}
+.stand{font-size:17.5px;color:var(--muted);margin:0;max-width:56ch;}
+.stand b{color:var(--ink);font-weight:600;}
+
+h2{font-size:12px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);
+  margin:44px 0 18px;padding-bottom:9px;border-bottom:1px solid var(--line);}
+
+/* ── the walk-through ── */
+.beat{display:grid;grid-template-columns:1fr 300px;gap:22px;align-items:start;
+  margin:0 0 14px;background:var(--paper);border:1px solid var(--line);border-radius:16px;
+  padding:20px;box-shadow:var(--shadow);}
+@media (max-width:720px){.beat{grid-template-columns:1fr;gap:16px;}}
+.beat.flip{grid-template-columns:300px 1fr;}
+@media (max-width:720px){.beat.flip{grid-template-columns:1fr;}}
+.beat .when{font-size:10.5px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--coralink);background:var(--chipbg);border-radius:5px;padding:3px 9px;
+  display:inline-block;margin:0 0 11px;}
+.beat h3{font-size:20px;font-weight:700;line-height:1.28;margin:0 0 10px;letter-spacing:-.014em;
+  text-wrap:balance;}
+.beat p{margin:0 0 10px;font-size:15.5px;}
+.beat p:last-child{margin:0;}
+.beat p b{font-weight:600;}
+
+/* ── the mock sheet page ── */
+.sheetcard{background:var(--paper);border:1px solid var(--line);border-radius:13px;
+  box-shadow:var(--shadow2);padding:5px;}
+.sheetcard .plate{border:1px solid var(--gold);border-radius:9px;padding:15px 14px 16px;}
+.sc-eyebrow{font-size:9.5px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;
+  color:var(--coral);margin:0 0 6px;}
+.sc-ttl{font-size:13.5px;font-weight:800;letter-spacing:.01em;text-transform:uppercase;
+  line-height:1.25;margin:0 0 11px;}
+.sc-note{font-size:11.5px;color:var(--muted);line-height:1.45;margin:0 0 12px;}
+.srow{display:flex;gap:9px;align-items:flex-start;padding:9px 0;border-top:1px solid var(--line);
+  font-size:12.5px;line-height:1.4;}
+.srow .lbl{flex:1;min-width:0;}
+.srow .st{flex:0 0 auto;font-size:9.5px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;
+  padding:3px 7px;border-radius:5px;margin-top:1px;white-space:nowrap;}
+.st.open{background:var(--coral);color:#fff;}
+.st.held{background:var(--mist);color:var(--muted);border:1px solid var(--line);}
+.st.mine{background:rgba(201,154,46,.18);color:var(--gold);}
+.srow.dim .lbl{color:var(--muted);}
+.sc-foot{margin:13px 0 0;padding-top:11px;border-top:1px solid var(--line);
+  font-size:10.5px;color:var(--muted);line-height:1.45;}
+.giveback{margin:10px 0 0;border:1px solid var(--coral);border-radius:8px;padding:9px 11px;
+  font-size:11.5px;font-weight:600;color:var(--coralink);text-align:center;}
+
+/* silence / nothing state */
+.nothing{display:grid;place-items:center;min-height:150px;border:1px dashed var(--line);
+  border-radius:11px;color:var(--muted);font-size:13px;text-align:center;padding:20px;
+  background:var(--mist);}
+.nothing b{display:block;color:var(--ink);font-weight:600;font-size:15px;margin-bottom:5px;}
+
+/* ── the punch ── */
+.punch{background:var(--paper);border:1px solid var(--line);border-radius:16px;
+  box-shadow:var(--shadow2);overflow:hidden;margin:16px 0 0;}
+.punch .cap{background:var(--coral);color:#fff;padding:11px 20px;font-size:12px;font-weight:800;
+  letter-spacing:.1em;text-transform:uppercase;}
+.punch .in{padding:22px 20px;}
+.punch h3{font-size:clamp(20px,4.4vw,26px);font-weight:700;line-height:1.24;margin:0 0 12px;
+  letter-spacing:-.016em;text-wrap:balance;}
+.punch p{margin:0 0 12px;font-size:15.5px;}
+.punch p:last-child{margin:0;}
+.pull{margin:16px 0;padding:15px 17px;background:var(--mist);border-left:3px solid var(--gold);
+  border-radius:0 9px 9px 0;}
+.pull q{quotes:none;display:block;font-size:16px;line-height:1.45;font-weight:500;}
+.pull cite{display:block;font-style:normal;font-size:11.5px;font-weight:700;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--muted);margin-top:9px;}
+
+/* ── the two sides ── */
+.sides{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+@media (max-width:720px){.sides{grid-template-columns:1fr;}}
+.side{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:19px;
+  box-shadow:var(--shadow);}
+.side .hdr{font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;
+  margin:0 0 11px;}
+.side.bad .hdr{color:var(--coralink);}
+.side.good .hdr{color:var(--gold);}
+.side p{margin:0 0 9px;font-size:14.5px;}
+.side p:last-child{margin:0;}
+.side ol{margin:0;padding-left:19px;font-size:14.5px;}
+.side ol li{margin:0 0 8px;}
+.side ol li:last-child{margin:0;}
+
+/* ── options ── */
+.opt{display:flex;gap:14px;align-items:flex-start;background:var(--paper);border:1px solid var(--line);
+  border-radius:13px;padding:16px 18px;margin:0 0 11px;box-shadow:var(--shadow);}
+.opt.pick{border-color:var(--gold);}
+.opt .n{flex:0 0 auto;min-width:40px;text-align:center;background:var(--mist);border:1px solid var(--line);
+  color:var(--coralink);font-size:13px;font-weight:800;border-radius:7px;padding:5px 8px;}
+.opt.pick .n{background:rgba(201,154,46,.15);border-color:transparent;color:var(--gold);}
+.opt .tx{flex:1;min-width:0;}
+.opt .tx h4{margin:0 0 7px;font-size:16.5px;font-weight:700;letter-spacing:-.01em;}
+.opt .tx p{margin:0 0 7px;font-size:14.5px;}
+.opt .tx p:last-child{margin:0;}
+.opt .tx .cost{color:var(--muted);font-size:13.5px;}
+.mine{font-size:10.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--gold);}
+
+.foot{margin:30px 0 0;padding:19px 20px;background:var(--paper);border:1px solid var(--line);
+  border-radius:12px;box-shadow:var(--shadow);}
+.foot p{margin:0 0 10px;font-size:15px;}
+.foot p:last-child{margin:0;color:var(--muted);font-size:13.5px;}
+</style>
+
+<div class="page">
+
+<p class="eyebrow">50 Acts of Good &middot; the sign-up sheet &middot; item 18</p>
+<h1>The pans that never came</h1>
+<p class="stand">All seven testers stopped here, which has not happened before. <b>It is one missing
+button</b>, and it decides whether anybody trusts the sheet at all.</p>
+
+<h2>The problem, as it actually happens</h2>
+
+<div class="beat">
+  <div>
+    <span class="when">Tuesday</span>
+    <h3>She takes the pans.</h3>
+    <p>She walks past the board at church, scans the code, and takes one thing. It costs her nothing
+    to say yes &mdash; that is the point of the whole design, and it works.</p>
+    <p>She gives her first name and her phone number. The row closes. <b>She feels good about
+    it.</b></p>
+  </div>
+  <div class="sheetcard"><div class="plate">
+    <p class="sc-eyebrow">We could use a hand</p>
+    <p class="sc-ttl">For a family arriving in March</p>
+    <p class="sc-note">Four things are still missing, and any one of them would be a help.</p>
+    <div class="srow dim"><span class="lbl">New bedding, double</span><span class="st held">In good hands</span></div>
+    <div class="srow dim"><span class="lbl">A set of pans</span><span class="st mine">Yours</span></div>
+    <div class="srow"><span class="lbl">Pantry staples &mdash; rice, oil, tea</span><span class="st open">Take this</span></div>
+    <div class="srow"><span class="lbl">Someone with a van, Saturday morning</span><span class="st open">Take this</span></div>
+    <p class="sc-foot">We&rsquo;ll message you where and when. Your number is wiped thirty days
+      after the day.</p>
+  </div></div>
+</div>
+
+<div class="beat flip">
+  <div class="sheetcard"><div class="plate">
+    <p class="sc-eyebrow">We could use a hand</p>
+    <p class="sc-ttl">For a family arriving in March</p>
+    <p class="sc-note">Four things are still missing, and any one of them would be a help.</p>
+    <div class="srow dim"><span class="lbl">New bedding, double</span><span class="st held">In good hands</span></div>
+    <div class="srow dim"><span class="lbl">A set of pans</span><span class="st held">In good hands</span></div>
+    <div class="srow"><span class="lbl">Pantry staples &mdash; rice, oil, tea</span><span class="st open">Take this</span></div>
+    <div class="srow dim"><span class="lbl">Someone with a van, Saturday morning</span><span class="st held">In good hands</span></div>
+    <p class="sc-foot">We&rsquo;ll message you where and when. Your number is wiped thirty days
+      after the day.</p>
+  </div></div>
+  <div>
+    <span class="when">Thursday</span>
+    <h3>Her mother goes into hospital.</h3>
+    <p>She opens the page again. There is nothing on it that is hers any more &mdash; her row just
+    says <b>In good hands</b>, the same as everyone else&rsquo;s. There is no button. There is no
+    name to call. She was never given one; the organiser messages <i>her</i>.</p>
+    <p>So she does the only thing left. <b>She says nothing</b>, and hopes to manage it anyway.</p>
+  </div>
+</div>
+
+<div class="beat">
+  <div>
+    <span class="when">Saturday</span>
+    <h3>There are no pans.</h3>
+    <p>Your list says every row is taken. It has said so all week. You have not chased anybody,
+    because there was nothing to chase.</p>
+    <p>The family opens a box with a hole in it, and <b>the hole had a name on it the whole
+    time</b> &mdash; you just could not see it, and neither could she.</p>
+  </div>
+  <div class="nothing"><span><b>In good hands</b>Right up to the morning it wasn&rsquo;t.</span></div>
+</div>
+
+<div class="punch">
+  <p class="cap">And this is the half you would never find out about</p>
+  <div class="in">
+    <h3>Most people never take anything in the first place.</h3>
+    <p>Four of the seven said it outright: knowing they could not back out, <b>they would rather
+    take nothing at all</b> than risk being the hole. They did not think of that as refusing. They
+    just closed the page.</p>
+    <div class="pull">
+      <q>I would rather take nothing than be the hole.</q>
+      <cite>Renata &mdash; two jobs, three children</cite>
+    </div>
+    <p>So the sheet fills slowly, and you conclude that people are busy, or that the act was not
+    compelling, or that the poster did not work. <b>A sheet nobody dares claim from looks exactly
+    like a sheet nobody cared about.</b> There is no way to tell the two apart from where you are
+    standing.</p>
+  </div>
+</div>
+
+<h2>Why it is worse than losing a claim</h2>
+
+<div class="sides">
+  <div class="side bad">
+    <p class="hdr">A claim that gets lost</p>
+    <p>The row goes back to saying <b>Take this</b>. Somebody else takes it. You never even know it
+    happened.</p>
+    <p>Annoying. Self-correcting.</p>
+  </div>
+  <div class="side good">
+    <p class="hdr">A claim nobody can return</p>
+    <p>The row keeps saying <b>In good hands</b>. Nobody else can take it, because as far as the
+    page is concerned it is handled.</p>
+    <p>It does not correct itself. It gets quieter and quieter, right up to the morning, and then it
+    is too late to fix.</p>
+  </div>
+</div>
+
+<h2>The solution, drawn</h2>
+
+<div class="beat">
+  <div>
+    <span class="when">The fix</span>
+    <h3>The page remembers whose row it is.</h3>
+    <p>Nothing changes for anybody else. But on <b>her</b> phone &mdash; the one she scanned with
+    &mdash; her row still looks like hers, and underneath it there is one line she can tap right up
+    to the day:</p>
+    <p><b>&ldquo;I can&rsquo;t after all.&rdquo;</b></p>
+    <p>The row opens again. Nobody is named, nobody explains themselves, nobody is told off. The
+    next person who scans the code sees a thing that needs doing, which is exactly what they came
+    for.</p>
+    <p class="cost" style="color:var(--muted);font-size:14px">It needs no account and no message
+    sent &mdash; the page simply knows, on that phone, which row was taken from it. That is the
+    whole of it.</p>
+  </div>
+  <div class="sheetcard"><div class="plate">
+    <p class="sc-eyebrow">We could use a hand</p>
+    <p class="sc-ttl">For a family arriving in March</p>
+    <p class="sc-note">Four things are still missing, and any one of them would be a help.</p>
+    <div class="srow dim"><span class="lbl">New bedding, double</span><span class="st held">In good hands</span></div>
+    <div class="srow"><span class="lbl">A set of pans</span><span class="st mine">Yours</span></div>
+    <div class="giveback">I can&rsquo;t after all</div>
+    <div class="srow"><span class="lbl">Pantry staples &mdash; rice, oil, tea</span><span class="st open">Take this</span></div>
+    <div class="srow dim"><span class="lbl">Someone with a van, Saturday morning</span><span class="st held">In good hands</span></div>
+    <p class="sc-foot">We&rsquo;ll message you where and when. Your number is wiped thirty days
+      after the day.</p>
+  </div></div>
+</div>
+
+<div class="punch">
+  <div class="in">
+    <h3>The real gain is the part you will never see.</h3>
+    <p>Putting a way out on the page is what makes saying yes cheap again. People take things when
+    taking them is not a trap &mdash; <b>the button&rsquo;s job is mostly to be there, not to be
+    pressed.</b></p>
+  </div>
+</div>
+
+<h2>Your three choices</h2>
+
+<div class="opt pick">
+  <span class="n">18A</span>
+  <div class="tx">
+    <h4>The way out, quietly <span class="mine">&nbsp;my recommendation</span></h4>
+    <p>Exactly what is drawn above. The row reopens; your list simply shows it as needing doing
+    again, the same as if nobody had ever taken it.</p>
+    <p class="cost">Costs you nothing to look at. You find out by the row being open, which is the
+    thing you were going to check anyway.</p>
+  </div>
+</div>
+
+<div class="opt">
+  <span class="n">18B</span>
+  <div class="tx">
+    <h4>The way out, and you are told</h4>
+    <p>The same, but the row comes back to the <b>top</b> of your list, marked <i>came back</i>, so
+    you see that something changed rather than discovering a gap in a long list.</p>
+    <p class="cost">Better if you run big sheets and do not re-read them. Slightly heavier &mdash;
+    it puts a small piece of bookkeeping on a page that currently has none.</p>
+  </div>
+</div>
+
+<div class="opt">
+  <span class="n">18C</span>
+  <div class="tx">
+    <h4>Leave it as it is</h4>
+    <p>Nobody can hand anything back. The people who would have are the ones who take nothing.</p>
+    <p class="cost">The honest version of this choice: the sheet works best for people whose week
+    never goes wrong.</p>
+  </div>
+</div>
+
+<div class="foot">
+  <p><b>Say 18A, 18B or 18C.</b> Nothing is built.</p>
+  <p>The other five &mdash; 19 through 23 &mdash; are still where they were, in the panel review and
+  in your open-questions file. This one was worth spelling out on its own because it is the only
+  finding all seven agreed on, and because it is the cheapest of the six to build.</p>
+</div>
+
+</div>
