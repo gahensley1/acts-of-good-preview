@@ -246,6 +246,19 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
   border-bottom:1px dashed #DED7CB;text-align:left}
 .freerow:active .fgtx,.freerow:hover .fgtx{color:var(--muted);border-bottom-color:var(--coral)}
 .freerow:focus-visible{outline:2px solid var(--coral);outline-offset:2px;border-radius:4px}
+/* RULED A, 12 Sep 2026. A quieter weight than the send button above it, but
+   the same size, because the point of it is that nobody has to hunt for a
+   small thing. The Instagram mark sits beside the words so it is recognised
+   before it is read. */
+#cm-open{margin-top:10px}
+.btn.openig{display:flex;align-items:center;justify-content:center;gap:9px;width:100%}
+/* the chip's glyph rule is scoped to .chip, so this button needs its own or the
+   drawing comes out sizeless and unstroked — which is what it did the first time */
+.btn.openig .glyph{flex:none;width:19px;height:19px;display:block}
+.btn.openig .glyph svg{width:100%;height:100%;display:block;fill:none;
+  stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+/* last, quietest, and only for somebody who already knows what they are doing */
+.btn.quietcopy{margin-top:14px;font-size:13px;opacity:.72}
 .askhint{font-size:11px;color:#B9B2A9;margin:2px 0 0;padding-left:24px}
 .askrow:has(> .atx:only-child) .atx{padding-left:0}
 /* The panel is a form, not a free page — each part says what it is, so nobody
@@ -1288,7 +1301,7 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
     </div>
 
     <!-- BUILD MARK — dev only, delete this div when the app ships -->
-    <div id="buildtag">BUILD 4Q</div>
+    <div id="buildtag">BUILD 4R</div>
   </div>
 </section>
 
@@ -1831,9 +1844,17 @@ What you actually did. Why it mattered. Say the awkward parts."></textarea>
       <span class="tick" aria-hidden="true">&#10003;</span>
       <span>Caption copied. In Instagram, long-press the caption box and choose Paste.</span>
     </div>
-    <button class="btn ghost" style="margin-top:10px" onclick="copyCaption()">
-      Just copy the caption</button>
+    <!-- RULED A, 12 Sep 2026: the door, directly under the send button and
+         before any words, because the whole point of it is that it is the next
+         thing your thumb finds. The instructions follow BOTH buttons rather
+         than sitting between them. -->
+    <div id="cm-open" class="hide">
+      <button class="btn ghost openig" type="button" onclick="openInstagram()">
+        Open Instagram</button>
+    </div>
     <p class="note" style="margin-top:12px" id="cm-how"></p>
+    <button class="btn ghost quietcopy" type="button" onclick="copyCaption()">
+      Just copy the caption</button>
 
     <!-- the envelope: giving quietly gets an object, not a channel (ruled 2B) -->
     <button type="button" class="envnote" id="cm-env" onclick="envNote()">
@@ -8316,7 +8337,12 @@ function drawCompose(){
   $('cm-go').textContent = HAND_LABEL[CM_PLAT] || ('Open ' + platName);
   const env=$('cm-env'); if(env){ env.classList.toggle('on', CM_PLAT==='private');
     env.setAttribute('aria-pressed', CM_PLAT==='private'?'true':'false'); }
-  $('cm-how').textContent = HAND_HOW[CM_PLAT] || '';
+  /* innerHTML, and safe: HAND_HOW is a fixed table of our own words with no
+     user input anywhere near it. The two numbered steps need a line break and
+     a bold word to be readable at all, and a paragraph of run-on instructions
+     is what we were replacing. If anything a person typed ever reaches this
+     line, it goes back to textContent that same hour. */
+  $('cm-how').innerHTML = HAND_HOW[CM_PLAT] || '';
   /* the reminder is Instagram's alone — picking another chip must not leave it
      standing there telling her to paste into an app she is no longer using */
   if(CM_PLAT!=='instagram') dropPasteBar();
@@ -8465,9 +8491,18 @@ function drawFit(){
    roll, which is three taps and no fewer, so the app says so plainly rather
    than hiding it.                                                            */
 const HAND_HOW = {
-  instagram: 'Sending copies the caption and hands the card and photos to Instagram, '+
-             'or you can choose Save Image first and pick them up from your camera roll. '+
-             'Either way, long press Instagram’s caption box and paste.',
+  /* RULED A, 12 Sep 2026. It used to be one long sentence carrying three
+     instructions and an apology. Nobody reads that standing in a kitchen.
+     Two steps now, numbered, in the order the thumb does them. */
+  instagram: '<b>1.</b> Tap the button above and choose <b>Save Image</b>. '+
+             'The card goes to your photos, and your words are already copied.'+
+             '<br><br><b>2.</b> Tap <b>Open Instagram</b>, then the <b>+</b>. '+
+             'The card is the first picture waiting. Hold down the caption box '+
+             'and tap <b>Paste</b>.'+
+             '<br><br>Instagram is in the grey panel too, if you spot it &mdash; '+
+             'that way is quicker and skips step two. And if <b>Open Instagram</b> '+
+             'does nothing at all, Instagram is not on this phone; the card is '+
+             'saved either way and will keep.',
   facebook:  'Sending copies the caption and hands Facebook the card and your photos '+
              'together. Long press and paste when the post opens.',
   threads:   'Sending copies the caption and hands the card and photos to Threads. '+
@@ -8595,6 +8630,19 @@ function drawGoState(){
   b.classList.toggle('waiting', waiting);
   b.textContent = GO_WAITING ? 'Getting the card ready…'
                 : (HAND_LABEL[CM_PLAT] || ('Open ' + platLabel(CM_PLAT)));
+  /* RULED A: the door shows for Instagram and nowhere else. Facebook, Threads
+     and a personal note all carry their words through the share sheet, so
+     nobody is left standing outside them. */
+  const d = $('cm-open');
+  if(d){
+    d.classList.toggle('hide', CM_PLAT !== 'instagram');
+    const ob = d.querySelector('.openig');
+    if(ob && !ob.dataset.drawn){
+      ob.dataset.drawn = '1';
+      ob.innerHTML = '<span class="glyph"><svg viewBox="0 0 24 24">'+
+        SEND_GLYPH.instagram+'</svg></span><span>Open Instagram</span>';
+    }
+  }
 }
 
 /* Every destination that can take a picture now goes through the share sheet.
@@ -8604,14 +8652,65 @@ function drawGoState(){
    itself alongside Save Image. */
 const SHARES_FILES = { instagram:1, facebook:1, threads:1, private:1 };
 
+/* RULED A, 12 September 2026 — the way in, for somebody who should not have to
+   go looking.
+
+   G: "I'm asking you to just directly open Instagram instead of me having to go
+   find Instagram and open it. I feel like that's challenging for older people.
+   I know how to do it. But an older person may not."
+
+   He is right, and it is the small grey row of app icons that does it. The
+   share sheet DOES open Instagram — but only if you can pick its icon out of a
+   row of fourteen, sometimes after scrolling that row sideways and finding
+   "More". That is a needle-hunt dressed as a convenience.
+
+   So there is a button now. It says Open Instagram, it is the size of a button
+   meant to be pressed, and it opens Instagram. Nothing to find.
+
+   THE HONEST LIMIT, and it decides the whole shape: a button can open
+   Instagram or hand Instagram the picture, never both. Opening is a door;
+   handing over is the share sheet. So the screen is two plain steps — save the
+   picture, then open the app — and the picture is waiting at the top of their
+   camera roll when they tap the plus.
+
+   If Instagram is not installed, tapping a link like this does NOTHING AT ALL,
+   silently — no error, no page, nothing. So this can never be the only route,
+   and the saving step has to stand on its own feet. It does. */
+function openInstagram(){
+  /* 'instagram://camera' lands on making a post rather than the home feed,
+     which is one fewer tap and the right room to arrive in. */
+  try{ location.href = 'instagram://camera'; }catch(_){}
+  /* Nothing follows. There is no reliable way for a page to learn whether the
+     app opened, and a guess dressed as a message would be worse than silence —
+     it would tell somebody their phone had failed when it had not. The line
+     under the button already says what to do if nothing happens. */
+}
+
 function handOff(){
   const a = S.current || S.acts[S.acts.length-1];
   if(!a) return;
 
+  /* DEFECT FOUND 12 September 2026, and it is the one that made posting to
+     Instagram feel broken.
+
+     The copy used to live BELOW the early return. On the slow path — several
+     photos, or a tired phone — this function returned here without copying,
+     drew the card across several waits, then called itself back. By then the
+     tap was spent, so the phone refused the copy, refused the fallback too,
+     and swallowed both. The clipboard was left holding whatever was in it
+     before, and the app went on to say the caption was copied.
+
+     Instagram is the ONLY destination that depends on the clipboard — every
+     other one carries the words through the share sheet — so the fault was
+     invisible everywhere else and constant there.
+
+     The copy happens HERE now, first thing, on the real press, on both paths.
+     Nothing may be inserted above it that waits for anything. */
+  const text = $('cm-text').value;
+  copyToClip(text);                            // on the press, always
+
   /* The card is still drawing. Rather than quietly send without it, remember
-     that they asked and go the moment it is ready. The button says so.
-     This costs the iOS gesture, so the share sheet may need a second press on a
-     slow phone; sending the wrong thing silently is worse than pressing twice. */
+     that they asked and go the moment it is ready. The button says so. */
   if(SHARES_FILES[CM_PLAT] && (PACK.busy || !PACK.files)){
     GO_WAITING = { plat: CM_PLAT, no: a.no }; drawGoState();
     if(!PACK.busy && !PACK.files) prepack();
@@ -8619,8 +8718,6 @@ function handOff(){
   }
   GO_WAITING = null;
 
-  const text = $('cm-text').value;
-  copyToClip(text);                            // deliberately not awaited
   const files = PACK.files;
 
   if(SHARES_FILES[CM_PLAT] && files && files.length &&
