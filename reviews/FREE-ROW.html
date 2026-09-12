@@ -1,0 +1,138 @@
+<title>The Free Row</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap">
+<style>
+:root{
+  --paper:#FFFFFF; --mist:#F6F4F1; --line:#E4E0DA; --plate:#D9BC6B;
+  --gold:#E1BA52; --coral:#C03F2B; --ink:#231F1B; --muted:#665F57; --faint:#B9B2A9;
+  --shadow:0 2px 14px rgba(60,48,36,.07);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#242020; --mist:#1A1716; --line:#3A3431; --plate:#7A6535;
+    --gold:#E1BA52; --coral:#F08A72; --ink:#F2EDE6; --muted:#A79E93; --faint:#7C746A;
+    --shadow:0 2px 14px rgba(0,0,0,.35);
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#242020; --mist:#1A1716; --line:#3A3431; --plate:#7A6535;
+  --gold:#E1BA52; --coral:#F08A72; --ink:#F2EDE6; --muted:#A79E93; --faint:#7C746A;
+  --shadow:0 2px 14px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--mist); color:var(--ink);
+  font-family:Montserrat,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  padding:30px 16px 56px;
+  display:flex; flex-direction:column; align-items:center; gap:22px;
+}
+.wrap{width:100%; max-width:470px; display:flex; flex-direction:column; gap:22px}
+
+header{
+  background:var(--paper); border:1px solid var(--line); border-radius:6px;
+  box-shadow:var(--shadow); padding:30px 24px 26px; position:relative;
+}
+header::after{
+  content:""; position:absolute; inset:9px; border:1px solid var(--plate);
+  border-radius:2px; pointer-events:none;
+}
+.eyebrow{
+  font-size:10px; font-weight:700; letter-spacing:.2em; text-transform:uppercase;
+  color:var(--coral); margin:0; text-align:center;
+}
+.rule{width:38px; border-top:2px solid var(--gold); margin:17px auto}
+h1{
+  font-size:20px; font-weight:700; line-height:1.3; margin:0 0 13px;
+  text-align:center; text-wrap:balance; letter-spacing:-.01em;
+}
+header p{font-size:13.5px; line-height:1.65; color:var(--muted); margin:0 0 11px}
+header p:last-child{margin-bottom:0}
+header b{color:var(--ink); font-weight:600}
+
+.opt{
+  background:var(--paper); border:1px solid var(--line); border-radius:6px;
+  box-shadow:var(--shadow); overflow:hidden;
+}
+.opthead{display:flex; align-items:baseline; gap:11px; padding:18px 20px 13px}
+.letter{
+  flex:none; font-size:22px; font-weight:700; color:var(--gold);
+  line-height:1; letter-spacing:-.02em;
+}
+.opthead h2{
+  font-size:14.5px; font-weight:700; margin:0; line-height:1.35;
+  letter-spacing:-.005em;
+}
+.shotwrap{
+  border-top:1px solid var(--line); border-bottom:1px solid var(--line);
+  background:var(--paper);
+}
+.shotwrap img{display:block; width:100%; height:auto}
+.say{padding:15px 20px 18px; display:flex; flex-direction:column; gap:8px}
+.say p{font-size:13px; line-height:1.6; color:var(--muted); margin:0}
+.say p.cost{
+  font-size:11px; line-height:1.55; color:var(--faint);
+  padding-top:8px; border-top:1px solid var(--line);
+}
+.say p.cost b{
+  color:var(--coral); font-weight:700; font-size:9.5px;
+  letter-spacing:.1em; text-transform:uppercase; display:block; margin-bottom:3px;
+}
+
+footer{
+  text-align:center; padding:4px 10px 0;
+}
+footer p{font-size:12px; line-height:1.7; color:var(--muted); margin:0}
+footer .creed{
+  font-size:11px; font-weight:700; letter-spacing:.11em; line-height:1.7;
+  color:var(--coral); margin:20px 0 0;
+}
+@media (max-width:420px){
+  h1{font-size:18px}
+  .opthead{padding:15px 16px 11px}
+  .say{padding:13px 16px 15px}
+  header{padding:26px 19px 22px}
+}
+</style>
+
+<div class="wrap">
+
+  <header>
+    <p class="eyebrow">Ruling 23B &middot; the sign-up sheet</p>
+    <div class="rule"></div>
+    <h1>A row that costs nothing</h1>
+    <p>One tester read the old example and counted that every single thing on it cost money. Her words: <b>&ldquo;I have four dollars and two hands and you&rsquo;ve asked for neither.&rdquo;</b></p>
+    <p>You said to add a greyed-out zone that says help deliver the food. Here it is three ways &mdash; because the fourth grey line already says exactly that, then vanishes the moment somebody writes four things of their own. <b>So the real question is whether you want one that stays.</b></p>
+  </header>
+
+  <section class="opt">
+    <div class="opthead"><span class="letter">A</span><h2>In the list, always</h2></div>
+    <div class="shotwrap"><img src="optA.png" alt="The needs list with a fourth greyed line reading &ldquo;Someone to help deliver the food&rdquo; underlined in a dashed line."></div>
+    <div class="say">
+      <p>A ghost row sits under whatever you&rsquo;ve typed, however many things you add. Tap it and it becomes yours to edit. It never goes on the sheet unless you do.</p>
+      <p class="cost"><b>The cost</b>The list never looks finished. There is always one more line sitting under the last thing you wrote.</p>
+    </div>
+  </section>
+
+  <section class="opt">
+    <div class="opthead"><span class="letter">B</span><h2>Its own quiet zone</h2></div>
+    <div class="shotwrap"><img src="optB.png" alt="The needs list with a dashed box beneath it headed &ldquo;Not everything has to cost&rdquo;, holding two greyed suggestions."></div>
+    <div class="say">
+      <p>Set apart under the list, with a line saying why it&rsquo;s there, and room for more than one. Tap either and it joins your list.</p>
+      <p class="cost"><b>The cost</b>It says something out loud that A only suggests. Some people will read a gentle line as a nudge, which is the thing you didn&rsquo;t want.</p>
+    </div>
+  </section>
+
+  <section class="opt">
+    <div class="opthead"><span class="letter">C</span><h2>Leave it as it is</h2></div>
+    <div class="shotwrap"><img src="optC.png" alt="The needs list as it ships now, with three typed items and no greyed suggestion beneath them."></div>
+    <div class="say">
+      <p>What shipped an hour ago. The free row is already the fourth grey example &mdash; it teaches the shape on an empty sheet, then gets out of the way.</p>
+      <p class="cost"><b>The cost</b>Anybody who types four things of their own never sees it. The person most likely to build a wall of receipts is exactly the person who fills the list.</p>
+    </div>
+  </section>
+
+  <footer>
+    <p>Rule by letter. A, B or C.</p>
+    <p class="creed">PUT A LITTLE<br>MORE GOOD INTO<br>THE WORLD.</p>
+  </footer>
+
+</div>

@@ -305,6 +305,45 @@ published and never printed — verified by driving the builder and reading the 
 written to fit, and every placeholder in the panel is now measured as fitting — but the underlying
 fault is still there and will bite the next long placeholder anybody writes.
 
+## The row that costs nothing — RULED 23B as A, BUILT 12 September 2026
+
+23A fixed the example. It did not finish the job, because **a placeholder vanishes the moment
+somebody types over it** — so the person most likely to build a wall of receipts, the one who fills
+the list, was exactly the person who never saw the free row.
+
+So it stops being an example and becomes a standing one. **A greyed line sits under whatever has
+been typed, however long the list gets**, reading *Someone to help deliver the food*. Tap it and it
+becomes an ordinary row with the caret at the end, ready to be rewritten into whatever that act
+actually needs.
+
+**G's framing, and it governs the whole thing:** *"it's up to them whether they change it or not.
+We can't force them to do that. That's just a nudge."* So it is **the notes panel's ghost circle
+again** — a faint thing you tap to make real — and never a rule, a warning, a required field or a
+nag. The app's second use of that idiom; it should be the first place anyone looks next time
+something needs offering rather than demanding.
+
+**It holds nothing.** A plain button, not a field: it cannot be typed into, it is never stored, and
+it reaches neither the poster nor the page unless somebody taps it. Verified by publishing with it
+untouched and reading the body.
+
+**The example dropped to three** — pan, tea, plates — because the fourth was the free one and it
+now lives at the bottom permanently. Tapping while the last row is blank fills that row rather than
+adding a second blank beneath it.
+
+### The defect this build turned up, and it was mine
+
+**`askFree` already existed.** Build 4L gave the organiser a *Free it* button on every taken claim,
+and its handler is `askFree(pos)` — the release. The new ghost row was given the same name. Two
+function declarations, one name: **the later one silently wins**, so the ghost row was calling the
+release with no position and doing nothing at all, with no error anywhere.
+
+Renamed `askFreeRow`. The release is verified intact.
+
+**It was caught by driving the button, not by reading the code** — the CSS class names were checked
+for collisions, as the standing rule says, and the function name was not. *Check that a name is
+free before using it, functions included.* A comment sits at the collision site so the next person
+finds it.
+
 ## What it is
 
 Some acts are too big for one pair of hands. The app makes a **sheet** of what is needed and a
@@ -805,10 +844,9 @@ a domain, a splash page and a notes panel, and `index.html` did not change once.
 # OPEN, AND G'S TO RULE
 
 - **DECISIONS-OPEN.md** — twenty-three now. Items **18–23** are the sign-up sheet, from the panel.
-  **All six — 18 through 23 — are now ruled and built.** 23 went 23A on 12 September, with G
-  changing the last row to somebody who helps drop it off. 23B — the app nudging every sheet to
-  carry a free row — was **not** ruled and stays available; it is the only one of the three that
-  reaches into somebody else's act.
+  **All six — 18 through 23 — are ruled and built, and nothing from the panel is open.** 23 went
+  23A and then 23B-as-A on 12 September: the example became act 22, and the free row became a
+  standing ghost line rather than a nudge. Options drawn at `reviews/FREE-ROW.html`.
 - **THE-WORDS.md** — eleven, unanswered. `3E·1 4A·1 5A 6 all 9A yes yes strip 7 later` clears them.
 - **THE-IDEAS.md** — 89 ideas to rewrite over the top of.
 - **X** — `HANDLE_KEYS` includes it, `PLATS` excludes it. One or the other, not both.
