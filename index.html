@@ -1301,7 +1301,7 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
     </div>
 
     <!-- BUILD MARK — dev only, delete this div when the app ships -->
-    <div id="buildtag">BUILD 4S</div>
+    <div id="buildtag">BUILD 4T</div>
   </div>
 </section>
 
@@ -2340,11 +2340,27 @@ function serialise(){
     tone:S.tone,
     name:S.name, bday:S.bday, why:S.why, email:S.email||'', pubkey:S.pubkey||'',
     start:S.start.toISOString(),
-    /* Finished years. Kept whole so the journal can still read them years later;
-       photo ids travel, and the photos themselves are untouched in IndexedDB. */
+    /* Finished years. RULED 12 September 2026: "the journal should stay intact
+       no matter what, and a second session should build on the first."
+
+       The comment above this line used to claim photo ids travelled. They did
+       not. A finished year was written out WHOLE, which meant every one of its
+       pictures was inlined here as text, into a store that holds about five
+       megabytes and throws when it is full. A photo-rich year would have blown
+       it on the first rollover and the app would have told somebody their phone
+       was out of room.
+
+       Slimmed to ids now, exactly like `acts` and `works` below, and made back
+       into pictures on the way in. It also tolerates both shapes, because a
+       year pushed into `past` a moment ago still holds live photo objects while
+       one read back off the disk holds bare ids. */
     past:(S.past||[]).map(y=>({ n:y.n, weeks:y.weeks, word:y.word||'', line:y.line||'',
                                 start:y.start||'', end:y.end||'', zero:y.zero||null,
-                                acts:y.acts||[] })),
+                                acts:(y.acts||[]).map(a=>Object.assign({}, a, {
+                                  photos:(a.photos||[])
+                                    .map(x=>(x && typeof x==='object') ? x.id : x)
+                                    .filter(x=>typeof x==='string')
+                                })) })),
     people:S.people, platforms:S.platforms,
     started:S.started, letterSeen:!!S.letterSeen, bkup:S.bkup||'', bkupNag:S.bkupNag||'', bkupAt:S.bkupAt||0, bkupToldAt:S.bkupToldAt||0,
     finShown:S.finShown?1:0, halfShown:S.halfShown?1:0, fin:S.fin||null, celLast:S.celLast||'', celBag:S.celBag||'', zero:S.zero||null, tabToured:!!S.tabToured, opens:S.opens||0, todoOpens:S.todoOpens||0, plans:slimPlans(), handles:S.handles||{}, places:S.places||{},
@@ -2445,7 +2461,28 @@ async function load(){
   S.pubkey=o.pubkey||'';
   S.start=o.start?new Date(o.start):new Date();
   if(isNaN(S.start.getTime())) S.start = new Date();          // "week NaN of 52"
-  S.past = Array.isArray(o.past) ? o.past : [];
+  /* Finished years come back whole, pictures and all. Same rule as the acts
+     loader: a photo whose blob has gone is left out rather than faked, and its
+     absence disables the tidy-up for this launch so nothing else is deleted on
+     the strength of a bad read. */
+  S.past = [];
+  for(const y of (Array.isArray(o.past) ? o.past : [])){
+    if(!y || typeof y !== 'object') continue;
+    const pacts = [];
+    for(const a of (Array.isArray(y.acts) ? y.acts : [])){
+      if(!a || typeof a !== 'object') continue;
+      const photos = [];
+      for(const x of (Array.isArray(a.photos) ? a.photos : [])){
+        const pid = (x && typeof x === 'object') ? x.id : x;
+        if(typeof pid !== 'string') continue;
+        const url = (await idbGet(THUMB(pid))) || (await idbGet(pid));
+        if(url) photos.push({ id:pid, url:url });
+        else LOAD_MISSED = true;
+      }
+      pacts.push(Object.assign({}, a, { photos }));
+    }
+    S.past.push(Object.assign({}, y, { acts:pacts }));
+  }
   S.people=o.people||[]; S.platforms=o.platforms||S.platforms;
   S.started=!!o.started; S.letterSeen=!!o.letterSeen; S.bkup=o.bkup||''; S.bkupNag=o.bkupNag||'';
   S.bkupAt=o.bkupAt||0; S.bkupToldAt=o.bkupToldAt||0;
@@ -2542,7 +2579,13 @@ async function exportJournal(){
     const o = serialise();
     o.exported = new Date().toISOString();
     o.v = 1;
-    const head = Object.assign({}, o); delete head.acts; delete head.plans; delete head.works;
+    /* `past` joins the list of things kept OUT of the head. It used to ride
+       along inside it, which put every finished year through one JSON.stringify
+       — the exact peak-memory shape the rest of this function was written to
+       avoid, on the operation that is the lifeboat, on the journals that most
+       need one. */
+    const head = Object.assign({}, o);
+    delete head.acts; delete head.plans; delete head.works; delete head.past;
     const hj = JSON.stringify(head);
     parts.push(hj.slice(0, hj.length-1));      // open the object, hold it open
     parts.push(',"acts":[');
@@ -2588,6 +2631,38 @@ async function exportJournal(){
       }
       parts.push(']}');
       await new Promise(r=>setTimeout(r, 0));
+    }
+    /* RULED 12 September 2026: a finished year is part of the journal, so it is
+       part of the copy — at full size, act by act, the same way as this year. */
+    parts.push('],"past":[');
+    for(let y=0;y<(S.past||[]).length;y++){
+      const yr = S.past[y];
+      const slim = Object.assign({}, yr); delete slim.acts;
+      if(y) parts.push(',');
+      const yj = JSON.stringify(slim);
+      parts.push(yj.slice(0, yj.length-1));
+      parts.push(',"acts":[');
+      const pacts = yr.acts||[];
+      for(let i=0;i<pacts.length;i++){
+        const pa = Object.assign({}, pacts[i]); delete pa.photos;
+        if(i) parts.push(',');
+        const aj = JSON.stringify(pa);
+        parts.push(aj.slice(0, aj.length-1));
+        parts.push(',"photos":[');
+        const ph = pacts[i].photos||[];
+        for(let j=0;j<ph.length;j++){
+          const got = await fullPhoto(ph[j]);
+          if(!got.url) continue;
+          if(!got.full) lost++;
+          if(j) parts.push(',');
+          parts.push('{"id":'+JSON.stringify(ph[j].id)+',"data":"');
+          parts.push(got.url);
+          parts.push('"}');
+        }
+        parts.push(']}');
+        await new Promise(r=>setTimeout(r, 0));
+      }
+      parts.push(']}');
     }
     parts.push('],"plans":{');
     const pks = Object.keys(S.plans||{});
@@ -2728,6 +2803,15 @@ function importJournal(input){
           slim.works = [];
           for(const w of (Array.isArray(o.works)?o.works:[]))
             slim.works.push(Object.assign({}, w, { photos: await stash(w.photos) }));
+          /* and the finished years, or a restored journal would come back with
+             its earlier years' words and none of their pictures */
+          slim.past = [];
+          for(const yr of (Array.isArray(o.past)?o.past:[])){
+            const pacts = [];
+            for(const pa of (Array.isArray(yr&&yr.acts)?yr.acts:[]))
+              pacts.push(Object.assign({}, pa, { photos: await stash(pa.photos) }));
+            slim.past.push(Object.assign({}, yr, { acts:pacts }));
+          }
 
           const olds = currentPhotoIds();
           localStorage.setItem(LS_KEY, JSON.stringify(slim));   // the point of no return
@@ -2795,9 +2879,21 @@ async function fatPlans(plans){
 
 function currentPhotoIds(){
   const ids = [];
-  const add = p => { if(p&&p.id){ ids.push(p.id); ids.push(THUMB(p.id)); } };
+  const add = p => {
+    /* tolerant of both shapes: a live photo object, or a bare id from a year
+       that has not been made back into pictures yet */
+    const pid = (p && typeof p === 'object') ? p.id : p;
+    if(typeof pid === 'string' && pid){ ids.push(pid); ids.push(THUMB(pid)); }
+  };
   S.acts.forEach(a=>(a.photos||[]).forEach(add));
   Object.keys(S.plans||{}).forEach(k=>(S.plans[k].photos||[]).forEach(add));
+  /* RULED 12 September 2026 — and this single omission was the whole disaster.
+     A finished year's photographs were owned by nobody as far as this list was
+     concerned, so the tidy-up counted every one of them as rubbish and deleted
+     the full-size originals on the first launch after a rollover. The words
+     survived, the thumbnails survived, and a year of printable photographs did
+     not. Nothing else in the app can own them, so they are owned here. */
+  (S.past||[]).forEach(y=>(y&&y.acts||[]).forEach(a=>(a&&a.photos||[]).forEach(add)));
   return ids;
 }
 
@@ -4761,10 +4857,29 @@ async function shareInvite(withCard){
    take the rich one. Paste into Mail and it arrives assembled, in the body,
    with nothing to tap. That is the closest thing to a designed email that a
    phone app can honestly produce.                                           */
-async function copyBoth(){
+/* The same fault that broke the Instagram caption lived here too, and it is
+   worse here because this is the whole point of the button.
+
+   The clipboard write used to sit behind TWO waits — drawing the card, then
+   reading it back as text. Safari only permits a copy in the same instant as
+   the press, so by the time this asked, permission was gone. Both the rich copy
+   and the plain fallback were refused, both refusals were swallowed, and the
+   app said "The words are copied too" to somebody whose clipboard still held
+   whatever was in it before.
+
+   Two changes. The words go on the clipboard FIRST, synchronously, before
+   anything is drawn — so at minimum the note is always there. Then the rich
+   version is attempted with the card handed over as a PROMISE, which is the one
+   shape Safari accepts for work that has not finished yet. And nothing claims
+   the card was included unless the write actually resolved. */
+function copyBoth(){
   const a = askDetails();
   const note = $('ask-body').value;
-  try {
+
+  /* first, on the press, no waiting: the words, guaranteed */
+  copyToClip(note);
+
+  const rich = (async () => {
     const blob = await inviteBlob(a);
     const dataUrl = await new Promise(res=>{
       const r = new FileReader(); r.onload = ()=>res(r.result); r.readAsDataURL(blob);
@@ -4777,30 +4892,47 @@ async function copyBoth(){
       note.split('\n').map(l=>l.trim()?('<div>'+l.replace(/&/g,'&amp;').replace(/</g,'&lt;')+'</div>')
                                       :'<div><br></div>').join('') +
       '</div>';
+    return new Blob([html], {type:'text/html'});
+  })();
 
-    if(navigator.clipboard && window.ClipboardItem){
-      await navigator.clipboard.write([ new ClipboardItem({
-        'text/html' : new Blob([html], {type:'text/html'}),
+  if(navigator.clipboard && window.ClipboardItem){
+    /* the promise goes in unresolved — the write is issued on the press and the
+       card catches up. Chrome and Safari both take this shape; nothing else has
+       ever worked on Safari. */
+    let wrote = false;
+    try{
+      navigator.clipboard.write([ new ClipboardItem({
+        'text/html' : rich,
         'text/plain': new Blob([note], {type:'text/plain'})
-      })]);
-      say('Copied: card and note together', 'Open Mail, paste, and send. '+
+      })]).then(()=>{
+        wrote = true;
+        say('Copied: card and note together', 'Open Mail, paste, and send. '+
             'The card sits at the top of the message with your words underneath.');
+      }).catch(()=>{ if(!wrote) copyBothFallback(a, note); });
       return;
-    }
-    throw new Error('no clipboard');
-  } catch(e){
-    /* no rich clipboard here — hand over the picture and the words separately */
-    try {
-      const blob = await inviteBlob(a);
-      const url = URL.createObjectURL(blob);
-      const el = document.createElement('a');
-      el.href=url; el.download='invitation-act-'+a.no+'.png';
-      document.body.appendChild(el); el.click(); el.remove();
-      setTimeout(()=>URL.revokeObjectURL(url), 4000);
-      if(navigator.clipboard) navigator.clipboard.writeText(note).catch(()=>{});
-      say('Card saved','The words are copied too. Put the card in first, then paste.');
-    } catch(e2){ say('Hmm','Couldn’t make the card just now. Try again in a moment.'); }
+    }catch(_){ /* ClipboardItem refused the promise: fall through */ }
   }
+  copyBothFallback(a, note);
+}
+
+/* No rich clipboard, or it was refused. Hand over the picture and the words
+   separately — and say only what is true. The words were already copied above,
+   on the press, so that half is safe to promise; the card is not, because a
+   download on iOS lands in Files rather than Photos and the app cannot see
+   whether it happened at all. */
+async function copyBothFallback(a, note){
+  try {
+    const blob = await inviteBlob(a);
+    const url = URL.createObjectURL(blob);
+    const el = document.createElement('a');
+    el.href=url; el.download='invitation-act-'+a.no+'.png';
+    document.body.appendChild(el); el.click(); el.remove();
+    setTimeout(()=>URL.revokeObjectURL(url), 4000);
+    say('Your words are copied',
+        'The card could not go on the clipboard on this phone, so it has been '+
+        'handed to your downloads instead. Look for it there, put it in first, '+
+        'then paste.');
+  } catch(e2){ say('Hmm','Couldn\u2019t make the card just now. Try again in a moment.'); }
 }
 
 /* ── date picker ────────────────────────────────────────────────────────────
@@ -6027,6 +6159,22 @@ async function askPublish(){
           'It was made on another phone. Make a new sheet and it is yours.'); return; }
     if(!r.ok){ say('It did not go up','Try again in a moment.'); return; }
     sh.live=1; workKeep(); save(); drawSheetPanel();
+    /* An edit can now genuinely change the sheet — but never a row somebody has
+       already taken, because those are the words they said yes to. The Worker
+       counts what it had to leave alone and the organiser is told, rather than
+       walking away believing an edit landed when part of it could not. */
+    try{
+      const j = await r.json();
+      if(j && j.orphans > 0)
+        say(j.orphans===1 ? 'One thing could not be changed'
+                          : j.orphans + ' things could not be changed',
+            j.orphans===1
+              ? 'Somebody has already said yes to it, so it stays on the sheet '+
+                'exactly as they read it. Message them if it needs to change.'
+              : 'Somebody has already said yes to each of them, so they stay on '+
+                'the sheet exactly as they were read. Message them if anything '+
+                'needs to change.');
+    }catch(_){ /* an older Worker says nothing; that is not a failure */ }
   }catch(_){ say('No connection','The sheet needs the internet to go up. The poster does not.'); }
 }
 
@@ -6398,8 +6546,17 @@ function bookHonours(acts){
 }
 
 async function printJournal(){
-  const acts = S.acts.slice().sort((x,y)=>slotOf(x)-slotOf(y) ||
-                                          (parseFloat(x.no)-parseFloat(y.no)));
+  /* RULED 12 September 2026 — "a second session should build on the first."
+     The book only ever printed the year in progress, so somebody who finished
+     fifty acts, started again, and asked for their book was told there was
+     nothing to print while a complete year sat in their journal. The oldest
+     year comes first, and this year last, which is the order they were lived.*/
+  const older = [];
+  (S.past||[]).forEach(y=>(y&&y.acts||[]).forEach(a=>older.push(a)));
+  older.sort((x,y)=>String(x.d||'').localeCompare(String(y.d||'')) ||
+                    (parseFloat(x.no)-parseFloat(y.no)));
+  const acts = older.concat(S.acts.slice().sort((x,y)=>slotOf(x)-slotOf(y) ||
+                                          (parseFloat(x.no)-parseFloat(y.no))));
   if(!acts.length){
     say('Nothing to print yet','The first act becomes the first page.'); return;
   }

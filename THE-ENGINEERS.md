@@ -249,12 +249,23 @@ the only network boundary · `prepack`/`handOff` is the gesture boundary.
 
 Ranked. Nothing here is built. G rules.
 
-## C1. CRITICAL — starting a second year destroys the first year's photographs
+## C1. ~~CRITICAL — starting a second year destroys the first year's photographs~~ **BUILT 12 Sep 2026, build 4T**
 Three separate faults converge on one event. The finished year's photos are copied whole into the
 small text store (likely blowing the quota outright); the orphan sweep does not know past years own
 photos and deletes every full-size original on the next launch; and the book only ever prints the
 current year. **The headline promise — at the end of the year it is a book — currently fails at the
-exact moment the year ends.** About a day's work. **Do not press "Start a new goal" until fixed.**
+exact moment the year ends.** **FIXED in build 4T**, on G's ruling: *"the journal should stay intact no matter what, and a
+second session should build on the first."* Six changes: finished years are stored as photo ids
+rather than inlined pictures; they are made back into pictures on load, with a missing blob
+disabling the tidy-up for that launch; **the tidy-up now knows a finished year owns its
+photographs**, which was the whole disaster in one omission; the backup streams finished years act
+by act instead of through one giant string, and carries them at full size; restoring a backup brings
+their pictures back; and the book prints every year, oldest first.
+
+**Verified against a real rollover**, not by reading: twelve acts with photographs, rolled over,
+reloaded, tidy-up run deliberately — all twelve full-size originals and all twelve thumbnails
+survived, and the stored state stayed at ~2KB instead of blowing the quota. The exported file was
+parsed back and confirmed to carry the finished year's photographs at full size, not thumbnails.
 
 ## C2. ~~CONFIRMED — the caption is silently not copied~~ **BUILT 12 Sep 2026, build 4R**
 `handOff()` has two paths. When the card is already prepared, the copy happens on the tap and
@@ -271,13 +282,29 @@ the fault is invisible everywhere else. The same bug exists a second time in the
 
 **FIXED in build 4R** — the copy is now the first statement of the function, above the early
 return, on both paths. Verified by forcing the slow path and confirming the copy fires on the tap.
-**The invitation screen's version of the same bug is NOT fixed** and is still open.
+**The invitation screen's version is also FIXED, build 4T.** The words now go on the clipboard
+first, synchronously, before anything is drawn — so the note is always there — and the rich version
+with the card is attempted separately, handed over as a promise, which is the one shape Safari
+accepts for work that has not finished. Nothing claims the card was included unless the write
+actually resolved, and the fallback no longer says the words are copied as though it were news.
 **New invariant:** nothing may be inserted above that copy which waits for anything.
 
-## C3. "Update the sheet" does not update the sheet
+## C3. ~~"Update the sheet" does not update the sheet~~ **BUILT 12 Sep 2026**
 The Worker's publish only ever ADDS rows. Changing wording does nothing, removing a need does
 nothing, and changing a quantity can merge two needs into one. Only appending to the end works.
-The sheet is on a wall and the organiser has no way of knowing it is out of step. Half a day.
+**FIXED.** The rule that decided the shape: **a row somebody has claimed keeps its words.** They
+said yes to those words, and the app must never change what a person promised. So claimed rows are
+matched to needs rather than edited — only their grouping is corrected — and everything still wanted
+is poured into the free rows, with the leftovers retired.
+
+**The first attempt at this fix was wrong and testing caught it.** Rewriting by position lost a need
+outright the moment somebody inserted one at the front of a list with a claim held: the claimed row
+froze at the old position's words and the organiser's new need vanished. Positions are identity, not
+order — see invariant 11. Matching by words fixed it.
+
+**A claimed row whose need was deleted or reworded becomes an orphan**: kept, never deleted out from
+under the person holding it, counted, and reported back so the app can tell the organiser what it
+could not change. Six failure modes tested end to end against a real database.
 
 ## C4. The privacy promise on the sign-up page is not being kept
 The page tells every stranger their details are deleted thirty days after the day. The Worker does
@@ -356,6 +383,30 @@ they need; there is no friction to remove).
 **The single most useful competitive fact in the study:** SignUpGenius scores **4.5 stars on
 Trustpilot and 1.3 stars on the App Store.** The gap is ads and a crippled app. Both are things we
 have already refused.
+
+## C11. DECLINED — do not re-propose
+
+**The platform defaults on the setup step. RULED "leave it", 12 September 2026.**
+
+The question: setup's step three asks *Where do you post?* and arrives with Instagram and Facebook
+already ticked, so the app has effectively answered on behalf of somebody it has not met. Two
+alternatives were drawn and put to G — **A**, arrive with nothing ticked; and **C**, ask nothing at
+setup and put the question on the posting screen the first time somebody reaches it with an act in
+hand.
+
+**G: "we will not know what the user uses."** Then: **"leave it."**
+
+His observation is the reason, and it cuts against the alternatives rather than for them: if the app
+cannot know, then A only helps the person who engages with that step at all — and somebody who taps
+Start or Skip without touching anything ends up seeing *more* chips under A (all three, via the
+existing empty-state fallback) than under what ships today (two). The change would have improved the
+engaged case and worsened the disengaged one, which is the wrong way round.
+
+**What is already true and needs no change:** the hiding works — anything left unticked never appears
+on the posting screen; the adding-back works — the same three rows sit on the You screen with their
+handle fields; and ticking nothing shows all three rather than an empty screen, which is deliberate.
+
+**Closed.** Drawn for the record at `reviews/WHERE-YOU-POST.html`.
 
 ---
 
