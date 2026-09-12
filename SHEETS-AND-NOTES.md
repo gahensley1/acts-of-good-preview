@@ -262,6 +262,49 @@ column, both render exactly as before. Worst case — long story, all five detai
 six needs — still puts the first **I'll bring it** above the fold on a 390pt phone, at 610pt. No
 horizontal overflow. Screenshotted and looked at.
 
+## The example — RULED 23A, BUILT 12 September 2026
+
+Two testers hit the old example from opposite directions. Renata counted that **every one of the
+four things cost money** — bedding, pans, staples, a van — and said *I have four dollars and two
+hands and you've asked for neither.* Sherri, separately: *a family arriving in March* is the one
+example half her nine thousand women would read as a political position rather than a kindness.
+
+**Why an example is worth a ruling.** It is the only thing a first-time organiser sees before
+writing their own, and people copy the shape of what they are shown. The old one quietly taught
+every sheet made after it that a need costs money.
+
+**It was also not one example.** The placeholders had drifted into a mixture of two different acts —
+a voter-participation *why*, *Sips. Snacks. Stamps.* from the postcard party, a fire-station
+*where*, and a September 11 date. Nobody had ever read them top to bottom in one go.
+
+**So the whole example is act 22 now** — Jessica's meal for the eight on shift at Station No. 1,
+the act that produced this feature — and **G ruled that the last row costs nothing**: an hour and
+two hands, in his words, *someone to help drop off the thing*.
+
+| | was | now |
+|---|---|---|
+| Who it is for | For a family arriving in March | For the crew on shift at Station 1 |
+| Greeting | Dear neighbors on Oak Street, | Dear neighbors on the 600 block, |
+| What is happening | A few of us are putting a box together to meet them. | A few of us are putting a meal together. |
+| What is needed | *Add an item* ×4 | A pan of something hot / A gallon of sweet tea / Paper plates and napkins / **Someone to help drop it all off** |
+| A line under the title | Sips. Snacks. Stamps. | Hot food. Cold tea. One hour. |
+| Why | To encourage voter participation | They work while the rest of us are home |
+| Where | Fire Station #1, 535 E. 63rd | Fire Station No. 1, on East 63rd |
+| When / What time / Who's involved / Drop off | — | unchanged; they were already act 22's shape |
+
+**The street number came off the *where*.** Jessica's real flyer carries a real address and
+`act-library.md` flags it as never travelling into shipped material. A placeholder only has to show
+the *shape* of a location, so it names the station and the street and stops there.
+
+**Placeholders only.** They vanish the moment anybody types, and they are never stored, never
+published and never printed — verified by driving the builder and reading the sheet back.
+
+**A pre-existing defect this uncovered, named and not built:** a placeholder longer than one line is
+**clipped**, because the fields grow on input and nothing grows them for placeholder text. The old
+*box together to meet them* line was already being cut off and nobody had noticed. The new copy is
+written to fit, and every placeholder in the panel is now measured as fitting — but the underlying
+fault is still there and will bite the next long placeholder anybody writes.
+
 ## What it is
 
 Some acts are too big for one pair of hands. The app makes a **sheet** of what is needed and a
@@ -762,9 +805,10 @@ a domain, a splash page and a notes panel, and `index.html` did not change once.
 # OPEN, AND G'S TO RULE
 
 - **DECISIONS-OPEN.md** — twenty-three now. Items **18–23** are the sign-up sheet, from the panel.
-  **18, 19, 20 and 21 are ruled and built.** **22 is ruled and built** (the poster's type sizes and
-  *whatever you can*). **23 is the only one of the six still unruled** — 23A the act-22 shape,
-  23B always one free row, 23C leave it.
+  **All six — 18 through 23 — are now ruled and built.** 23 went 23A on 12 September, with G
+  changing the last row to somebody who helps drop it off. 23B — the app nudging every sheet to
+  carry a free row — was **not** ruled and stays available; it is the only one of the three that
+  reaches into somebody else's act.
 - **THE-WORDS.md** — eleven, unanswered. `3E·1 4A·1 5A 6 all 9A yes yes strip 7 later` clears them.
 - **THE-IDEAS.md** — 89 ideas to rewrite over the top of.
 - **X** — `HANDLE_KEYS` includes it, `PLATS` excludes it. One or the other, not both.

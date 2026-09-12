@@ -1277,7 +1277,7 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
     </div>
 
     <!-- BUILD MARK — dev only, delete this div when the app ships -->
-    <div id="buildtag">BUILD 4N</div>
+    <div id="buildtag">BUILD 4P</div>
   </div>
 </section>
 
@@ -5654,27 +5654,26 @@ function drawSheetPanel(){
        changing your mind costs nothing. */
     '<label class="asklab" for="ask-reason">Who it is for</label>'+
     '<div class="askrow"><textarea class="atx" rows="1" id="ask-reason" '+
-      'data-k="reason" oninput="askInput(this)" placeholder="For a family arriving in March" '+
+      'data-k="reason" oninput="askInput(this)" placeholder="For the crew on shift at Station 1" '+
       'aria-label="Who it is for"></textarea></div>'+
-    askOpt('greet','Open with a greeting','Dear neighbors on Oak Street,')+
+    askOpt('greet','Open with a greeting','Dear neighbors on the 600 block,')+
     '<label class="asklab" for="ask-lede">What is happening <span>(one or two lines)</span></label>'+
     '<div class="askrow"><textarea class="atx" rows="1" id="ask-lede" '+
-      'data-k="lede" oninput="askInput(this)" placeholder="A few of us are putting a box together '+
-      'to meet them." aria-label="What is happening"></textarea></div>'+
+      'data-k="lede" oninput="askInput(this)" placeholder="A few of us are putting a meal together." aria-label="What is happening"></textarea></div>'+
     '<label class="asklab">What is needed <span>(one per line)</span></label>'+
     rows.map((t,i)=>'<div class="askrow"><span class="adash">&mdash;</span><textarea class="atx" '+
       'rows="1" data-i="'+i+'" oninput="askInput(this)" onkeydown="askKey(event,this)" '+
-      'placeholder="Add an item" aria-label="Something needed"></textarea>'+
+      'placeholder="'+askEg(i)+'" aria-label="Something needed"></textarea>'+
       '<input class="aqty" inputmode="numeric" data-q="'+i+'" value="'+askQtyOf(i)+'" '+
         'placeholder="1" oninput="askQtyTyped(this)" aria-label="How many of this"></div>').join('')+
     '<p class="askhint">Return for the next item. Return twice to stop. '+
       'The box on the right is how many you need &mdash; leave it for one.</p>'+
-    askOpt('tag', 'A line under the title', 'Sips. Snacks. Stamps.')+
+    askOpt('tag', 'A line under the title', 'Hot food. Cold tea. One hour.')+
     '<label class="asklab">The details <span>(tick only what you need)</span></label>'+
-    askOpt('why',  'Why',             'To encourage voter participation')+
+    askOpt('why',  'Why',             'They work while the rest of us are home')+
     askOpt('when', 'When',            'Friday, September 11')+
     askOpt('time', 'What time',       '6:00 pm')+
-    askOpt('where','Where',           'Fire Station #1, 535 E. 63rd')+
+    askOpt('where','Where',           'Fire Station No. 1, on East 63rd')+
     askOpt('who',  "Who's involved",  'Neighbors on the 600 block')+
     askOpt('drop', 'Drop off',        'Any time before 5:30, at mine')+
     '<label class="asklab">Sign it</label>'+
@@ -5830,6 +5829,31 @@ function askStart(){
    a slot is — every existing read of sh.slots (the poster, the publish, the
    counting) goes on working untouched, and a sheet made before today simply has
    no counts and means one each. */
+/* RULED 23A, 12 September 2026 — the example is act 22, and one row is free.
+
+   Two testers hit the old example from opposite directions. Renata counted that
+   every one of the four things cost money — bedding, pans, staples, a van — and
+   said "I have four dollars and two hands and you've asked for neither."
+   Sherri, separately: a family arriving in March is the one example half her
+   nine thousand women would read as a political position rather than a kindness.
+
+   The example matters more than an example usually does, because it is the only
+   thing a first-time organiser sees before writing their own, and people copy
+   the shape of what they are shown. The old one quietly taught every sheet made
+   after it that a need costs money.
+
+   So it is act 22 now — Jessica's meal for the eight on shift at Station No. 1,
+   which is the act that produced this whole feature — and **the last row costs
+   nothing**: an hour and two hands. G's ruling, and G's words for that row.
+
+   Placeholders only. They vanish the moment anybody types and they are never
+   stored, never published and never printed. */
+const ASK_EG = ['A pan of something hot',
+                'A gallon of sweet tea',
+                'Paper plates and napkins',
+                'Someone to help drop it all off'];
+function askEg(i){ return ASK_EG[i] || 'Add an item'; }
+
 function askQty(){ const sh=askOf(); if(!sh) return []; if(!sh.qty) sh.qty=[]; return sh.qty; }
 function askQtyOf(i){ const n=askQty()[i]; return (n && n>1) ? n : ''; }
 function askQtyTyped(el){
