@@ -235,6 +235,17 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
 .atx{flex:1;border:0;background:none;font:inherit;font-size:15px;line-height:1.35;color:var(--ink);
   padding:7px 0 6px;resize:none;overflow:hidden;min-height:34px;width:100%}
 .atx:focus{outline:none}
+/* RULED 23B-as-A. A button, not a field — it holds nothing and cannot be
+   typed into. Dashed underline says "not yet real"; it warms on the press so
+   a tap is felt, and it lines up exactly with the rows above so the list does
+   not step sideways when it becomes one. */
+.freerow{width:100%;background:none;border:0;padding:0;text-align:left;
+  font:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.freerow .adash{color:#DDD3BE}
+.freerow .fgtx{flex:1;font-size:15px;line-height:34px;color:#C6BFB4;
+  border-bottom:1px dashed #DED7CB;text-align:left}
+.freerow:active .fgtx,.freerow:hover .fgtx{color:var(--muted);border-bottom-color:var(--coral)}
+.freerow:focus-visible{outline:2px solid var(--coral);outline-offset:2px;border-radius:4px}
 .askhint{font-size:11px;color:#B9B2A9;margin:2px 0 0;padding-left:24px}
 .askrow:has(> .atx:only-child) .atx{padding-left:0}
 /* The panel is a form, not a free page — each part says what it is, so nobody
@@ -1277,7 +1288,7 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
     </div>
 
     <!-- BUILD MARK — dev only, delete this div when the app ships -->
-    <div id="buildtag">BUILD 4P</div>
+    <div id="buildtag">BUILD 4Q</div>
   </div>
 </section>
 
@@ -5666,6 +5677,12 @@ function drawSheetPanel(){
       'placeholder="'+askEg(i)+'" aria-label="Something needed"></textarea>'+
       '<input class="aqty" inputmode="numeric" data-q="'+i+'" value="'+askQtyOf(i)+'" '+
         'placeholder="1" oninput="askQtyTyped(this)" aria-label="How many of this"></div>').join('')+
+    /* RULED 23B-as-A: the standing free row. Hidden only while it is already
+       the thing being typed, so it never sits directly under itself. */
+    (rows.some(t=>String(t||'').trim()===ASK_FREE)?'':
+      '<button class="askrow freerow" type="button" onclick="askFreeRow()" '+
+        'aria-label="Add a row that costs nothing: '+ASK_FREE+'">'+
+        '<span class="adash">&mdash;</span><span class="fgtx">'+ASK_FREE+'</span></button>')+
     '<p class="askhint">Return for the next item. Return twice to stop. '+
       'The box on the right is how many you need &mdash; leave it for one.</p>'+
     askOpt('tag', 'A line under the title', 'Hot food. Cold tea. One hour.')+
@@ -5850,9 +5867,44 @@ function askStart(){
    stored, never published and never printed. */
 const ASK_EG = ['A pan of something hot',
                 'A gallon of sweet tea',
-                'Paper plates and napkins',
-                'Someone to help drop it all off'];
+                'Paper plates and napkins'];
 function askEg(i){ return ASK_EG[i] || 'Add an item'; }
+
+/* RULED 23B-as-A, 12 September 2026 — the row that costs nothing, always there.
+
+   The example alone did not finish the job. A placeholder vanishes the moment
+   somebody types over it, so the person most likely to build a wall of
+   receipts — the one who fills the list — was exactly the person who never
+   saw the free row. So it stops being an example and becomes a standing one:
+   a greyed line under whatever has been typed, however long the list gets.
+
+   G's ruling and G's framing: *"it's up to them whether they change it or
+   not. We can't force them to do that. That's just a nudge."* So it is the
+   notes panel's ghost circle again — a faint thing you tap to make real —
+   and never a rule, a warning or a required field.
+
+   It holds no value of its own. It is a plain div, not a field: it cannot be
+   typed into, it is never stored, and it never reaches the poster or the page
+   unless somebody taps it, at which point it becomes an ordinary row they can
+   rewrite to whatever their act actually needs. */
+/* NAME COLLISION, caught by testing: askFree(pos) already existed from build 4L
+   — the organiser's "Free it", which releases a claimed row. Two function
+   declarations with one name: the later one wins, silently, so this one was
+   calling the release with no position and doing nothing at all. Hence
+   askFreeRow. Check a name is free before using it, functions included. */
+const ASK_FREE = 'Someone to help deliver the food';
+function askFreeRow(){
+  const sh=askOf(); if(!sh) return;
+  const q=askQty();
+  /* an empty last row is the one being offered — fill it rather than adding
+     a second blank underneath it */
+  const last=sh.slots.length-1;
+  if(last>=0 && !String(sh.slots[last]||'').trim()){ sh.slots[last]=ASK_FREE; if(!q[last]) q[last]=1; }
+  else { sh.slots.push(ASK_FREE); q.push(1); }
+  workKeep(); save(); drawSheetPanel();
+  const el=document.querySelector('#wk-ask .atx[data-i="'+(sh.slots.length-1)+'"]');
+  if(el){ el.focus(); el.setSelectionRange(el.value.length, el.value.length); askGrow(el); }
+}
 
 function askQty(){ const sh=askOf(); if(!sh) return []; if(!sh.qty) sh.qty=[]; return sh.qty; }
 function askQtyOf(i){ const n=askQty()[i]; return (n && n>1) ? n : ''; }
