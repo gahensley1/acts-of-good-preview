@@ -24,6 +24,11 @@ From the `acts-of-good` skill, and they hold here without exception:
 - **§1 Ask before you build.** Do the thing asked, nothing else. Adjacent findings get named in
   the message, not built.
 - **§2 No copy change lands silently.** Show before/after with the reason.
+- **Read a file back off his disk after writing it.** 12 Sep: one `index.html` write reported
+  success, the mirror got the new build, and `aog-push` — the copy git pushes — was left holding
+  the previous one. He ran the commit in good faith and pushed a build behind, and I had already
+  told him it was done. A write that reports success is not a write that landed. Stage it back and
+  compare the bytes, every time, before saying a build is ready to push.
 - **§3 The settled three are closed** — the half-act, "How did it go?", "Act n of N".
 - **§4 No script or cursive faces, ever.** The only handwriting is Jessica's traced signature.
 - G rules by letter and number. Show options as **rendered A/B visuals**, never prose lists.
