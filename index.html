@@ -258,6 +258,11 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
 .claimrow{display:flex;gap:9px;align-items:center;padding:9px 0;border-top:1px solid var(--line);font-size:13px}
 .claimrow .cn{flex:1;line-height:1.35}
 .claimrow .cw{font-size:11px;color:var(--muted);margin-top:2px;display:block}
+/* Putting a row back. The organiser's half of the panel's unanimous finding:
+   most people who cannot come will text you rather than open the page, so the
+   place the news arrives has to be the place you can act on it. */
+.claimrow .cfree{flex:none;font-size:11px;font-weight:600;color:var(--muted);background:none;
+  border:0;padding:6px 0 6px 10px;min-height:34px;text-decoration:underline}
 .claimrow a{color:var(--coralink);font-size:11px;font-weight:600;text-decoration:none;
   border:1px solid #EFC6BD;border-radius:20px;padding:7px 11px;min-height:34px;
   display:inline-flex;align-items:center}
@@ -402,10 +407,17 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
 .pgt .pl{position:absolute;inset:0.28in;border:1.5px solid #D9BC6B;pointer-events:none}
 .pgt.half .pl{inset:0.2in;border-width:1px}
 
-.pgt .pe{font-size:15pt;text-transform:uppercase;letter-spacing:.19em;color:#C03F2B;
+/* RULED 12 Sept (22A/F): the ask up 25%, the black title up 15%. They used to
+   be the same size with an even rule between them, so neither was the headline
+   and at walking distance you could not tell what the poster was about. 15% on
+   the ask alone was drawn and did almost nothing — at that distance colour is
+   doing the work and a small step is noise. The title's 15% also fixes a fault
+   nobody had named: it was SMALLER than the paragraph beneath it, which is
+   backwards. fitPlate() still steps the whole plate down if it overruns. */
+.pgt .pe{font-size:18.8pt;text-transform:uppercase;letter-spacing:.19em;color:#C03F2B;
   font-weight:700;margin:0}
 .pgt .pr{width:0.62in;border-top:3px solid #E1BA52;margin:0 auto}
-.pgt .pt{font-size:15pt;font-weight:700;text-transform:uppercase;letter-spacing:.11em;
+.pgt .pt{font-size:17.3pt;font-weight:700;text-transform:uppercase;letter-spacing:.11em;
   color:#000;line-height:1.42;margin:0;text-wrap:balance}
 .pgt .pd{font-size:13pt;line-height:1.6;color:#3A342C;margin:0;text-align:left}
 .pgt ul{list-style:none;margin:0;padding:0;text-align:left;width:100%}
@@ -1257,7 +1269,7 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
     </div>
 
     <!-- BUILD MARK — dev only, delete this div when the app ships -->
-    <div id="buildtag">BUILD 4K</div>
+    <div id="buildtag">BUILD 4L</div>
   </div>
 </section>
 
@@ -5937,9 +5949,22 @@ function drawClaims(){
   if(!sh || !(sh.claims||[]).length){ el.innerHTML=''; return; }
   el.innerHTML=sh.claims.map(c=>{
     const got=!!c.name;
+    /* RULED 18·3, 12 Sept: the message you send them carries the sheet link.
+       These two links used to open an empty message and leave you to type it,
+       which meant the only people who could ever hand a thing back were the
+       ones who happened to walk past the poster again. Now everybody who took
+       a row has the way out sitting in a message from somebody they know. The
+       middle is left blank on purpose — where and when are yours. */
+    const body = 'Hi '+(c.name||'')+' \u2014 thank you for taking '+(c.text||'')+'.'+
+      '\n\n\n\nIf anything changes you can hand it back here, no explaining needed:\n'+
+      AOG_BASE+'/a/'+(sh.id||'');
     const reach=c.contact ? (/@/.test(c.contact)
-      ? '<a href="mailto:'+esc2(c.contact)+'">Email</a>'
-      : '<a href="sms:'+esc2(c.contact)+'">Message</a>') : '';
+      ? '<a href="mailto:'+esc2(c.contact)+'?subject='+encodeURIComponent(c.text||'')+
+        '&body='+encodeURIComponent(body)+'">Email</a>'
+      /* ?&body= is the spelling both iOS and Android accept */
+      : '<a href="sms:'+esc2(c.contact)+'?&body='+encodeURIComponent(body)+'">Message</a>') : '';
+    const free = got ? '<button class="cfree" type="button" onclick="askFree('+
+      (c.pos!=null?c.pos:'null')+')">Free it</button>' : '';
     /* Their words, under their name. This is the only thing a stranger can
        send back, and on an anonymous sheet it is the only channel there is.
        Escaped like everything else on this row: it is typed by the public. */
@@ -5948,8 +5973,42 @@ function drawClaims(){
       '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5" '+
       'stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>':'')+'</span>'+
       '<span class="cn">'+esc2(c.text||'')+(got?'<span class="cw">'+esc2(c.name)+
-      (c.contact?' · '+esc2(c.contact):'')+'</span>':'')+said+'</span>'+reach+'</div>';
+      (c.contact?' · '+esc2(c.contact):'')+'</span>':'')+said+'</span>'+reach+free+'</div>';
   }).join('');
+}
+
+/* Somebody texted to say they cannot make it after all. The Worker takes an
+   owner release — the same route the claimer's own phone uses, but proved by
+   the sheet's key instead of by their key — so the row simply opens again for
+   the next person. Nothing is sent and nobody is named. */
+async function askFree(pos){
+  const sh=askOf(); if(!sh || pos==null) return;
+  const c=(sh.claims||[]).find(x=>x && x.pos===pos) || {};
+  checkFirst('Put it back on the list?',
+    (c.name? c.name+' had ' : 'Somebody had ')+'\u201C'+(c.text||'this')+'\u201D. '+
+    'It goes back to being something that needs doing, and their name comes off. '+
+    'Nothing is sent to them.',
+    'Put it back',
+    async ()=>{
+      const key=askKeyGet(); if(!key) return;
+      try{
+        const r=await fetch(AOG_BASE+'/a/'+sh.id+'/release',{method:'POST',
+          headers:{'content-type':'application/json','authorization':'Bearer '+key},
+          body:JSON.stringify({pos:pos})});
+        const j=await r.json().catch(()=>({}));
+        if(!r.ok || j.error){
+          say('That did not go through', j.error==='not yet'
+            ? 'The sheet needs its newest update before rows can be put back.'
+            : 'Try once more in a moment.');
+          return;
+        }
+        /* show it immediately, then let the next look confirm it */
+        const row=(sh.claims||[]).find(x=>x && x.pos===pos);
+        if(row){ row.name=''; row.contact=''; row.note=''; }
+        workKeep(); save(); drawClaims(); drawAsk();
+        undoBar('Put back on the list', ()=>{}, ()=>{});
+      }catch(e){ say('No connection','Try again in a moment.'); }
+    }, 'Leave it');
 }
 
 /* ── the code ────────────────────────────────────────────────────────────
@@ -6052,9 +6111,16 @@ function posterPanel(sh, half){
       ? '<p class="ps">I hope you\u2019ll join us.</p>'
       : '<div class="pq">'+askQR(sh.id, half?150:260)+'</div>'+
         '<p class="pfh">Scan this to sign up</p>'+
+        /* RULED 12 Sept. Two changes, and the first is a promise, not a
+           rewording: "the one thing" became "whatever you can" on G's ruling,
+           knowing it lets one person take two or three. Nothing ever stopped
+           them; the paper simply never said so. The second line is 18·5 —
+           scanning the code again already recognised somebody and offered them
+           the way out, and until now nothing anywhere told them. */
         '<p class="pf">Hold your phone\u2019s camera over the square. It opens this same '+
-          'list. Put your name against the one thing you can bring. '+
-          'No account, nothing to install.</p>'+
+          'list. Put your name against whatever you can bring. '+
+          'No account, nothing to install.<br>'+
+          'Scan it again any time to edit.</p>'+
         '<p class="pu">Or type <b>actsofgood.app/a/'+esc2(sh.id)+'</b> into any browser.</p>')+
     call+
     '<p class="pm">50 acts of good</p></div>';

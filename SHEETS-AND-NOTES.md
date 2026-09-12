@@ -274,6 +274,14 @@ shows; their calendar reminds. That is what keeps it small and out of deliverabi
 
 ## The poster
 
+**The block below is the 6 September sketch and the shipped poster is RICHER than it** — it has a
+heading over the code, a longer instruction, the address in plain text, an optional greeting,
+tagline, signature, picture and a labelled details table, and `fitPlate()` measures the finished
+plate and steps the whole thing down until it fits the paper. Read `posterPanel()` for the truth.
+The rulings of 12 September are applied **in the code**: the ask at 18.8pt (+25%), the title at
+17.3pt (+15%), *whatever you can bring* in place of *the one thing you can bring*, and
+*Scan it again any time to edit.* added under it.
+
     WE COULD USE A HAND            (coral, small caps — RULED 12 Sep at +25% on
                                     the old size. The headline of the sheet.)
     ———                            (gold rule, 21.5px above and below — equal)
@@ -374,17 +382,45 @@ worked. It is the only field test this design will get before a stranger's wall.
 **The panel read this poster as finished rather than asking** — see "What the panel found" above,
 and items 22 and 23 in `DECISIONS-OPEN.md`.
 
-## What the app side still needs (NOT BUILT)
+## What the app side still needs — CORRECTED 12 September 2026
 
-In `index.html`, on an act in the works:
+**This section said NOT BUILT. It was wrong, in the same way Part Two was wrong about the notes
+panel.** Read before believing any list in this file. Verified in the source of build 4K, every
+one of these already exists in `index.html`:
 
-- **"Ask for help with this"** → type the needs, pick the date
-- Generate the id and the poster **on the phone**, before publishing
-- Publish with one `PUT`, carrying the key
-- Draw the QR offline
-- The printable poster
-- Read claims back: poll `/a/:id.json` when the act is opened, show name and contact, free a row
-  (the Worker already accepts an owner release — see "Handing a thing back")
+- ~~"Ask for help with this" → type the needs, pick the date~~ — `askStart`, `askInput`, `askKey`
+- ~~Generate the id and the poster on the phone~~ — `sheetId`, `sheetToken`, `askPoster`,
+  `posterPanel`
+- ~~Publish with one `PUT`, carrying the key~~ — `askPublish`, against `AOG_BASE`
+- ~~Draw the QR offline~~ — `askQR`, with qrcode-generator inlined, no network
+- ~~The printable poster~~ — built, and it carries an "or just call or text" line
+- ~~Read claims back~~ — `askRefresh` polls `/a/:id.json` with the key; `drawClaims` lists each
+  claimer with an Email or Message link
+
+**So the sheet is end-to-end already, and "no network calls" ended some time ago.**
+
+### All three of these were BUILT as build 4L, 12 September 2026
+
+1. **Free a row from the app — done.** Every taken row in the claims list carries a quiet
+   **Free it**. It asks once (*"Put it back on the list?"* / Leave it / Put it back), then posts to
+   the Worker's release route proved by the sheet's own key, and the row opens again for the next
+   person. Nothing is sent and nobody is named. **This is the organiser's half of the panel's
+   unanimous finding** — most people who cannot come will text you rather than open the page.
+2. **Ruling 18·3 — done.** The Email and Message links are no longer bare. Both open prefilled:
+   *Hi {name} — thank you for taking {thing}.* then **four blank lines left deliberately empty,
+   because where and when are the organiser's words**, then *If anything changes you can hand it
+   back here, no explaining needed:* and the sheet address. The text link uses `?&body=`, which is
+   the spelling both iOS and Android accept.
+3. **The poster's ruled sizes and copy — done.** Measured in the rendered plate afterwards: the ask
+   at 25.07px against the title's 23.07px, where both used to be 20px.
+
+*Named and not built, because nobody asked: the sign-up builder's own hint still says "Return twice
+to stop", which is correct for that list (it has no circles) but now differs from the notes panel's
+hint. Two list editors, two behaviours, two hints.*
+
+Blocked behind rulings, and building them now would mean building them twice: **20** (quantities
+changes the row model), **21** (what the page shows before somebody commits), **23** (the example).
+**19** is independent and small.
 - **The message you send them must carry the sheet link — RULED 18·3, 12 September 2026.** When
   the app writes the message telling a claimer where and when, **the link to the sheet rides along
   in it.** This is not a nicety: a claimer has no app, no account and no bookmark, so without it

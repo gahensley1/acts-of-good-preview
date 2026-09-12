@@ -61,7 +61,35 @@ returns a blank browser error, and paper outlives the act it advertises.
 Six rulings are now waiting on G, written up plainly as items **18–23** in
 `DECISIONS-OPEN.md`. Nothing is built.
 
-## BUILD 4K — the notes panel holds prose (12 September, ON DISK, NOT PUSHED)
+## BUILD 4L — the three unblocked sheet items (12 September, ON DISK, NOT PUSHED)
+
+**And a second piece of drift, bigger than the first: the sign-up sheet's app side was already
+built too.** `SHEETS-AND-NOTES.md` listed six things as NOT BUILT — making a sheet, generating the
+id and poster on the phone, publishing with a PUT, drawing the QR offline, the printable poster,
+reading claims back — and **every one of them was already in the file**: `askStart`, `askPublish`,
+`askQR`, `askPoster`, `posterPanel`, `askRefresh`, `drawClaims`, against `AOG_BASE`. So "no network
+calls" ended some time ago. Corrected in the brief. **Open the source before believing any list in
+any document here — that is twice in one night.**
+
+**What 4L adds, all three ruled and unblocked:**
+
+1. **Free it** — every taken row in the claims list can be put back. Asks once, then posts to the
+   Worker's release route proved by the sheet's own key; the row opens again, nothing is sent,
+   nobody is named. The organiser's half of the panel's unanimous finding.
+2. **Ruling 18·3** — the Email and Message links open prefilled, carrying the sheet address, with
+   the middle left blank because where and when are his words. `?&body=` for the text link, which
+   both iOS and Android accept.
+3. **The poster's ruled sizes and copy** — ask 18.8pt, title 17.3pt, *whatever you can bring* in
+   place of *the one thing you can bring*, and *Scan it again any time to edit.* under it.
+
+**Verified:** scripts extracted, `node --check` clean. Driven headless at 390×844 with a live sheet
+and two claims — Free it appears on the two taken rows and not the open one, both links decode with
+the sheet address in them, the confirm reads correctly, and the rendered poster measures 25.07px
+against 23.07px where both were 20px. **Zero page errors.** Poster screenshotted and looked at.
+
+**Still blocked on rulings: 20, 21, 23.** 19 is independent and small.
+
+## BUILD 4K — the notes panel holds prose (12 September, pushed as `27f94d6`)
 
 **`index.html` changed for the first time today.** Both folders are at **4K** and byte-identical;
 the live site is still 4J until G pushes.
