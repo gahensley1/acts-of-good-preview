@@ -225,6 +225,13 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
 .askrolled .chev{flex:none;color:var(--muted);font-size:15px}
 .askrow{display:flex;gap:8px;align-items:flex-start;min-height:34px}
 .askrow .adash{flex:none;width:16px;text-align:center;color:var(--gold);font-weight:700;line-height:34px}
+/* RULED 20A: how many pairs of hands this one need wants. Blank means one, so
+   a sheet anybody made before today reads exactly as it did, and nobody is
+   asked to think about a number they do not have. */
+.askrow .aqty{flex:none;width:44px;min-height:34px;border:1px solid var(--line);border-radius:9px;
+  background:#fff;font:inherit;font-size:14px;text-align:center;color:var(--ink);padding:6px 2px}
+.askrow .aqty::placeholder{color:#C6BFB4}
+.askrow .aqty:focus{outline:none;border-color:var(--coral)}
 .atx{flex:1;border:0;background:none;font:inherit;font-size:15px;line-height:1.35;color:var(--ink);
   padding:7px 0 6px;resize:none;overflow:hidden;min-height:34px;width:100%}
 .atx:focus{outline:none}
@@ -255,6 +262,7 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
   padding-top:12px;border-top:1px solid var(--line)}
 .qrwrap svg{display:block}
 .qrlink{font-size:11.5px;color:var(--coralink);word-break:break-all;text-align:center;margin:0}
+.pgt .pqty{color:#C03F2B;font-weight:700}
 .claimrow{display:flex;gap:9px;align-items:center;padding:9px 0;border-top:1px solid var(--line);font-size:13px}
 .claimrow .cn{flex:1;line-height:1.35}
 .claimrow .cw{font-size:11px;color:var(--muted);margin-top:2px;display:block}
@@ -1269,7 +1277,7 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
     </div>
 
     <!-- BUILD MARK — dev only, delete this div when the app ships -->
-    <div id="buildtag">BUILD 4L</div>
+    <div id="buildtag">BUILD 4N</div>
   </div>
 </section>
 
@@ -5656,8 +5664,11 @@ function drawSheetPanel(){
     '<label class="asklab">What is needed <span>(one per line)</span></label>'+
     rows.map((t,i)=>'<div class="askrow"><span class="adash">&mdash;</span><textarea class="atx" '+
       'rows="1" data-i="'+i+'" oninput="askInput(this)" onkeydown="askKey(event,this)" '+
-      'placeholder="Add an item" aria-label="Something needed"></textarea></div>').join('')+
-    '<p class="askhint">Return for the next item. Return twice to stop.</p>'+
+      'placeholder="Add an item" aria-label="Something needed"></textarea>'+
+      '<input class="aqty" inputmode="numeric" data-q="'+i+'" value="'+askQtyOf(i)+'" '+
+        'placeholder="1" oninput="askQtyTyped(this)" aria-label="How many of this"></div>').join('')+
+    '<p class="askhint">Return for the next item. Return twice to stop. '+
+      'The box on the right is how many you need &mdash; leave it for one.</p>'+
     askOpt('tag', 'A line under the title', 'Sips. Snacks. Stamps.')+
     '<label class="asklab">The details <span>(tick only what you need)</span></label>'+
     askOpt('why',  'Why',             'To encourage voter participation')+
@@ -5814,6 +5825,23 @@ function askStart(){
   workKeep(); save(); drawSheetPanel();
 }
 
+/* RULED 20A, 12 September 2026. A need can want more than one pair of hands.
+   The counts ride in their OWN array beside sh.slots rather than changing what
+   a slot is — every existing read of sh.slots (the poster, the publish, the
+   counting) goes on working untouched, and a sheet made before today simply has
+   no counts and means one each. */
+function askQty(){ const sh=askOf(); if(!sh) return []; if(!sh.qty) sh.qty=[]; return sh.qty; }
+function askQtyOf(i){ const n=askQty()[i]; return (n && n>1) ? n : ''; }
+function askQtyTyped(el){
+  const q=askQty(), i=+el.dataset.q;
+  let n=parseInt(String(el.value).replace(/[^0-9]/g,''),10);
+  if(!(n>1)) n=1;
+  if(n>40) n=40;                     // the Worker's ceiling, said the same here
+  q[i]=n;
+  if(n>40 || String(el.value).replace(/[^0-9]/g,'')!==String(el.value)) el.value = n>1?n:'';
+  workKeep(); save();
+}
+
 function askInput(el){
   const sh=askOf(); if(!sh) return;
   if(el.dataset.k) sh[el.dataset.k]=el.value.replace(/\n/g,' ');
@@ -5827,15 +5855,21 @@ function askKey(e,el){
   if(e.key==='Enter'){
     e.preventDefault();
     sh.slots[i]=el.value;
-    if(!sh.slots[i].trim()){ if(sh.slots.length>1) sh.slots.splice(i,1); save(); drawSheetPanel(); el.blur(); return; }
-    sh.slots.splice(i+1,0,''); save(); drawSheetPanel();
+    /* A count belongs to the line it was typed against. Splice one and you must
+       splice the other, or twelve casseroles quietly become twelve vans. */
+    const q=askQty();
+    if(!sh.slots[i].trim()){
+      if(sh.slots.length>1){ sh.slots.splice(i,1); q.splice(i,1); }
+      save(); drawSheetPanel(); el.blur(); return;
+    }
+    sh.slots.splice(i+1,0,''); q.splice(i+1,0,1); save(); drawSheetPanel();
     const nx=document.querySelector('#wk-ask .atx[data-i="'+(i+1)+'"]'); if(nx) nx.focus();
     return;
   }
   if(e.key==='Backspace' && el.selectionStart===0 && el.selectionEnd===0 && i>0){
     e.preventDefault();
     sh.slots[i-1]=(sh.slots[i-1]||'')+(el.value||'');
-    sh.slots.splice(i,1); save(); drawSheetPanel();
+    sh.slots.splice(i,1); askQty().splice(i,1); save(); drawSheetPanel();
     const pv=document.querySelector('#wk-ask .atx[data-i="'+(i-1)+'"]'); if(pv) pv.focus();
   }
 }
@@ -5864,13 +5898,34 @@ function askKeyGet(){
 
 async function askPublish(){
   const sh=askOf(); if(!sh) return;
-  const slots=(sh.slots||[]).map(s=>String(s).trim()).filter(Boolean);
+  /* keep each need's count with it as the blanks are dropped */
+  const q=sh.qty||[];
+  const needs=(sh.slots||[]).map((t,i)=>({text:String(t).trim(), n:(q[i]>1?q[i]:1)}))
+                            .filter(x=>x.text);
+  const slots=needs;
   if(!slots.length){ say('Nothing on it yet','Add at least one thing that is needed.'); return; }
+  /* RULED 21A, 12 September 2026 — the page shows what the poster shows.
+
+     Four of seven testers stopped on "Someone with a van, Saturday morning."
+     Trent: "I need to know if it's forty minutes away before I promise my
+     Saturday." None of them asked for the address — they wanted to know
+     whether they could be there at all. The printed poster has carried the
+     ticked details table all along; only the page never got it, because this
+     function sent four fields and the details were not among them.
+
+     The drop-off line is the one that stays on paper. It is somebody's front
+     door. A poster on a noticeboard is read by the street; a link is read by
+     the internet, and those are not the same audience. */
+  const on=sh.on||{};
+  const fact=k=> on[k] ? String(sh[k]||'').trim().slice(0,140) : '';
+  const facts={ why:fact('why'), when:fact('when'), time:fact('time'),
+                where:fact('where'), who:fact('who') };
   const key=askKeyGet(); if(!key) return;
   try{
     const r=await fetch(AOG_BASE+'/a/'+sh.id,{method:'PUT',
       headers:{'content-type':'application/json','authorization':'Bearer '+key},
-      body:JSON.stringify({reason:sh.reason||'',lede:sh.lede||'',when:(WK&&WK.d)||'',slots:slots})});
+      body:JSON.stringify({reason:sh.reason||'',lede:sh.lede||'',when:(WK&&WK.d)||'',
+                           facts:facts,slots:slots})});
     if(r.status===401){
       say('This sheet is not yours',
           'It was made on another phone. Make a new sheet and it is yours.'); return; }
@@ -5943,11 +5998,38 @@ function goClaims(){
   if(w) openWork(w);
 }
 
+/* small numbers as words, the same as the sheet page uses */
+function numWordN(n){
+  const W=['','one','two','three','four','five','six','seven','eight','nine','ten','eleven','twelve'];
+  return W[n] || String(n);
+}
 function drawClaims(){
   const el=$('wk-claims'), sh=askOf();
   if(!el) return;
   if(!sh || !(sh.claims||[]).length){ el.innerHTML=''; return; }
-  el.innerHTML=sh.claims.map(c=>{
+  /* RULED 20A. A need that wants twelve comes back as twelve places. Listing
+     every empty one is a wall of nothing, so the ones still going spare are
+     collapsed into a single line and only the people are listed. */
+  const rows=[], byG=new Map();
+  (sh.claims||[]).forEach(c=>{
+    if(!c) return;
+    const k = (c.grp==null ? 'p'+c.pos : 'g'+c.grp);
+    if(!byG.has(k)) byG.set(k,{text:c.text||'',taken:[],free:0});
+    const g=byG.get(k);
+    if(c.name) g.taken.push(c); else g.free++;
+  });
+  byG.forEach(g=>{
+    g.taken.forEach(c=>rows.push(c));
+    if(g.free) rows.push({_gap:1, text:g.text, free:g.free, total:g.taken.length+g.free});
+  });
+  el.innerHTML=rows.map(c=>{
+    if(c._gap){
+      const w=numWordN(c.free);
+      return '<div class="claimrow"><span class="ctick off"></span><span class="cn">'+
+        esc2(c.text)+'<span class="cw">'+
+        (c.total>1 ? w+' of '+numWordN(c.total)+' still going spare' : 'still going spare')+
+        '</span></span></div>';
+    }
     const got=!!c.name;
     /* RULED 18·3, 12 Sept: the message you send them carries the sheet link.
        These two links used to open an empty message and leave you to type it,
@@ -6039,7 +6121,12 @@ function askQR(id, px){
    page to cut apart and hand over at a door — which is how Jessica actually
    works a street. Same words either way; only the scale changes. */
 function posterPanel(sh, half){
-  const needs=(sh.slots||[]).map(s=>String(s).trim()).filter(Boolean);
+  /* the counts, kept beside the needs and dropped in step with the blanks */
+  const rawQ = sh.qty || [];
+  const keptQ = [];
+  const needs=(sh.slots||[]).map((s,i)=>({t:String(s).trim(), n:rawQ[i]}))
+    .filter(x=>x.t).map(x=>{ keptQ.push(x.n>1?x.n:1); return x.t; });
+  const qtyAt = i => keptQ[i] || 1;
   /* a short list is read from a distance; a long one has to fit. */
   const n = needs.length;
   /* the labelled facts, straight off Jessica's own handout. Any line left blank
@@ -6096,7 +6183,10 @@ function posterPanel(sh, half){
     (sh.lede?'<p class="pd">'+esc2(sh.lede)+
       (pick('sign') ? '<span class="psg">&mdash; '+esc2(sh.sign)+'</span>' : '')+
       '</p>':'')+
-    (invite?'':'<ul>'+needs.map(t=>'<li><span>&mdash;</span>'+esc2(t)+'</li>').join('')+'</ul>'+
+    /* RULED 20A: a need that wants several says so on the paper, or the person
+       reading it cannot tell whether they are still wanted. */
+    (invite?'':'<ul>'+needs.map((t,i)=>'<li><span>&mdash;</span>'+esc2(t)+
+      (qtyAt(i)>1?'<b class="pqty"> \u00d7'+qtyAt(i)+'</b>':'')+'</li>').join('')+'</ul>'+
       '<p class="ps">Take whichever is easiest for you. That\u2019s the whole of it.</p>')+
     (facts.length
       ? '<div class="pfx">'+facts.map(f=>'<b>'+f[0]+':</b><span>'+esc2(f[1])+'</span>').join('')+'</div>'

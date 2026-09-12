@@ -183,6 +183,85 @@ another person's row reads *In good hands* with none, hand it back, confirm the
 row reopens and stays open after a reload. Zero page errors. A release sent with
 a wrong key is refused.
 
+## How many a need wants — RULED 20A, BUILT 12 September 2026
+
+Three of seven testers hit this independently and act 22 required it: a row used to be one thing
+for one person, so "twelve casseroles" had to be typed twelve times, and nothing ever said how many
+were still wanted. Marcus: *ask my church for pantry staples and you will get eleven bags of rice in
+a hall on a Tuesday.*
+
+**The model, and why it is safe.** A need is now a **group of rows** sharing a `grp`. Twelve
+casseroles is twelve rows. **One row still holds one name**, so the compare-and-swap that stops two
+people bringing the same pans, the release, and the nightly retention wipe are all *exactly* as they
+were — only the shape of the list changed, never the shape of a claim. A need arrives at the Worker
+either as a plain string (one pair of hands) or as `{text, n}`, so **an old app against the new
+Worker works untouched** and deploy order cannot bite. Ceiling of forty, because one stray keystroke
+should not write nine thousand rows into somebody's act.
+
+**What a stranger sees.** One line per need, not per place: *A casserole — **Nine still wanted***.
+Taking one counts it down to eight and the button moves on to the next free place rather than
+closing. When they are all gone the line reads *All twelve in good hands*. If this phone holds one
+of them, the way out appears underneath, labelled **You took one of these**.
+
+**What the organiser sees.** People are listed one by one, with their message link and their
+*Free it*; the places still going spare collapse into a single line — *A casserole — two of four
+still going spare* — instead of a wall of empty rows.
+
+**On the poster.** A need that wants several says so: **A casserole ×12**. One pair of hands says
+nothing, as before.
+
+**Two things that had to move together:** the counts live in their own array beside `sh.slots`
+rather than changing what a slot is, so every existing read of the slots keeps working — and
+Return and Backspace in the builder splice both arrays, or twelve casseroles quietly become twelve
+vans.
+
+**Two bugs found by building it**, one of them pre-existing: the claim button stayed disabled
+reading *One moment…* after a successful claim, which never mattered when nobody claimed twice from
+one page and matters constantly now; and the page advanced to the next place in the whole group
+rather than the next **free** one.
+
+**Verified end to end** against a sheet of fourteen places in three needs: the list collapses to
+three lines, *Nine still wanted* counts down to eight and then seven, it survives a reload, handing
+one back puts it to eight, and another phone sees eight with no way out of its own. Zero page
+errors. Poster and claims list screenshotted and looked at.
+
+## What the page says, and what stays on paper — RULED 21A, BUILT 12 September 2026
+
+**The problem, in one line.** The printed poster has always carried a ticked table of *why, when,
+what time, where* and *who*. The page carried **none of it**. It showed what was needed and never
+when or where.
+
+Four of seven testers stopped on *Someone with a van, Saturday morning* and would not promise.
+Trent: *I need to know if it's forty minutes away before I promise my Saturday.* **Not one of them
+asked for the address.** They were not trying to find the place. They were trying to work out
+whether they could be there at all — and the app already knew, and never said.
+
+**What it took.** More than a display change. `askPublish` sent four fields — reason, lede, date,
+slots — and the details were not among them, so the Worker had never seen them and had nowhere to
+put them. The app now sends a `facts` object; the Worker whitelists five keys, caps each at 140
+characters, stores them as one JSON column and prints them in a card between the story and the
+list. **Above the list, deliberately** — it is what a person needs *before* they promise a
+Saturday, not after.
+
+**The drop-off line stays on paper, and that is the whole of the privacy ruling here.** It is
+somebody's front door. A poster on a noticeboard is read by the street; a link is read by the
+internet, and those are not the same audience. It is blocked **twice**: the app never sends it, and
+the Worker would refuse to store it if a malformed client did. Tested by deliberately sending it.
+
+**One thing fell out for free.** Once the page knows *where*, so does the calendar reminder —
+the `.ics` now carries `LOCATION:`, which is the line that makes a calendar entry open a map.
+
+**An older phone cannot strip a sheet's details.** A publish that never mentions `facts` leaves the
+column alone; a publish that does mention it writes what it sends, so unticking *Where* in the app
+does take it off the page. Both directions tested.
+
+**Verified:** publish body carries the five and not the sixth, across a real reload. Worker stores
+what is whitelisted and nothing else — an injected `<script>` and the drop-off line both refused.
+Page renders the card, one detail or five. A sheet with no facts, and a sheet with garbage in the
+column, both render exactly as before. Worst case — long story, all five details at full length,
+six needs — still puts the first **I'll bring it** above the fold on a 390pt phone, at 610pt. No
+horizontal overflow. Screenshotted and looked at.
+
 ## What it is
 
 Some acts are too big for one pair of hands. The app makes a **sheet** of what is needed and a
@@ -243,6 +322,20 @@ is saying something you then don't do.
 
 ## The twelve rulings (all closed)
 
+0. **RULED 19B and BUILT, 12 September 2026 — the finished sheet says what the act came to.**
+   *A correction first, because the panel oversold this and I repeated it: a sheet that finished
+   already got a warm page* — "Everything for this one is spoken for. Thank you for stopping to
+   look," ending on the creed. The cold "Nothing here — that link does not lead anywhere" only ever
+   appeared when the sheet was **not in the database at all**: a mistyped address, or a poster
+   printed from a sheet that was never published. So 19 was never about the common case.
+   19B adds the good news to the page people actually land on. **Derived, never typed** — the page
+   already knows what the sheet was for and how many rows were taken, so nobody writes a closing
+   line and no name ever appears:
+   - four taken -> *Four people brought one thing each, and that was all it needed.*
+   - one taken -> *One person brought one thing, and that was all it needed.*
+   - none taken (closed early) -> the old sentence, unchanged.
+   Goes live with `npx wrangler deploy` from `Documents\aog-sheets`. **No migration this time.**
+   *Named, not built: letting the organiser write their own closing line. Nobody asked.*
 1. The sheet reads as an invitation, as drawn.
 2. Anyone with the link may claim.
 3. The poster prints **the needs and the reason**, not the act title.
@@ -437,10 +530,16 @@ real change to the app's character and G accepted it knowingly.
 
 - ~~**Letting a claimer cancel.**~~ **RULED 18A AND BUILT, 12 September 2026 — not open.** See
   "Handing a thing back" below.
-- **Quantities per slot** — "six dozen cookies, two dozen taken". Half the village-size acts want it.
-  **Act 22 promotes this to required**, and three of seven testers hit it independently. Item **20**.
-- **The sheet that has finished** — a code with nowhere to go returns a blank browser error. Six of
-  seven. Item **19**.
+- ~~**Quantities per slot**~~ — **RULED 20A AND BUILT, 12 September 2026.** A need can want more
+  than one pair of hands. See "How many a need wants" below.
+- ~~**The sheet that has finished**~~ — **RULED 19B AND BUILT, 12 September 2026.** Note the
+  premise was wrong as written: a finished sheet never returned a blank browser error, it returned
+  the styled *Nothing here* page. I had read a fetch failure as a blank page and wrote it down.
+  What 19B added is the good news — *Nine people brought one thing each, and that was all it
+  needed* — derived, never typed, and no name on it.
+- ~~**The page never said when or where**~~ — **RULED 21A AND BUILT, 12 September 2026.** The page
+  now shows what the poster shows, minus the drop-off address. See "What the page says, and what
+  stays on paper" below.
 - **Verification.** A typed name and email are not accountability; anyone can type anything.
   Only a confirmation link makes an address real, and that means sending mail — which costs an
   email service and breaks "the app never sends anything". G has not ruled.
@@ -663,6 +762,9 @@ a domain, a splash page and a notes panel, and `index.html` did not change once.
 # OPEN, AND G'S TO RULE
 
 - **DECISIONS-OPEN.md** — twenty-three now. Items **18–23** are the sign-up sheet, from the panel.
+  **18, 19, 20 and 21 are ruled and built.** **22 is ruled and built** (the poster's type sizes and
+  *whatever you can*). **23 is the only one of the six still unruled** — 23A the act-22 shape,
+  23B always one free row, 23C leave it.
 - **THE-WORDS.md** — eleven, unanswered. `3E·1 4A·1 5A 6 all 9A yes yes strip 7 later` clears them.
 - **THE-IDEAS.md** — 89 ideas to rewrite over the top of.
 - **X** — `HANDLE_KEYS` includes it, `PLATS` excludes it. One or the other, not both.

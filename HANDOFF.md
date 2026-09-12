@@ -61,7 +61,52 @@ returns a blank browser error, and paper outlives the act it advertises.
 Six rulings are now waiting on G, written up plainly as items **18–23** in
 `DECISIONS-OPEN.md`. Nothing is built.
 
-## BUILD 4L — the three unblocked sheet items (12 September, ON DISK, NOT PUSHED)
+## BUILD 4M — quantities, ruling 20A (12 September, ON DISK, NOT PUSHED OR DEPLOYED)
+
+**A need can want more than one pair of hands.** Twelve casseroles is twelve rows sharing a group,
+so **one row still holds one name** and the lock, the release and the retention wipe are all
+untouched — only the shape of the list changed, never the shape of a claim.
+
+**This one touches BOTH halves**, so it needs three commands, and the Worker is safe to deploy
+first because an old app sends plain strings and still works:
+
+From `Documents\aog-sheets`:
+
+    npx wrangler d1 execute aog --remote --command "ALTER TABLE slots ADD COLUMN grp INTEGER"
+    npx wrangler d1 execute aog --remote --command "UPDATE slots SET grp = pos WHERE grp IS NULL"
+    npx wrangler deploy
+
+From `Documents\aog-push`:
+
+    git add -A && git commit -m "4M: a need can want more than one pair of hands" && git push
+
+**What changed.** The stranger's page lists one line per NEED, not per place — *A casserole — Nine
+still wanted* — counting down as people take them and moving the button to the next **free** place.
+The organiser's list names people one by one and collapses the places still going spare into a
+single line. The poster prints **A casserole ×12**. The builder grew a small count box beside each
+need; blank means one.
+
+**The counts live in their own array beside `sh.slots`**, so nothing that already reads the slots
+had to change — and Return and Backspace in the builder splice both arrays, or twelve casseroles
+quietly become twelve vans.
+
+**Two bugs found by building it**, one pre-existing: the claim button stayed disabled reading *One
+moment…* after a successful claim (harmless when nobody claimed twice from one page, constant now),
+and the page advanced to the next place in the group rather than the next free one.
+
+**Verified end to end** on a sheet of fourteen places in three needs — collapses to three lines,
+nine counts down to eight then seven, survives a reload, handing one back puts it to eight, another
+phone sees eight and no way out of its own, zero page errors, poster and claims list screenshotted.
+
+**Left: 21 and 23. Both are copy and a field.**
+
+## BUILD 4L — the three unblocked sheet items (12 September, PUSHED AND LIVE)
+
+**All three copies agree and the live file was checked line by line, not just by its build mark:**
+the Free it control, the prefilled message body, the release call, the poster at 18.8pt/17.3pt,
+*whatever you can bring*, *Scan it again any time to edit* — all present; the old singular gone;
+live and local byte counts identical at 1,149,036. The first read of the site returned 4K and the
+second 4L, which is Pages rebuilding, not a stale push.
 
 **And a second piece of drift, bigger than the first: the sign-up sheet's app side was already
 built too.** `SHEETS-AND-NOTES.md` listed six things as NOT BUILT — making a sheet, generating the
