@@ -1301,7 +1301,7 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
     </div>
 
     <!-- BUILD MARK — dev only, delete this div when the app ships -->
-    <div id="buildtag">BUILD 4V</div>
+    <div id="buildtag">BUILD 4Y</div>
   </div>
 </section>
 
@@ -2067,6 +2067,20 @@ What you actually did. Why it mattered. Say the awkward parts."></textarea>
     <p class="note" style="margin:0 0 10px;font-weight:600;color:var(--ink)">Had this app before?</p>
     <button class="btn ghost" type="button" onclick="$('imp-file').click()">Restore from a backup</button></div>
 
+  <!-- REVERTED 13 Sep 2026. This was briefly labelled "(optional)" in the same
+       grey as the email below it, to sit more comfortably with Apple's rule that
+       a birthdate may only be asked for to comply with children's law.
+
+       G: "it is its hook." He is right and the change was a mistake. Jessica
+       turned fifty and did fifty acts; the number and the age are the SAME
+       number, and that is the whole conceit. Asking for it, and handing back
+       "fifty", is the moment the app knows something about you. Dressed as an
+       afterthought it stops being that.
+
+       The rule is satisfied anyway, and always was: nothing here checks an age,
+       nothing gates on it, "Skip this for now" clears it properly on first run,
+       and the note says plainly what it is for. That is a design purpose stated
+       honestly, which is what the rule actually asks for. -->
   <div class="field"><label for="bday-month">Your birthday</label>
     <div style="display:flex;gap:10px">
       <select id="bday-month" aria-label="Birth month" style="flex:1.3"></select>
@@ -3045,7 +3059,11 @@ const PHONE = {
      do nothing until the wrapper arrives. Anything calling this must still work
      perfectly when it returns false. */
   canRemind(){ return false; },
-  remind(/* when, title, body */){ return Promise.resolve(false); },
+  /* (isoDate, lead, title, who) -> Promise<boolean>. Lead is one of the app's
+     own codes: '0' that morning, '1' the day before, '3', '7'. Returns false
+     rather than throwing when the person has refused permission, so the caller
+     can fall back to the calendar without treating a choice as a failure. */
+  remind(/* isoDate, lead, title, who */){ return Promise.resolve(false); },
   forget(/* id */){ return Promise.resolve(false); }
 };
 
@@ -3409,14 +3427,29 @@ function periodNoun(w){
    20 acts does not mean year twenty. The year comes from the birthday. */
 
 
+/* FIXED 13 September 2026, and G found it by asking what the month was for.
+
+   This worked out whether the birthday had already come round this year — and
+   then threw the answer away: both branches returned the same number. So it was
+   only ever this year minus the birth year, and ANYBODY WHOSE BIRTHDAY HAD NOT
+   YET HAPPENED WAS TOLD THE WRONG ONE. A December birthday, in September, was
+   handed "year fifty-three" while they were still fifty-two — on the word that
+   goes on their card, which is the most personal thing the app prints.
+
+   Jessica's April birthday hid it: hers has always passed by the time anyone
+   looks. Half of everybody else's has not.
+
+   The month was collected, stored and shown back on the You screen all along.
+   It simply was not used at the one moment it decided anything. */
 function ageTurning(bday){
   if(!bday) return null;
   const b=new Date(bday); if(isNaN(b)) return null;
   const now=new Date();
-  let age=now.getFullYear()-b.getFullYear();
-  const passed = (now.getMonth()>b.getMonth()) ||
-                 (now.getMonth()===b.getMonth() && now.getDate()>=b.getDate());
-  return passed ? age : age;   // the year you are currently living in
+  const age = now.getFullYear()-b.getFullYear();
+  /* The day is always the 1st — the field asks for a month and a year, never a
+     day — so "this month" counts as passed, which is the kind reading. */
+  const passed = (now.getMonth() >= b.getMonth());
+  return passed ? age : age-1;   // the year you are currently living in
 }
 
 function derive(n, weeks, bday){
@@ -7315,13 +7348,58 @@ function savePlan(){
      button afterwards. */
   if(r && r!=='none' && d){
     sheet(null); drawHome();
-    checkFirst('Put it in your calendar?',
-      'That is the only way the reminder can reach you, this app never sends '+
-      'notifications. Your calendar does the reminding.',
-      'Add it', ()=>toCalendar(t, d, S.planSlot, S.planWho||[], r));
+    remindMe(t, d, S.planSlot, (S.planWho||[]).slice(), r);
     return;
   }
   sheet(null); drawHome();
+}
+
+/* ── the reminder, and the one inch that was missing ───────────────────────
+   RULED 12–13 September 2026: this ships as a real app in both stores.
+
+   Everything about reminding was already here — the choice of lead time, the
+   wording, where it is stored, the alarm offsets. Only one thing was missing,
+   and it was the one thing a web page can never do: **ask the phone to wake us
+   up later.** So the app delegated to the calendar and said so honestly.
+
+   In the app it can ask the phone directly. Nothing is sent anywhere, no server
+   is involved, no account, no notification service, no fee, and there is
+   nothing to declare — the phone schedules it and the phone shows it. It works
+   in flight mode. It is the one feature the whole market rents from an email
+   provider and we will own outright.
+
+   The calendar stays, for two reasons and both matter: it is the only route on
+   the web, and even in the app somebody may want the thing in their diary as
+   well as a nudge. So the phone is asked first and the calendar is offered when
+   the phone cannot — never both without asking, because two alarms for one
+   promise is worse than one.
+
+   NOTE FOR WHOEVER WIRES THE NATIVE SIDE: a phone holds only so many pending
+   reminders at once — around sixty on an iPhone. Schedule a rolling window
+   rather than a whole year, and top it up each time the app is opened. And
+   PHONE.remind must be allowed to fail: a person can refuse permission, and
+   when they do this falls straight back to the calendar with no scolding. */
+function remindMe(t, d, slot, who, r){
+  const title = t || ('Act '+slot);
+  if(PHONE.canRemind()){
+    PHONE.remind(d, r, title, who).then(ok=>{
+      if(ok) say('That is set',
+        'Your phone will remind you' + (r==='0' ? ' that morning'
+          : r==='1' ? ' the day before' : ' ' + r + ' days before') +
+        '. Nothing was sent anywhere \u2014 it is your own phone, reminding you.');
+      else askCalendar(title, d, slot, who, r);
+    }).catch(()=>askCalendar(title, d, slot, who, r));
+    return;
+  }
+  askCalendar(title, d, slot, who, r);
+}
+
+/* The way it has always worked, and still the only way on the web. */
+function askCalendar(t, d, slot, who, r){
+  checkFirst('Put it in your calendar?',
+    'That is the only way the reminder can reach you here, this app never sends '+
+    'notifications. Your calendar does the reminding.',
+    'Add it', ()=>toCalendar(t, d, slot, who, r));
 }
 
 /* ── handing a plan to the phone's calendar ─────────────────────────────────

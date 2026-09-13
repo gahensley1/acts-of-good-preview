@@ -561,6 +561,34 @@ An afternoon of copy. (4) An app anyone can download is used by people who never
 **a lock over the directory, and one honest moment at the card step asking whether the people in the
 photograph agreed.** *"If they post it, the app owes them that."*
 
+## C15. THE BIRTHDAY — RULED AND FIXED, 13 September 2026
+
+**It is the hook, and it is not optional.** G: *"it is its hook."* Jessica turned fifty and did
+fifty acts; **the number and the age are the same number**, and that is the whole conceit. Asking
+for it and handing back *fifty* is the moment the app knows something about the person. A proposal
+to replace it with *"which year are you marking?"* was drawn and **declined** — that turns the
+product into a goal tracker. A change that labelled the field **(optional)** in the same grey as the
+email was **reverted the same hour**: it satisfied a store rule by quietly demoting the most
+important question in setup.
+
+**Apple's rule was already satisfied without the label.** Nothing checks an age, nothing gates on
+it, *Skip this for now* clears it properly on first run, and the note says plainly what it is for.
+That is a design purpose stated honestly, which is what the rule asks for.
+
+**And pushing on it found a real bug.** G asked what the month was for. The answer: the app worked
+out whether the birthday had already come round this year — and **threw the answer away**, both
+branches of the decision returning the same number. So it was only ever *this year minus the birth
+year*, and **anyone whose birthday had not yet happened was told the wrong one**. A December
+birthday in September was handed *year fifty-three* while they were still fifty-two, on the word
+that goes on their card.
+
+**Jessica's April birthday hid it** — hers has always passed by the time anyone looks. Roughly half
+of everybody else's has not. Fixed and verified against every month of a year.
+
+**The lesson worth keeping:** a field that is collected, stored and displayed back can still be
+doing nothing where it counts. *"What is this for?"* is a better question than it sounds, and it is
+the one that found this.
+
 ---
 
 # PART D — WHAT MUST BE TESTED ON A REAL PHONE
