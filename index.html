@@ -1301,7 +1301,7 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
     </div>
 
     <!-- BUILD MARK — dev only, delete this div when the app ships -->
-    <div id="buildtag">BUILD 4Y</div>
+    <div id="buildtag">BUILD 5A</div>
   </div>
 </section>
 
@@ -2369,7 +2369,8 @@ function serialise(){
        year pushed into `past` a moment ago still holds live photo objects while
        one read back off the disk holds bare ids. */
     past:(S.past||[]).map(y=>({ n:y.n, weeks:y.weeks, word:y.word||'', line:y.line||'',
-                                start:y.start||'', end:y.end||'', zero:y.zero||null,
+                                why:y.why||'', name:y.name||'',
+                                start:y.start||'', end:y.end||'', zero:y.zero||null, fin:y.fin||null,
                                 acts:(y.acts||[]).map(a=>Object.assign({}, a, {
                                   photos:(a.photos||[])
                                     .map(x=>(x && typeof x==='object') ? x.id : x)
@@ -2377,7 +2378,7 @@ function serialise(){
                                 })) })),
     people:S.people, platforms:S.platforms,
     started:S.started, letterSeen:!!S.letterSeen, bkup:S.bkup||'', bkupNag:S.bkupNag||'', bkupAt:S.bkupAt||0, bkupToldAt:S.bkupToldAt||0,
-    finShown:S.finShown?1:0, halfShown:S.halfShown?1:0, fin:S.fin||null, celLast:S.celLast||'', celBag:S.celBag||'', zero:S.zero||null, tabToured:!!S.tabToured, opens:S.opens||0, todoOpens:S.todoOpens||0, plans:slimPlans(), handles:S.handles||{}, places:S.places||{},
+    finShown:+S.finShown||0, halfShown:+S.halfShown||0, fin:S.fin||null, celLast:S.celLast||'', celBag:S.celBag||'', zero:S.zero||null, tabToured:!!S.tabToured, opens:S.opens||0, todoOpens:S.todoOpens||0, plans:slimPlans(), handles:S.handles||{}, places:S.places||{},
     works:(S.works||[]).map(w=>({ pid:w.pid, t:w.t||'', d:w.d||'', who:w.who||[], hon:w.hon||'',
                           cost:w.cost||0, spends:w.spends||[], story:w.story||'', exp:w.exp||'',
                           startedAt:w.startedAt||'', sheet:w.sheet||null, seed:w.seed||null,
@@ -2500,7 +2501,12 @@ async function load(){
   S.people=o.people||[]; S.platforms=o.platforms||S.platforms;
   S.started=!!o.started; S.letterSeen=!!o.letterSeen; S.bkup=o.bkup||''; S.bkupNag=o.bkupNag||'';
   S.bkupAt=o.bkupAt||0; S.bkupToldAt=o.bkupToldAt||0;
-  S.finShown=o.finShown?1:0; S.halfShown=o.halfShown?1:0;
+  /* An older journal wrote these as 1 for "yes". Read as a goal that would be
+     a year of one act, so the ending would fire again the moment the app
+     opened. A legacy 1 means "seen, at whatever the goal was then", which is
+     the goal that came out of this very file. */
+  const seenAt = v => { const x = +v||0; return x > 1 ? x : (x ? (+o.n||S.n||0) : 0); };
+  S.finShown = seenAt(o.finShown); S.halfShown = seenAt(o.halfShown);
   /* which act moment came up last, so the next one is never the same. Named in
      BOTH halves on purpose: this file has shipped a one-sided field three
      times, most recently the finish and halfway moments, which then re-fired
@@ -2612,14 +2618,16 @@ async function exportJournal(){
       parts.push(aj.slice(0, aj.length-1));
       parts.push(',"photos":[');
       const ph = (live&&live.photos)||[];
+      let wrotePh = false;   // a comma belongs after a photo that was WRITTEN
       for(let j=0;j<ph.length;j++){
         const got = await fullPhoto(ph[j]);
         if(!got.url){ continue; }
         if(!got.full) lost++;
-        if(j) parts.push(',');
+        if(wrotePh) parts.push(',');
         parts.push('{"id":'+JSON.stringify(ph[j].id)+',"data":"');
         parts.push(got.url);                   // its own part; never concatenated
         parts.push('"}');
+        wrotePh = true;
       }
       parts.push(']}');
       await new Promise(r=>setTimeout(r, 0));  // breathe between acts
@@ -2634,14 +2642,16 @@ async function exportJournal(){
       parts.push(wj.slice(0, wj.length-1));
       parts.push(',"photos":[');
       const ph = (w.photos||[]);
+      let wrotePh = false;   // a comma belongs after a photo that was WRITTEN
       for(let j=0;j<ph.length;j++){
         const got = await fullPhoto(ph[j]);
         if(!got.url) continue;
         if(!got.full) lost++;
-        if(j) parts.push(',');
+        if(wrotePh) parts.push(',');
         parts.push('{"id":'+JSON.stringify(ph[j].id)+',"data":"');
         parts.push(got.url);
         parts.push('"}');
+        wrotePh = true;
       }
       parts.push(']}');
       await new Promise(r=>setTimeout(r, 0));
@@ -2664,14 +2674,16 @@ async function exportJournal(){
         parts.push(aj.slice(0, aj.length-1));
         parts.push(',"photos":[');
         const ph = pacts[i].photos||[];
+        let wrotePh = false;   // a comma belongs after a photo that was WRITTEN
         for(let j=0;j<ph.length;j++){
           const got = await fullPhoto(ph[j]);
           if(!got.url) continue;
           if(!got.full) lost++;
-          if(j) parts.push(',');
+          if(wrotePh) parts.push(',');
           parts.push('{"id":'+JSON.stringify(ph[j].id)+',"data":"');
           parts.push(got.url);
           parts.push('"}');
+          wrotePh = true;
         }
         parts.push(']}');
         await new Promise(r=>setTimeout(r, 0));
@@ -2687,14 +2699,16 @@ async function exportJournal(){
       const pj = JSON.stringify(slim);
       parts.push(JSON.stringify(pks[k])+':'+pj.slice(0, pj.length-1)+',"photos":[');
       const ph = pl.photos||[];
+      let wrotePh = false;   // a comma belongs after a photo that was WRITTEN
       for(let j=0;j<ph.length;j++){
         const got = await fullPhoto(ph[j]);
         if(!got.url) continue;
         if(!got.full) lost++;
-        if(j) parts.push(',');
+        if(wrotePh) parts.push(',');
         parts.push('{"id":'+JSON.stringify(ph[j].id)+',"data":"');
         parts.push(got.url);
         parts.push('"}');
+        wrotePh = true;
       }
       parts.push(']}');
     }
@@ -3441,15 +3455,52 @@ function periodNoun(w){
 
    The month was collected, stored and shown back on the You screen all along.
    It simply was not used at the one moment it decided anything. */
+/* WHICH YEAR AN ACT BELONGS TO, and therefore what its card says.
+   Everything used to be drawn from the settings as they stand right now, so
+   the day somebody opened Setup in year two the word "fifty" turned into
+   "fifty-one" on every card they had ever made, last year's included — and
+   every card in year two printed the age they were when year one started.
+   A finished year keeps its own goal and its own words; this is where they
+   are read from. Matched by identity, because a past act IS the object that
+   sits in S.past — there is no copy. */
+function actYear(a){
+  if(!a) return null;
+  const past = S.past || [];
+  for(let i=0;i<past.length;i++){
+    const y = past[i];
+    if(y && Array.isArray(y.acts) && y.acts.indexOf(a) > -1) return y;
+  }
+  return null;
+}
+function cardWords(a){
+  const y = actYear(a);
+  if(y) return { n:(y.n||0), line:(y.line||''), word:(y.word||'') };
+  return { n:S.n, line:(S.line||''), word:(S.word||'') };
+}
+
 function ageTurning(bday){
   if(!bday) return null;
-  const b=new Date(bday); if(isNaN(b)) return null;
-  const now=new Date();
-  const age = now.getFullYear()-b.getFullYear();
+  /* SECOND FIX, an hour after the first, and the first fix caused it.
+
+     Handing "1976-04-01" to the clock is not the same as reading it. A bare
+     date like that is understood as midnight in London, and a phone in Savannah
+     then reads it back as the 31st of MARCH — so every stored birthday arrived
+     a month early. Nobody noticed while the test was an April birthday in
+     September, because both readings say the same thing. An OCTOBER birthday,
+     in September, was told it had already happened: fifty, a month before they
+     turned fifty, on the word printed on their card.
+
+     So the clock is not consulted. The field writes YYYY-MM-01 and nothing else
+     ever does, so the month is read out of the text where it was written. No
+     time zone, no midnight, no ambiguity. */
+  const m = /^(\d{4})-(\d{2})/.exec(String(bday));
+  if(!m) return null;
+  const by = +m[1], bm = +m[2] - 1;        // months count from zero, as the clock does
+  const now = new Date();                   // today is the only thing a clock is for
+  const age = now.getFullYear() - by;
   /* The day is always the 1st — the field asks for a month and a year, never a
      day — so "this month" counts as passed, which is the kind reading. */
-  const passed = (now.getMonth() >= b.getMonth());
-  return passed ? age : age-1;   // the year you are currently living in
+  return (now.getMonth() >= bm) ? age : age - 1;
 }
 
 function derive(n, weeks, bday){
@@ -4437,15 +4488,21 @@ function sashStrap(wait){
     if(el){ el.classList.remove('strap'); void el.offsetWidth; el.classList.add('strap'); }
   }, wait);
 }
+/* THE MOMENTS REMEMBER THE GOAL THEY FIRED AT, not merely that they fired.
+   Held as a yes-or-no, the ending happened once in the life of the app: set
+   twenty-five, finish twenty-five, then raise it to fifty to keep going — the
+   obvious thing to do, and the thing the app is for — and act fifty arrived in
+   silence. So did halfway. Storing the number means raising the goal re-arms
+   both, and lowering it never fires them twice for the same work. */
 function checkMilestones(){
   if(!S.n) return;
   const done = doneCount();
-  if(!S.finShown && done >= S.n){
-    S.finShown = true; save(); showMoment('fin'); return;
+  if(S.finShown !== S.n && done >= S.n){
+    S.finShown = S.n; save(); showMoment('fin'); return;
   }
   /* the act that takes you PAST halfway — act 13 of 25, act 25 of 50 */
-  if(!S.halfShown && done >= Math.ceil(S.n/2) && done < S.n){
-    S.halfShown = true; save(); showMoment('half');
+  if(S.halfShown !== S.n && done >= Math.ceil(S.n/2) && done < S.n){
+    S.halfShown = S.n; save(); showMoment('half');
   }
 }
 
@@ -4475,27 +4532,95 @@ function tellUs(){
   location.href = 'mailto:' + AOG_MAIL + '?subject=' + sub + '&body=' + body;
 }
 
+/* WHAT ACTUALLY MOVES, in one place, so the promise on the confirmation and
+   the code underneath it cannot drift apart again. */
+function rollYear(){
+  if(!Array.isArray(S.past)) S.past = [];
+  /* Anything still only PLANNED — a square with a date on it and nothing
+     written — used to be thrown away here, along with any photographs already
+     attached to it, while the confirmation said nothing would be lost. A plan
+     is an act in the works that has not started; it becomes one, exactly as it
+     does on every launch, and travels into the new year with the rest of the
+     shelf. */
+  S.works = S.works || [];
+  Object.keys(S.plans||{}).forEach(k=>{
+    const pl = S.plans[k]; if(!pl) return;
+    S.works.push({ pid:pl.pid||newWorkId(), t:pl.t||'', d:pl.d||'', who:(pl.who||[]).slice(),
+                   hon:'', cost:+pl.cost||0, spends:(pl.spends||[]).slice(),
+                   story:pl.story||pl.note||'', exp:'', startedAt:todayISO(),
+                   photos:(pl.photos||[]).slice(),
+                   seed:(pl.seed&&typeof pl.seed==='object')?pl.seed:null });
+  });
+  /* The year keeps its own goal, its own words, its own reason for beginning
+     and its own ending. `why` and `fin` were both left behind: a second year
+     overwrote the reason the first one happened, and the closing post — the
+     one thing a finished year is actually FOR — was discarded while act 0,
+     its opposite number, was carefully kept. */
+  S.past.push({ n:S.n, weeks:S.weeks, word:S.word||'', line:S.line||'',
+                why:S.why||'', name:S.name||'',
+                start:(S.start&&S.start.toISOString)?S.start.toISOString():'',
+                end:todayISO(), zero:S.zero||null, fin:S.fin||null,
+                acts:(S.acts||[]).slice() });
+  /* THE BACKUP REMINDER, which counted acts and therefore went silent for the
+     whole of the next year: back up at act 48, roll over, and the count went
+     backwards — fifty-one more acts before the app mentioned backups again, at
+     exactly the moment the journal stopped being replaceable. What is carried
+     across is how much is UNSAVED, which is the only part that ever mattered. */
+  const before = (S.acts||[]).length + (S.works||[]).length;
+  const owing  = Math.max(0, before - (S.bkupAt||0));
+  S.acts = [];
+  S.plans = {};
+  S.zero = null;
+  S.fin = null;
+  S.finShown = 0;
+  S.halfShown = 0;
+  S.current = null;
+  S.start = new Date();
+  const after = (S.works||[]).length;
+  S.bkupAt = S.bkupToldAt = after - owing;
+  /* The word on the card is worked out from the birth month, and it was only
+     ever worked out on the Setup screen — which the rollover goes nowhere
+     near. So year two printed the age they were when year ONE began, on every
+     card and in every hashtag, for twelve months. A word they typed themselves
+     is theirs and is left alone; syncReason already knows the difference. */
+  try { syncReason(); } catch(e){}
+  save();
+}
+
 function beginAnotherYear(){
   const done = doneCount();
+  const kept = (S.works||[]).length + Object.keys(S.plans||{}).length;
   checkFirst('Start a new goal?',
     'This year moves into your journal, whole: all '+done+
     (done===1?' act':' acts')+', their cards, their stories and their photographs. '+
-    'The grid starts empty. Your people, your ideas and your card stay exactly as they are.',
+    'The grid starts empty. Your people, your ideas and your card stay exactly as they are'+
+    (kept ? ', and '+(kept===1?'the one act you have in the works comes with you'
+                              : 'the '+kept+' acts you have in the works come with you') : '')+'.',
     'Start a new goal', ()=>{
-      if(!Array.isArray(S.past)) S.past = [];
-      S.past.push({ n:S.n, weeks:S.weeks, word:S.word||'', line:S.line||'',
-                    start:(S.start&&S.start.toISOString)?S.start.toISOString():'',
-                    end:todayISO(), zero:S.zero||null, acts:(S.acts||[]).slice() });
-      S.acts = [];
-      S.plans = {};
-      S.zero = null;
-      S.fin = null;
-      S.finShown = 0;
-      S.halfShown = 0;
-      S.current = null;
-      S.start = new Date();
-      save();
+      rollYear();
       /* straight to the declaration, exactly as the first year began */
+      go('zero'); drawZero();
+    });
+}
+
+/* A YEAR THAT RAN OUT OF TIME. Far commoner than a year that finishes, and
+   until now there was no way through it at all: no ending, no archive, no
+   fresh start, and a week counter stuck on 52 of 52. It closes at the number
+   it actually reached, which is a real number and not a failure. */
+function closeShortYear(){
+  const done = doneCount();
+  const kept = (S.works||[]).length + Object.keys(S.plans||{}).length;
+  checkFirst('Close this year?',
+    'The '+(S.weeks||52)+' weeks are up. '+
+    (done ? 'This year moves into your journal as it stands — '+done+
+            (done===1?' act':' acts')+', with their cards, stories and photographs. '
+          : 'This year moves into your journal as it stands. ')+
+    'Nothing is lost and nothing is marked unfinished. Your people, your ideas '+
+    'and your card stay exactly as they are'+
+    (kept ? ', and '+(kept===1?'the one act you have in the works comes with you'
+                              : 'the '+kept+' acts you have in the works come with you') : '')+'.',
+    'Close it', ()=>{
+      rollYear();
       go('zero'); drawZero();
     });
 }
@@ -4649,7 +4774,10 @@ function suggestion(){
   QUIET.filter(q=>q.m===month).forEach(q=>
     pool.push({tag:'Worth knowing', t:q.t, b:q.b}));
   if(!pool.length) pool.push({tag:'Worth knowing', t:QUIET[0].t, b:QUIET[0].b});
-  return pool[Math.floor(IDEA_SEED/7) % pool.length];   // same seed as the ideas: one pick per week
+  /* IDEA_SEED already counts in WEEKS. Dividing it by seven again meant the
+     card changed once every seven weeks while the comment beside it, and the
+     paragraph above, both said it changed weekly. */
+  return pool[IDEA_SEED % pool.length];
 }
 
 /* ── home ── */
@@ -4664,6 +4792,12 @@ function doneCount(){
   return Object.keys(used).length;
 }
 function yearDone(){ return S.n>0 && doneCount() >= S.n; }
+/* the fifty-two weeks have run out and the year is not finished */
+function timeUp(){
+  if(yearDone()) return false;
+  if(!S.start || !S.weeks) return false;
+  return (Date.now() - S.start.getTime()) > S.weeks*6.048e8;
+}
 
 function drawHome(){
   const done=doneCount();
@@ -4707,22 +4841,47 @@ function drawHome(){
      back half of the year. 'nothing logged yet' is gone: week 1 of 52 already
      says where you are and does not comment on you. */
   const halfway = !fin && S.n && done === Math.ceil(S.n/2);
+  /* "week 52 of 52" was still on the screen eighteen months in, which is the
+     app telling somebody something it knows is untrue. */
   $('p-state').textContent =
-      fin     ? 'the year is complete'
-    : halfway ? 'halfway there'
+      fin           ? 'the year is complete'
+    : halfway       ? 'halfway there'
+    : timeUp()      ? 'the year is up'
     : 'week '+wk+' of '+S.weeks;
-  $('p-state').classList.toggle('complete', fin || halfway);
-  /* the year is over, and the app is not */
-  let ny = $('p-again');
-  if(fin && !ny){
-    ny = document.createElement('button');
-    ny.id = 'p-again'; ny.type = 'button'; ny.className = 'btn ghost';
-    ny.style.marginTop = '14px';
-    ny.textContent = 'Start a new goal';
-    ny.onclick = beginAnotherYear;
-    const pace = $('p-bar') && $('p-bar').closest('.pace');
-    if(pace) pace.appendChild(ny);
-  } else if(!fin && ny){ ny.remove(); }
+  $('p-state').classList.toggle('complete', fin || halfway || timeUp());
+  /* THE END OF A YEAR, AND THE END OF A YEAR THAT DID NOT FINISH.
+     "Not now" on the closing screen used to spend the moment for good: the
+     closing card and the closing post could not be reached from anywhere in
+     the app, ever again, and the only thing left on this screen was a button
+     that started a new year over the top of it. The most important screen of
+     the year was a single tap wide. It is a door now, and it stays open.
+
+     And the commoner case by far: fifty-two weeks pass, the person is at
+     thirty-four of fifty, and nothing happens. The week counter stuck at
+     "week 52 of 52" and there was no way to close the year, archive it, or
+     begin another one — the only escape anybody could find was lowering the
+     goal, which rewrites the number printed on every card they have made.
+     Once the time is up the year can be closed as it stands. */
+  const pace = $('p-bar') && $('p-bar').closest('.pace');
+  const upNow = timeUp();
+  const ghost = (id, label, fn) => {
+    let b = $(id);
+    if(!b){
+      b = document.createElement('button');
+      b.id = id; b.type = 'button'; b.className = 'btn ghost';
+      b.style.marginTop = '14px';
+      if(pace) pace.appendChild(b);
+    }
+    b.textContent = label; b.onclick = fn; return b;
+  };
+  const drop = id => { const b = $(id); if(b) b.remove(); };
+  if(fin){
+    ghost('p-ending', 'Read the ending again', ()=>showMoment('fin'));
+    ghost('p-again',  'Start a new goal', beginAnotherYear);
+  } else if(upNow){
+    drop('p-ending');
+    ghost('p-again', 'Close this year', closeShortYear);
+  } else { drop('p-ending'); drop('p-again'); }
   $('p-bar').style.width=Math.min(100,done/S.n*100)+'%';
   /* the tick was a target line you could fall short of, on the one screen the
      letter's "nobody is keeping score" is answering. The bar still shows how far
@@ -5333,10 +5492,13 @@ function drawMonth(){
   const idx = Math.max(0,
     (now.getFullYear()-start.getFullYear())*12 + (now.getMonth()-start.getMonth()));
   const total = monthsInPeriod();
-  const done  = S.acts.length;
-  /* where the year should stand by the end of THIS month */
-  const target = Math.round(S.n * Math.min(1,(idx+1)/total));
-  const left   = Math.max(0, target - done);
+  /* counted off the grid, like everything else on this screen. S.acts.length
+     was the old count that let two entries in one square add two, so the month
+     card could disagree with the number directly above it. */
+  const done  = doneCount();
+  /* The month card used to work out where the year "should" stand by the end
+     of this month and speak only to whoever fell short of it. Nothing reads
+     that number any more, so nothing works it out. */
 
   const thisMonth = S.acts.filter(a=>{
     if(!a.d) return false;
@@ -5361,7 +5523,12 @@ function drawMonth(){
       'text-overflow:ellipsis;white-space:nowrap">'+esc(a.t)+'</span>'+
       '<span style="font-size:12.5px;color:var(--muted)">act '+a.no+'</span></div>';
   });
-  if(!thisMonth.length && left){
+  /* This was shown ONLY when the maths said you were short, and hidden when
+     you were ahead — so the app's last surviving piece of pace judgement was
+     reserved for the person least able to take it. An empty month is an empty
+     month whoever you are; said to everybody, it is a description, and said to
+     only the people who are behind, it is a verdict. */
+  if(!thisMonth.length){
     html += '<p class="note" style="margin:2px 0 0">Nothing logged in '+
       MONTHS_LONG[now.getMonth()]+' yet.</p>';
   }
@@ -5385,8 +5552,11 @@ function drawMonth(){
    act are filled, planned dates are outlined in gold, today is ringed.      */
 let CAL_M = null;   // {y, m}
 function openCal(){
+  /* It remembered where you had paged to and never let go: step back to March,
+     close it, and every time you opened the calendar for the rest of the year
+     it opened on March. Opening it is a request for now. */
   const n=new Date();
-  CAL_M = CAL_M || {y:n.getFullYear(), m:n.getMonth()};
+  CAL_M = {y:n.getFullYear(), m:n.getMonth()};
   sheet('cal');
 }
 function calStep(d){
@@ -5509,8 +5679,17 @@ function fmtLong(d){
 function drawJournal(){
   const box=$('j-pages'); box.innerHTML='';
   const acts=S.acts.slice().sort((x,y)=>slotOf(x)-slotOf(y) || (parseFloat(x.no)-parseFloat(y.no)));
-  $('j-sub').textContent = acts.length
-    ? acts.length+' of '+S.n+' so far' : 'the year, as a book';
+  /* A LIFETIME TOTAL, which existed nowhere in the app. Only the printed book
+     ever added across years, so somebody two years in was never once told they
+     had done seventy-five acts of good — which is the number most likely to
+     bring them back. */
+  const before = (S.past||[]).reduce((t,y)=>t + ((y&&y.acts||[]).length), 0);
+  $('j-sub').textContent = !acts.length
+    ? (before ? before+(before===1?' act of good, and this year begun'
+                                  : ' acts of good, and this year begun')
+              : 'the year, as a book')
+    : before ? (acts.length+before)+' acts of good \u00b7 '+acts.length+' of '+S.n+' this year'
+             : acts.length+' of '+S.n+' so far';
 
   /* the opening page: why the year began. Act 0, in her words. */
   const open=document.createElement('div');
@@ -5605,29 +5784,61 @@ function drawJournal(){
   /* ── the years before this one ──────────────────────────────────────────
      A finished year does not disappear when the next one starts. Each one gets
      a divider and then its pages, oldest last, exactly as they were written. */
-  (S.past||[]).slice().reverse().forEach(y=>{
+  (S.past||[]).slice().reverse().forEach((y, idx)=>{
     const past = (y.acts||[]).slice()
       .sort((a,b)=>(parseFloat(a.no)||0)-(parseFloat(b.no)||0));
     const div = document.createElement('div');
     div.className = 'jpage jclose';
     const yr = (y.end||'').slice(0,4);
+    /* EVERY ARCHIVED YEAR USED TO BE CALLED "the year before". By the third
+       year there were two of them saying it, one after the other. The year it
+       ended is what tells them apart, and it is already on the record. */
+    const label = yr ? esc(yr) : 'an earlier year';
+    /* and its own words, as they were written: "in year fifty" came out of
+       here with the "in year" part hardcoded, so anybody whose reason was
+       "this summer" was archived as "in year summer" */
+    const script = [(y.line||'').trim(), (y.word||'').trim()].filter(Boolean).join(' ');
     div.innerHTML = '<div class="plate"></div>'+
-      '<div class="jno">the year before</div>'+
+      '<div class="jno">'+label+'</div>'+
       '<div class="jbig">'+past.length+(past.length===1?' act':' acts')+'</div>'+
       '<p class="jline">'+esc(y.n||'')+' acts of good'+
-        (y.word?' in year '+esc(y.word):'')+(yr?', finished '+esc(yr):'')+'.</p>';
+        (script?', '+esc(script):'')+(yr?', finished '+esc(yr):'')+'.</p>';
     box.appendChild(div);
+    /* why that year began. It belonged only to the year in progress, so
+       starting a second one wrote over the reason the first one happened. */
+    if((y.why||'').trim()){
+      const op=document.createElement('div');
+      op.className='jpage jopen';
+      op.innerHTML='<div class="plate"></div>'+
+        '<div class="jno">'+esc(y.n||'')+' acts of good</div>'+
+        '<div class="jword">'+esc(script||'a year of good')+'</div>'+
+        '<p class="jwhy">'+esc(y.why)+'</p>'+
+        (y.name?'<p class="jwith" style="margin-top:14px">'+esc(y.name)+'</p>':'');
+      box.appendChild(op);
+    }
     past.forEach(a=>{
       const pg=document.createElement('div');
-      pg.className='jpage';
+      pg.className='jpage'+(a.story?'':' nostory');
       const withWho=(a.who&&a.who.length)?'<p class="jwith">with '+esc(listWords(a.who))+'</p>':'';
+      /* THE PHOTOGRAPHS. They were stored correctly, loaded back correctly and
+         printed correctly in the book — and this page, the one a person
+         actually opens, simply never drew them. So on the first morning of a
+         second year every picture from the year just finished had vanished out
+         of the journal, with nothing anywhere to say they were safe. */
+      const ph=(a.photos||[]).filter(x=>x&&x.url);
+      const shots = ph.length
+        ? '<div class="jphotos'+(ph.length===1?' one':'')+'">'+
+          ph.slice(0,4).map((x,i)=>'<img src="'+esc(x.url)+'" alt="Photo '+(i+1)+' of act '+esc(a.no)+'">').join('')+
+          '</div>'+(ph.length>4?'<p class="jout">and '+(ph.length-4)+' more on the act</p>':'')
+        : '';
       pg.innerHTML='<div class="plate"></div>'+
         '<div class="jno">act '+esc(a.no)+' of '+esc(y.n||'')+'</div>'+
         '<h3>'+esc(a.t||'An act of good')+'</h3>'+
         (a.hon?'<p class="jhon">In honor of '+esc(a.hon)+'</p>':'')+
         (a.d?'<p class="jdate">'+esc(fmtLong(a.d))+'</p>':'')+
         withWho+'<div class="jrule"></div>'+
-        (a.story?'<p class="jstory">'+esc(a.story)+'</p>':'');
+        (a.story?'<p class="jstory">'+esc(a.story)+'</p>':'')+
+        shots;
       box.appendChild(pg);
     });
   });
@@ -6016,11 +6227,23 @@ function fitPreviewPlate(){
   });
 }
 
-function fitPreview(){
+/* A PANEL THAT IS CLOSED HAS NO WIDTH, and a frame waiting for a width it is
+   never going to get asks for another frame sixty times a second for as long
+   as the app is open. Both preview fitters did this, and both were reached by
+   closing a panel while it was still measuring. Nothing looked wrong; the
+   phone simply got warm and the battery went. It waits about a second now,
+   which is far longer than a layout takes, and then stops. */
+const FIT_TRIES = 60;
+function fitPreview(tries){
   const fr=document.querySelector('#wk-ask .ppv'), inner=fr&&fr.firstElementChild;
   if(!fr || !inner) return;
   const w = fr.clientWidth || 0;
-  if(!w){ requestAnimationFrame(fitPreview); return; }
+  if(!w){
+    if(!fr.offsetParent) return;                 // the panel is shut; nothing to fit
+    const t = (tries|0) + 1;
+    if(t < FIT_TRIES) requestAnimationFrame(()=>fitPreview(t));
+    return;
+  }
   const paper = fr.classList.contains('wide') ? 1056 : 816;
   inner.style.width = paper+'px';
   inner.style.transform = 'scale('+(w/paper)+')';
@@ -6066,7 +6289,9 @@ function drawPaperPreview(){
     ? '<button class="btn mini" type="button" onclick="askPoster(ASK_PV)">Print it</button>'
     : '<button class="btn mini" type="button" onclick="sheet(null);askPublish()">Publish it</button>';
   fitPvPlate();
-  requestAnimationFrame(fitPvScale);
+  /* wrapped: handed straight to rAF it receives a timestamp, which the retry
+     counter would read as thousands of attempts already spent */
+  requestAnimationFrame(()=>fitPvScale());
 }
 function fitPvPlate(){
   document.querySelectorAll('#pv-body .pgt').forEach(g=>{
@@ -6077,11 +6302,16 @@ function fitPvPlate(){
     }
   });
 }
-function fitPvScale(){
+function fitPvScale(tries){
   const fr = document.querySelector('#pv-body .ppv'), inner = fr && fr.firstElementChild;
   if(!fr || !inner) return;
   const w = fr.clientWidth || 0;
-  if(!w){ requestAnimationFrame(fitPvScale); return; }
+  if(!w){
+    if(!fr.offsetParent) return;                 // the panel is shut; nothing to fit
+    const t = (tries|0) + 1;
+    if(t < FIT_TRIES) requestAnimationFrame(()=>fitPvScale(t));
+    return;
+  }
   const paper = fr.classList.contains('wide') ? 1056 : 816;
   inner.style.width = paper + 'px';
   inner.style.transform = 'scale(' + (w / paper) + ')';
@@ -6625,20 +6855,37 @@ async function fullShot(p){
   return p.url || '';
 }
 
+/* ONE ELEMENT STATES THE PAGE SIZE. There used to be two — #booksize and
+   #postersize — both alive in the head at once, both an @page rule of equal
+   weight, so whichever had been created LAST won every print from then on.
+   Print a poster and then your book and the book came out on a letter page;
+   print a handout after a book and the handouts came out portrait. Neither
+   print said anything was wrong, because nothing was: the browser was obeying
+   the last rule it was given. There is only one rule now, and the print that
+   is about to happen writes it. */
+function setPageSize(size){
+  let el = $('printsize');
+  if(!el){ el = document.createElement('style'); el.id = 'printsize'; }
+  /* moved to the end of the head every time as well as rewritten, so it
+     outranks anything a future build leaves lying about */
+  el.textContent = '@page{size:' + size + ';margin:0}';
+  document.head.appendChild(el);
+}
+
 function bookFoot(left, right){
   return '<div class="bfoot"><span>'+esc(left||'')+'</span>'+
          '<span>'+esc(right||'')+'</span></div>';
 }
 
 /* One act, one page. The story steps down in size before it is ever cut off. */
-async function bookAct(a, mark){
+async function bookAct(a, mark, goal){
   const shots = [];
   for(const ph of (a.photos||[]).filter(x=>x&&(x.url||x.id)).slice(0,4)){
     const u = await fullShot(ph); if(u) shots.push(u);
   }
   const who = (a.who&&a.who.length) ? '<p class="bwith">with '+esc(listWords(a.who))+'</p>' : '';
   return '<div class="bpage"><div class="bplate"></div>'+
-    '<div class="bno">act '+esc(a.no)+' of '+esc(S.n)+'</div>'+
+    '<div class="bno">act '+esc(a.no)+' of '+esc(goal==null?S.n:goal)+'</div>'+
     '<h1>'+esc(a.t||'An act of good')+'</h1>'+
     (a.hon ? '<p class="bhon">In honor of '+esc(a.hon)+'</p>' : '')+
     (a.d ? '<p class="bdate">'+esc(fmtLong(a.d))+'</p>' : '')+
@@ -6672,12 +6919,27 @@ async function printJournal(){
      fifty acts, started again, and asked for their book was told there was
      nothing to print while a complete year sat in their journal. The oldest
      year comes first, and this year last, which is the order they were lived.*/
-  const older = [];
-  (S.past||[]).forEach(y=>(y&&y.acts||[]).forEach(a=>older.push(a)));
-  older.sort((x,y)=>String(x.d||'').localeCompare(String(y.d||'')) ||
-                    (parseFloat(x.no)-parseFloat(y.no)));
-  const acts = older.concat(S.acts.slice().sort((x,y)=>slotOf(x)-slotOf(y) ||
-                                          (parseFloat(x.no)-parseFloat(y.no))));
+  /* ONE BOOK, BUT NOT ONE YEAR. Every page used to be stamped with the goal
+     and the words as they stand TODAY, so a twenty-five act year printed
+     inside a fifty act year read "act 1 of 50" all the way to "act 25 of 50",
+     and then the next year started at "act 1 of 50" again with no divider
+     between them and one title page carrying only the newest year's word. A
+     book of two years was unreadable as two years. Each year is its own
+     section now, with its own goal, its own words and its own reason. */
+  const years = (S.past||[]).slice()
+    .sort((a,b)=>String(a.end||a.start||'').localeCompare(String(b.end||b.start||'')))
+    .map(y=>({
+      n:y.n||0, line:y.line||'', word:y.word||'', why:y.why||'', name:y.name||'',
+      end:y.end||'', past:true,
+      acts:(y.acts||[]).slice().sort((x,z)=>String(x.d||'').localeCompare(String(z.d||'')) ||
+                                            (parseFloat(x.no)-parseFloat(z.no)))
+    }));
+  years.push({
+    n:S.n, line:S.line||'', word:S.word||'', why:S.why||'', name:S.name||'',
+    end:'', past:false,
+    acts:S.acts.slice().sort((x,z)=>slotOf(x)-slotOf(z) || (parseFloat(x.no)-parseFloat(z.no)))
+  });
+  const acts = years.reduce((all,y)=>all.concat(y.acts), []);
   if(!acts.length){
     say('Nothing to print yet','The first act becomes the first page.'); return;
   }
@@ -6686,15 +6948,13 @@ async function printJournal(){
 
   let b = $('book');
   if(!b){ b=document.createElement('div'); b.id='book'; document.body.appendChild(b); }
-  let bs = $('booksize');
-  if(!bs){ bs=document.createElement('style'); bs.id='booksize'; document.head.appendChild(bs); }
   /* the only place the paper size is stated to the printer */
-  bs.textContent = '@page{size:'+
+  setPageSize(
     (getComputedStyle(document.documentElement).getPropertyValue('--bookw').trim()||'8.5in')+
-    ' '+(getComputedStyle(document.documentElement).getPropertyValue('--bookh').trim()||'11in')+
-    ';margin:0}';
+    ' '+(getComputedStyle(document.documentElement).getPropertyValue('--bookh').trim()||'11in'));
 
-  const yearWord = (S.line?S.line+' ':'') + (S.word||'good');
+  const wordOf = y => (y.line?y.line+' ':'') + (y.word||'good');
+  const yearWord = wordOf(years[years.length-1]);
   const span = acts.map(a=>a.d).filter(Boolean).sort();
   const range = span.length
     ? fmtLong(span[0]) + (span.length>1 ? ' to ' + fmtLong(span[span.length-1]) : '')
@@ -6708,26 +6968,40 @@ async function printJournal(){
     (S.name ? '<h1>'+esc(S.name)+'</h1>' : '')+
     (range ? '<p class="bline">'+esc(range)+'</p>' : '')+
     '</div>';
-  /* 2 — why it began */
-  if((S.why||'').trim()){
-    html += '<div class="bpage bmid"><div class="bplate"></div>'+
-      '<div class="bno">why this year</div>'+
-      '<p class="bline" style="font-size:15pt;line-height:1.7;max-width:5in;'+
-      'margin-left:auto;margin-right:auto">'+esc(S.why)+'</p>'+
-      (S.name ? '<p class="bline" style="margin-top:0.3in">'+esc(S.name)+'</p>' : '')+
-      '</div>';
+  /* 2 — each year: its own divider, its own reason, its own pages */
+  const many = years.filter(y=>y.acts.length).length > 1;
+  for(const y of years){
+    if(!y.acts.length) continue;
+    const w = wordOf(y);
+    const yr = (y.end||'').slice(0,4);
+    if(many){
+      html += '<div class="bpage bmid"><div class="bplate"></div>'+
+        '<div class="bno" style="margin-bottom:0.3in">'+esc(y.n)+' acts of good</div>'+
+        '<div class="bscript">'+esc(w)+'</div>'+
+        '<p class="bline">'+y.acts.length+(y.acts.length===1?' act':' acts')+
+          (yr ? ', finished '+esc(yr) : ', this year')+'</p>'+
+        '</div>';
+    }
+    if((y.why||'').trim()){
+      html += '<div class="bpage bmid"><div class="bplate"></div>'+
+        '<div class="bno">'+(many && yr ? 'why '+esc(yr) : 'why this year')+'</div>'+
+        '<p class="bline" style="font-size:15pt;line-height:1.7;max-width:5in;'+
+        'margin-left:auto;margin-right:auto">'+esc(y.why)+'</p>'+
+        (y.name ? '<p class="bline" style="margin-top:0.3in">'+esc(y.name)+'</p>' : '')+
+        '</div>';
+    }
+    for(const a of y.acts) html += await bookAct(a, w, y.n);
   }
-  /* 3 — an act a page */
-  for(const a of acts) html += await bookAct(a, yearWord);
   /* 4 — the honour roll */
   html += bookHonours(acts);
   /* 5 — the ending */
   const people = {}; acts.forEach(a=>(a.who||[]).forEach(w=>people[w]=1));
   const names = Object.keys(people);
   html += '<div class="bpage bmid"><div class="bplate"></div>'+
-    '<div class="bno">'+(yearDone()?'the year is complete':'so far')+'</div>'+
+    '<div class="bno">'+(many ? 'in all' : (yearDone()?'the year is complete':'so far'))+'</div>'+
     '<div class="bbig">'+acts.length+'</div>'+
-    '<p class="bline">'+(acts.length===1?'act of good':'acts of good')+'</p>'+
+    '<p class="bline">'+(acts.length===1?'act of good':'acts of good')+
+      (many ? ', across '+numWord(years.filter(y=>y.acts.length).length)+' years' : '')+'</p>'+
     '<p class="bline" style="max-width:4.6in;margin-left:auto;margin-right:auto">'+
       (names.length ? esc(listWords(names.slice(0,10)))+
         (names.length>10 ? ' and '+(names.length-10)+' more' : '')+
@@ -6765,9 +7039,7 @@ function askPoster(kind){
   if(!p){ p=document.createElement('div'); p.id='poster'; document.body.appendChild(p); }
   /* the sheet turns sideways for handouts, so the two portrait halves sit next
      to each other rather than stacked */
-  let ps=$('postersize');
-  if(!ps){ ps=document.createElement('style'); ps.id='postersize'; document.head.appendChild(ps); }
-  ps.textContent = '@page{size:letter'+(half?' landscape':'')+';margin:0}';
+  setPageSize('letter'+(half?' landscape':''));
   p.innerHTML = half
     ? '<div class="psheet">'+posterPanel(sh,true)+posterPanel(sh,true)+'</div>'
     : posterPanel(sh,false);
@@ -6917,11 +7189,23 @@ function killTap(){
           save(); if(SCREEN==='works') drawWorks(); },
     ()=>{ releasePhotos(w.photos || []); });
 }
+/* "started in March" — a month and, if it was not this year, the year */
+function fmtShortMonth(iso){
+  const m = /^(\d{4})-(\d{2})/.exec(String(iso||''));
+  if(!m) return 'a while ago';
+  const nm = MONTHS_LONG[(+m[2]-1)] || '';
+  const yr = +m[1];
+  return 'in ' + nm + (yr !== new Date().getFullYear() ? ' ' + yr : '');
+}
 function ripenWords(w){
   const bits=[];
   if(w.startedAt){
     const days=Math.max(0, Math.round((new Date(todayISO()+'T00:00:00') - new Date(w.startedAt+'T00:00:00'))/864e5));
-    if(days>=14) bits.push('started '+Math.round(days/7)+' weeks ago');
+    /* Factual at three weeks and a reproach at thirty, on a shelf whose whole
+       point is that an unfinished act is not late. Past a season it stops
+       counting up and says when, which is a date and not a duration. */
+    if(days>=120) bits.push('started '+fmtShortMonth(w.startedAt));
+    else if(days>=14) bits.push('started '+Math.round(days/7)+' weeks ago');
     else if(days>=7) bits.push('started a week ago');
     else if(days>=2) bits.push('started '+days+' days ago');
     else bits.push('started today');
@@ -7517,11 +7801,30 @@ function clearPlan(){
    Ten of Jessica's first nineteen acts started with a person rather than an
    idea, and six people volunteered on her announcement before a single act
    existed. This is the directory that was previously homeless.              */
-function actsWith(name){ return S.acts.filter(a=>(a.who||[]).indexOf(name)>-1); }
+/* EVERY ACT THE PERSON HAS EVER LOGGED, this year and the years before it.
+   The directory only ever counted the year in progress, so on the first
+   morning of a second year the friend who had been in twelve acts with you
+   read "not in an act yet", and the order — which ranks people by how much
+   they did with you — collapsed to nothing. The one screen in the app that is
+   about the people carried no memory across the boundary. */
+function allActs(){
+  const out = S.acts.slice();
+  (S.past||[]).forEach(y=>(y&&y.acts||[]).forEach(a=>{ if(a) out.push(a); }));
+  return out;
+}
+function actsWith(name){
+  const want = String(name||'').trim().toLowerCase();
+  if(!want) return [];
+  return allActs().filter(a=>(a.who||[]).some(w=>String(w||'').trim().toLowerCase()===want));
+}
 function gaveWith(name){
+  /* Matched as a SUBSTRING, so a "Jo" on the list was credited with every
+     penny "Joanna" put in — and there was no way to see it had happened. */
+  const want = String(name||'').trim().toLowerCase();
+  if(!want) return 0;
   let n=0;
-  S.acts.forEach(a=>(a.spends||[]).forEach(sp=>{
-    if((sp.n||'').indexOf(name)>-1) n++;
+  allActs().forEach(a=>(a.spends||[]).forEach(sp=>{
+    if(String(sp.n||'').trim().toLowerCase()===want) n++;
   }));
   return n;
 }
@@ -7536,7 +7839,13 @@ function drawPeople(){
     const acts=actsWith(name), money=gaveWith(name);
     const h=handlesOf(name), got=HANDLE_KEYS.filter(k=>k!=='email'&&h[k]);
     const bits=[];
-    bits.push(acts.length ? acts.length+(acts.length===1?' act':' acts') : 'not in an act yet');
+    /* The count spans every year now, and "See their acts" can only show the
+       one in progress — so when the two differ the row says both rather than
+       quietly disagreeing with the screen it leads to. */
+    const here = S.acts.filter(a=>(a.who||[]).some(w=>String(w||'').trim().toLowerCase()===String(name||'').trim().toLowerCase())).length;
+    bits.push(!acts.length ? 'not in an act yet'
+            : acts.length===here ? acts.length+(acts.length===1?' act':' acts')
+            : acts.length+' acts, '+(here?here:'none')+' this year');
     if(money) bits.push('chipped in on '+money);
     bits.push(got.length ? got.length+(got.length===1?' handle':' handles') : 'no handles yet');
     if(h.email) bits.push('can be invited');
@@ -8889,8 +9198,16 @@ function packKey(a){
   /* by id: thumbnail lengths collide far more often than ids do, and two photos
      with equal-length previews used to leave the card undrawn */
   const shot = (a.photos||[]).map(p=>(p&&p.id)+(p&&p.off?'!':'')||'').join(',');
-  /* S.n is on the card — "act 1 of 50" — so changing the goal has to redraw it */
-  return [a.no, S.n, (a.anon?'anon':''), (CM_PLAT==='private'?'note':'card'), a.t||'', a.d||'', a.when||'',
+  /* EVERYTHING THE CARD DRAWS FROM, and it has to mean everything.
+     The goal was here; the hand and the words on the mark were not. So
+     changing your skin tone, or editing "in year fifty", redrew every card in
+     the app while the picture that actually went to Instagram stayed the old
+     one — silently, and in public. The three that were missing are the three
+     most likely to be changed after the first card is made. */
+  const cw = cardWords(a);
+  return [a.no, cw.n, cw.line, cw.word, (S.tone||DEFAULT_TONE),
+          (a.zero?'zero':''), (a.fin?'fin':''),
+          (a.anon?'anon':''), (CM_PLAT==='private'?'note':'card'), a.t||'', a.d||'', a.when||'',
           (a.story||''), (a.who||[]).join('~'), a.out||'', shot].join('|');
 }
 async function prepack(){
@@ -9338,10 +9655,31 @@ function drawActNo(a){
    opened on a laptop, which an HTML email frequently doesn't.
 
    Portrait 1080×1350, the shape both Instagram and Mail preview best.      */
+/* A WORD WIDER THAN THE LINE. There was no case for it: the loop only broke
+   BETWEEN words, so one long thing with no spaces in it — a link, a hyphenated
+   street, a hashtag somebody pasted — was written out at full width and ran
+   off the side of the picture. It is broken across lines by letter now, which
+   is what paper does. */
 function wrapLines(g, text, maxW){
   const words = (text||'').split(/\s+/).filter(Boolean), out=[];
+  const chop = w => {
+    const bits = []; let cur = '';
+    for(const ch of w){
+      if(cur && g.measureText(cur+ch).width > maxW){ bits.push(cur); cur = ch; }
+      else cur += ch;
+    }
+    if(cur) bits.push(cur);
+    return bits;
+  };
   let line='';
   words.forEach(w=>{
+    if(g.measureText(w).width > maxW){
+      if(line){ out.push(line); line=''; }
+      const bits = chop(w);
+      for(let i=0;i<bits.length-1;i++) out.push(bits[i]);
+      line = bits[bits.length-1] || '';
+      return;
+    }
     const test = line ? line+' '+w : w;
     if(g.measureText(test).width > maxW && line){ out.push(line); line=w; }
     else line = test;
@@ -9574,8 +9912,13 @@ const CARD = {
   nBase: 24.09, aogBase: 29.55, iyBase: 34.50,           // baselines, % of width
   scrBase0: 35.53, scrBaseK: 0.631,                      // scr baseline = B0 + K*size
   artTop: 6.4, ruleY: 65.8, actBase: 83.17,
-  nSize: 15.6, aogSize: 4.9, iySize: 3.6, scrSize: 25, actSize: 10.4
+  nSize: 15.6, aogSize: 4.9, iySize: 3.6, scrSize: 25, actSize: 10.4,
+  /* the closing card's three lines of capitals: .actno.caps is 7.2cqw at
+     line-height 1.20 starting 69.4 down, so the first baseline sits at
+     69.4 + (8.64-7.2)/2 + 0.79*7.2 and each line is 8.64 below the last */
+  capSize: 7.2, capBase: 75.81, capStep: 8.64
 };
+const CREED = ['PUT A LITTLE','MORE GOOD INTO','THE WORLD.'];
 
 async function renderCard(a, W){
   W = W || 1080;
@@ -9629,9 +9972,10 @@ async function renderCard(a, W){
         (family==='Great Vibes' ? '"Great Vibes", cursive' : '"Montserrat", sans-serif');
   const widthOf = (txt, font) => { g.font = font; return g.measureText(txt).width/k; };
 
-  const nTxt   = String(S.n);
-  const iyTxt  = S.line || '';
-  const scrTxt = S.word || '';
+  const CW     = cardWords(a);
+  const nTxt   = String(CW.n);
+  const iyTxt  = CW.line;
+  const scrTxt = CW.word;
 
   /* the same fit as the screen: shrink only if it can't fit, then centre the
      whole object, type and artwork together, inside the margins */
@@ -9663,8 +10007,21 @@ async function renderCard(a, W){
   line(scrTxt,         scrSize,      '',  'Great Vibes', gscr,
        CARD.scrBase0 + CARD.scrBaseK*scrSize);
 
-  /* the artwork — the PNG carries transparent margin, so place by its ink */
+  /* THE ARTWORK. It is read off the screen, so it has to have arrived: choose
+     a new skin tone and share straight away and the old code found an image
+     still loading, skipped the `complete` test, and sent a card with no hand
+     on it at all. Waiting is bounded — a card with no artwork is bad, a share
+     that never happens is worse. */
   const art = document.querySelector('#cardface .handimg');
+  if(art && !art.complete){
+    await new Promise(res=>{
+      let done = false;
+      const fin = ()=>{ if(done) return; done = true; res(); };
+      art.addEventListener('load', fin, {once:true});
+      art.addEventListener('error', fin, {once:true});
+      setTimeout(fin, 1500);
+    });
+  }
   if(art && art.complete && art.naturalWidth){
     const boxW = (ART_INK_W*100)/0.972;
     const boxH = boxW * (art.naturalHeight/art.naturalWidth);
@@ -9672,24 +10029,41 @@ async function renderCard(a, W){
     g.drawImage(art, (inkL - boxW*0.0121)*k, (CARD.artTop - boxH*0.00526)*k, boxW*k, boxH*k);
   }
 
-  /* the rule */
-  g.strokeStyle = '#000000'; g.globalAlpha = .9;
-  g.lineWidth = Math.max(1, 0.13*k);
-  g.beginPath(); g.moveTo(11*k, CARD.ruleY*k); g.lineTo(89*k, CARD.ruleY*k); g.stroke();
-  g.globalAlpha = 1;
+  /* THE FOOT OF THE CARD — and the screen and the picture must agree.
+     The screen knew that act 0 carries no number and that the closing card
+     carries the creed instead. The canvas did not: it drew the rule and then
+     "act 0 of 50" underneath the declaration, and "act  of 50" underneath the
+     closing card. The screen was right; this is the same three cases. */
+  if(!(a && a.zero)){
+    /* the rule */
+    g.strokeStyle = '#000000'; g.globalAlpha = .9;
+    g.lineWidth = Math.max(1, 0.13*k);
+    g.beginPath(); g.moveTo(11*k, CARD.ruleY*k); g.lineTo(89*k, CARD.ruleY*k); g.stroke();
+    g.globalAlpha = 1;
 
-  /* act N of N */
-  const parts = ['act ', String(a.no), ' of ' + S.n];
-  g.font = f(CARD.actSize, 700);
-  const wA = g.measureText(parts[0]).width, wB = g.measureText(parts[1]).width,
-        wC = g.measureText(parts[2]).width;
-  const total = wA+wB+wC;
-  let x = W/2 - total/2;
-  const base = CARD.actBase*k;
-  g.fillStyle = coral;
-  g.fillText(parts[0], x, base); x += wA;
-  g.fillText(parts[1], x, base); x += wB;
-  g.fillText(parts[2], x, base);
+    if(a && a.fin){
+      /* three lines of capitals, filling the space the act number leaves */
+      g.font = f(CARD.capSize, 700);
+      g.fillStyle = coral;
+      CREED.forEach((t,i)=>{
+        const w = g.measureText(t).width;
+        g.fillText(t, W/2 - w/2, (CARD.capBase + i*CARD.capStep)*k);
+      });
+    } else {
+      /* act N of N */
+      const parts = ['act ', String(a.no), ' of ' + CW.n];
+      g.font = f(CARD.actSize, 700);
+      const wA = g.measureText(parts[0]).width, wB = g.measureText(parts[1]).width,
+            wC = g.measureText(parts[2]).width;
+      const total = wA+wB+wC;
+      let x = W/2 - total/2;
+      const base = CARD.actBase*k;
+      g.fillStyle = coral;
+      g.fillText(parts[0], x, base); x += wA;
+      g.fillText(parts[1], x, base); x += wB;
+      g.fillText(parts[2], x, base);
+    }
+  }
 
   g.restore();                 // out of the safe-margin transform
   return c;
@@ -9796,7 +10170,17 @@ function drawBrowse(){
       const used={}; S.acts.forEach(x=>used[slotOf(x)]=1);
       Object.keys(S.plans||{}).forEach(k=>used[k]=1);
       let slot=1; while(used[slot] && slot<=S.n) slot++;
-      if(slot>S.n){ say('Your year is full','Every slot has something in it already.'); return; }
+      /* Said to somebody browsing ideas on the day they completed fifty acts of
+         good, "your year is full" reads as a door being shut. */
+      if(slot>S.n){
+        say(yearDone() ? 'Every square is spoken for' : 'Your year is full',
+            yearDone()
+              ? 'You have done the whole year. Keep this one in mind \u2014 raise your '+
+                'goal on the You screen, or start a new year, and there will be a square for it.'
+              : 'Every slot has something in it already. Clearing one, or raising your '+
+                'goal on the You screen, makes room.');
+        return;
+      }
       S.plans = S.plans || {};
       /* The idea arrives already written. G, 6 Sept: the rules in an idea
          "could be customized into our actual act itself." Empty fields ride

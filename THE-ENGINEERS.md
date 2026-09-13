@@ -231,6 +231,18 @@ the only network boundary · `prepack`/`handOff` is the gesture boundary.
   **nothing at all, silently** — no error, no page. It can therefore never be the only route to
   anywhere, and any screen offering it must also work for somebody who does not have the app.
 
+- **L19 THE WRITE TOOL CAN WRITE AN OLD FILE AND REPORT SUCCESS.** Confirmed three times now, and
+  on 13 Sep it was not merely stale by minutes: a commit of build 4Z reported both paths written,
+  updated the timestamp, and put **build 4Q on his disk** — a version from six hours and eight
+  builds earlier, 24KB short. Had it not been read back, a push would have deleted the clipboard
+  fix, the past-years rollover, Open Instagram, the phone layer, the reminder and the birthday fix,
+  with a successful-looking log. **The size check alone was what caught it.**
+  **The rule, now mandatory: after every write, list the folder and compare the byte count, then
+  stage the file BACK and compare the build mark or the checksum. A write is not done until the
+  bytes on his disk have been read.** Re-committing from a freshly named staged file fixed it,
+  which suggests something caches by path — so give each build its own name in outputs and commit
+  from that, never from a reused `index.html`.
+
 ## B4. What is genuinely well done — do not "improve" these
 
 - It never pretends to have saved. Distinguishes "your journal isn't saving" from "the photo
@@ -590,6 +602,69 @@ doing nothing where it counts. *"What is this for?"* is a better question than i
 the one that found this.
 
 ---
+
+## C16. BUILD 5A — THE DEFECT SWEEP, 13 September 2026
+
+G: *"fix the defects."* Both reviews of build 4Z were acted on in one pass. **Fifteen real
+defects and eight of the weaker findings.** 32 automated checks pass on a two-year journal
+walked in headless Chromium, plus 13 on a fresh install; no console errors in either.
+
+### From the code seat
+
+| | What it was | What it is |
+|---|---|---|
+| **1** | The posted picture could disagree with the card on screen — the cache key named the goal but not the **hand tone** or the **year word**, so changing either redrew every card in the app while the one going to Instagram stayed the old one, silently and in public | `packKey` names everything the card draws from, including whether the act is act 0 or the closing card |
+| **2** | The **declaration card** posted with "act 0 of 50" printed on it, and the **closing card** with "act of 50" — the screen knew better, the canvas did not | `renderCard` has the same three cases the screen has: no rule and no number for act 0, the creed for the closing card |
+| **3** | **Printing the book after a poster** came out on the wrong paper — two `@page` style elements, `#booksize` and `#postersize`, alive at once and of equal weight, so whichever was created last won every print thereafter | One `#printsize` element, written and re-appended by whichever print is about to happen. `setPageSize()` |
+| **4** | **Two preview panels ran a 60fps loop forever.** A closed panel has no width; both fitters asked for another frame until they got one | Bounded to 60 frames, and they stop at once if the panel is shut. **`fitPvScale` was also handed straight to `rAF`, so it received a timestamp — the retry counter has to be wrapped** |
+| **5** | The **artwork race** — share straight after choosing a new skin tone and the card went out with no hand on it | `renderCard` waits up to 1.5s for the image, then draws whatever is there |
+| **6** | **A long word ran off the card.** `wrapLines` only ever broke *between* words | Breaks by letter when one word is wider than the line |
+| **7** | The **"this month" card** counted `S.acts.length`, the old way, so it could disagree with the number directly above it | `doneCount()` |
+| **8** | The **weekly idea changed every seven weeks** — `IDEA_SEED` already counts in weeks and was being divided by seven again, while the comment beside it said weekly | `IDEA_SEED % pool.length` |
+| **9** | The **month calendar reopened stale** — page back to March, close it, and it opened on March for the rest of the year | Opening it is a request for now |
+
+### From the long-arc seat — the eleven
+
+| | What it was | What it is |
+|---|---|---|
+| **1** | **The ending was a one-shot.** *Not now* spent the moment; the closing card and closing post could never be reached again | **"Read the ending again"** on Your year, beside Start a new goal |
+| **2** | **Raising the goal after finishing killed the ending.** Set 25, finish, raise to 50 — act 50 arrived in silence. Same for halfway | `finShown`/`halfShown` store **the goal they fired at**, not a yes-or-no. A legacy `1` is read as the goal in the same file |
+| **3** | **The rollover deleted the closing post** while carefully keeping act 0 | `fin` and `why` and `name` travel into the archive |
+| **4** | **A finished year lost all its photographs from the journal.** Stored right, loaded right, printed right — and the page a person actually opens never drew them | Past-year pages draw photographs exactly as this year's do |
+| **5** | **The rollover destroyed planned acts and their photos** while the confirmation promised nothing would be lost | `rollYear()` migrates plans into the works shelf, as boot does, and the confirmation says how many come along |
+| **6** | **Year two forgot everyone.** The directory counted only the current year | `allActs()` spans every year. Where the lifetime count and this year differ, the row says both |
+| **7** | **Every card in year two printed the wrong age** — the word is derived on the Setup screen and the rollover goes nowhere near it. And opening Setup rewrote the word on every card ever made, last year's included | `rollYear()` calls `syncReason()`; **`cardWords(a)`** reads a past act's own year record, so an archived year keeps its own goal and its own words |
+| **8** | **The book mislabelled every act from a previous year** — a 25-act year read "act 1 of 50", no divider, one merged title page | Year by year, each with its own divider, its own reason page and its own goal. Closing page totals across years |
+| **9** | **The backup reminder went silent for all of year two** — counted in acts, and the rollover sent the count backwards | The rollover carries across **how much is unsaved**, which is the only part that mattered |
+| **10** | **A year that did not finish could never be ended** — no ending, no archive, no fresh start, "week 52 of 52" forever. The only escape anybody found was lowering the goal, which rewrites every card. **The commonest case by far** | `timeUp()`; the line becomes **"the year is up"**, and **"Close this year"** runs the same rollover with copy that does not call it a failure |
+| **11** | **The backup file could come out as invalid text.** Four photo loops wrote their separating comma on the loop index rather than on having written anything, so one missing photo produced `"photos":[,{…}]` | A `wrotePh` flag in all four. **Tested with a photo that cannot be read: the file parses and the missing one is simply absent** |
+
+### Weaker findings also cleared
+
+- The month card's one piece of commentary was shown **only to the person who was behind**. An empty month is an empty month; it is said to everybody now, which makes it a description rather than a verdict. The pace arithmetic behind it has no reader left and is gone.
+- **"Your year is full"** on the day somebody completed fifty acts of good now says every square is spoken for, and where to make room.
+- **A lifetime total** — it existed nowhere in the app. The journal header now reads "75 acts of good · 12 of 50 this year".
+- **"Started 30 weeks ago"** stops counting up past four months and says *started in March* instead.
+- **Every archived year was called "the year before."** Named by the year it ended.
+- **A past year's divider hardcoded "in year"**, so "this summer" was archived as "in year summer". It uses the year's own two words.
+- **A past year had no opening page** — its `why` is carried and printed.
+- **Contributions matched by substring**, so a "Jo" was credited with everything "Joanna" put in. Exact, trimmed, case-insensitive.
+
+### New landmines this build
+
+- **L20 `rAF` HANDS YOUR FUNCTION A TIMESTAMP.** `requestAnimationFrame(fn)` where `fn` takes a retry count reads roughly 12000 attempts already spent and gives up on the first frame. Wrap it: `requestAnimationFrame(()=>fn())`.
+- **L21 A PANEL THAT IS SHUT HAS NO WIDTH.** Any measure-and-retry loop must test `offsetParent` and must be bounded. Two shipped without either.
+- **L22 A SEPARATOR COMMA BELONGS TO WHAT WAS WRITTEN, NOT TO THE LOOP INDEX.** Any loop that can `continue` and also writes JSON by hand needs a flag. This shipped four times in one function.
+- **L23 `finShown` AND `halfShown` ARE NOW GOALS, NOT FLAGS.** Anything comparing them to `true` is wrong. Both halves named; a legacy `1` is migrated on load.
+- **L24 A PAST ACT IS THE OBJECT IN `S.past`, NOT A COPY.** `actYear()` matches by identity and depends on that. Anything that clones past acts into a new array breaks `cardWords`, and cards silently revert to the current year's words.
+
+### Still open, deliberately
+
+- **The people directory is still sorted by act count** — a league table of your friends, highest first, with no word about what any of them did with you. The seat is right that it reads as a ledger, but the sort order and what a row says are design, not defects. **For G.**
+- **"See their acts" still filters this year only**, while the count spans every year. The row says both rather than quietly disagreeing; a past-year filter is a bigger change.
+- **Past acts are still frozen shut** — no write-it-up, no change-anything, no envelope. The current year's journal promises "everything in it can still be changed" and that promise still expires at the rollover.
+- **The rollover still does not ask what the next year should be.** Same number, same length, straight to the declaration.
+- **Nothing still ever reaches out.** No notifications of any kind. This is the store build's whole reason and it is not written yet.
 
 # PART D — WHAT MUST BE TESTED ON A REAL PHONE
 
