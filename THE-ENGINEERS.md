@@ -408,6 +408,159 @@ handle fields; and ticking nothing shows all three rather than an empty screen, 
 
 **Closed.** Drawn for the record at `reviews/WHERE-YOU-POST.html`.
 
+## C12. RULED 12 September 2026 — **it ships as a real app in both stores**
+
+G: *"it will be a store app so accommodate it."* Every decision from here assumes this. The full
+study is `THE-STORE-APP.md` beside this file; the headlines, because they change the priority order
+of everything above:
+
+**The biggest risk is not the one anybody expected.** Apple treats a sheet where strangers type
+their names and messages as **user-generated content**, which drags in four permanent obligations —
+filter it, let people report it, be able to block people, and publish contact details for yourself —
+and "egregious or repeated" failure is grounds for removing the whole developer account. **The
+recommendation is that version one ships WITHOUT the sign-up sheet inside the app.** The sheet loses
+nothing: the poster already points at the website. **G has not ruled on this.**
+
+**Second biggest: rule 4.2, minimum functionality.** A wrapped website gets rejected, and a 2026
+case had a reviewer say sharing alone is "not robust enough". The pattern that passes is two or
+three genuine native capabilities plus review notes naming them in plain words. We are well placed:
+reminders, photographs, offline and a lock are four things the product wants anyway.
+
+**The best news in the whole study:** the market's single biggest gap against us — *no reminders of
+any kind* — is answered by **local notifications**, which need no server, no account, no push
+service, no fee and no privacy declaration. The phone schedules them and the phone shows them. It is
+the most philosophically aligned feature available to this product and it is nearly free. It also
+retires the untested gamble in C9 #1 about whether a calendar file's alarm fires.
+
+**Instagram Stories opens.** A native app plus a Meta App ID, no Meta review. The card lands on the
+Stories canvas and the person writes their own words on top — which makes the caption problem moot
+rather than solving it. The Instagram **feed** caption stays permanently closed to everyone.
+
+**Routine work stays instant.** Both stores explicitly permit shipping new HTML into an installed
+app without a review, so wording, design, bug fixes and new ideas still go out the moment G pushes.
+Only new native capabilities, icons, permissions and store text need a submission — perhaps twice a
+year. **The store is an occasional event, not a release process.**
+
+**But somebody technical must do the releases.** Building for iPhone needs a Mac with Xcode or a
+paid cloud builder. There is no browser-only path to a first submission; the people claiming
+otherwise are selling something.
+
+**Nobody's data comes across** — a home-screen web app and a store app are two unrelated programs to
+the phone, and there is no mechanism that lets one read the other. **CORRECTED SAME DAY: G — "no one
+is using it. This is all testing."** So there is nobody to strand, and the migration problem that
+looked like the top of the list is very nearly nothing. Build the way-across for the backup it is,
+not for a rescue nobody needs. **Whoever picks this up later: check whether that is still true
+before repeating the reassurance — it stops being true the day a real year starts.**
+
+**THE CONSEQUENCE THAT MATTERS MORE, and it is a clock.** With no journals in the world, there is
+nothing to keep compatible. Storage can be restructured, fields renamed, the whole persistence layer
+moved to native — the most dangerous refactor in the codebase, which the study says to defer — at a
+fraction of its eventual cost, because the only thing that can break is test data. **That freedom
+ends permanently the moment somebody begins a real year, and it never comes back.** Anything
+structural that is ever going to happen is cheapest today. That is the real deadline on this
+project, and it is self-imposed rather than external.
+
+Other things to do now, from the study: route anything assuming a fixed web address through one
+setting; **put every phone-dependent behaviour — sharing, clipboard, saving, photographs, printing,
+reminding — behind one switch each**, which is the difference between a wrapper project and a
+rewrite; keep everything changeable in the HTML and only freeze icons and permissions natively;
+make the birthday optional and declare the app not directed at under-13s; write an exact privacy
+policy; and promise the website forever, because every QR poster on every wall points at it.
+
+**Costs:** $99/year Apple, $25 once for Google, optional ~$12–14/month for live updates. Three to
+six weeks elapsed for a first submission, and **budget for one rejection — it is normal.** Google
+also requires **twelve testers opted in continuously for fourteen days** before a new personal
+account can publish at all; start that early, in parallel.
+
+## C13. THE FRAMING THAT SETTLES MOST STORE QUESTIONS — G, 13 September 2026
+
+> *"We are building a carriage and a harness for people to post a journal. That's something they
+> post, not us."*
+> *"To me, it's like saying, is Photoshop responsible for what you write and create there when you
+> post it."*
+
+**He is right, and this should be the first thing anyone reaches for when a store rule looks
+alarming.** The journal, the photographs, the card, the caption: made on the phone, kept on the
+phone, posted by the person themselves through the phone's own share sheet. Nothing is transmitted
+to us, nothing is hosted by us, nothing is shown by us to anybody. That is Photoshop's position
+exactly, and nobody asks Adobe to moderate what people make in it.
+
+**An error to learn from rather than repeat.** I told him the sign-up sheet made the app
+user-generated content and listed four obligations. Then I read our own source: **the public sheet
+page uses a claimer's name only to decide whether a row is taken, and prints "In good hands". The
+message is never rendered publicly at all** — it reaches the organiser alone, through their own app,
+behind their key. Nothing a stranger types is ever seen by another stranger. It is a form, not a
+noticeboard.
+
+Worse, I know why I believed otherwise: **the market study I commissioned that morning PROPOSED
+showing the note publicly** (*"Lasagne, no nuts — in good hands"*, to stop five people bringing
+lasagne). G never ruled it and it was never built. I then remembered my own proposal as though it
+were the app. **Third time in one day this project was bitten by somebody trusting a document over
+the source, and that time the document was mine.**
+
+**Where the analogy genuinely stops, and it is narrow.** Photoshop does not host a public web page
+for you. We do: the organiser publishes their sheet at an address anyone with the link can open. At
+that moment we are not Photoshop, we are closer to a site builder — and nobody holds a site builder
+responsible for what you write either, but a host does carry two small, ordinary duties: **be
+reachable, and be able to take a page down.** That is an email address and a quiet report link. It
+is not a moderation regime, and filtering and blocking do not apply, because there is nobody posting
+to anybody.
+
+**The rule of thumb for future sessions: ask whether we HOST it, not whether a user MADE it.**
+Made-and-kept-on-the-phone is the carriage. Hosted-at-our-address is the narrow exception, and it
+covers exactly one page in the whole product.
+
+## C14. THE FOUR SEATS' TAKES — 13 September 2026, after the store ruling
+
+Each seat, four points, asked for after everything above was built.
+
+**Code & architecture** — (1) Nobody has ever finished a year in this app, and the first people to
+do so will be strangers; the rollover is fixed **on paper** and someone must complete a real year on
+a real phone with real photographs, reopen it, and print the book, before launch. (2) A phone can be
+lost or replaced and everything lives on it — that is the right design, so **the backup stops being
+a nicety and becomes the product**; consider making it impossible to reach act ten without having
+made one. (3) The sheet's thirty-day promise must be true everywhere or the sentence must change —
+do not ship the gap into a store that asks you to declare what you collect. (4) **Changed his mind:**
+he defended having no tests; a store release means versions and review queues and a bug reaching
+people you cannot ring. Not a test suite — **six named sequences walked by hand before every
+release**, rollover and backup among them. *"The carriage is fine; it is the harness coming loose
+that will hurt somebody."*
+
+**Platform & integration** — (1) Going native changes his verdict on exactly one thing: **Instagram
+Stories**, which needs only a Meta App ID and lands the card on the canvas with a tappable link. The
+feed caption stays impossible for everyone. (2) The clipboard fault being real changes how he reads
+the original complaint: *"he was not asking for the impossible, he was describing a bug."* **Do three
+real posts on the phone and confirm** — if it works now, most of the frustration is already gone.
+(3) The direct-open button is right, but it should say where it is about to take somebody, and must
+never be the only route. (4) **The carriage framing is the safest decision anyone has made here** —
+every route that removes the human (publishing from a server, scheduling on their behalf) is
+available to a native app and would quietly make us the author of somebody else's good deed.
+
+**Market & competition** — (1) The stores improve the position **because the reminder now lives on
+the phone**: the whole category rents its core value from an email provider; we own it outright and
+still work with no signal. **Drop the calendar-alarm recommendation** — obsolete before it was
+built. (2) **The one thing the stores cost us is our best argument.** Doodle pulled its apps; the
+market leader is 1.3 stars in the store and 4.5 on the web. Protect it by keeping the stranger's
+side exactly as it is: **whoever scans a poster must never be asked to install anything**, and the
+page should say so. (3) The editing work just shipped is a trust story nobody else in the category
+can tell — say it out loud. (4) **Watch for the store pulling us toward accounts.** Sign in, sync,
+restore, notify: the moment the organiser has an account, the thirty-day wipe and no-names-in-public
+stop being architecture and become promises. Also: **"meal train" is a competitor's trademark, not
+a common noun** — get a real opinion before any copy uses it.
+
+**Product & the long arc** — (1) The stores solve his two worst findings at once, so he **withdraws
+the export file as the highest-value next thing** — it is insurance rather than rescue now. But the
+freedom lasts only until one real person starts a real year, so **every structural decision should
+be settled before the first user**. (2) **The ending should be ruled now, not discovered in month
+eleven**: the fiftieth act offers to close the year rather than firing a celebration; the book leads
+with the people rather than the totals; and it must be available at thirty-seven acts as readily as
+at fifty, **titled by what happened rather than what did not**. (3) **The debt-ledger wording in the
+people directory** is the one open risk to fix before launch — "who owes nothing" is accounting
+language beside named real people and what was spent on them, and it is what a stranger screenshots.
+An afternoon of copy. (4) An app anyone can download is used by people who never read the letter:
+**a lock over the directory, and one honest moment at the card step asking whether the people in the
+photograph agreed.** *"If they post it, the app owes them that."*
+
 ---
 
 # PART D — WHAT MUST BE TESTED ON A REAL PHONE

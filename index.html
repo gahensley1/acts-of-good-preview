@@ -1301,7 +1301,7 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
     </div>
 
     <!-- BUILD MARK — dev only, delete this div when the app ships -->
-    <div id="buildtag">BUILD 4T</div>
+    <div id="buildtag">BUILD 4V</div>
   </div>
 </section>
 
@@ -2699,8 +2699,8 @@ async function exportJournal(){
      Drive, whatever they use. A download link is the desktop fallback. */
   try {
     const f = new File([blob], name, {type:'application/json'});
-    if(navigator.canShare && navigator.canShare({files:[f]})){
-      await navigator.share({ files:[f] });
+    if(PHONE.canShareFiles([f])){
+      await PHONE.share({ files:[f] });
       backupMade();
       return;
     }
@@ -2956,6 +2956,98 @@ async function wipe(){
   try { await idbClear(); } catch(e){}
   location.reload();
 }
+
+/* ══ THE PHONE ════════════════════════════════════════════════════════════
+   RULED 12–13 September 2026: this ships as a real app in the App Store and
+   Google Play, not only as a page you add to your home screen.
+
+   G: "it will be a store app so accommodate it."
+
+   Everywhere the app reaches out and touches the phone — sharing, copying,
+   saving a file, printing, opening another app, and one day reminding — it now
+   goes through here. One small place per behaviour.
+
+   WHY THIS EXISTS, and it is the whole point: inside a real app these are
+   different mechanisms. Saving a picture goes to the photo library rather than
+   a downloads folder. Sharing goes through the phone's own sheet rather than
+   the browser's. A reminder becomes something the phone schedules instead of
+   something we cannot do at all. If those calls stay scattered through ten
+   thousand lines, adding a wrapper is a rewrite. Gathered here, it is an
+   afternoon: the web version below stays exactly as it is, and the wrapper
+   sets PHONE.native and hands each one its native twin.
+
+   NOTHING BELOW CHANGES BEHAVIOUR TODAY. Each method is the same code that was
+   already there, moved. That is deliberate: a preparation that also changes
+   what the app does is a preparation nobody can verify. */
+const PHONE = {
+  /* flipped to true by the native wrapper, never by the web build */
+  native: false,
+
+  /* Where the app is running from. In a store build this is NOT
+     actsofgood.app — it is a private address inside the app — so anything that
+     assumed the two were the same has to ask here instead. */
+  origin(){ return location.origin; },
+
+  canShareFiles(files){
+    try{ return !!(navigator.canShare && navigator.canShare({ files:files })); }
+    catch(_){ return false; }
+  },
+  canShare(payload){
+    try{ return !!(navigator.canShare && navigator.canShare(payload)); }
+    catch(_){ return false; }
+  },
+  hasShare(){ return !!navigator.share; },
+  share(payload){
+    if(!navigator.share) return Promise.reject(new Error('no share'));
+    return navigator.share(payload);
+  },
+
+  /* The clipboard. MUST be reachable in the same instant as the tap — see the
+     defect that made posting to Instagram feel broken. Never put a wait above
+     a call to this. */
+  copy(text){
+    if(navigator.clipboard && navigator.clipboard.writeText)
+      return navigator.clipboard.writeText(text).catch(()=>legacyCopy());
+    return Promise.resolve(legacyCopy());
+  },
+  canCopyRich(){ return !!(navigator.clipboard && window.ClipboardItem); },
+  copyRich(items){ return navigator.clipboard.write(items); },
+
+  /* Handing a file over. On the web this is a download, which on a phone lands
+     somewhere people cannot find. In the app it becomes "save to your photos"
+     or "save to Files", which is what anybody actually meant. */
+  save(blob, name){
+    const url = URL.createObjectURL(blob);
+    const el = document.createElement('a');
+    el.href = url; el.download = name;
+    document.body.appendChild(el); el.click(); el.remove();
+    setTimeout(()=>URL.revokeObjectURL(url), 4000);
+    return Promise.resolve(false);        // false: we cannot know it happened
+  },
+
+  print(ms){ setTimeout(()=>window.print(), ms||60); },
+
+  /* Opening somebody else's app. On the web a scheme that nothing answers does
+     nothing at all, silently, so the website is the safety net. */
+  openScheme(scheme){ try{ location.href = scheme; }catch(_){} },
+
+  /* ── NOT BUILT, AND THE REASON THE STORE IS WORTH IT ──────────────────────
+     A reminder the evening before. Every competitor's actual product is this,
+     and it is the one thing we have never been able to do — a web page cannot
+     ask a phone to wake it up later.
+
+     In the app the phone schedules it and the phone shows it: no server, no
+     account, no notification service, no fee, nothing sent anywhere, nothing to
+     declare. It works in flight mode. It is the most philosophically aligned
+     feature available to this product and it is very nearly free.
+
+     Left as an honest no-op so every call site can be written today and simply
+     do nothing until the wrapper arrives. Anything calling this must still work
+     perfectly when it returns false. */
+  canRemind(){ return false; },
+  remind(/* when, title, body */){ return Promise.resolve(false); },
+  forget(/* id */){ return Promise.resolve(false); }
+};
 
 /* ── state ── */
 const S = {
@@ -4778,8 +4870,8 @@ function sendAsk(){
        better than either when it is available, because the person picks the app.
        Failing that, ask the platform which form it wants. */
     const text = $('ask-body').value;
-    if(navigator.share){
-      navigator.share({ text:text }).catch(err=>{
+    if(PHONE.hasShare()){
+      PHONE.share({ text:text }).catch(err=>{
         if(!err || err.name!=='AbortError') smsFallback(body);
       });
       return;
@@ -4832,8 +4924,8 @@ async function shareInvite(withCard){
     if(png) files.unshift(new File([png], 'invitation-act-'+a.no+'.png', { type:'image/png' }));
   }
 
-  if(navigator.canShare && navigator.canShare({ files:files })){
-    navigator.share({ files:files, text: body }).catch(err=>{
+  if(PHONE.canShareFiles(files)){
+    PHONE.share({ files:files, text: body }).catch(err=>{
       if(err && err.name==='AbortError') return;
       say('Your phone would not open the share sheet',
           'Use “Text it” or “Email it” instead, and the invitation still goes.');
@@ -4895,13 +4987,13 @@ function copyBoth(){
     return new Blob([html], {type:'text/html'});
   })();
 
-  if(navigator.clipboard && window.ClipboardItem){
+  if(PHONE.canCopyRich()){
     /* the promise goes in unresolved — the write is issued on the press and the
        card catches up. Chrome and Safari both take this shape; nothing else has
        ever worked on Safari. */
     let wrote = false;
     try{
-      navigator.clipboard.write([ new ClipboardItem({
+      PHONE.copyRich([ new ClipboardItem({
         'text/html' : rich,
         'text/plain': new Blob([note], {type:'text/plain'})
       })]).then(()=>{
@@ -4923,11 +5015,7 @@ function copyBoth(){
 async function copyBothFallback(a, note){
   try {
     const blob = await inviteBlob(a);
-    const url = URL.createObjectURL(blob);
-    const el = document.createElement('a');
-    el.href=url; el.download='invitation-act-'+a.no+'.png';
-    document.body.appendChild(el); el.click(); el.remove();
-    setTimeout(()=>URL.revokeObjectURL(url), 4000);
+    await PHONE.save(blob, 'invitation-act-'+a.no+'.png');
     say('Your words are copied',
         'The card could not go on the clipboard on this phone, so it has been '+
         'handed to your downloads instead. Look for it there, put it in first, '+
@@ -6617,7 +6705,7 @@ async function printJournal(){
 
   b.innerHTML = html;
   fitBook();
-  setTimeout(function(){ window.print(); }, 120);
+  PHONE.print(120);
 }
 
 /* Same discipline as the poster: measure, do not guess. A long story steps
@@ -6651,7 +6739,7 @@ function askPoster(kind){
     ? '<div class="psheet">'+posterPanel(sh,true)+posterPanel(sh,true)+'</div>'
     : posterPanel(sh,false);
   fitPlate();
-  setTimeout(function(){ window.print(); }, 60);
+  PHONE.print(60);
 }
 
 function openWork(w){
@@ -8683,9 +8771,8 @@ function envNote(){ CM_PLAT='private'; buildCaption(false); }
    at the same moment the share sheet is trying to open. Use the async clipboard
    where it exists, and only fall back to the selection trick where it does not. */
 function copyToClip(text){
-  if(navigator.clipboard && navigator.clipboard.writeText)
-    return navigator.clipboard.writeText(text).catch(()=>legacyCopy());
-  return Promise.resolve(legacyCopy());
+  /* one place, and PHONE.copy is it — see the note on the gesture there */
+  return PHONE.copy(text);
 }
 function legacyCopy(){
   const t=$('cm-text'); if(!t) return false;
@@ -8887,15 +8974,15 @@ function handOff(){
   const files = PACK.files;
 
   if(SHARES_FILES[CM_PLAT] && files && files.length &&
-     navigator.canShare && navigator.canShare({files:files})){
+     PHONE.canShareFiles(files)){
     /* Private carries the words with it. So do Threads and Facebook, which both
        accept text through the sheet; only Instagram insists on the clipboard. */
     const payload = { files:files };
     if(CM_PLAT!=='instagram') payload.text = text;
-    if(!navigator.canShare(payload)) delete payload.text;   // sheet refused the pair
+    if(!PHONE.canShare(payload)) delete payload.text;      // sheet refused the pair
     markLeaving(a);
     const needsPaste = (CM_PLAT==='instagram');
-    navigator.share(payload).then(()=>{
+    PHONE.share(payload).then(()=>{
       /* The instruction to paste used to live under the button — on a screen
          that is now BEHIND Instagram, invisible at the exact moment she is
          staring at an empty caption box. A web app cannot banner over another
@@ -8911,9 +8998,9 @@ function handOff(){
     return;
   }
   if(CM_PLAT==='private'){
-    if(navigator.share){
+    if(PHONE.hasShare()){
       markLeaving(a);
-      navigator.share({ text:text }).then(()=>{ askIfPosted(); }).catch(err=>{
+      PHONE.share({ text:text }).then(()=>{ askIfPosted(); }).catch(err=>{
         LEFT_FOR = null;
         if(!err || err.name!=='AbortError') shareFailed();
       });
@@ -9082,7 +9169,7 @@ function openApp(onLeft){
     }
     window.location.href = web;
   }, 1200);
-  window.location.href = APP_SCHEME[CM_PLAT];
+  PHONE.openScheme(APP_SCHEME[CM_PLAT]);
 }
 const STANDALONE = (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches)
                    || window.navigator.standalone === true;
