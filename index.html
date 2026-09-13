@@ -1301,7 +1301,7 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
     </div>
 
     <!-- BUILD MARK — dev only, delete this div when the app ships -->
-    <div id="buildtag">BUILD 5A</div>
+    <div id="buildtag">BUILD 5F</div>
   </div>
 </section>
 
@@ -2117,6 +2117,42 @@ What you actually did. Why it mattered. Say the awkward parts."></textarea>
      not all the information stuck on one window." The You screen keeps what a
      backup IS; the doing of it lives here, and the button to do it sits at the
      foot of the instructions rather than back behind them. -->
+<!-- RULED 13 September 2026 — G: "I want to be able to go back and copy things,
+     so the middle option is ok." A finished act can have its story written or
+     changed, and can be sent as a personal note, for as long as the journal
+     lasts. What it CANNOT have changed is what happened: the number, the date
+     and the people are the record of a day, and a record you can rewrite is
+     somebody else's record. -->
+<div class="sheet hide" id="sheet-past" role="dialog" aria-modal="true" aria-labelledby="pst-h3"><div class="panel">
+  <button class="sheetback" onclick="sheet(null)">&lsaquo; Back</button>
+  <div class="steps" id="pst-step">An earlier year</div>
+  <h3 id="pst-h3">Write it up</h3>
+  <p class="note" id="pst-what" style="margin:0 0 14px"></p>
+  <div class="field">
+    <label>The story</label>
+    <textarea id="pst-story" rows="8" placeholder="What happened, in your own words."></textarea>
+  </div>
+  <p class="note" style="margin:10px 0 0">The number, the date and who was with
+    you stay as they were written. This is the part that was left for later.</p>
+  <button class="btn" style="margin-top:18px" onclick="savePastStory()">Keep it</button>
+</div></div>
+
+<div class="sheet hide" id="sheet-restart" role="dialog" aria-modal="true" aria-labelledby="rst-h3"><div class="panel">
+  <div class="steps">A new year</div>
+  <h3 id="rst-h3">How many this time?</h3>
+  <p class="note" id="rst-was" style="margin:0 0 14px"></p>
+  <div class="field">
+    <label>How many acts?</label>
+    <div class="numgrid" id="rst-n"></div>
+  </div>
+  <div class="field">
+    <label>Over what period?</label>
+    <div class="chips" id="rst-w"></div>
+  </div>
+  <p class="note" id="rst-word" style="margin:12px 0 0"></p>
+  <button class="btn" style="margin-top:18px" onclick="restartGo()">Begin</button>
+</div></div>
+
 <div class="sheet hide" id="sheet-bkup" role="dialog" aria-modal="true" aria-labelledby="bk-h3"><div class="panel">
   <button class="sheetback" onclick="sheet(null)">‹ Done</button>
   <div class="steps">A backup</div>
@@ -2637,6 +2673,24 @@ async function exportJournal(){
     for(let i=0;i<(S.works||[]).length;i++){
       const w = S.works[i];
       const slim = Object.assign({}, w); delete slim.photos;
+      /* THE CLAIM LIST DOES NOT GO IN THE BACKUP. The file is meant to be put
+         in iCloud Drive or mailed to yourself, and it was carrying forty
+         strangers' names, phone numbers and messages out of the app and into
+         cloud storage, with no thirty-day clock on it anywhere and nothing on
+         the page that promised them otherwise.
+
+         The sheet itself travels — its id, its needs, its key — because that is
+         the organiser's own record of their own act, and the key is their own
+         credential for it. What does not travel is other people's details. A
+         restored journal shows the sheet and re-reads the live one from the
+         server, which is where the thirty-day rule already lives. */
+      if(slim.sheet && typeof slim.sheet === 'object'){
+        const sheet = Object.assign({}, slim.sheet);
+        if(Array.isArray(sheet.claims))
+          sheet.claims = sheet.claims.map(c=>(c && typeof c==='object')
+            ? { pos:c.pos, grp:c.grp, text:c.text, taken:!!(c.name) } : null);
+        slim.sheet = sheet;
+      }
       if(i) parts.push(',');
       const wj = JSON.stringify(slim);
       parts.push(wj.slice(0, wj.length-1));
@@ -3136,7 +3190,7 @@ const CATS = ['Anything','Neighbors','Teachers & schools','Community helpers',
     The d-line carries the playbook fact that removes the excuse. */
 const IDEAS = [
  {t:"Bake something for new neighbors",l:"Today",s:"An hour",c:"Neighbors",cost:"Under $20",
-  d:"Wrap it, and write what is in it on the tag. That takes ten seconds and the welcome is still the point.",
+  d:"Wrap it, add a handwritten tag. Don’t overthink the allergies, the welcome is the point.",
   why:"",tag:"",needs:[],art:""},
  {t:"Take a neighbor's trash and recycling out, and back",l:"Today",s:"An hour",c:"Neighbors",cost:"Free",
   d:"Collection day, both directions. Small enough to repeat every week without asking.",
@@ -3150,11 +3204,11 @@ const IDEAS = [
  {t:"Share garden surplus door to door",l:"Today",s:"An hour",c:"Neighbors",cost:"Free",
   d:"A bag on the porch with a note. Zucchini season exists for this.",
   why:"",tag:"",needs:[],art:""},
- {t:"Leave a review for a small business",l:"Today",s:"An hour",c:"Neighbors",cost:"Free",
-  d:"Free, takes four minutes, and it is worth real money to somebody local.",
+ {t:"Leave a review for a beloved small business",l:"Today",s:"An hour",c:"Neighbors",cost:"Free",
+  d:"Free, takes four minutes, and it is worth real money to someone local.",
   why:"",tag:"",needs:[],art:""},
  {t:"Stock a Little Free Library that needs it",l:"This weekend",s:"A weekend",c:"Neighbors",cost:"Under $20",
-  d:"The directory at littlefreelibrary.org lists them. Find one in an underserved spot, not the fullest one nearby.",
+  d:"The directory at littlefreelibrary.org lists them. Skip the one closest to you and find one in an underserved spot, not the fullest one nearby.",
   why:"",tag:"",needs:[],art:""},
  {t:"A block gathering that introduces two strangers",l:"Needs a month",s:"A village",c:"Neighbors",cost:"$20 or more",
   d:"First Tuesday of August is National Night Out. Introduce two neighbors who have never met.",
@@ -3165,17 +3219,17 @@ const IDEAS = [
  {t:"A card for every door in a senior housing building",l:"A week or two",s:"A weekend",c:"Neighbors",cost:"Under $20",
   d:"December. Call the office first, they will tell you how many doors and which entrance.",
   why:"a great many of those doors get no post at all",tag:"",needs:["Blank cards, one per door","Stamps if they go by post","Pens that write well","A count from the office first"],art:""},
- {t:"Fill a teacher's classroom wish list",l:"This weekend",s:"A weekend",c:"Teachers & schools",cost:"$20 or more",
-  d:"Buy the boring things on it. Split it with a friend and cover a few items each.",
+ {t:"Contribute towards a teacher’s classroom wish list",l:"This weekend",s:"A weekend",c:"Teachers & schools",cost:"$20 or more",
+  d:"Buy the boring things on it. Go in with a friend and cover a few items each.",
   why:"teachers buy this out of their own pocket, every year",tag:"",needs:["Expo markers","Tissues","Glue sticks","Snacks for the drawer","Headphones"],art:""},
- {t:"Write to a teacher who mattered",l:"Today",s:"An hour",c:"Teachers & schools",cost:"Free",
-  d:"Yours, or your children’s. Post it, a letter lands differently than a message.",
+ {t:"Write to a teacher whose impact was meaningful",l:"Today",s:"An hour",c:"Teachers & schools",cost:"Free",
+  d:"Yours, or your children’s. Send it snail mail, a letter lands differently than a message.",
   why:"",tag:"",needs:[],art:""},
  {t:"Email the principal about one teacher, and cc them",l:"Today",s:"An hour",c:"Teachers & schools",cost:"Free",
   d:"One specific paragraph with evidence. It goes in a personnel file, praise to the manager travels.",
   why:"",tag:"",needs:[],art:""},
  {t:"Stock the staff room for a week",l:"A week or two",s:"A weekend",c:"Teachers & schools",cost:"$20 or more",
-  d:"Drinks and treats on a Monday, with a card so they know they are seen. Include cleaners, office staff, bus drivers.",
+  d:"Drinks and treats on a Monday, with a card of gratitude so they know they are seen. Include cleaners, office staff, bus drivers.",
   why:"the staff room runs on whatever somebody remembered to bring",tag:"",needs:["Good coffee","Tea and sugar","Something to put in the fridge","Fruit","Paper towels"],art:""},
  {t:"Encouragement notes for a teacher to hand out",l:"This weekend",s:"An hour",c:"Teachers & schools",cost:"Free",
   d:"A stack of small \"I see you\" cards, for working hard, being a good friend, going above and beyond. The teacher does the spotting.",
@@ -3183,32 +3237,32 @@ const IDEAS = [
  {t:"Pay off a school's lunch balances",l:"A week or two",s:"A weekend",c:"Teachers & schools",cost:"$20 or more",
   d:"Call the district food services office, not the school. Ask for the negative-balance total.",
   why:"",tag:"",needs:[],art:""},
- {t:"Shoes and underwear for the school nurse",l:"A week or two",s:"A weekend",c:"Teachers & schools",cost:"$20 or more",
-  d:"The nurse runs the clothing closet and knows the sizes they are short of. Unopened packs only.",
+ {t:"Shoes or underwear for the school nurse",l:"A week or two",s:"A weekend",c:"Teachers & schools",cost:"$20 or more",
+  d:"The nurse runs the clothing closet and knows the sizes most needed. Unopened packs only.",
   why:"the nurse keeps these for children who arrive without them",tag:"",needs:["Underwear, new, a range of sizes","Socks","Plain trainers","Leggings and joggers","A bag to keep it all in"],art:""},
- {t:"Deodorant and period products for the school closet",l:"This weekend",s:"An hour",c:"Teachers & schools",cost:"$20 or more",
-  d:"Middle and high schools quietly keep these. August is when the shelf is barest.",
+ {t:"Deodorant and female products for the school closet",l:"This weekend",s:"An hour",c:"Teachers & schools",cost:"$20 or more",
+  d:"Middle and high schools quietly keep these. August is when the shelf is the most in need.",
   why:"a teenager should not have to ask twice for either",tag:"",needs:["Deodorant","Pads and tampons","Face wipes","Body wash","A discreet box to hold them"],art:""},
  {t:"Tell a class what you actually do for work",l:"Needs a month",s:"An hour",c:"Teachers & schools",cost:"Free",
-  d:"One lunchtime a term. Teachers want real jobs described by real people.",
+  d:"One lunchtime a term. Reach out at the beginning of the semester and get on their calendar. Students will benefit from real jobs described by real people.",
   why:"",tag:"",needs:[],art:""},
- {t:"Doughnuts for the vet, clinic or library",l:"Today",s:"An hour",c:"Community helpers",cost:"Under $20",
-  d:"Buy them somewhere you'd like to keep in business. Include a note saying why.",
+ {t:"Doughnuts for the vet, clinic, or library",l:"Today",s:"An hour",c:"Community helpers",cost:"Under $20",
+  d:"Purchase from a local small business that you’d like to keep in business. Include a note saying what they’ve meant to you.",
   why:"",tag:"",needs:[],art:""},
- {t:"Pastries to a fire station",l:"Today",s:"An hour",c:"Community helpers",cost:"Under $20",
-  d:"Call the non-emergency line first, never just turn up. October 28 is First Responders Day.",
-  why:"",tag:"",needs:[],art:""},
+ {t:"Organize a simple meal for your fire station",l:"Today",s:"An hour",c:"Community helpers",cost:"Under $20",
+  d:"Organize neighbors and reach out to the non-emergency line to coordinate drop-off. September 11 or October 28 (First Responders Day) are both great options.",
+  why:"they work the shifts the rest of us are at home for",tag:"",needs:["A pan of something hot","Something cold to drink","Paper plates, cups and napkins","Serving spoons","A note from the street"],art:""},
  {t:"A cooler of cold drinks for the sanitation crew",l:"Today",s:"An hour",c:"Community helpers",cost:"Under $20",
-  d:"Left out on collection morning in summer, with a note or small poster so they know it is for them.",
+  d:"Left out on collection morning in summer, with a note or small poster of gratitude so they know it is for them.",
   why:"the round happens in every kind of weather",tag:"",needs:["Bottled water","Sports drinks","Ice","A cooler you do not need back","A note on the lid"],art:""},
  {t:"A wrapped treat in the mailbox for your carrier",l:"Today",s:"An hour",c:"Community helpers",cost:"Under $20",
-  d:"Sealed and store-bought, with the note taped on. They are not allowed to take much, this they can.",
+  d:"Sealed and store-bought, with the note taped on. They are not allowed to take much, but this they can.",
   why:"",tag:"",needs:[],art:""},
  {t:"Coffee for the night shift on a hospital ward",l:"A week or two",s:"An hour",c:"Community helpers",cost:"Under $20",
-  d:"Sealed and commercial, handed to the nurse manager. The day shift gets everything, nights get nothing.",
+  d:"Sealed and commercial, delivered to the nurse manager. The day shift typically gets everything, nights rarely get much.",
   why:"",tag:"",needs:[],art:""},
  {t:"Name a great staff member to their manager",l:"Today",s:"An hour",c:"Community helpers",cost:"Free",
-  d:"Call the shop and ask for the manager. Praise with a name attached is the kind that counts at review time.",
+  d:"Call the shop and ask for the manager. Sharing specific praise with a name attached is the kind that counts at review time.",
   why:"",tag:"",needs:[],art:""},
  {t:"Thank the crews nobody thanks",l:"Needs a month",s:"A weekend",c:"Community helpers",cost:"Under $20",
   d:"Road crews, night staff, the loading dock. Find out when they are actually there.",
@@ -3217,7 +3271,7 @@ const IDEAS = [
   d:"A certified class, a few hours. The act is being ready for the next ten years.",
   why:"",tag:"",needs:[],art:""},
  {t:"Games hour at a care home",l:"Needs a month",s:"A village",c:"Elders",cost:"Under $20",
-  d:"Call two weeks ahead and ask for the activities coordinator, never reception. Bring prizes and a flyer.",
+  d:"Call three weeks ahead and ask for the activities coordinator, never reception. Email a flyer in advance and bring prizes.",
   why:"an afternoon with people in it, for residents whose week has none",tag:"Cards. Dominoes. Company.",needs:["Two decks of cards","Dominoes","Large-print bingo cards","Small prizes","A pot of coffee"],art:""},
  {t:"Adopt a resident who gets no visitors",l:"Needs a month",s:"A village",c:"Elders",cost:"Free",
   d:"The activities coordinator knows exactly who. Forty-five minutes every two weeks, kept up.",
@@ -3228,7 +3282,7 @@ const IDEAS = [
  {t:"Record an older relative's life story",l:"Today",s:"An hour",c:"Elders",cost:"Free",
   d:"Your phone, their kitchen table, one question to start. You will not regret having the recording.",
   why:"",tag:"",needs:[],art:""},
- {t:"Teach a senior to video-call the grandchildren",l:"Today",s:"An hour",c:"Elders",cost:"Free",
+ {t:"Teach a senior to video-call their grandchildren",l:"Today",s:"An hour",c:"Elders",cost:"Free",
   d:"Set up the shortcut on their home screen and practice twice before you leave.",
   why:"",tag:"",needs:[],art:""},
  {t:"Flowers for assisted-living residents",l:"A week or two",s:"An hour",c:"Elders",cost:"$20 or more",
@@ -3238,10 +3292,10 @@ const IDEAS = [
   d:"Hung on the door in December, for somebody whose holidays got quieter. No note needed.",
   why:"",tag:"",needs:[],art:""},
  {t:"Puzzles and large-print books to a senior center",l:"Today",s:"An hour",c:"Elders",cost:"$20 or more",
-  d:"Large print is the part everyone forgets. Magazines count.",
+  d:"Deliver some activity items. Buying items that are large print is a critical detail. Magazines count.",
   why:"an afternoon is very long without something to do in it",tag:"",needs:["Jigsaws, 300 to 500 pieces","Large-print paperbacks","Crossword books","Playing cards"],art:""},
  {t:"Walk an older neighbor's dog for a month",l:"Needs a month",s:"A village",c:"Elders",cost:"Free",
-  d:"Weekly, same day each week, or take on the litter box. The routine is the gift.",
+  d:"Weekly, same day each week — or take on the litter box. The routine is the gift.",
   why:"",tag:"",needs:[],art:""},
  {t:"Drive one Meals on Wheels route a month",l:"Needs a month",s:"A village",c:"Elders",cost:"Free",
   d:"The doorstep welfare check is the point, not the food. 18+, license and background check, your own gas.",
@@ -3250,41 +3304,41 @@ const IDEAS = [
   d:"Early start, warm room. Most places want you back, which is the good part.",
   why:"",tag:"",needs:[],art:""},
  {t:"Cook a freezable meal for someone in a season",l:"This weekend",s:"A weekend",c:"Feed people",cost:"Under $20",
-  d:"New baby, illness, a loss, or a house gone quiet because a child left for college. Foil tray, instructions taped on.",
+  d:"New baby, illness, a loss — or a house gone quiet because a child left for college. Drop off in a disposable pan they do not have to keep up with and return to you, with the instructions taped on.",
   why:"",tag:"",needs:[],art:""},
  {t:"Buy the food bank's actual top-needs list",l:"Today",s:"An hour",c:"Feed people",cost:"$20 or more",
-  d:"Canned protein, pop-top cans, diapers, period products. January and July are their worst months.",
-  why:"the list is public and almost nobody reads it before shopping",tag:"",needs:["Canned protein","Pop-top cans","Diapers","Period products","Cooking oil"],art:""},
+  d:"Canned protein, pop-top cans, diapers, female products. January and July are their hardest months.",
+  why:"the list is public and almost nobody reads it before shopping",tag:"",needs:["Canned protein","Pop-top cans","Diapers","Female products","Cooking oil"],art:""},
  {t:"Work a sorting shift at a food pantry",l:"This weekend",s:"A weekend",c:"Feed people",cost:"Free",
   d:"The one volunteer job younger children can genuinely do too.",
   why:"",tag:"",needs:[],art:""},
  {t:"Take the prep shift before Thanksgiving",l:"Needs a month",s:"A weekend",c:"Feed people",cost:"Free",
-  d:"The day itself is oversubscribed by early November. The day before is when they are short.",
+  d:"Thanksgiving Day itself is oversubscribed by early November. The days leading up to it are when they are short.",
   why:"",tag:"",needs:[],art:""},
  {t:"Buy the holiday food box's missing items",l:"A week or two",s:"A weekend",c:"Feed people",cost:"$20 or more",
-  d:"Foil, roasting pans, gravy, butter, spices, coffee: the things nobody donates alongside the turkey.",
+  d:"Foil, roasting pans, gravy, butter, spices, coffee — the things nobody donates alongside the turkey.",
   why:"everyone donates the turkey and nobody donates the rest of the dinner",tag:"",needs:["Foil roasting pans","Gravy","Butter","Stuffing mix","Coffee","Pie filling"],art:""},
  {t:"Restock a little free pantry",l:"A week or two",s:"An hour",c:"Feed people",cost:"Under $20",
   d:"Canned protein, tampons, diapers. Check what is missing before you shop.",
   why:"it empties fastest in the weeks nobody is thinking about it",tag:"",needs:["Canned protein","Tampons","Diapers","Peanut butter","Nothing that needs a can opener"],art:""},
- {t:"Hygiene kits and water in the trunk",l:"This weekend",s:"An hour",c:"Feed people",cost:"$20 or more",
+ {t:"Hygiene kits and bottled water in the trunk",l:"This weekend",s:"An hour",c:"Feed people",cost:"$20 or more",
   d:"Made up once, handed out over months, whenever you see the need.",
   why:"so the answer at a junction is something rather than nothing",tag:"",needs:["Bottled water","Socks","Toothbrush and paste","Wipes","A gallon bag for each kit"],art:""},
  {t:"Grocery gift cards kept in the car",l:"Today",s:"An hour",c:"Feed people",cost:"$20 or more",
-  d:"A stack of $5s and $10s from the supermarket, for the person at the intersection. Dignity travels in small denominations.",
+  d:"A stack of $5s and $10s gift cards from the supermarket, for the person at the intersection. Dignity travels in small denominations.",
   why:"",tag:"",needs:[],art:""},
  {t:"Run a diaper-and-formula drive",l:"Needs a month",s:"A village",c:"Feed people",cost:"Free",
   d:"For a family shelter. Sizes 4 to 6 are always the gap.",
   why:"neither one can be bought with food assistance",tag:"",needs:["Diapers, sizes 4, 5 and 6","Wipes","Formula, unopened","Somewhere dry to store it","A car for the drop-off"],art:""},
  {t:"A small monthly gift to a food bank",l:"Today",s:"An hour",c:"Feed people",cost:"$20 or more",
-  d:"Set it up once in January. Steady money buys better than one-off cans.",
+  d:"Set it up once in January. Steady money helps more than one-off cans.",
   why:"",tag:"",needs:[],art:""},
  {t:"Treats for an animal shelter, flowers for the staff",l:"This weekend",s:"A weekend",c:"Animals",cost:"Under $20",
-  d:"Call ahead about homemade. Some shelters take them happily, some cannot.",
+  d:"Call ahead about homemade dog treats — some shelters take them happily, some cannot.",
   why:"the people who work there take it home with them every night",tag:"",needs:["Training treats","Peanut butter","Kongs or chew toys","Flowers for the front desk","Cat litter"],art:""},
  {t:"Old towels and blankets to a shelter",l:"Today",s:"An hour",c:"Animals",cost:"Free",
-  d:"The one place your worn textiles are genuinely wanted. February is the cold month.",
-  why:"this is the one place your worn textiles are genuinely wanted",tag:"",needs:["Towels","Blankets","Sheets","Nothing with stuffing in it"],art:""},
+  d:"The one place your worn textiles are genuinely treasured. February is the coldest month.",
+  why:"this is the one place your worn textiles are genuinely treasured",tag:"",needs:["Towels","Blankets","Sheets","Nothing with stuffing in it"],art:""},
  {t:"Pay the adoption fee for the longest wait",l:"Today",s:"An hour",c:"Animals",cost:"$20 or more",
   d:"Ask the front desk which animal has been there longest. Their fee, covered, changes the odds.",
   why:"",tag:"",needs:[],art:""},
@@ -3292,40 +3346,40 @@ const IDEAS = [
   d:"Transport runs are a weekend and no long-term commitment. Start there.",
   why:"",tag:"",needs:[],art:""},
  {t:"Bird feeders where they will be watched",l:"Today",s:"An hour",c:"Animals",cost:"Under $20",
-  d:"A park, or outside an older person's window. Winter is when it matters.",
+  d:"A park, or outside an older person’s window. Winter is when it matters. Remember to refill.",
   why:"",tag:"",needs:[],art:""},
  {t:"A basket of tennis balls at the dog park",l:"Today",s:"An hour",c:"Animals",cost:"Under $20",
   d:"Left with a note. Cheap, silly, and remembered by every dog and half the owners.",
   why:"",tag:"",needs:[],art:""},
  {t:"Take a bag and a glove on your walk",l:"Today",s:"An hour",c:"Mother Earth",cost:"Free",
-  d:"Bolt it onto a walk you were taking anyway. You will be surprised what you find.",
+  d:"Add it onto a walk you were taking anyway. You will be surprised what you find.",
   why:"",tag:"",needs:[],art:""},
- {t:"Organize a litter pick with neighbors",l:"Needs a month",s:"A village",c:"Mother Earth",cost:"Under $20",
-  d:"A named park, riverbank or beach, then finish somewhere warm. Earth Day is April 22.",
+ {t:"Organize a litter pick with friends or neighbors",l:"Needs a month",s:"A village",c:"Mother Earth",cost:"Under $20",
+  d:"A named park, riverbank or beach, then finish somewhere warm. Earth Day is April 22. International Coastal Clean Up is always the third Saturday in September.",
   why:"the same stretch gets walked past by everybody and cleaned by nobody",tag:"An hour. A bag each. Done.",needs:["Grabbers, if anyone has them","Heavy bags","Work gloves, a few spare pairs","A high-vis vest or two","Somewhere to take it after"],art:""},
  {t:"Plant a tree or a wildflower strip",l:"This weekend",s:"A weekend",c:"Mother Earth",cost:"Under $20",
   d:"On the strip by the street you pass daily, so you get to watch it. Spring.",
   why:"",tag:"",needs:[],art:""},
- {t:"Tools and lumber to a Habitat ReStore",l:"A week or two",s:"A weekend",c:"Mother Earth",cost:"Free",
-  d:"Usable things headed for the dump become somebody’s kitchen instead. Not paint — most ReStores cannot take it. Ring the store before you load the car.",
-  why:"it turns a full garage into somebody's house",tag:"",needs:["Hand tools","Offcut lumber","Working power tools","Fittings and fixings","Doors and cabinets"],art:""},
+ {t:"Tools, paint and lumber to a Habitat ReStore",l:"A week or two",s:"A weekend",c:"Mother Earth",cost:"Free",
+  d:"Usable things headed for the dump become someone’s kitchen instead.",
+  why:"it turns a full garage into somebody's house",tag:"",needs:["Hand tools","Paint","Offcut lumber","Working power tools","Fittings and fixings","Doors and cabinets"],art:""},
  {t:"Organize a free clothing swap",l:"Needs a month",s:"A village",c:"Mother Earth",cost:"Free",
-  d:"Everyone brings a bag, everyone leaves with a bag, the rest goes to a shelter, washed, pockets checked.",
+  d:"Everyone brings a bag, everyone leaves with a bag, the rest goes to a shelter — washed, pockets checked.",
   why:"good clothes get a second life instead of a landfill",tag:"Bring a bag. Leave with a bag.",needs:["A folding table or two","Hangers","A long mirror","Bags for what is left","A car for the shelter run"],art:""},
  {t:"Do an act in someone’s honor instead of a gift",l:"A week or two",s:"An hour",c:"Friends & family",cost:"Free",
-  d:"For a birthday, a memory, a thank-you. Ask what they would want done in their name, then do it.",
+  d:"For a birthday, a memory, a thank-you. Think of something specific to the person, a cause near and dear to their heart. It can be simple. The gesture will be so meaningful.",
   why:"",tag:"",needs:[],art:""},
  {t:"Sponsor a friend’s fundraiser, and say why",l:"Today",s:"An hour",c:"Friends & family",cost:"$20 or more",
   d:"Money counts. Adding a sentence about why you gave is what they will remember.",
   why:"",tag:"",needs:[],art:""},
  {t:"Girl Scout cookies, bought and given away",l:"Today",s:"An hour",c:"Friends & family",cost:"Under $20",
-  d:"Gift boxes to neighbors, or use the troop’s option to send them to service members overseas.",
+  d:"Gift boxes to neighbors, or use the troop’s option to send them to military troops or first responders.",
   why:"",tag:"",needs:[],art:""},
  {t:"Babysit so someone gets a night off",l:"This weekend",s:"A weekend",c:"Friends & family",cost:"Free",
   d:"Offer a specific date rather than \"any time\", that is what makes it happen.",
   why:"",tag:"",needs:[],art:""},
  {t:"Four hours of December childcare",l:"A week or two",s:"A weekend",c:"Friends & family",cost:"Free",
-  d:"So a friend can shop, wrap, or sleep. December is when nobody offers.",
+  d:"So a friend can shop, wrap, or sleep. December is when nobody offers. Especially helpful for a single parent.",
   why:"",tag:"",needs:[],art:""},
  {t:"Do a friend's dreaded chore",l:"This weekend",s:"A weekend",c:"Friends & family",cost:"Free",
   d:"Clean the house of someone who is ill. The chore they mention twice is the one.",
@@ -3346,7 +3400,7 @@ const IDEAS = [
   d:"If you have lost your mother or father: a meal out for a mother or father in your circle honors them both.",
   why:"",tag:"",needs:[],art:""},
  {t:"An ordinary walk on a hard day",l:"A week or two",s:"An hour",c:"Friends & family",cost:"Free",
-  d:"For someone whose calendar has a landmine in it. No occasion talk unless they start it.",
+  d:"For someone whose calendar has a landmine in it. Only discuss the occasion if they instigate it.",
   why:"",tag:"",needs:[],art:""},
  {t:"Record a veteran or an older relative properly",l:"A week or two",s:"A weekend",c:"Friends & family",cost:"Free",
   d:"November 11 gives you the reason to ask. Sit down, phone on the table, let them go.",
@@ -3355,10 +3409,10 @@ const IDEAS = [
   d:"August, when back-to-school costs bite. A stack of notes and a bag of the fun snacks.",
   why:"",tag:"",needs:[],art:""},
  {t:"Give blood, or platelets",l:"This weekend",s:"A weekend",c:"Causes & voice",cost:"Free",
-  d:"Platelets take 2–3 hours and no aspirin for 48 hours first. January and summer are the shortages.",
+  d:"Platelets take 2–3 hours and no aspirin for 48 hours first. January and the summer months are the shortages.",
   why:"",tag:"",needs:[],art:""},
  {t:"Organ donor register and marrow registry, same day",l:"Today",s:"An hour",c:"Causes & voice",cost:"Free",
-  d:"The organ register is one form, ten minutes, online. The marrow registry posts you a cheek swab — 18 to 40 to join, and you stay listed until 61.",
+  d:"Two forms, ten minutes, once in a lifetime.",
   why:"",tag:"",needs:[],art:""},
  {t:"Adopt one local cause for the whole stretch",l:"Needs a month",s:"A village",c:"Causes & voice",cost:"Free",
   d:"Turning up four times beats turning up once at four places.",
@@ -3388,7 +3442,7 @@ const IDEAS = [
   d:"Check your employer's matching portal first, it can double you for free.",
   why:"",tag:"",needs:[],art:""},
  {t:"Register people to vote",l:"This weekend",s:"A weekend",c:"Causes & voice",cost:"Free",
-  d:"Handing out blank forms is legal everywhere. Collecting filled ones is not — Texas wants you deputised by the county first, Florida wants you registered. Your county registrar has the real rules.",
+  d:"Nonpartisan and legal everywhere, with rules that vary by state — your county registrar has the real ones.",
   why:"",tag:"",needs:[],art:""},
  {t:"A postcard party before voting day",l:"Needs a month",s:"A village",c:"Causes & voice",cost:"Under $20",
   d:"Friends, stamps, a stack of postcards to folks who sat out the primaries. October, ahead of November.",
@@ -4598,8 +4652,7 @@ function beginAnotherYear(){
                               : 'the '+kept+' acts you have in the works come with you') : '')+'.',
     'Start a new goal', ()=>{
       rollYear();
-      /* straight to the declaration, exactly as the first year began */
-      go('zero'); drawZero();
+      openRestart();          // how many this time, then the declaration
     });
 }
 
@@ -4621,7 +4674,7 @@ function closeShortYear(){
                               : 'the '+kept+' acts you have in the works come with you') : '')+'.',
     'Close it', ()=>{
       rollYear();
-      go('zero'); drawZero();
+      openRestart();
     });
 }
 
@@ -5753,7 +5806,7 @@ function drawJournal(){
     env.type='button'; env.className='jenv';
     env.innerHTML='<span class="flap" aria-hidden="true"></span><span>Send this one as a personal note</span>';
     env.setAttribute('aria-label','Send act '+a.no+' as a personal note');
-    env.onclick=()=>{ S.current=a; CM_PLAT='private'; openCompose(); };
+    env.onclick=()=>{ S.current=a; openCompose('private'); };
     pg.appendChild(env);
     box.appendChild(pg);
   });
@@ -5839,9 +5892,99 @@ function drawJournal(){
         withWho+'<div class="jrule"></div>'+
         (a.story?'<p class="jstory">'+esc(a.story)+'</p>':'')+
         shots;
+      /* the story, and only the story */
+      const ed=document.createElement('button');
+      ed.className='jedit';
+      ed.textContent = a.story ? 'Change the story' : 'Write it up';
+      ed.setAttribute('aria-label','Write up act '+a.no);
+      ed.onclick=()=>openPastStory(y, a);
+      pg.appendChild(ed);
+      /* and the envelope, which waits here for as long as the journal does */
+      const env=document.createElement('button');
+      env.type='button'; env.className='jenv';
+      env.innerHTML='<span class="flap" aria-hidden="true"></span><span>Send this one as a personal note</span>';
+      env.setAttribute('aria-label','Send act '+a.no+' as a personal note');
+      env.onclick=()=>{ S.current=a; openCompose('private'); };
+      pg.appendChild(env);
       box.appendChild(pg);
     });
   });
+}
+
+/* ── going back to a finished act ──────────────────────────────────────────
+   RULED 13 September 2026. The current year's journal promises that everything
+   in it can still be changed, and that promise used to expire silently at the
+   rollover: an act whose story was never written could never be written, and
+   the envelope — the personal note, which is the whole reason the journal keeps
+   an act after the posting is done — vanished with it. The person most likely
+   to want to write a year up is exactly the person who was too busy doing it.
+
+   G's ruling was the middle one: the STORY and the ENVELOPE come back; the
+   number, the date and the people do not. Those three are what happened, and
+   a record you can rewrite is somebody else's record. */
+let PAST_EDIT = null;                 // the act being written up, by reference
+function openPastStory(y, a){
+  if(!a) return;
+  PAST_EDIT = a;
+  const yr = ((y&&y.end)||'').slice(0,4);
+  $('pst-step').textContent = yr || 'An earlier year';
+  $('pst-h3').textContent = (a.story||'').trim() ? 'Change the story' : 'Write it up';
+  $('pst-what').textContent = 'Act '+a.no+' of '+((y&&y.n)||'')+
+    (a.t ? ' \u2014 \u201c'+a.t+'\u201d' : '') + (a.d ? ' \u00b7 '+fmtLong(a.d) : '');
+  $('pst-story').value = a.story || '';
+  sheet('past');
+}
+function savePastStory(){
+  const a = PAST_EDIT;
+  if(!a){ sheet(null); return; }
+  /* written straight onto the object that lives in S.past, which is the same
+     object actYear() matches by identity — no copy anywhere in the path */
+  a.story = $('pst-story').value;
+  PAST_EDIT = null;
+  save(); sheet(null); drawJournal();
+}
+
+/* ── how many, this time ───────────────────────────────────────────────────
+   RULED 13 September 2026 — G: "a restart without personal info input."
+   The rollover went straight from the confirmation to the declaration with
+   last year's number still in place, so somebody who found fifty too many, or
+   not enough, had to go and find the You screen afterwards — where changing it
+   rewrites the number printed on every card already made. The one moment a
+   person is certain to be thinking about the number was the one moment nobody
+   asked. Nothing personal is asked again: the name, the birthday, the hand,
+   the handles and the card all stay exactly as they are. */
+let RESTART_WAS = 0;
+function openRestart(){
+  RESTART_WAS = S.n;
+  drawRestart();
+  sheet('restart');
+}
+function drawRestart(){
+  $('rst-was').textContent = RESTART_WAS
+    ? 'Last year you set ' + RESTART_WAS + '. Keep it, or choose another.'
+    : 'Choose the shape of this one.';
+  /* Whatever they actually had last year belongs in the row, or "keep it"
+     is not on offer: somebody who closed a year at thirty-four would open
+     this and find nothing chosen and no way to choose it. */
+  const opts = NOPTS.slice();
+  [RESTART_WAS, S.n].forEach(v=>{ if(v && opts.indexOf(v) < 0) opts.push(v); });
+  opts.sort((a,b)=>a-b);
+  chips($('rst-n'), opts.map(n=>[n, n, every(n)]), ()=>S.n,
+        v=>{ S.n = v; syncReason(); drawRestart(); });
+  chips($('rst-w'), WOPTS, ()=>S.weeks,
+        v=>{ S.weeks = v; syncReason(); drawRestart(); });
+  const w = [(S.line||'').trim(), (S.word||'').trim()].filter(Boolean).join(' ');
+  $('rst-word').textContent = w
+    ? 'Your card will read \u201c' + S.n + ' acts of good, ' + w + '\u201d.'
+    : 'Your card will read \u201c' + S.n + ' acts of good\u201d.';
+}
+function restartGo(){
+  /* an act in the works that expected a number above the new ceiling simply
+     relaxes — it was a guess, and the finish re-checks the ceiling anyway */
+  (S.works||[]).forEach(w=>{ if(+w.exp > S.n) w.exp = ''; });
+  save();
+  sheet(null);
+  go('zero'); drawZero();
 }
 
 /* ── acts in the works: the one pipeline ──────────────────────────────────
@@ -6112,6 +6255,9 @@ function drawSheetPanel(){
     const took  = (sh.claims||[]).filter(c=>c && c.name).length;
     const where = sh.live
       ? ('Live. ' + (slots ? (took + ' of ' + slots + ' claimed') : 'nothing on it yet') + '.')
+      : sh.done
+      ? ('Finished. ' + (took ? (took + (took===1?' person signed up.':' people signed up.'))
+                              : 'Nobody signed up.'))
       : 'Started, not published yet.';
     box.innerHTML =
       '<button class="askrolled" type="button" onclick="askUnfold()" '+
@@ -6192,8 +6338,14 @@ function drawSheetPanel(){
     '<div class="askbar">'+
       '<button class="btn mini ghost" type="button" onclick="openPaperPreview()">Preview</button>'+
       '<button class="btn mini" type="button" onclick="askPublish()">'+
-        (sh.live?'Update the sheet':'Publish it')+'</button>'+
+        (sh.live?'Update the sheet':sh.done?'Put it up again':'Publish it')+'</button>'+
     '</div>'+
+    /* A finished sheet keeps its words and its record and says so plainly. It
+       can be published again — the same needs, a new thirty days — which is
+       what somebody doing this act a second time actually wants. */
+    (sh.done?'<p class="askhint" style="padding-left:0;text-align:center;margin:12px 0 2px">'+
+      'This sheet has been up for thirty days, so it has come down and everything '+
+      'on it is deleted. What you wrote is still here.</p>':'')+
     (sh.live?'<div class="askbar" style="margin-top:8px">'+
       '<button class="btn mini ghost" type="button" onclick="askRefresh()">Who signed up</button>'+
       '<button class="btn mini ghost" type="button" onclick="askPoster(ASK_PV)">Print it</button>'+
@@ -6509,7 +6661,16 @@ async function askPublish(){
       say('This sheet is not yours',
           'It was made on another phone. Make a new sheet and it is yours.'); return; }
     if(!r.ok){ say('It did not go up','Try again in a moment.'); return; }
-    sh.live=1; workKeep(); save(); drawSheetPanel();
+    /* WHEN it went up, written by the app on the first publish and never
+       touched again. The Worker has always had its own `created_at`; the phone
+       had nothing, which is why it could not honour the same thirty days. */
+    /* WHEN it went up, written by the app on the first publish. The Worker has
+       always had its own `created_at`; the phone had nothing, which is why it
+       could not honour the same thirty days. Putting a finished sheet up again
+       restarts the clock on both sides, so the two stay in step. */
+    sh.live=1; if(!sh.at || sh.done) sh.at = new Date().toISOString();
+    sh.done = 0;
+    workKeep(); save(); drawSheetPanel();
     /* An edit can now genuinely change the sheet — but never a row somebody has
        already taken, because those are the words they said yes to. The Worker
        counts what it had to leave alone and the organiser is told, rather than
@@ -6550,6 +6711,48 @@ async function askRefresh(){
 
    `sh.seen` is how many claims the last look found. It rides inside the sheet
    object, which the works loader copies whole, so it survives a reload. */
+/* ── THE PHONE'S OWN THIRTY DAYS ───────────────────────────────────────────
+   The sign-up page tells every stranger their details are deleted thirty days
+   after the day the sheet went up, and the Worker does exactly that. The phone
+   did not. It downloaded every name, phone number and message into the sheet
+   object and kept them in local storage for ever — so the promise on the page
+   was true of the server and false of the organiser's own pocket.
+
+   Not a leak. A gap between what is written and what happens, which is worse in
+   its way, because the sentence was doing work it could not back.
+
+   The same clock, the same fields: contact, note and the release key go, the
+   name stays, exactly as the Worker does it. It runs on launch, so a phone that
+   has been shut in a drawer for a month clears on the first open. */
+const CLAIM_DAYS = 30;
+function claimAge(sh){
+  const t = sh && sh.at ? Date.parse(sh.at) : 0;
+  return t ? Math.floor((Date.now() - t) / 864e5) : -1;    // -1: we never knew
+}
+function forgetOldClaims(){
+  let changed = 0;
+  (S.works||[]).forEach(w=>{
+    const sh = w && w.sheet;
+    if(!sh) return;
+    if(claimAge(sh) < CLAIM_DAYS) return;                  // -1 and young both skip
+    if(Array.isArray(sh.claims)) sh.claims.forEach(c=>{
+      if(!c || typeof c !== 'object') return;
+      ['contact','note','release','release_hash'].forEach(k=>{
+        if(c[k]){ c[k] = null; changed++; }
+      });
+    });
+    /* RULED 13 September 2026 — the Worker now DELETES a sheet at thirty days
+       rather than emptying it, so from that morning the page is gone and there
+       is nothing on the other end to update, print or read back. A phone still
+       calling it live would offer three buttons that all fail, and the failure
+       would read as "no connection" — which is the app blaming the signal for
+       something it already knew. It finishes instead. */
+    if(sh.live){ sh.live = 0; sh.done = 1; changed++; }
+  });
+  if(changed) save();
+  return changed;
+}
+
 let CLAIMBAR_T = null;
 async function claimSweep(){
   const live = [];
@@ -7835,7 +8038,13 @@ function drawPeople(){
       'up here, and anyone who offers to help is worth adding before you start.</p>';
     return;
   }
-  S.people.slice().sort((a,b)=>actsWith(b).length-actsWith(a).length).forEach(name=>{
+  /* RULED 13 September 2026 — G: "just alphabetize it."
+     It was sorted by how many acts each person had been in, most first: a
+     league table of your friends, on the one screen that is supposed to be
+     about them. Everywhere else in this app a target line was taken out, a
+     streak was refused and every word of pace judgement was stripped; the
+     people screen was quietly keeping score. A to Z, and nobody is ranked. */
+  S.people.slice().sort((a,b)=>String(a).localeCompare(String(b), undefined, {sensitivity:'base'})).forEach(name=>{
     const acts=actsWith(name), money=gaveWith(name);
     const h=handlesOf(name), got=HANDLE_KEYS.filter(k=>k!=='email'&&h[k]);
     const bits=[];
@@ -8792,17 +9001,29 @@ const LIMITS = { instagram:2200, facebook:63206, threads:500, private:100000 };
 let CM_PLAT = 'instagram';
 
 let CM_BACK='card';
-function openCompose(){
+/* `dest` is how the composer was ASKED FOR, not what was left on it last time.
+   The envelope passes 'private'; every other route means post, and gets a real
+   platform back even if the last thing you did was write somebody a note. */
+function openCompose(dest){
   if(SCREEN==='card') CM_BACK='card';
   const a = S.current || S.acts[S.acts.length-1];
   if(!a){ say('Nothing to show yet','Log an act first.'); return; }
+  /* "Send this one as a personal note" used to set CM_PLAT to 'private' and
+     call this, and this threw it away — 'private' is not one of the three
+     places you post, so it failed the "is it still enabled" test on the very
+     next line. Every envelope in the journal, on every page, opened Instagram
+     instead. drawCompose has understood 'private' all along; it was never
+     reaching it. The envelope is a destination, not a platform, so it is asked
+     for rather than left lying about in a global. */
   const on = PLATS.filter(([k])=>S.platforms[k].on).map(([k])=>k);
-  CM_PLAT = on.indexOf(CM_PLAT)>-1 ? CM_PLAT : (on[0] || 'instagram');
+  CM_PLAT = (dest === 'private') ? 'private'
+          : (on.indexOf(CM_PLAT)>-1 && CM_PLAT!=='private') ? CM_PLAT
+          : (on[0] || 'instagram');
   /* the card for act 0 and the closing card both carry no number — the page
      above them used to say "act 0 of 25" anyway (G, 6C). */
   $('cm-no').textContent = a.zero ? 'your declaration'
                          : a.fin  ? 'the year'
-                         : 'act '+a.no+' of '+S.n;
+                         : 'act '+a.no+' of '+cardWords(a).n;
   a.captions = a.captions || {};
   go('compose');
   drawCompose();
@@ -8864,14 +9085,14 @@ function buildCaption(force){
     drawCompose(); return;
   }
   if(a.anon && CM_PLAT!=='private'){
-    a.captions[CM_PLAT] = 'Act '+a.no+' of '+S.n+'.\n\n'+defaultHashtag();
+    a.captions[CM_PLAT] = 'Act '+a.no+' of '+cardWords(a).n+'.\n\n'+defaultHashtag();
     drawCompose(); return;
   }
   if(CM_PLAT!=='private'){
     /* the colon promises more; an act with no story and no honoree ends the
        line with a full stop instead of a dangling ':' */
     const more = a.hon || (a.story||'').trim() || (a.t||'').trim() || tagsFor(a, CM_PLAT).length;
-    lines.push('Act '+a.no+' of '+S.n+(more?':':'.')+(a.hon?' In honor of '+a.hon+'.':''));
+    lines.push('Act '+a.no+' of '+cardWords(a).n+(more?':':'.')+(a.hon?' In honor of '+a.hon+'.':''));
   }
   else{ if(a.t) lines.push(a.t); if(a.hon) lines.push('In honor of '+a.hon+'.'); }
   /* 6A — the title never reached a public caption. It was only ever pushed in
@@ -9825,7 +10046,7 @@ async function renderNote(a){
 
   let y = 33*k;
   g.font='600 '+(2.5*k)+'px "Montserrat", sans-serif'; g.fillStyle=muted;
-  const eyebrow = 'A C T   ' + String(a.no).toUpperCase() + '   O F   ' + S.n;
+  const eyebrow = 'A C T   ' + String(a.no).toUpperCase() + '   O F   ' + cardWords(a).n;
   g.fillText(eyebrow, centre(eyebrow), y);
   y += 8*k;
 
@@ -10480,7 +10701,7 @@ function checkFirst(title, note, okLabel, then, cancelLabel){
 let SHEET_FROM = null;
 function sheet(which){
   dropUndo();      // an offer does not follow you into or out of a sheet
-  ['you','social','spend','plan','person','cal','date','ask','done','finish','eval','pv','bkup'].forEach(x=>{ const el=$('sheet-'+x); if(el) el.classList.add('hide'); });
+  ['you','social','spend','plan','person','cal','date','ask','done','finish','eval','pv','bkup','past','restart'].forEach(x=>{ const el=$('sheet-'+x); if(el) el.classList.add('hide'); });
   if(which){ $('sheet-'+which).classList.remove('hide'); }
   if(which==='you'){ const r=$('you-restore'); if(r) r.classList.toggle('hide', !!S.started); }
   if(which==='social') drawPlats();
@@ -10511,10 +10732,14 @@ function sheet(which){
 document.addEventListener('keydown', e=>{
   if(e.key !== 'Escape') return;
   if(!$('dlg').classList.contains('hide')) return;         // the dialog handles its own
-  const open = ['you','social','spend','plan','person','cal','date','ask','done']
+  /* 'restart' is deliberately absent from both this list and the backdrop one:
+     it is a step in the rollover, not a panel, and escaping it would leave
+     somebody with an empty year and no way back to the declaration. */
+  const open = ['you','social','spend','plan','person','cal','date','ask','done','past']
     .filter(x=>!$('sheet-'+x).classList.contains('hide'))[0];
   if(!open) return;
   if(!S.started && (open==='you' || open==='social')) return;
+  if(open==='past'){ savePastStory(); return; }
   if(open==='plan'){ savePlan(); return; }
   if(open==='person'){ if(($('per-name').value||'').trim()) savePerson(); else sheet(null); return; }
   if(open==='you'){ saveYou(); return; }
@@ -10523,7 +10748,7 @@ document.addEventListener('keydown', e=>{
 /* Tapping the dimmed area is the gesture everybody tries first, and nothing was
    listening for it — which left the 28px 'Done' as the only way out. The plan
    sheet saves on the way, exactly as its own Done button does. */
-['you','social','spend','plan','person','cal','date','ask','done'].forEach(x=>{
+['you','social','spend','plan','person','cal','date','ask','done','past'].forEach(x=>{
   const el = $('sheet-'+x); if(!el) return;
   el.addEventListener('click', e=>{
     if(e.target !== el) return;             // a tap on the panel is not a tap outside it
@@ -10536,6 +10761,7 @@ document.addEventListener('keydown', e=>{
        somebody had just typed would be worse than one that keeps it. Three of
        these were falling through to a bare close, so the app nagged you to fill
        in a field, took what you typed, and then still said it was blank. */
+    if(x==='past'){ savePastStory(); return; }
     if(x==='plan'){ savePlan(); return; }
     if(x==='person'){
       if(($('per-name').value||'').trim()) savePerson(); else sheet(null);
@@ -10795,6 +11021,10 @@ function closeLetter(){
   if(restored && _storageOK) proveStorage();
   if(!_storageOK) showStorageBar();
   sweepOrphans();
+  /* the phone's own thirty days, run on launch so a handset that has been shut
+     in a drawer for a month clears on the first open rather than the first
+     time somebody happens to look at a sheet */
+  forgetOldClaims();
   backfillThumbs();
   paintHands();          // a returning user may never pass through setup
   /* Whatever is stored goes back into the form, whether or not setup finished.

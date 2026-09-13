@@ -27,6 +27,138 @@ Four seats, established 12 September 2026. Each has a permanent brief.
 3. **Product & the long arc** — journalling, memory, the ending of a year, what makes someone come back.
 4. **Code & architecture** — what will break, what is fragile, what must not be touched.
 
+### FOUR MORE, established 13 September 2026 — the idea-finding panel
+
+G: *"I would like a new panel of NGO agents and the calendar and economics professors to run down more
+possible ideas, and use the web scraper to fish ideas from the web search, all the large depositories."*
+
+5. **NGO & frontline operations** — has run a volunteer programme and knows what happens when a
+   well-meaning stranger turns up. The unglamorous jobs, the skills gap, the barriers, and what is
+   actively unhelpful. **The barriers ARE the facts**: "no background check for day-of, photo ID only"
+   removes an excuse in one line.
+6. **The calendar** — owns nothing but time. Quiet months, dated occasions given as RULES rather than
+   2026 dates, institutional calendars, and the days that are hard for a person. **The quiet months are
+   the most valuable thing this seat finds.** An idea whose fact says "January is when they are short"
+   beats ten generic ones.
+7. **Economics of giving** — where a dollar and an hour go furthest, what is measurably
+   counterproductive, the unclaimed multipliers, and sceptical handling of the wellbeing literature.
+   Produces facts that are NUMBERS, and the never-recommend list that protects the product.
+8. **Repository** — fishes the large public idea banks. Most of what it finds fails the bar, and **the
+   reject list is half the value**: it stops us rediscovering the same slogans next year.
+
+**First run: ~100 raw, 54 survived, 46 with confirmed facts.** Published as a ruling artifact and as
+`claude/panel-harvest.md`. **Nothing went into the app** — a study is not permission.
+
+### RULED 13 SEPTEMBER 2026 — G DECIDES, THE SEATS RECOMMEND
+
+G: *"I make final decisions and you can add a recommendation."*
+
+The first harvest came back with 96 candidates and **54 were put to him.** The other 42 were cut
+on my judgment before he ever saw them — merges, duplicates, unverifiable facts, and a group I had
+simply decided were not worth his time. That last group was not mine to decide.
+
+**THE RULE. Everything the seats find goes to him, with a recommendation attached.** Merges and
+exact duplicates of what we already ship can be collapsed silently; nothing else can. A candidate
+that is weak gets a recommendation saying so — it does not get deleted on the way to the page.
+
+### THE CUT THAT PROVED IT — NICU baby cuddling
+
+G: *"NICU baby cuddling is real and doable."* He was right and I was wrong, and the error has a
+shape worth keeping.
+
+The NGO seat read **one** hospital page — UCI Health — found *"currently at capacity and is not
+accepting new applications"*, and concluded the act was the opposite of one that removes an
+excuse. I repeated that to G as though it were a national fact.
+
+Sent back out, the seat reached **seven programmes in seven states**: three at capacity, one open
+behind a thirty-six-hour gate, one recruiting on a fixed orientation calendar, and two that do not
+name the role publicly at all. The programme is real, widespread, and the most oversubscribed
+volunteer role in an American hospital. **All of that is true at once, and the second half is the
+useful half** — the cuddler list being full is exactly what sends somebody to the ward that is
+short. That turned out to be the whole idea, and it had been thrown away with the rest.
+
+The seat's own account of the error, which is the part to remember:
+
+> *"The discipline I used to protect ideas I liked, I did not use on an idea I had decided
+> against. The scepticism was real but it was applied asymmetrically."*
+
+And: *"Full" and "closed" are different words and I collapsed them.* And: **every barrier listed as
+a reason to cut it — 21+, six months, two hours a week, background check, annual health clearances
+— is line for line the shape of fact this library says it wants.** A long lead time is a scheduling
+fact, not a disqualification. The library already carries acts with year-long commitments.
+
+**L28: ONE LOCAL PAGE IS NEVER A NATIONAL FACT — AND THAT CUTS BOTH WAYS.** We already applied it
+to ideas we were arguing FOR ("ask yours", "varies by affiliate", "call first"). Apply it just as
+hard to any idea being argued against.
+
+### TWO MORE REVERSED ON THE SAME GROUNDS
+
+- **Be My Eyes.** Cut because there are roughly ten volunteers per blind user. The honest fact
+  states it: the app answers most requests with its own AI now, there are far more volunteers than
+  callers, and **the long wait is the system working, not a fault.** A person who knows they are
+  signing up as a reserve has been told the truth.
+- **Pop tabs for Ronald McDonald House.** The economics were right and beside the point. A pound is
+  about 1,725 tabs and worth under fifty cents, and the houses say so themselves — the programme is
+  about awareness and teaching a child, not money. **It passes only if the fact refuses to pretend,
+  and it must never be filed as fundraising.**
+
+### JESSICA'S NOTES — THREE STILL OPEN, 13 September 2026
+
+Her **29 August markup of the whole library is in, in full.** A second set, from the consensus
+review, sat on a checklist that was never marked. Three are still live in the app:
+
+1. **"Take a bag and a glove on your walk"** is her own line with the good words removed. Hers was
+   *a trash bag and a garden glove*: **"Specific is why people picture it."**
+2. **"Nicely done"** on the follow-up sheet. **"That is a coach. Take it out."**
+3. **"Not in an act yet"** under a person's name. **"That is a ledger of friends who have not
+   turned up. They are my friends, not my volunteers."** Build 5B alphabetised the directory, which
+   answered the ranking half of her objection. This line is the other half.
+
+Done: the 25/30 cadence collision, the studio annotations, and the third-person half-act note
+(moot — half acts were removed).
+
+**Check this list at the start of any library or copy session.** Her notes are the highest-value
+feedback the project has and they went unactioned for two weeks because they lived on an unmarked
+checklist rather than in the notebook.
+
+### THE FOUR SHAPES A GOOD FACT TAKES
+
+The NGO seat noticed this and it is the most reusable thing to come out of the round. Almost every fact
+worth having is one of four:
+
+1. **Who to call instead of the obvious person.** The district office, not the school. The activities
+   coordinator, not reception. The nurse manager, not the front desk.
+2. **The screening you did not know you had already passed.** No background check for day-of. Photo ID
+   only. No experience needed. No account required.
+3. **The thing that gets thrown away.** Smoke smell on a blanket. Used clothing at a shelter. Home-cooked
+   food in an institutional kitchen. Hay instead of straw.
+4. **The window.** October to January. The second week of April. The hour before rain.
+
+**Hand a contributor those four shapes and the facts write themselves.**
+
+### HARD-WON FROM THE FIRST RUN — read before the next one
+
+- **Federal sites block the fetcher.** `fema.gov`, `ready.gov`, `eac.gov`, `hotosm.org` all 403. Use a
+  state or agency mirror — `nhc.noaa.gov` not `noaa.gov`, `missingmaps.org` not `hotosm.org`.
+- **National day registries register days for a fee** and do not mark which are paid. Never cite
+  nationaldaycalendar.com or its kin; triangulate and confirm at the body that owns the day.
+- **The kindness calendars are nearly worthless** — built for volume, not action. They produced the
+  reject list and almost nothing else.
+- **A regulation is the best fact type available.** 42 CFR 418.78 requires every Medicare hospice to have
+  volunteers covering five percent of patient-care hours. Nothing is more checkable than a rule of law.
+- **Do not put a happiness-of-the-giver number anywhere.** The famous prosocial-spending result was
+  re-run by its own authors at n=7,861: the behavioural version replicated at d=0.36, the two
+  memory-based versions did not (d=0.03, d=0.06). **And do not claim volunteering extends life** — the
+  causal literature is thin and the obvious confound is that healthier people volunteer in the first
+  place. This library has been wrong about a study before.
+- **The weak-ties result IS solid**: Rajkumar et al., *Science* 2022, randomised across 20 million
+  people. One of very few social-science facts worth stating without hedging.
+- **Feeding America has no page saying summer and January are its shortest months.** True, universally
+  repeated by member food banks in local press, never stated nationally. Stop looking for a better source.
+- **"January is when volunteers vanish" cannot be sourced at all.** Never write a percentage for it.
+- **Make a Difference Day looks dead** — USA Today ended its sponsorship around 2019 and the national
+  infrastructure went with it. The date rule circulates with nothing behind it.
+
 ---
 
 # PART A — WHAT WE KNOW (the compounding part)
@@ -318,20 +450,98 @@ order — see invariant 11. Matching by words fixed it.
 under the person holding it, counted, and reported back so the app can tell the organiser what it
 could not change. Six failure modes tested end to end against a real database.
 
-## C4. The privacy promise on the sign-up page is not being kept
-The page tells every stranger their details are deleted thirty days after the day. The Worker does
-that. But the app downloads names, numbers and messages and keeps them on the phone forever, and
-they go into the backup file. And the thirty-day wipe only runs for sheets that have a date — an
-undated sheet keeps everyone's number indefinitely, and the free-text message field is never wiped
-at all. Not a leak; a gap between what is written and what happens. Hours.
+## C4. ~~The privacy promise on the sign-up page is not being kept~~ **BUILT — server half 12 Sep, phone half 13 Sep, build 5E**
+The page tells every stranger their details are deleted thirty days after the day the sheet went
+up. **Three separate gaps between that sentence and the code, all now closed.**
 
-## C5. The master key travels inside the backup file
-The key that can read every claimant's name and number on every sheet ever made is written into
-the export, which the user is encouraged to put in cloud storage. An hour.
+- **The wipe only ran for dated sheets.** An undated sheet kept everyone's number for ever, and the
+  free-text message was never wiped at all. *Fixed 12 Sep:* the clock runs from the Worker's own
+  `created_at`, which nobody can reach, mistype or leave out, and `note` joins `contact` and
+  `release_hash` in the sweep.
+- **The phone kept its own copy for ever.** `askRefresh` and `claimSweep` download every name,
+  number and message into `w.sheet.claims` and save them to local storage. The promise was true of
+  the server and false of the organiser's own pocket. *Fixed 13 Sep, build 5E:* `sh.at` is written
+  on the first publish, `forgetOldClaims()` runs at launch, and past thirty days it nulls
+  `contact`, `note` and the release key while keeping the name and the need — **the same fields the
+  Worker keeps, so the two now agree.** A sheet the app never dated is left alone rather than
+  guessed at.
+- **And it all went into the backup.** See C5.
 
-## C6. Anyone can fill the server with junk sheets
-Nothing caps how many items a sheet can have or how long each line can be. One request can ask for
-millions of rows. Free to fix now, expensive to discover later. Under an hour.
+**RULED 13 September 2026, build 5F — G: "the sweep deletes the sheet outright, so the database
+stays clean."**
+
+The page has always said *"this sheet and everything on it is deleted thirty days after the day it
+went up."* Until 5F that was true of the personal details and false of everything else: the sweep
+nulled the contact, the note and the release key, and left the sheet, its wording and every
+claimer's NAME in the database for ever. Nothing was ever exposed — the public page prints "In good
+hands", never a name — but the sentence was doing work the code was not.
+
+Two ways to close it: narrow the sentence, or widen the sweep. **G widened the sweep**, which is
+the reading a stranger gives the words anyway. At thirty days the slots go, then the sheet goes.
+Not emptied, not tombstoned — deleted, in that order, inside one transaction so a failure part-way
+leaves the month untouched rather than half-gone. **The database now holds nothing older than a
+month.**
+
+**The cost, accepted knowingly, and softened.** A poster still on a wall in week five leads to a
+page that is not there. Because the row is gone, a dead sheet and a mistyped code are the same
+thing to the Worker — so the not-found page says both at once: *"Sheets are deleted thirty days
+after the day they go up, so this one may simply have finished. If it should still be running,
+check the code on the poster."* Honest about what happened without pretending to know which.
+
+**The phone follows the server.** At thirty days `forgetOldClaims()` also sets `live = 0, done = 1`,
+because a phone still calling a deleted sheet live would offer three buttons that all fail and
+report it as "no connection" — the app blaming the signal for something it already knew. A finished
+sheet keeps its words and its record, says **"Finished. One person signed up."**, explains why it
+came down, and offers **Put it up again** — the same needs, a fresh thirty days on both sides,
+which is what somebody doing the act a second time actually wants. The republish works because the
+Worker's PUT treats a missing row as an unclaimed id and re-accepts the phone's own token.
+
+**Verified:** twenty checks against the real Worker on a `node:sqlite` stub — a thirty-one-day-old
+sheet loses its slots AND its sheet row, a three-day-old one is untouched, the claimer's name is
+gone from the database entirely, the scanned-poster page carries the explanation, the app is told
+`gone` rather than left to guess at the signal, the same code can be published again with the clock
+restarted, and a live sheet still cannot be taken over with the wrong key. Twenty-one more in the
+browser for the phone's half.
+
+## C5. ~~The master key travels inside the backup file~~ **BUILT 13 Sep 2026, build 5E**
+The backup is meant to be put in iCloud Drive or mailed to yourself, and it was carrying **forty
+strangers' names, phone numbers and messages** out of the app and into cloud storage, with no
+thirty-day clock on it anywhere.
+
+**The line drawn, and the reasoning, because it is a judgment and not an obvious call:**
+
+- **The claim list does not go in the backup.** Each row is reduced to `{pos, grp, text, taken}` —
+  the shape, so the count still reads back and the journal still shows what the sheet was, and
+  nothing that belongs to anybody else.
+- **The sheet and its key DO travel.** A sheet's key is the organiser's own credential for their
+  own sheet, exactly like a password, and a person's backup containing their own credentials is
+  normal. A restored journal re-reads the live sheet from the server, which is where the thirty-day
+  rule already lives — so a stale key is worth nothing personal after thirty days.
+
+**The residual, named rather than buried:** `S.pubkey` is a legacy owner-wide key that still works
+on any sheet made before per-sheet tokens, and it is still in the journal and therefore the backup.
+Nothing creates it any more; `askKeyGet` mints a per-sheet token instead and only falls back to
+`pubkey` when a sheet has none. It cannot be retired without knowing every old sheet has its own
+key. **Low and shrinking, but it is the one part of C5 that is narrowed rather than closed.**
+
+## C6. ~~Anyone can fill the server with junk sheets~~ **BUILT 13 Sep 2026, build 5E**
+Every field a *stranger* could type was already capped — a name at 60, a contact at 120, a note at
+400, each detail at 140. **The organiser's own fields were not, and neither was the list.** A sheet
+could arrive asking for ten thousand things, each a megabyte of text, and every row would be
+written.
+
+- `MAX_NEEDS = 60` different things on one sheet. **Refused, not truncated** — quietly dropping the
+  sixty-first thing somebody needed would leave them with a printed poster that does not match
+  their sheet and no way to know why. The error names the limit and suggests two sheets.
+- `MAX_NEED_TEXT = 140` per need — a line on a page and a line on a poster.
+- `reason` 140, `lede` 400, `when` 40, capped silently, as every other typed field already was.
+- The per-need quantity ceiling of 40 was already there and still holds.
+
+Neither limit is reachable by accident: **act 22, the largest real sheet this app has ever made,
+wanted eight things.** It is a door with a lock on it, not a rule about how much good you are
+allowed to organise. Ten checks against the real Worker on a `node:sqlite` stub: an ordinary sheet
+publishes, sixty is allowed, five thousand is refused **and writes nothing at all**, two hundred
+thousand characters becomes 140, and the page and the sweep both still work.
 
 ## C7. The device-only storage risk — the most serious thing in the product
 Safari deletes an origin's entire data after seven days without interaction. When it goes, it all
@@ -660,11 +870,171 @@ walked in headless Chromium, plus 13 on a fresh install; no console errors in ei
 
 ### Still open, deliberately
 
-- **The people directory is still sorted by act count** — a league table of your friends, highest first, with no word about what any of them did with you. The seat is right that it reads as a ledger, but the sort order and what a row says are design, not defects. **For G.**
-- **"See their acts" still filters this year only**, while the count spans every year. The row says both rather than quietly disagreeing; a past-year filter is a bigger change.
-- **Past acts are still frozen shut** — no write-it-up, no change-anything, no envelope. The current year's journal promises "everything in it can still be changed" and that promise still expires at the rollover.
-- **The rollover still does not ask what the next year should be.** Same number, same length, straight to the declaration.
-- **Nothing still ever reaches out.** No notifications of any kind. This is the store build's whole reason and it is not written yet.
+- ~~**The people directory is still sorted by act count**~~ **RULED AND BUILT 13 Sep, 5B** — alphabetical.
+- ~~**Past acts are still frozen shut**~~ **RULED AND BUILT 13 Sep, 5B** — the story and the envelope come back; the number, the date and the people do not.
+- ~~**The rollover still does not ask what the next year should be.**~~ **RULED AND BUILT 13 Sep, 5B** — a restart step that asks the goal and nothing personal.
+- **"See their acts" still filters this year only**, while the count spans every year. The row says both rather than quietly disagreeing; a past-year filter is a bigger change. **Small, and still open.**
+- **Nothing still ever reaches out.** No notifications of any kind. **This is the store build's whole reason and it is the one thing on this list that cannot be written here** — `PHONE.canRemind()` returns false and the layer behind it needs the native shell. Everything above it in the app is ready for it.
+- **Jessica's three open notes** — see §THE STANDING SEATS. Recommended, awaiting G.
+
+## C17. BUILD 5B — G'S THREE RULINGS, 13 September 2026
+
+The three things build 5A deliberately left open. All three ruled and built the same day.
+26 new checks, and 5A's 32 and the 14-check smoke run both still pass. No console errors.
+
+### 1. The people directory — **ALPHABETICAL**
+
+> G: *"Just alphabetize it or order they are input. Alphabetize seems right."*
+
+It had been sorted by act count, highest first — a league table of your friends on the one
+screen that is supposed to be about them. **A to Z now**, case-insensitive, nobody ranked.
+This is the same principle as the missing target line on the progress bar: the app does not
+score you and it does not score the people who helped you.
+
+### 2. Past acts — **THE MIDDLE OPTION**
+
+> G: *"I want to be able to go back and copy things, so the middle option is ok."*
+
+A finished act gets **the story and the envelope** back, and nothing else.
+
+- **"Write it up" / "Change the story"** on every past journal page, opening a new
+  `sheet-past` that holds the story and only the story. The number, the date and the people
+  are stated at the top as a read-only line — *Act 3 of 3 — "…" · March 5, 2026*.
+- **The envelope is back** on past pages, so a personal note can be sent about an act from
+  any year, years later. That was the whole reason the journal keeps an act after posting.
+- Written straight onto the object in `S.past` — **the same object `actYear()` matches by
+  identity**, so no copy anywhere in the path (see L24).
+- Escape and a tap on the backdrop both **keep** what was typed, like the plan sheet.
+
+*Why not the whole editor:* what happened is the record. The number, the date and who was
+there are not corrections, they are a different day.
+
+### 3. The rollover — **A RESTART THAT ASKS NOTHING PERSONAL**
+
+> G: *"Is a restart without personal info input etc."*
+
+A new `sheet-restart` sits between the confirmation and the declaration: **"How many this
+time?"** — the goal and the length, with last year's number already chosen, and a line
+showing the card it will make. Nothing personal is asked again: **the name, the birthday,
+the hand, the handles and the card all stay exactly as they are.**
+
+- **Last year's number is added to the row if it is not one of the five** (12/20/25/30/50).
+  Somebody who closed a year at thirty-four would otherwise open this and find nothing
+  chosen and no way to choose it.
+- Changing either chip re-runs `syncReason()`, so the card line updates live.
+- **It is deliberately absent from the Escape and backdrop lists.** It is a step in the
+  rollover, not a panel; escaping it would leave somebody with an empty year and no route
+  back to the declaration.
+- `restartGo()` relaxes any act-in-the-works whose expected number is now above the ceiling.
+
+### A defect the ruling uncovered — **THE ENVELOPE NEVER OPENED THE ENVELOPE**
+
+Testing ruling 2 caught a bug that has been in every build: **"Send this one as a personal
+note" opened Instagram.**
+
+`openCompose()` read the enabled platforms and did `CM_PLAT = on.indexOf(CM_PLAT)>-1 ?
+CM_PLAT : on[0]`. The envelope set `CM_PLAT='private'` and then called it — and `'private'`
+is not one of the three places you post, so it failed that test on the very next line and
+was replaced. `drawCompose` has understood `'private'` all along; **it was never reaching
+it.** Every envelope in the journal, on every page, for the life of the feature.
+
+Fixed by making the destination something the composer is **asked for** rather than
+something left lying in a global: `openCompose('private')`. Every other route — the two
+Post it buttons and the finish — resets to a real platform, so the envelope does not follow
+you to the next act's post. **Both directions are tested.**
+
+### New landmine
+
+- **L25 A GLOBAL IS NOT AN ARGUMENT.** `CM_PLAT` was being set by the caller and then
+  validated by the callee against a list the caller's value was never in. Anything that
+  means "open X in mode Y" passes Y; it does not set a global and hope. This one hid in
+  plain sight because the caption, the card and the picture were all correct — only the
+  destination was wrong, and the destination is the one thing nothing on screen names.
+
+## C18. BUILD 5C — G'S LIBRARY EDIT, 13 September 2026
+
+He sent back an edited copy of the **prose readout** of the ideas library (the "every idea, in
+full" document, Build 1W) as a .docx. **Forty edits landed**: 11 renamed ideas and 40 rewritten
+fact lines, across all nine categories. Still 89 ideas; every category count matches his own
+header; no idea gained or lost a time, a size or a cost.
+
+### How the edit had to be read
+
+**He edits by typing the new words immediately BEFORE the old ones and leaving the old ones
+there.** Every one of his changed lines arrives as a tracked-change artefact:
+
+> "Skip the one closest to you and find **Find one in an underserved spot**…"
+> "Students will benefit from **Teachers want** real jobs described by real people."
+> "Steady money helps more**buys better** than one-off cans."
+> "The day shift typically gets everything, nights rarely get much **get nothing**."
+
+So the edit cannot be applied by diffing text — **it has to be read and resolved line by line.**
+The method that worked: render the CURRENT library out of `IDEAS` in exactly the prose shape of
+his document, parse both into `title → (when, size, body)`, and diff **on title, not position**,
+because he also reordered ideas inside every category (which the app ignores — `ideaRank` seeds on
+the week). That produced a clean list of 11 renames and 29 same-title body changes, and the
+renames' own body changes had to be fetched in a second, rename-aware pass.
+
+**His words were kept and only the stranded original removed.** Nothing was substituted — per his
+standing preference, his own words cleaned up rather than Claude's language put in their place.
+
+### Two things flagged back to him, not silently accepted
+
+- **Habitat ReStore.** He renamed it "Tools, **paint** and lumber…" and deleted the line that said
+  *"Not paint — most ReStores cannot take it. Ring the store before you load the car."* Most
+  ReStores do not take paint; some take unopened latex. **A fact line in this library is supposed
+  to be true and checkable**, so this one is his call to confirm, not mine to bury.
+- **Register people to vote.** The precise version (handing out blank forms is legal everywhere;
+  collecting filled ones is not; Texas deputises, Florida registers) became "Nonpartisan and legal
+  everywhere, with rules that vary by state." Softer and still broadly true, but it no longer warns
+  about the part that is actually illegal in some states.
+
+Also noted: **Organ donor / marrow registry** lost the real detail (18–40 to join, listed until 61,
+cheek swab by post) for "Two forms, ten minutes, once in a lifetime." His call; recorded so nobody
+"restores" it later thinking it was lost by accident.
+
+### THE-IDEAS.md was regenerated, not hand-patched
+
+The file on disk is the **builder source** (`when:` / `size:` / `cost:` / `fact:` / `why:` / `tag:`
+/ `needs:`), a different format from the prose readout he edited. It was rebuilt from the live
+`IDEAS` array so the two cannot drift, preserving its own preamble verbatim and keeping
+`art: kept in ideas-art.json` — **one idea carries 47KB of inline SVG and must never be written
+into that file**; inlining it took it from 23KB to 70KB on the first attempt.
+
+### BUILD 5D — the half of the format I had not filled in
+
+G: *"Have you put them in our new format?"* **The honest answer was: partly.** The file was in
+the format and `when` / `size` / `cost` / `fact` were all correct — but his document only carries
+the title and the fact line, and those are only four of the seven fields. **`why`, `tag` and
+`needs` were left exactly as they were**, and in four places they then contradicted his new
+wording:
+
+| Idea | What was left behind |
+|---|---|
+| Buy the food bank's actual top-needs list | fact says "female products", the needs list still said **"Period products"** |
+| Old towels and blankets to a shelter | fact became "genuinely treasured" — and `why` **still carried the old fact word for word**, so the sentence he replaced was still in the app |
+| Tools, paint and lumber to a Habitat ReStore | paint went into the title and **never reached the list of what to bring** |
+| Organize a simple meal for your fire station | renamed from "Pastries", and it has **no `why` and no `needs` at all** — a meal act with nothing to bring |
+
+The first three are repairs. **The fourth is new content I wrote, not his** — a `why` and a
+five-line `needs` for the fire-station meal — and it is flagged to him as mine to approve or
+replace.
+
+A checker now runs over the whole library after any edit: a `why` that merely restates its own
+fact, a `needs` still naming something the fact no longer does, a word in a title that never
+reaches the list. It reports clean.
+
+### New landmines
+
+- **L27 AN IDEA HAS SEVEN FIELDS AND AN EDIT USUALLY ARRIVES WITH FOUR.** Title, when, size, cost,
+  fact, why, tag, needs. The prose readout he edits shows only title / when / size / fact, so
+  `why`, `tag` and `needs` are invisible in it and survive untouched — including a `why` that is a
+  verbatim copy of the fact that was just replaced. **After applying any library edit, re-read the
+  other three fields of every idea that changed.**
+- **L26 THE PROSE LIBRARY AND THE BUILDER SOURCE ARE DIFFERENT DOCUMENTS.** `THE-IDEAS.md` on disk
+  is the builder format; the readable "every idea, in full" document is a different shape. Diffing
+  one against the other produces hundreds of meaningless lines. Render the app's own array into
+  whichever shape arrived, then diff that.
 
 # PART D — WHAT MUST BE TESTED ON A REAL PHONE
 

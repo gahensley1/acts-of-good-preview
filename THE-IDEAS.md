@@ -53,7 +53,7 @@ list of what to bring, one per line, each starting with a dash.
 when: Today
 size: An hour
 cost: Under $20
-fact: Wrap it, and write what is in it on the tag. That takes ten seconds and the welcome is still the point.
+fact: Wrap it, add a handwritten tag. Don’t overthink the allergies, the welcome is the point.
 
 
 ## Take a neighbor's trash and recycling out, and back
@@ -84,18 +84,18 @@ cost: Free
 fact: A bag on the porch with a note. Zucchini season exists for this.
 
 
-## Leave a review for a small business
+## Leave a review for a beloved small business
 when: Today
 size: An hour
 cost: Free
-fact: Free, takes four minutes, and it is worth real money to somebody local.
+fact: Free, takes four minutes, and it is worth real money to someone local.
 
 
 ## Stock a Little Free Library that needs it
 when: This weekend
 size: A weekend
 cost: Under $20
-fact: The directory at littlefreelibrary.org lists them. Find one in an underserved spot, not the fullest one nearby.
+fact: The directory at littlefreelibrary.org lists them. Skip the one closest to you and find one in an underserved spot, not the fullest one nearby.
 
 
 ## A block gathering that introduces two strangers
@@ -145,11 +145,11 @@ needs:
 *9 ideas*
 
 
-## Fill a teacher's classroom wish list
+## Contribute towards a teacher’s classroom wish list
 when: This weekend
 size: A weekend
 cost: $20 or more
-fact: Buy the boring things on it. Split it with a friend and cover a few items each.
+fact: Buy the boring things on it. Go in with a friend and cover a few items each.
 why: teachers buy this out of their own pocket, every year
 needs:
   - Expo markers
@@ -159,11 +159,11 @@ needs:
   - Headphones
 
 
-## Write to a teacher who mattered
+## Write to a teacher whose impact was meaningful
 when: Today
 size: An hour
 cost: Free
-fact: Yours, or your children’s. Post it, a letter lands differently than a message.
+fact: Yours, or your children’s. Send it snail mail, a letter lands differently than a message.
 
 
 ## Email the principal about one teacher, and cc them
@@ -177,7 +177,7 @@ fact: One specific paragraph with evidence. It goes in a personnel file, praise 
 when: A week or two
 size: A weekend
 cost: $20 or more
-fact: Drinks and treats on a Monday, with a card so they know they are seen. Include cleaners, office staff, bus drivers.
+fact: Drinks and treats on a Monday, with a card of gratitude so they know they are seen. Include cleaners, office staff, bus drivers.
 why: the staff room runs on whatever somebody remembered to bring
 needs:
   - Good coffee
@@ -201,11 +201,11 @@ cost: $20 or more
 fact: Call the district food services office, not the school. Ask for the negative-balance total.
 
 
-## Shoes and underwear for the school nurse
+## Shoes or underwear for the school nurse
 when: A week or two
 size: A weekend
 cost: $20 or more
-fact: The nurse runs the clothing closet and knows the sizes they are short of. Unopened packs only.
+fact: The nurse runs the clothing closet and knows the sizes most needed. Unopened packs only.
 why: the nurse keeps these for children who arrive without them
 needs:
   - Underwear, new, a range of sizes
@@ -215,11 +215,11 @@ needs:
   - A bag to keep it all in
 
 
-## Deodorant and period products for the school closet
+## Deodorant and female products for the school closet
 when: This weekend
 size: An hour
 cost: $20 or more
-fact: Middle and high schools quietly keep these. August is when the shelf is barest.
+fact: Middle and high schools quietly keep these. August is when the shelf is the most in need.
 why: a teenager should not have to ask twice for either
 needs:
   - Deodorant
@@ -233,7 +233,7 @@ needs:
 when: Needs a month
 size: An hour
 cost: Free
-fact: One lunchtime a term. Teachers want real jobs described by real people.
+fact: One lunchtime a term. Reach out at the beginning of the semester and get on their calendar. Students will benefit from real jobs described by real people.
 
 
 # Community helpers
@@ -241,25 +241,32 @@ fact: One lunchtime a term. Teachers want real jobs described by real people.
 *8 ideas*
 
 
-## Doughnuts for the vet, clinic or library
+## Doughnuts for the vet, clinic, or library
 when: Today
 size: An hour
 cost: Under $20
-fact: Buy them somewhere you'd like to keep in business. Include a note saying why.
+fact: Purchase from a local small business that you’d like to keep in business. Include a note saying what they’ve meant to you.
 
 
-## Pastries to a fire station
+## Organize a simple meal for your fire station
 when: Today
 size: An hour
 cost: Under $20
-fact: Call the non-emergency line first, never just turn up. October 28 is First Responders Day.
+fact: Organize neighbors and reach out to the non-emergency line to coordinate drop-off. September 11 or October 28 (First Responders Day) are both great options.
+why: they work the shifts the rest of us are at home for
+needs:
+  - A pan of something hot
+  - Something cold to drink
+  - Paper plates, cups and napkins
+  - Serving spoons
+  - A note from the street
 
 
 ## A cooler of cold drinks for the sanitation crew
 when: Today
 size: An hour
 cost: Under $20
-fact: Left out on collection morning in summer, with a note or small poster so they know it is for them.
+fact: Left out on collection morning in summer, with a note or small poster of gratitude so they know it is for them.
 why: the round happens in every kind of weather
 needs:
   - Bottled water
@@ -273,21 +280,21 @@ needs:
 when: Today
 size: An hour
 cost: Under $20
-fact: Sealed and store-bought, with the note taped on. They are not allowed to take much, this they can.
+fact: Sealed and store-bought, with the note taped on. They are not allowed to take much, but this they can.
 
 
 ## Coffee for the night shift on a hospital ward
 when: A week or two
 size: An hour
 cost: Under $20
-fact: Sealed and commercial, handed to the nurse manager. The day shift gets everything, nights get nothing.
+fact: Sealed and commercial, delivered to the nurse manager. The day shift typically gets everything, nights rarely get much.
 
 
 ## Name a great staff member to their manager
 when: Today
 size: An hour
 cost: Free
-fact: Call the shop and ask for the manager. Praise with a name attached is the kind that counts at review time.
+fact: Call the shop and ask for the manager. Sharing specific praise with a name attached is the kind that counts at review time.
 
 
 ## Thank the crews nobody thanks
@@ -319,7 +326,7 @@ fact: A certified class, a few hours. The act is being ready for the next ten ye
 when: Needs a month
 size: A village
 cost: Under $20
-fact: Call two weeks ahead and ask for the activities coordinator, never reception. Bring prizes and a flyer.
+fact: Call three weeks ahead and ask for the activities coordinator, never reception. Email a flyer in advance and bring prizes.
 why: an afternoon with people in it, for residents whose week has none
 tag: Cards. Dominoes. Company.
 needs:
@@ -351,7 +358,7 @@ cost: Free
 fact: Your phone, their kitchen table, one question to start. You will not regret having the recording.
 
 
-## Teach a senior to video-call the grandchildren
+## Teach a senior to video-call their grandchildren
 when: Today
 size: An hour
 cost: Free
@@ -376,7 +383,7 @@ fact: Hung on the door in December, for somebody whose holidays got quieter. No 
 when: Today
 size: An hour
 cost: $20 or more
-fact: Large print is the part everyone forgets. Magazines count.
+fact: Deliver some activity items. Buying items that are large print is a critical detail. Magazines count.
 why: an afternoon is very long without something to do in it
 needs:
   - Jigsaws, 300 to 500 pieces
@@ -389,7 +396,7 @@ needs:
 when: Needs a month
 size: A village
 cost: Free
-fact: Weekly, same day each week, or take on the litter box. The routine is the gift.
+fact: Weekly, same day each week — or take on the litter box. The routine is the gift.
 
 
 ## Drive one Meals on Wheels route a month
@@ -415,20 +422,20 @@ fact: Early start, warm room. Most places want you back, which is the good part.
 when: This weekend
 size: A weekend
 cost: Under $20
-fact: New baby, illness, a loss, or a house gone quiet because a child left for college. Foil tray, instructions taped on.
+fact: New baby, illness, a loss — or a house gone quiet because a child left for college. Drop off in a disposable pan they do not have to keep up with and return to you, with the instructions taped on.
 
 
 ## Buy the food bank's actual top-needs list
 when: Today
 size: An hour
 cost: $20 or more
-fact: Canned protein, pop-top cans, diapers, period products. January and July are their worst months.
+fact: Canned protein, pop-top cans, diapers, female products. January and July are their hardest months.
 why: the list is public and almost nobody reads it before shopping
 needs:
   - Canned protein
   - Pop-top cans
   - Diapers
-  - Period products
+  - Female products
   - Cooking oil
 
 
@@ -443,14 +450,14 @@ fact: The one volunteer job younger children can genuinely do too.
 when: Needs a month
 size: A weekend
 cost: Free
-fact: The day itself is oversubscribed by early November. The day before is when they are short.
+fact: Thanksgiving Day itself is oversubscribed by early November. The days leading up to it are when they are short.
 
 
 ## Buy the holiday food box's missing items
 when: A week or two
 size: A weekend
 cost: $20 or more
-fact: Foil, roasting pans, gravy, butter, spices, coffee: the things nobody donates alongside the turkey.
+fact: Foil, roasting pans, gravy, butter, spices, coffee — the things nobody donates alongside the turkey.
 why: everyone donates the turkey and nobody donates the rest of the dinner
 needs:
   - Foil roasting pans
@@ -475,7 +482,7 @@ needs:
   - Nothing that needs a can opener
 
 
-## Hygiene kits and water in the trunk
+## Hygiene kits and bottled water in the trunk
 when: This weekend
 size: An hour
 cost: $20 or more
@@ -493,7 +500,7 @@ needs:
 when: Today
 size: An hour
 cost: $20 or more
-fact: A stack of $5s and $10s from the supermarket, for the person at the intersection. Dignity travels in small denominations.
+fact: A stack of $5s and $10s gift cards from the supermarket, for the person at the intersection. Dignity travels in small denominations.
 
 
 ## Run a diaper-and-formula drive
@@ -514,7 +521,7 @@ needs:
 when: Today
 size: An hour
 cost: $20 or more
-fact: Set it up once in January. Steady money buys better than one-off cans.
+fact: Set it up once in January. Steady money helps more than one-off cans.
 
 
 # Animals
@@ -526,7 +533,7 @@ fact: Set it up once in January. Steady money buys better than one-off cans.
 when: This weekend
 size: A weekend
 cost: Under $20
-fact: Call ahead about homemade. Some shelters take them happily, some cannot.
+fact: Call ahead about homemade dog treats — some shelters take them happily, some cannot.
 why: the people who work there take it home with them every night
 needs:
   - Training treats
@@ -540,8 +547,8 @@ needs:
 when: Today
 size: An hour
 cost: Free
-fact: The one place your worn textiles are genuinely wanted. February is the cold month.
-why: this is the one place your worn textiles are genuinely wanted
+fact: The one place your worn textiles are genuinely treasured. February is the coldest month.
+why: this is the one place your worn textiles are genuinely treasured
 needs:
   - Towels
   - Blankets
@@ -567,7 +574,7 @@ fact: Transport runs are a weekend and no long-term commitment. Start there.
 when: Today
 size: An hour
 cost: Under $20
-fact: A park, or outside an older person's window. Winter is when it matters.
+fact: A park, or outside an older person’s window. Winter is when it matters. Remember to refill.
 
 
 ## A basket of tennis balls at the dog park
@@ -586,14 +593,14 @@ fact: Left with a note. Cheap, silly, and remembered by every dog and half the o
 when: Today
 size: An hour
 cost: Free
-fact: Bolt it onto a walk you were taking anyway. You will be surprised what you find.
+fact: Add it onto a walk you were taking anyway. You will be surprised what you find.
 
 
-## Organize a litter pick with neighbors
+## Organize a litter pick with friends or neighbors
 when: Needs a month
 size: A village
 cost: Under $20
-fact: A named park, riverbank or beach, then finish somewhere warm. Earth Day is April 22.
+fact: A named park, riverbank or beach, then finish somewhere warm. Earth Day is April 22. International Coastal Clean Up is always the third Saturday in September.
 why: the same stretch gets walked past by everybody and cleaned by nobody
 tag: An hour. A bag each. Done.
 needs:
@@ -611,14 +618,15 @@ cost: Under $20
 fact: On the strip by the street you pass daily, so you get to watch it. Spring.
 
 
-## Tools and lumber to a Habitat ReStore
+## Tools, paint and lumber to a Habitat ReStore
 when: A week or two
 size: A weekend
 cost: Free
-fact: Usable things headed for the dump become somebody’s kitchen instead. Not paint — most ReStores cannot take it. Ring the store before you load the car.
+fact: Usable things headed for the dump become someone’s kitchen instead.
 why: it turns a full garage into somebody's house
 needs:
   - Hand tools
+  - Paint
   - Offcut lumber
   - Working power tools
   - Fittings and fixings
@@ -629,7 +637,7 @@ needs:
 when: Needs a month
 size: A village
 cost: Free
-fact: Everyone brings a bag, everyone leaves with a bag, the rest goes to a shelter, washed, pockets checked.
+fact: Everyone brings a bag, everyone leaves with a bag, the rest goes to a shelter — washed, pockets checked.
 why: good clothes get a second life instead of a landfill
 tag: Bring a bag. Leave with a bag.
 needs:
@@ -649,7 +657,7 @@ needs:
 when: A week or two
 size: An hour
 cost: Free
-fact: For a birthday, a memory, a thank-you. Ask what they would want done in their name, then do it.
+fact: For a birthday, a memory, a thank-you. Think of something specific to the person, a cause near and dear to their heart. It can be simple. The gesture will be so meaningful.
 
 
 ## Sponsor a friend’s fundraiser, and say why
@@ -663,7 +671,7 @@ fact: Money counts. Adding a sentence about why you gave is what they will remem
 when: Today
 size: An hour
 cost: Under $20
-fact: Gift boxes to neighbors, or use the troop’s option to send them to service members overseas.
+fact: Gift boxes to neighbors, or use the troop’s option to send them to military troops or first responders.
 
 
 ## Babysit so someone gets a night off
@@ -677,7 +685,7 @@ fact: Offer a specific date rather than "any time", that is what makes it happen
 when: A week or two
 size: A weekend
 cost: Free
-fact: So a friend can shop, wrap, or sleep. December is when nobody offers.
+fact: So a friend can shop, wrap, or sleep. December is when nobody offers. Especially helpful for a single parent.
 
 
 ## Do a friend's dreaded chore
@@ -726,7 +734,7 @@ fact: If you have lost your mother or father: a meal out for a mother or father 
 when: A week or two
 size: An hour
 cost: Free
-fact: For someone whose calendar has a landmine in it. No occasion talk unless they start it.
+fact: For someone whose calendar has a landmine in it. Only discuss the occasion if they instigate it.
 
 
 ## Record a veteran or an older relative properly
@@ -752,14 +760,14 @@ fact: August, when back-to-school costs bite. A stack of notes and a bag of the 
 when: This weekend
 size: A weekend
 cost: Free
-fact: Platelets take 2–3 hours and no aspirin for 48 hours first. January and summer are the shortages.
+fact: Platelets take 2–3 hours and no aspirin for 48 hours first. January and the summer months are the shortages.
 
 
 ## Organ donor register and marrow registry, same day
 when: Today
 size: An hour
 cost: Free
-fact: The organ register is one form, ten minutes, online. The marrow registry posts you a cheek swab — 18 to 40 to join, and you stay listed until 61.
+fact: Two forms, ten minutes, once in a lifetime.
 
 
 ## Adopt one local cause for the whole stretch
@@ -837,7 +845,7 @@ fact: Check your employer's matching portal first, it can double you for free.
 when: This weekend
 size: A weekend
 cost: Free
-fact: Handing out blank forms is legal everywhere. Collecting filled ones is not — Texas wants you deputised by the county first, Florida wants you registered. Your county registrar has the real rules.
+fact: Nonpartisan and legal everywhere, with rules that vary by state — your county registrar has the real ones.
 
 
 ## A postcard party before voting day

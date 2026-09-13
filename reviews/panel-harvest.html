@@ -1,0 +1,601 @@
+<title>The New Panel&rsquo;s Harvest</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap">
+<style>
+:root{
+  --paper:#FFFFFF; --mist:#F6F4F1; --line:#E4E0DA; --plate:#D9BC6B;
+  --gold:#E1BA52; --coral:#C03F2B; --ink:#231F1B; --muted:#665F57; --faint:#B0A89E;
+  --ok:#4E7A4A; --okbg:#EEF3ED; --mid:#9A7A22; --midbg:#F7F1E0; --bad:#B2432F; --badbg:#F8ECE9;
+  --shadow:0 2px 14px rgba(60,48,36,.07);
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#242020; --mist:#1A1716; --line:#3A3431; --plate:#7A6535;
+    --gold:#E1BA52; --coral:#F08A72; --ink:#F2EDE6; --muted:#A79E93; --faint:#7C746A;
+    --ok:#93C08D; --okbg:#232C22; --mid:#DCBE6A; --midbg:#2E2819; --bad:#F08A72; --badbg:#33211E;
+    --shadow:0 2px 14px rgba(0,0,0,.35);
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#242020; --mist:#1A1716; --line:#3A3431; --plate:#7A6535;
+  --gold:#E1BA52; --coral:#F08A72; --ink:#F2EDE6; --muted:#A79E93; --faint:#7C746A;
+  --ok:#93C08D; --okbg:#232C22; --mid:#DCBE6A; --midbg:#2E2819; --bad:#F08A72; --badbg:#33211E;
+  --shadow:0 2px 14px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box}
+body{margin:0; background:var(--mist); color:var(--ink);
+  font-family:Montserrat,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  padding-block:30px 64px; padding-left:16px; padding-right:16px;
+  display:flex; flex-direction:column; align-items:center; gap:26px}
+.wrap{width:100%; max-width:760px; display:flex; flex-direction:column; gap:26px}
+
+header{background:var(--paper); border:1px solid var(--line); border-radius:6px;
+  box-shadow:var(--shadow); padding:32px 26px 28px; position:relative}
+header::after{content:""; position:absolute; inset:9px; border:1px solid var(--plate);
+  border-radius:2px; pointer-events:none}
+.eyebrow{font-size:10px; font-weight:700; letter-spacing:.2em; text-transform:uppercase;
+  color:var(--coral); margin:0; text-align:center}
+.rule{width:38px; border-top:2px solid var(--gold); margin:17px auto}
+h1{font-size:24px; font-weight:800; line-height:1.22; margin:0 0 14px; text-align:center;
+  text-wrap:balance; letter-spacing:-.02em}
+header p{font-size:13.5px; line-height:1.68; color:var(--muted); margin:0 0 11px}
+header p:last-child{margin-bottom:0}
+header b{color:var(--ink); font-weight:600}
+
+.tally{display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--line);
+  border:1px solid var(--line); border-radius:5px; overflow:hidden; margin-top:20px}
+.tally div{background:var(--paper); padding:12px 8px; text-align:center}
+.tally b{display:block; font-size:21px; font-weight:800; letter-spacing:-.02em;
+  font-variant-numeric:tabular-nums}
+.tally span{display:block; font-size:9px; font-weight:600; letter-spacing:.1em;
+  text-transform:uppercase; color:var(--faint); margin-top:3px}
+@media (max-width:560px){ .tally{grid-template-columns:repeat(2,1fr)} }
+
+h2{font-size:11px; font-weight:700; letter-spacing:.18em; text-transform:uppercase;
+  color:var(--coral); margin:0; display:flex; align-items:baseline; gap:10px; flex-wrap:wrap}
+h2 em{font-style:normal; font-size:10px; font-weight:500; letter-spacing:.02em;
+  text-transform:none; color:var(--faint)}
+.cat{display:flex; flex-direction:column; gap:12px}
+
+.idea{background:var(--paper); border:1px solid var(--line); border-left:3px solid var(--plate);
+  border-radius:5px; box-shadow:var(--shadow); padding:17px 19px 16px}
+.idea h3{font-size:15.5px; font-weight:700; margin:0 0 9px; line-height:1.3;
+  letter-spacing:-.01em; text-wrap:balance}
+.meta{font-family:var(--mono); font-size:10.5px; color:var(--muted);
+  display:flex; flex-wrap:wrap; gap:5px 9px; align-items:center;
+  padding-bottom:11px; border-bottom:1px solid var(--line); margin-bottom:11px}
+.meta s{text-decoration:none; color:var(--faint)}
+.conf{font-family:Montserrat,sans-serif; font-size:8.5px; font-weight:700; letter-spacing:.1em;
+  text-transform:uppercase; padding:3px 7px; border-radius:3px; margin-left:auto}
+.conf.ok{color:var(--ok); background:var(--okbg)}
+.conf.mid{color:var(--mid); background:var(--midbg)}
+.conf.bad{color:var(--bad); background:var(--badbg)}
+.fact{font-size:14px; line-height:1.62; margin:0}
+.why{font-size:12.5px; line-height:1.55; color:var(--muted); margin:9px 0 0; font-style:italic}
+.foot{font-size:11px; line-height:1.55; color:var(--faint); margin:11px 0 0;
+  padding-top:10px; border-top:1px solid var(--line)}
+.foot a{color:var(--muted); text-decoration:underline; text-underline-offset:2px}
+.foot a:focus-visible, .idea a:focus-visible{outline:2px solid var(--coral); outline-offset:2px}
+
+.panel{background:var(--paper); border:1px solid var(--line); border-radius:6px;
+  box-shadow:var(--shadow); padding:22px 22px 20px}
+.panel h3{font-size:16px; font-weight:700; margin:0 0 6px; letter-spacing:-.01em}
+.panel > p{font-size:13px; line-height:1.65; color:var(--muted); margin:0 0 15px}
+
+.months{display:flex; flex-direction:column; gap:0}
+.mrow{display:grid; grid-template-columns:76px 1fr; gap:16px; padding:13px 0;
+  border-top:1px solid var(--line)}
+.mrow:first-child{border-top:0; padding-top:0}
+.mrow > b{font-size:10px; font-weight:700; letter-spacing:.13em; text-transform:uppercase;
+  color:var(--coral); padding-top:2px}
+.mrow p{margin:0; font-size:13px; line-height:1.6}
+.mrow p + p{margin-top:6px; font-family:var(--mono); font-size:11px; line-height:1.65;
+  color:var(--muted)}
+@media (max-width:560px){ .mrow{grid-template-columns:1fr; gap:5px} }
+
+.never{display:flex; flex-direction:column; gap:0; counter-reset:n}
+.never div{padding:13px 0; border-top:1px solid var(--line)}
+.never div:first-child{border-top:0; padding-top:0}
+.never b{display:block; font-size:13.5px; font-weight:700; margin-bottom:4px; line-height:1.35}
+.never p{margin:0; font-size:12.5px; line-height:1.6; color:var(--muted)}
+
+ul.plain{margin:0; padding:0; list-style:none; display:flex; flex-direction:column; gap:8px}
+ul.plain li{font-size:12.5px; line-height:1.55; color:var(--muted);
+  padding-left:15px; position:relative}
+ul.plain li::before{content:"\00d7"; position:absolute; left:0; top:0;
+  color:var(--coral); font-weight:700}
+
+.audit div{padding:14px 0; border-top:1px solid var(--line)}
+.audit div:first-child{border-top:0; padding-top:0}
+.audit b{display:block; font-size:13px; font-weight:600; line-height:1.5; margin-bottom:6px;
+  color:var(--ink)}
+.audit p{margin:0; font-size:12.5px; line-height:1.62; color:var(--muted)}
+.audit em{font-style:italic; color:var(--ink)}
+
+footer{text-align:center; padding:6px 10px 0}
+footer p{font-size:12px; line-height:1.7; color:var(--muted); margin:0}
+footer .creed{font-size:11px; font-weight:700; letter-spacing:.11em; line-height:1.7;
+  color:var(--coral); margin:22px 0 0}
+@media (max-width:420px){ h1{font-size:21px} header{padding:26px 19px 22px}
+  .idea{padding:15px 15px 14px} .panel{padding:18px 16px 16px} }
+</style>
+<div class="wrap">
+<header>
+<p class="eyebrow">The ideas library &middot; a harvest for ruling</p>
+<div class="rule"></div>
+<h1>Fifty-two more acts, and the reasons to believe them</h1>
+<p>Four new seats went out with a web search and a brief: <b>an NGO operations seat</b> who has run a volunteer programme and knows what happens when a stranger turns up, <b>a calendar seat</b> who owns nothing but time, <b>an economics-of-giving seat</b> willing to say when a warm act is worthless, and <b>a repository seat</b> sent to fish the large public libraries of things to do.</p>
+<p>They came back with about a hundred. This is what survived being de-duplicated against our 89, against each other, and against whether the fact can actually be checked. <b>Nothing has been added to the app.</b></p>
+<p>Every one is in our seven-field shape and ready to go in. Rule them by category, or line by line.</p>
+<div class="tally">
+<div><b>54</b><span>candidates</span></div>
+<div><b>46</b><span>facts confirmed</span></div>
+<div><b>12</b><span>never recommend</span></div>
+<div><b>3</b><span>corrections to ours</span></div>
+</div>
+</header>
+<section class="cat">
+<h2>Animals <em>6 now &mdash; the thinnest category in the library</em></h2>
+<article class="idea">
+<h3>Build a winter shelter for the cats who live outside</h3>
+<div class="meta">This weekend <s>&middot;</s> An hour <s>&middot;</s> Under $20 <span class="conf ok">confirmed</span></div>
+<p class="fact">A thirty-gallon plastic tote with a twenty-gallon tote nested inside, a styrofoam slab on the floor, and straw. Never hay, which holds moisture and goes mouldy, and never blankets.</p>
+<p class="why">why: the cats are already there, and the shelter is the difference between a hard winter and a fatal one</p>
+<p class="foot">Full build spec, and the reason for every material, on one page. &nbsp;&middot;&nbsp; <a href="https://www.alleycat.org/resources/how-to-build-an-outdoor-shelter/" target="_blank" rel="noopener">Alley Cat Allies</a></p>
+</article>
+<article class="idea">
+<h3>Take a shelter dog home for one night</h3>
+<div class="meta">This weekend <s>&middot;</s> A weekend <s>&middot;</s> Free <span class="conf ok">confirmed</span></div>
+<p class="fact">Shelters run these as field trips or a doggy day out and hand you the leash, the food and the paperwork. An Arizona State study across five shelters found the dogs&rsquo; stress hormones fell during a one-night stay and stayed lower after they went back.</p>
+<p class="why">why: you are not adopting, you are giving one dog a night off</p>
+<p class="foot">Gunter &amp; Wynne, PeerJ, 2019. &nbsp;&middot;&nbsp; <a href="https://www.sciencedaily.com/releases/2019/04/190401121814.htm" target="_blank" rel="noopener">PeerJ study</a></p>
+</article>
+<article class="idea">
+<h3>Get the dogs in before the fireworks</h3>
+<div class="meta">A week or two <s>&middot;</s> An hour <s>&middot;</s> Free <span class="conf ok">confirmed</span></div>
+<p class="fact">July 5 is the single highest day of the year for stray dog intakes across the country. A text on July 2 to the three people on your street with dogs is the whole act: tags on, gate checked, dog inside with the radio on.</p>
+<p class="foot">Shelter Animals Count&rsquo;s own analysis of national 2021&ndash;23 data. They publish no percentage, so we should not invent one. &nbsp;&middot;&nbsp; <a href="https://www.shelteranimalscount.org/stray-dog-intakes-spike-after-july-4th-new-data-from-shelter-animals-count-confirms/" target="_blank" rel="noopener">Shelter Animals Count</a></p>
+</article>
+<article class="idea">
+<h3>Make one window safe for birds</h3>
+<div class="meta">Today <s>&middot;</s> An hour <s>&middot;</s> Under $20 <span class="conf ok">confirmed</span></div>
+<p class="fact">Marks no more than two inches apart, on the OUTSIDE of the glass. Anything applied inside is invisible to a bird when the glass is reflecting. Non-toxic tempera paint counts.</p>
+<p class="why">why: more than a billion birds a year die on American glass</p>
+<p class="foot">The outside-the-glass ruling is the part nobody knows and the reason this works. &nbsp;&middot;&nbsp; <a href="https://abcbirds.org/strategies/solutions-for-homes/" target="_blank" rel="noopener">American Bird Conservancy</a></p>
+</article>
+<article class="idea">
+<h3>Get a found animal scanned before you post about it</h3>
+<div class="meta">Today <s>&middot;</s> An hour <s>&middot;</s> Free <span class="conf ok">confirmed</span></div>
+<p class="fact">Vets and shelters scan for free. Chipped dogs get home 52 percent of the time against 22 percent without one, and cats 38 percent against under 2. When a chipped animal still does not get home it is almost always the registration that is out of date, not the chip.</p>
+<p class="foot">Lord et al., JAVMA 2009, 7,700 stray animals. &nbsp;&middot;&nbsp; <a href="https://www.avma.org/javma-news/2017-08-01/pet-owners-shelters-and-clinics-check-chip" target="_blank" rel="noopener">AVMA</a></p>
+</article>
+<article class="idea">
+<h3>Photograph the animals nobody is clicking on</h3>
+<div class="meta">A week or two <s>&middot;</s> An hour <s>&middot;</s> Free <span class="conf ok">confirmed</span></div>
+<p class="fact">Ask the shelter for its longest-stay animals and for its file-size rules before you go. Two thirds of adopters looked at photos online first, and two thirds of those called the photographs extremely or very important.</p>
+<p class="why">why: most listing photographs are taken through the bars of a kennel</p>
+<p class="foot">HeARTs Speak study summary. &nbsp;&middot;&nbsp; <a href="https://heartsspeak.org/how-photos-are-important-to-pet-adoption-a-study/" target="_blank" rel="noopener">HeARTs Speak</a></p>
+</article>
+<article class="idea">
+<h3>Ask for the laundry and dish shift</h3>
+<div class="meta">This weekend <s>&middot;</s> An hour <s>&middot;</s> Free <span class="conf ok">confirmed</span></div>
+<p class="fact">Ask for the behind-the-scenes shift, not the dog walking one. Laundry, dishes and cleaning are the roles shelters struggle hardest to fill. Expect an orientation first, and ask whether there is an onboarding fee, because some shelters charge one.</p>
+<p class="why">why: everyone wants to walk the dogs and nobody wants to run the washer</p>
+<p class="foot">One SPCA is currently recruiting two hundred people for laundry and dishes alone. &nbsp;&middot;&nbsp; <a href="https://www.idealist.org/" target="_blank" rel="noopener">Idealist listing</a></p>
+</article>
+<article class="idea">
+<h3>Board a service member&rsquo;s dog while they deploy</h3>
+<div class="meta">Needs a month <s>&middot;</s> A village <s>&middot;</s> Free <span class="conf ok">confirmed</span></div>
+<p class="fact">Dogs on Deployment matches boarders directly with military pet owners. The average stay is about six months and the owner stays financially responsible for food, vet care and supplies the whole time. You set your own availability.</p>
+<p class="foot">Six-month average and the cost split both stated by the programme. &nbsp;&middot;&nbsp; <a href="https://www.dogsondeployment.org/board-a-pet/" target="_blank" rel="noopener">Dogs on Deployment</a></p>
+</article>
+</section>
+<section class="cat">
+<h2>Mother Earth <em>5 now &mdash; the second thinnest</em></h2>
+<article class="idea">
+<h3>Adopt the storm drain at the end of your street</h3>
+<div class="meta">Today <s>&middot;</s> An hour <s>&middot;</s> Free <span class="conf ok">confirmed</span></div>
+<p class="fact">Fifteen minutes with a broom and a rake, twice a month, and the one that matters most is the hour before heavy rain. adopt-a-drain.org covers all fifty states; if your city has no programme the drain still clears.</p>
+<p class="why">why: whatever sits on that grate goes into the creek, not a treatment plant</p>
+<p class="foot">Live national counters: 23,000 people, 38,000 drains. &nbsp;&middot;&nbsp; <a href="https://adopt-a-drain.org/" target="_blank" rel="noopener">Adopt-a-Drain</a></p>
+</article>
+<article class="idea">
+<h3>Leave the leaves where they fall</h3>
+<div class="meta">Today <s>&middot;</s> An hour <s>&middot;</s> Free <span class="conf ok">confirmed</span></div>
+<p class="fact">A couple of inches of leaf litter is what luna moths, swallowtails and woolly bears overwinter in, and thirty percent of native bees nest in hollow stems and dead wood. Rake the paths, leave the beds, and wait until late in the spring.</p>
+<p class="why">why: the one act of good that is done by not doing something</p>
+<p class="foot">Xerces publishes no spring temperature threshold, so the fact must say &ldquo;late in the spring&rdquo; and not the 50-degree rule that circulates. &nbsp;&middot;&nbsp; <a href="https://xerces.org/leave-the-leaves" target="_blank" rel="noopener">Xerces Society</a></p>
+</article>
+<article class="idea">
+<h3>Count what you pick up</h3>
+<div class="meta">Today <s>&middot;</s> An hour <s>&middot;</s> Free <span class="conf ok">confirmed</span></div>
+<p class="fact">The Clean Swell app is free and works anywhere, not only a beach. Every item you tap goes into the global trash database the policy arguments are made from.</p>
+<p class="why">why: we already have a litter pick, and this is the version that becomes evidence</p>
+<p class="foot">Adjacent to &ldquo;take a bag and a glove on your walk&rdquo; &mdash; arguably an upgrade to that idea rather than a new one. &nbsp;&middot;&nbsp; <a href="https://oceanconservancy.org/trash-free-seas/international-coastal-cleanup/cleanswell/" target="_blank" rel="noopener">Ocean Conservancy</a></p>
+</article>
+<article class="idea">
+<h3>Take the junk-drawer batteries to a drop-off</h3>
+<div class="meta">Today <s>&middot;</s> An hour <s>&middot;</s> Free <span class="conf ok">confirmed</span></div>
+<p class="fact">There are over thirty thousand free public drop-off points and about eighty-eight percent of North Americans live within ten miles of one. Tape the terminals with clear plastic tape, not paper tape, and bag them.</p>
+<p class="foot">Call2Recycle now trades as The Battery Network; both names resolve. &nbsp;&middot;&nbsp; <a href="https://www.call2recycle.org/faqs/" target="_blank" rel="noopener">Call2Recycle</a></p>
+</article>
+<article class="idea">
+<h3>Bring a broken thing to a repair cafe and stay to watch</h3>
+<div class="meta">This weekend <s>&middot;</s> An hour <s>&middot;</s> Free <span class="conf ok">confirmed</span></div>
+<p class="fact">Repair cafes are free and usually need no booking, but they run only on set days, so check the date before you carry anything across town. They take electricals, clothing, bicycles, furniture and toys, but nothing you cannot carry in yourself.</p>
+<p class="why">why: the lamp is not broken, the cord is</p>
+<p class="foot"><a href="https://www.repaircafe.org/en/faq/" target="_blank" rel="noopener">Repair Caf&eacute;</a></p>
+</article>
+<article class="idea">
+<h3>Plant a hundred square feet for the monarchs</h3>
+<div class="meta">Needs a month <s>&middot;</s> A weekend <s>&middot;</s> $20 or more <span class="conf ok">confirmed</span></div>
+<p class="fact">Monarch Watch will certify a waystation at a hundred square feet with at least ten milkweed plants of two or more species, plus nectar plants that flower across the season. You get a registry number and a certificate.</p>
+<p class="foot">Exact thresholds are in their requirements document. &nbsp;&middot;&nbsp; <a href="https://www.monarchwatch.org/waystations/waystation_requirements.pdf" target="_blank" rel="noopener">Monarch Watch</a></p>
+</article>
+<article class="idea">
+<h3>Spend an hour agreeing with other people&rsquo;s nature photographs</h3>
+<div class="meta">Today <s>&middot;</s> An hour <s>&middot;</s> Free <span class="conf ok">confirmed</span></div>
+<p class="fact">iNaturalist holds 250 million observations from four million people, and only about four hundred thousand of them do identifications. An observation needs a second person to agree before it counts as research grade.</p>
+<p class="why">why: the bottleneck is not people taking photographs, it is people saying yes, that is a wren</p>
+<p class="foot">Over 6,500 scientific papers have used the data. &nbsp;&middot;&nbsp; <a href="https://www.inaturalist.org/blog/113107-we-ve-reached-250-million-verifiable-observations" target="_blank" rel="noopener">iNaturalist</a></p>
+</article>
+</section>
+<section class="cat">
+<h2>Feed people <em>11 now</em></h2>
+<article class="idea">
+<h3>Take one food rescue run on your way home</h3>
+<div class="meta">Today <s>&middot;</s> An hour <s>&middot;</s> Free <span class="conf ok">confirmed</span></div>
+<p class="fact">A typical rescue takes about thirty minutes. You collect surplus from a store and drive it to an agency on the same trip, and the app tells you how much food it is so you can pick a run your car will hold. There is no ongoing commitment.</p>
+<p class="why">why: the food is already packed and somebody has already arranged the handover</p>
+<p class="foot"><a href="https://foodrescue.us/about/faqs/" target="_blank" rel="noopener">Food Rescue US</a></p>
+</article>
+<article class="idea">
+<h3>Pick the fruit that would fall and rot</h3>
+<div class="meta">This weekend <s>&middot;</s> A weekend <s>&middot;</s> Free <span class="conf ok">confirmed</span></div>
+<p class="fact">Gleaning groups email events within driving distance of your zip code. Most run in the morning, in a field or an orchard already picked once, children are welcome, and you sign the waiver by email before you go.</p>
+<p class="why">why: the second pass of a field feeds people and otherwise it is ploughed under</p>
+<p class="foot">354 gleaning organisations mapped nationally. &nbsp;&middot;&nbsp; <a href="https://endhunger.org/get-involved/volunteer/" target="_blank" rel="noopener">Society of St Andrew</a></p>
+</article>
+<article class="idea">
+<h3>Leave a bag of food by the mailbox in May</h3>
+<div class="meta">Needs a month <s>&middot;</s> An hour <s>&middot;</s> Under $20 <span class="conf ok">confirmed</span></div>
+<p class="fact">The letter carriers&rsquo; food drive is always the second Saturday in May. You leave non-perishables by your mailbox and your carrier takes them to a local food bank. It is the largest one-day food drive in the country.</p>
+<p class="why">why: it lands right before the summer gap, when the school meals stop</p>
+<p class="foot">Participation is branch by branch, so a small number of routes do not collect. &nbsp;&middot;&nbsp; <a href="https://www.nalc.org/community-service/food-drive" target="_blank" rel="noopener">NALC</a></p>
+</article>
+<article class="idea">
+<h3>Ask which month they cannot staff, and take that one</h3>
+<div class="meta">A week or two <s>&middot;</s> An hour <s>&middot;</s> Free <span class="conf mid">likely</span></div>
+<p class="fact">Thanksgiving shifts at some kitchens are filled by August, and on the day there can be more volunteers than guests. The same kitchens are short-handed in February.</p>
+<p class="why">why: the gap is in the ordinary weeks</p>
+<p class="foot">Well documented in reporting and in directors&rsquo; own words; no dataset quantifies the swing. The fact attributes the claim to kitchens, which is defensible. &nbsp;&middot;&nbsp; <a href="https://www.npr.org/2024/12/05/nx-s1-5205508/holiday-volunteers-thanksgiving-christmas-food-pantry" target="_blank" rel="noopener">NPR</a></p>
+</article>
+<article class="idea">
+<h3>Cook one lasagna for a household nearby</h3>
+<div class="meta">This weekend <s>&middot;</s> An hour <s>&middot;</s> Under $20 <span class="conf mid">likely</span></div>
+<p class="fact">Requests come in through a short form and are matched to the nearest cook, so you deliver to a neighbour you have never met. There are more than eighty thousand volunteer cooks and about three and a half thousand meals a week.</p>
+<p class="foot">Volunteer and meal figures confirmed; the matching detail sits behind a portal we could not reach. &nbsp;&middot;&nbsp; <a href="https://lasagnalove.org/about-us/" target="_blank" rel="noopener">Lasagna Love</a></p>
+</article>
+</section>
+<section class="cat">
+<h2>Elders <em>10 now</em></h2>
+<article class="idea">
+<h3>Sit with a neighbour over 65 and run BenefitsCheckUp</h3>
+<div class="meta">This weekend <s>&middot;</s> An hour <s>&middot;</s> Free <span class="conf ok">confirmed</span></div>
+<p class="fact">Nine million Americans over 65 are eligible for benefits they never claim, worth fifty-eight billion dollars a year. BenefitsCheckUp.org is free, run by the National Council on Aging, and takes about fifteen minutes.</p>
+<p class="why">why: most people who miss out are not refusing help, they think they earn too much or never heard of it</p>
+<p class="foot">NCOA with the Urban Institute, published May 2026 on 2023 data. Strongest single idea in the whole harvest. &nbsp;&middot;&nbsp; <a href="https://www.ncoa.org/article/over-9-million-eligible-older-adults-are-missing-out-on-58-billion-in-benefits-that-can-help-them-afford-basic-necessities/" target="_blank" rel="noopener">NCOA</a></p>
+</article>
+<article class="idea">
+<h3>Sit with someone through Medicare open enrollment</h3>
+<div class="meta">A week or two <s>&middot;</s> An hour <s>&middot;</s> Free <span class="conf ok">confirmed</span></div>
+<p class="fact">Open enrollment is October 15 to December 7 every year, and plans change their drug lists on January 1. Every state has a free SHIP counsellor who sells nothing and is paid by no insurer.</p>
+<p class="why">why: the person who calls them in November is usually a salesman</p>
+<p class="foot">Dates are statutory. No defensible average-savings figure exists, so we should not claim one. &nbsp;&middot;&nbsp; <a href="https://acl.gov/programs/connecting-people-services/state-health-insurance-assistance-program-ship" target="_blank" rel="noopener">ACL</a></p>
+</article>
+<article class="idea">
+<h3>Take a hospice&rsquo;s volunteer training</h3>
+<div class="meta">Needs a month <s>&middot;</s> A weekend <s>&middot;</s> Free <span class="conf ok">confirmed</span></div>
+<p class="fact">Federal rule requires every Medicare hospice to have volunteers providing at least five percent of its patient care hours, so hospices recruit and train continually. You choose whether you sit with patients or work in the office.</p>
+<p class="why">why: it is the one volunteer job a regulator counts</p>
+<p class="foot">42 CFR 418.78. A regulation is the most checkable kind of fact there is. &nbsp;&middot;&nbsp; <a href="https://www.ecfr.gov/current/title-42/chapter-IV/subchapter-B/part-418/subpart-C/subject-group-ECFR74797288a614803/section-418.78" target="_blank" rel="noopener">eCFR</a></p>
+</article>
+<article class="idea">
+<h3>Sit in on a memory cafe</h3>
+<div class="meta">This weekend <s>&middot;</s> An hour <s>&middot;</s> Free <span class="conf ok">confirmed</span></div>
+<p class="fact">Memory cafes meet once or twice a month for an hour or two, usually in a library or a coffee shop, and they are free. The person with dementia and the person caring for them both come, and you are there so the carer gets a conversation.</p>
+<p class="why">why: the diagnosis is the moment most people&rsquo;s friends stop calling</p>
+<p class="foot">Zip-code directory at Dementia Friendly America. &nbsp;&middot;&nbsp; <a href="https://dfamerica.org/what-is-memory-cafe/" target="_blank" rel="noopener">Dementia Friendly America</a></p>
+</article>
+<article class="idea">
+<h3>Become a certified ombudsman for a nursing home</h3>
+<div class="meta">Needs a month <s>&middot;</s> A village <s>&middot;</s> Free <span class="conf ok">confirmed</span></div>
+<p class="fact">You must be eighteen and complete a free state certification course, and most states ask for six months to a year at two or three hours a week in one assigned building. Find your programme through the Consumer Voice map rather than calling the home.</p>
+<p class="why">why: not a visitor, an advocate with standing that the staff have to answer</p>
+<p class="foot"><a href="https://ltcombudsman.org/omb_support/volunteer/becoming-a-volunteer" target="_blank" rel="noopener">Ombudsman Resource Center</a></p>
+</article>
+</section>
+<section class="cat">
+<h2>Neighbors <em>10 now</em></h2>
+<article class="idea">
+<h3>Put 211 in three people&rsquo;s phones</h3>
+<div class="meta">Today <s>&middot;</s> An hour <s>&middot;</s> Free <span class="conf mid">likely</span></div>
+<p class="fact">Dial 211 anywhere in the country and a real person will tell you what local help exists for rent, utilities, food and childcare.</p>
+<p class="why">why: people in trouble do not search well, and a three-digit number already in their contacts works when searching does not</p>
+<p class="foot">United Way&rsquo;s own reporting, not independent. The existence and coverage of 211 is not in question. &nbsp;&middot;&nbsp; <a href="https://www.unitedway.org/the-facts-about-211-2025-impact-snapshot" target="_blank" rel="noopener">United Way</a></p>
+</article>
+<article class="idea">
+<h3>Knock on the hot doors in July</h3>
+<div class="meta">Today <s>&middot;</s> An hour <s>&middot;</s> Free <span class="conf ok">confirmed</span></div>
+<p class="fact">Heat is the leading cause of weather-related deaths in the United States in most years, and the Weather Service names elderly people and those with chronic illness among the most at risk. A knock, a cold drink, and find out whether the air conditioning actually works before the third day.</p>
+<p class="foot">Not a welfare check. The framing matters. &nbsp;&middot;&nbsp; <a href="https://www.weather.gov/ohx/heat" target="_blank" rel="noopener">National Weather Service</a></p>
+</article>
+<article class="idea">
+<h3>Pack a go-bag with a neighbour before June</h3>
+<div class="meta">A week or two <s>&middot;</s> An hour <s>&middot;</s> $20 or more <span class="conf ok">confirmed</span></div>
+<p class="fact">The Atlantic hurricane season runs June 1 to November 30 and peaks on September 10. In May the batteries are on the shelf and nobody is queuing. In September they are gone.</p>
+<p class="foot">Dates from the National Hurricane Center&rsquo;s own climatology page. &nbsp;&middot;&nbsp; <a href="https://www.nhc.noaa.gov/climo/?text=" target="_blank" rel="noopener">National Hurricane Center</a></p>
+</article>
+<article class="idea">
+<h3>Install smoke alarms for a morning</h3>
+<div class="meta">This weekend <s>&middot;</s> A weekend <s>&middot;</s> Free <span class="conf ok">confirmed</span></div>
+<p class="fact">A working smoke alarm halves the risk of dying in a house fire, and seven people a day die in home fires, mostly in houses without one. You go door to door with a fire department and a drill, and sign-up is by zip code.</p>
+<p class="why">why: different from replacing your own batteries</p>
+<p class="foot">Note: we already have &ldquo;fresh smoke-alarm batteries for an older neighbor&rdquo;. This is the organised version. &nbsp;&middot;&nbsp; <a href="https://www.redcross.org/sound-the-alarm.html" target="_blank" rel="noopener">Red Cross</a></p>
+</article>
+</section>
+<section class="cat">
+<h2>Teachers &amp; schools <em>9 now</em></h2>
+<article class="idea">
+<h3>Restock a classroom in January</h3>
+<div class="meta">A week or two <s>&middot;</s> An hour <s>&middot;</s> $20 or more <span class="conf ok">confirmed</span></div>
+<p class="fact">In the last full survey, ninety-five percent of public school teachers spent their own money on classroom supplies with no reimbursement, averaging $470 each. The August pencils are gone by the third week of January.</p>
+<p class="why">why: nobody runs a drive in January</p>
+<p class="foot">NCES 2019&ndash;20. The listicles all quote the older 2015&ndash;16 figure; this is the current one. &nbsp;&middot;&nbsp; <a href="https://nces.ed.gov/surveys/ntps/estable/table/ntps/ntps2021_6801_t12ns" target="_blank" rel="noopener">NCES</a></p>
+</article>
+<article class="idea">
+<h3>Check on a first-year teacher in the dark months</h3>
+<div class="meta">Today <s>&middot;</s> An hour <s>&middot;</s> Free <span class="conf ok">confirmed</span></div>
+<p class="fact">November through January is what the New Teacher Center calls the disillusionment phase, the stretch of the first year when new teachers most often decide they cannot do this. A specific sentence about something you saw them do, sent in the second week of January.</p>
+<p class="foot">Ellen Moir&rsquo;s Phases of First-Year Teaching. A documented emotional calendar for a profession, which is rarer than a dated observance. &nbsp;&middot;&nbsp; <a href="https://newteachercenter.org/resources/the-november-january-slump-supporting-new-teachers-through-the-disillusionment-phase/" target="_blank" rel="noopener">New Teacher Center</a></p>
+</article>
+<article class="idea">
+<h3>Thank the bus driver in October</h3>
+<div class="meta">Today <s>&middot;</s> An hour <s>&middot;</s> Free <span class="conf ok">confirmed</span></div>
+<p class="fact">National School Bus Safety Week is the third full week of October.</p>
+<p class="why">why: the driver sees your child twice a day, every day, and is the only adult at the school you never speak to</p>
+<p class="foot"><a href="https://www.napt.org/nsbsw" target="_blank" rel="noopener">NAPT</a></p>
+</article>
+</section>
+<section class="cat">
+<h2>Community helpers <em>8 now</em></h2>
+<article class="idea">
+<h3>Say something to a 911 dispatcher in April</h3>
+<div class="meta">Needs a month <s>&middot;</s> An hour <s>&middot;</s> Under $20 <span class="conf ok">confirmed</span></div>
+<p class="fact">National Public Safety Telecommunicators Week is the second full week of April. Call the non-emergency line of your county dispatch centre, ask for the supervisor, and ask how to get a note or a tray of something to the people on the consoles.</p>
+<p class="why">why: they hear the whole of the worst moment and never find out how it ended</p>
+<p class="foot"><a href="https://www.cisa.gov/national-public-safety-telecommunicators-week" target="_blank" rel="noopener">CISA</a></p>
+</article>
+<article class="idea">
+<h3>Feed the aides at a nursing home on Mother&rsquo;s Day week</h3>
+<div class="meta">Needs a month <s>&middot;</s> An hour <s>&middot;</s> $20 or more <span class="conf ok">confirmed</span></div>
+<p class="fact">National Skilled Nursing Care Week begins on Mother&rsquo;s Day every year and runs to the following Saturday. Call the administrator first, send food that survives a shift change, and send enough for nights as well as days.</p>
+<p class="why">why: the week is aimed at residents, and the aides working that Sunday are doing the hardest shift of the year</p>
+<p class="foot">A genuine floating rule, stated by the body that owns the week. &nbsp;&middot;&nbsp; <a href="https://www.ahcancal.org/Education-Events/Pages/NSNCW.aspx" target="_blank" rel="noopener">AHCA</a></p>
+</article>
+<article class="idea">
+<h3>Find out whether your job comes with a paid volunteer day</h3>
+<div class="meta">A week or two <s>&middot;</s> A weekend <s>&middot;</s> Free <span class="conf mid">likely</span></div>
+<p class="fact">Roughly two thirds of large employers run some form of workplace giving or volunteering programme, and take-up is about one in ten. The day may already be sitting in your benefits handbook.</p>
+<p class="why">why: an unused benefit is not generosity from your employer, it is an hour of your life you were already paid for</p>
+<p class="foot">Some underlying surveys date to 2013&ndash;15. The direction is right; consider writing the fact without the percentages. &nbsp;&middot;&nbsp; <a href="https://www.charities.org/facts-statistics-workplace-giving-matching-gifts-and-volunteer-programs/" target="_blank" rel="noopener">America&rsquo;s Charities</a></p>
+</article>
+</section>
+<section class="cat">
+<h2>Causes &amp; voice <em>16 now &mdash; already the fattest, so be selective</em></h2>
+<article class="idea">
+<h3>Ask your employer if they pay for the hours you volunteer</h3>
+<div class="meta">Today <s>&middot;</s> An hour <s>&middot;</s> Free <span class="conf mid">likely</span></div>
+<p class="fact">About forty percent of the largest companies run volunteer grant programmes, and most of those pay the charity between eight and fifteen dollars for every hour you volunteered. Most people have never been told.</p>
+<p class="why">why: you already gave the time, and this is the charity being paid for it as well</p>
+<p class="foot">Double the Donation&rsquo;s aggregated research, widely cited but not independently audited. The bigger fact underneath: only about 1.3 percent of eligible donations ever get matched. &nbsp;&middot;&nbsp; <a href="https://doublethedonation.com/matching-gift-statistics/" target="_blank" rel="noopener">Double the Donation</a></p>
+</article>
+<article class="idea">
+<h3>File a small charity&rsquo;s annual return with them</h3>
+<div class="meta">Needs a month <s>&middot;</s> An hour <s>&middot;</s> Free <span class="conf ok">confirmed</span></div>
+<p class="fact">A charity with gross receipts under fifty thousand dollars files the 990-N e-postcard, free, by the fifteenth day of the fifth month after its year ends. Miss three years running and the IRS revokes its tax-exempt status automatically.</p>
+<p class="why">why: the treasurer of a small charity is usually a volunteer with a day job</p>
+<p class="foot"><a href="https://www.irs.gov/charities-non-profits/annual-electronic-filing-requirement-for-small-exempt-organizations-form-990-n-e-postcard" target="_blank" rel="noopener">IRS</a></p>
+</article>
+<article class="idea">
+<h3>Get trained in October to do free tax returns in February</h3>
+<div class="meta">Needs a month <s>&middot;</s> A weekend <s>&middot;</s> Free <span class="conf ok">confirmed</span></div>
+<p class="fact">The IRS trains and certifies volunteers free and no tax background is needed. Recruiting runs October through January for the season that follows, and the sites also need greeters, interpreters and someone to fix the printer.</p>
+<p class="why">why: a family that pays two hundred dollars to file is paying it out of the refund</p>
+<p class="foot">Four of the five seats arrived at this independently. &nbsp;&middot;&nbsp; <a href="https://www.irs.gov/newsroom/volunteers-needed-to-provide-no-cost-tax-services-for-the-upcoming-filing-season" target="_blank" rel="noopener">IRS</a></p>
+</article>
+<article class="idea">
+<h3>Work the polls in your own precinct</h3>
+<div class="meta">Needs a month <s>&middot;</s> A weekend <s>&middot;</s> Free <span class="conf ok">confirmed</span></div>
+<p class="fact">Forty-eight percent of election jurisdictions said they had a hard time recruiting poll workers for the last presidential cycle, against a need of over seven hundred thousand people. You apply through your county election office months ahead, and duties and pay vary by county, so ask both.</p>
+<p class="why">why: nonpartisan by law and by design &mdash; you are handing out ballots and checking names</p>
+<p class="foot">Figures are 2024-cycle, quoted by the EAC in January 2026. Re-check after the 2026 survey. &nbsp;&middot;&nbsp; <a href="https://www.eac.gov/" target="_blank" rel="noopener">Election Assistance Commission</a></p>
+</article>
+<article class="idea">
+<h3>Spend the King holiday on somebody&rsquo;s work list</h3>
+<div class="meta">Needs a month <s>&middot;</s> A weekend <s>&middot;</s> Free <span class="conf ok">confirmed</span></div>
+<p class="fact">Congress made the third Monday in January a national day of service in 1994. It is the one day of the year when organisations expect volunteers and have prepared work for them, and it lands in the month they are emptiest.</p>
+<p class="foot"><a href="https://www.pointsoflight.org/blog/make-martin-luther-king-day-day-on-not-day-off/" target="_blank" rel="noopener">Points of Light</a></p>
+</article>
+<article class="idea">
+<h3>Be the match on somebody else&rsquo;s fundraiser</h3>
+<div class="meta">Today <s>&middot;</s> An hour <s>&middot;</s> $20 or more <span class="conf ok">confirmed</span></div>
+<p class="fact">In a field experiment with fifty thousand donors, simply announcing that gifts would be matched raised both the number of people who gave and the amount each gave. A one-for-one match did as well as three-for-one.</p>
+<p class="why">why: you do not have to be the biggest giver, you have to be the first, and you have to say so out loud</p>
+<p class="foot">Karlan &amp; List, American Economic Review 2007. The most replicated finding in fundraising economics. &nbsp;&middot;&nbsp; <a href="https://www.aeaweb.org/articles?id=10.1257/aer.97.5.1774" target="_blank" rel="noopener">AER</a></p>
+</article>
+<article class="idea">
+<h3>Write &ldquo;for whatever you need most&rdquo; in the note field</h3>
+<div class="meta">Today <s>&middot;</s> An hour <s>&middot;</s> Under $20 <span class="conf mid">likely</span></div>
+<p class="fact">A restricted gift arrives with strings the charity then has to spend money tracking. An unrestricted one can pay the rent, the insurance, and the person who answers the phone.</p>
+<p class="why">why: it costs you nothing extra and it is the sentence charity finance directors say they never hear</p>
+<p class="foot">Deliberately carries no number. The overhead statistics everyone quotes are from 2001 and from four case studies. &nbsp;&middot;&nbsp; <a href="https://ssir.org/articles/entry/the_nonprofit_starvation_cycle" target="_blank" rel="noopener">Stanford Social Innovation Review</a></p>
+</article>
+<article class="idea">
+<h3>Go back to the disaster three months later</h3>
+<div class="meta">Needs a month <s>&middot;</s> An hour <s>&middot;</s> $20 or more <span class="conf ok">confirmed</span></div>
+<p class="fact">Fewer than one in five disaster philanthropy dollars reaches long-term recovery. The rest arrives in the first fortnight, while the cameras are there. Put a note in your calendar for ninety days after the news stops, and give money to a local community foundation, not goods.</p>
+<p class="foot">Center for Disaster Philanthropy, 2023 data. &nbsp;&middot;&nbsp; <a href="https://disasterphilanthropy.org/" target="_blank" rel="noopener">CDP</a></p>
+</article>
+<article class="idea">
+<h3>Deliver what a shelter for people fleeing abuse actually asks for</h3>
+<div class="meta">This weekend <s>&middot;</s> An hour <s>&middot;</s> $20 or more <span class="conf ok">confirmed</span></div>
+<p class="fact">Call first and ask where to deliver. Most need new full-size toiletries, new underwear, socks and pyjamas, and grocery or gas gift cards. Used clothing they generally cannot take, because the standards they are held to require new.</p>
+<p class="why">why: people arrive with nothing, often at night, often with children</p>
+<p class="foot"><a href="https://www.domesticshelters.org/articles/ending-domestic-violence/what-domestic-violence-shelters-actually-need" target="_blank" rel="noopener">DomesticShelters.org</a></p>
+</article>
+<article class="idea">
+<h3>Transcribe a page of somebody&rsquo;s handwriting</h3>
+<div class="meta">Today <s>&middot;</s> An hour <s>&middot;</s> Free <span class="conf ok">confirmed</span></div>
+<p class="fact">You can transcribe anonymously without making an account and there is no minimum number of words or pages. What you type makes the document full-text searchable for everyone afterwards.</p>
+<p class="why">why: the letters are already scanned and no machine can read the handwriting</p>
+<p class="foot">Volunteers have finished over 1.6 million pages, including Freedmen&rsquo;s Bureau records. &nbsp;&middot;&nbsp; <a href="https://transcription.si.edu/FAQs" target="_blank" rel="noopener">Smithsonian</a></p>
+</article>
+<article class="idea">
+<h3>Empty the bra drawer</h3>
+<div class="meta">Today <s>&middot;</s> An hour <s>&middot;</s> Free <span class="conf ok">confirmed</span></div>
+<p class="fact">I Support the Girls takes any bra, new or gently used, laundered with no tears or broken clasps, plus sealed menstrual products and new underwear only. There are 64 affiliates, and a mailing address if there is none near you.</p>
+<p class="foot"><a href="https://isupportthegirls.org/about/faq/" target="_blank" rel="noopener">I Support the Girls</a></p>
+</article>
+<article class="idea">
+<h3>Send a dictionary to someone in prison</h3>
+<div class="meta">A week or two <s>&middot;</s> An hour <s>&middot;</s> $20 or more <span class="conf ok">confirmed</span></div>
+<p class="fact">The most requested book, every year the programme has run, is a dictionary &mdash; because it is a reference someone can keep in a cell when the library is locked. Send through the programme; facilities reject packages from individuals.</p>
+<p class="foot"><a href="https://www.wgbh.org/news/local/2025-08-19/free-books-from-quincys-prison-book-program-bring-a-beacon-of-light-to-incarcerated-people" target="_blank" rel="noopener">Prison Book Program</a></p>
+</article>
+<article class="idea">
+<h3>Take the day-of shift at a Special Olympics competition</h3>
+<div class="meta">A week or two <s>&middot;</s> A weekend <s>&middot;</s> Free <span class="conf ok">confirmed</span></div>
+<p class="fact">Day-of event volunteers need no application and no background check, and a photo ID at check-in is the whole intake. The minimum age is fourteen. The screening applies to coaches and chaperones, not to timing, scoring or staging.</p>
+<p class="foot">Screening rules are set by each state programme, so the fact is written as what to ask about. &nbsp;&middot;&nbsp; <a href="https://sonc.net/get-involved/become-a-volunteer/" target="_blank" rel="noopener">Special Olympics NC</a></p>
+</article>
+<article class="idea">
+<h3>Sign up for a build day</h3>
+<div class="meta">A week or two <s>&middot;</s> A weekend <s>&middot;</s> Free <span class="conf ok">confirmed</span></div>
+<p class="fact">No construction experience is needed and the hard hat, gloves and safety gear are lent to you. You must be sixteen, and under eighteen you will not be put on power tools. Sturdy closed shoes are not optional &mdash; you will be sent home without them.</p>
+<p class="foot">Age floors vary a little by affiliate; some are eighteen. &nbsp;&middot;&nbsp; <a href="https://www.atlantahabitat.org/volunteer/volunteering-faq" target="_blank" rel="noopener">Habitat for Humanity</a></p>
+</article>
+<article class="idea">
+<h3>Round up at the register, and know where it goes</h3>
+<div class="meta">Today <s>&middot;</s> An hour <s>&middot;</s> Under $20 <span class="conf ok">confirmed</span></div>
+<p class="fact">The store gets no tax deduction for your round-up. It legally cannot &mdash; it is only passing your money through. The deduction, if anyone ever takes it, is yours.</p>
+<p class="why">why: this is the most common thing people believe about giving that is not true, and believing it stops them giving</p>
+<p class="foot">The footnote makes it better, not worse: nine in ten taxpayers take the standard deduction and will never deduct it either. &nbsp;&middot;&nbsp; <a href="https://taxpolicycenter.org/taxvox/who-gets-tax-benefit-those-checkout-donations-0" target="_blank" rel="noopener">Tax Policy Center</a></p>
+</article>
+</section>
+<section class="cat">
+<h2>Friends &amp; family <em>14 now</em></h2>
+<article class="idea">
+<h3>Make the introduction you keep meaning to make</h3>
+<div class="meta">Today <s>&middot;</s> An hour <s>&middot;</s> Free <span class="conf ok">confirmed</span></div>
+<p class="fact">In a randomised experiment across twenty million people, it was the weaker connections &mdash; someone you know a bit rather than a lot &mdash; that led to the most new jobs.</p>
+<p class="why">why: the person you would never think to introduce is statistically the one who helps</p>
+<p class="foot">Rajkumar et al., Science 2022. One of very few social-science facts worth stating without hedging. &nbsp;&middot;&nbsp; <a href="https://www.science.org/doi/10.1126/science.abl4476" target="_blank" rel="noopener">Science</a></p>
+</article>
+<article class="idea">
+<h3>Put the anniversary in your calendar and text on the day</h3>
+<div class="meta">Today <s>&middot;</s> An hour <s>&middot;</s> Free <span class="conf mid">likely</span></div>
+<p class="fact">Clinicians call it the anniversary reaction, a measurable return of grief symptoms around the date of a death. It is also the date almost nobody else has written down. One line, on the day, using the dead person&rsquo;s name, asking for no reply.</p>
+<p class="foot">The phenomenon is well established; do not attach a percentage to it. &nbsp;&middot;&nbsp; <a href="https://www.tandfonline.com/doi/full/10.1080/07481187.2025.2513997" target="_blank" rel="noopener">Death Studies review</a></p>
+</article>
+<article class="idea">
+<h3>Take a caregiver&rsquo;s Saturday in November</h3>
+<div class="meta">A week or two <s>&middot;</s> A weekend <s>&middot;</s> Free <span class="conf ok">confirmed</span></div>
+<p class="fact">November is National Family Caregivers Month, and the thing most often asked for is respite &mdash; somebody else in the chair for a few hours. Offer a specific Saturday and a specific window, not &ldquo;let me know if you need anything&rdquo;.</p>
+<p class="why">why: the second one never gets used</p>
+<p class="foot"><a href="https://www.caregiveraction.org/nfc-month/" target="_blank" rel="noopener">Caregiver Action Network</a></p>
+</article>
+<article class="idea">
+<h3>Search your state&rsquo;s unclaimed property list for five people you love</h3>
+<div class="meta">Today <s>&middot;</s> An hour <s>&middot;</s> Free <span class="conf mid">likely</span></div>
+<p class="fact">Every state holds forgotten deposits, uncashed final paychecks and refunds until the owner asks. MissingMoney.com searches most states at once, it is free, and you should never pay a finder to do it.</p>
+<p class="why">why: two minutes a name, and the never-pay-a-finder line is the part that protects people</p>
+<p class="foot">The headline dollar totals vary wildly between sources; keep a figure out of the fact. &nbsp;&middot;&nbsp; <a href="https://unclaimed.org/how-states-return-missing-money/" target="_blank" rel="noopener">NAUPA</a></p>
+</article>
+</section>
+<section class="cat">
+<h2>The year, month by month <em>every date as a rule, not a 2026 instance</em></h2>
+<div class="panel">
+<h3>What is short, and who needs it</h3>
+<p>This is the calendar seat&rsquo;s second deliverable, and it may be worth more than its ideas. The app already has a card that says what is worth doing about now; this is the best version of the data behind it that exists. The one-line summary: <b>December has more volunteers than it can use. January, February, July and August have the work and nobody to do it.</b></p>
+<div class="months">
+<div class="mrow"><b>January</b><div><p>The emptiest month across the whole sector. December giving has been banked and spent, rotas collapse after the holidays, blood supply drops with travel and winter illness, and the August classroom supplies have run out.</p><p>MLK Day of Service &mdash; third Monday. National Mentoring Month. National Blood Donor Month. Free-tax-prep signup closes.</p></div></div>
+<div class="mrow"><b>February</b><div><p>The second quiet month, and the cold one. Shelters need bedding. Teacher morale is at the bottom of the November&ndash;January slump. Cat adoptions are at their annual floor before kitten season.</p><p>Great Backyard Bird Count &mdash; the four days ending on the third Monday. Black History Month. February 14 is the hardest fixed date of the year for the recently widowed.</p></div></div>
+<div class="mrow"><b>March</b><div><p>Tax season peaks and free sites are short of greeters and interpreters, not only preparers. Spring cleanup starts too early for overwintering insects.</p><p>Read Across America &mdash; March 2. National School Breakfast Week &mdash; first full week.</p></div></div>
+<div class="mrow"><b>April</b><div><p>Kitten season begins and neonate intakes rise first. Shelters need bottle feeders, laundry and towels. Schools hit testing season.</p><p>Public Safety Telecommunicators Week &mdash; second full week. National Volunteer Week &mdash; the week beginning the third Sunday. Earth Day &mdash; April 22.</p></div></div>
+<div class="mrow"><b>May</b><div><p>Kitten intake peaks sharply. Eastern Pacific hurricane season opens May 15 while supplies are still cheap and stocked.</p><p>Stamp Out Hunger &mdash; second Saturday. Teacher Appreciation Week &mdash; first full week. Nurses Week &mdash; May 6 to 12. Skilled Nursing Care Week &mdash; begins on Mother&rsquo;s Day. Older Americans Month. Foster Care Month.</p></div></div>
+<div class="mrow"><b>June</b><div><p>The summer gap opens. School meals stop with the last day of school, corporate and school drives end, Meals on Wheels routes lose drivers to vacations.</p><p>Atlantic hurricane season opens June 1. Summer meal sites open. National Trails Day &mdash; first Saturday. June 30 is the fiscal year end for about a fifth of US charities.</p></div></div>
+<div class="mrow"><b>July</b><div><p>The hardest month for food banks alongside January. Blood supply falls because schools and colleges run most drives and they are closed. Heat kills more Americans than any other weather.</p><p>July 5 is the highest stray-dog intake day of the year. Act before the fourth, not on it.</p></div></div>
+<div class="mrow"><b>August</b><div><p>Summer drought continues, then flips at the end of the month as back-to-school begins. Poll worker recruitment is happening now for November.</p><p>National Night Out &mdash; first Tuesday. Check the Chip Day &mdash; August 15. Poll worker recruitment &mdash; mid-August.</p></div></div>
+<div class="mrow"><b>September</b><div><p>The second kitten intake peak, the one nobody plans for because everyone thinks kitten season ended in June. Hurricane risk peaks on the 10th.</p><p>September 11 Day of Service. Hunger Action Month. Preparedness Month. Coastal Cleanup &mdash; third Saturday. Public Lands Day &mdash; fourth Saturday. Voter Registration Day &mdash; fourth Tuesday.</p></div></div>
+<div class="mrow"><b>October</b><div><p>The recruiting month. Cold-weather shelters train now for a season starting in November. Medicare&rsquo;s window opens and closes inside eleven weeks. Leaf litter is being destroyed.</p><p>Medicare open enrollment &mdash; October 15 to December 7. Free-tax-prep signup opens. School Bus Safety Week &mdash; third full week. First Responders Day &mdash; October 28.</p></div></div>
+<div class="mrow"><b>November</b><div><p>Everyone arrives. Thanksgiving shifts are oversubscribed by mid-month. New teachers enter the disillusionment phase. Family caregivers head into the worst six weeks of their year.</p><p>Veterans Day &mdash; November 11. Giving Tuesday &mdash; the Tuesday after Thanksgiving. Family Caregivers Month. Hospice and Palliative Care Month.</p></div></div>
+<div class="mrow"><b>December</b><div><p>The most crowded month of the year for both giving and volunteering. Blood and platelets go short because donors travel. Care-home residents have a busy fortnight and then nothing.</p><p>Medicare open enrollment closes December 7. The solstice, around the 21st, is the anchor for longest-night services.</p></div></div>
+</div>
+</div>
+</section>
+<section class="cat">
+<h2>Never recommend <em>with the evidence</em></h2>
+<div class="panel">
+<h3>Acts that feel good and do harm</h3>
+<p>The economics seat&rsquo;s list, and it protects the product as much as the ideas grow it. Several of these are the most common entries in every kindness library in existence.</p>
+<div class="never">
+<div><b>A canned food drive, as the default</b><p>A can bought at retail and then sorted, dated and shelved by staff is the most expensive way to put food in a pantry. Cash buys at wholesale and buys what is missing. The exception matters: buying off a published top-needs list is a specific request, not a guess &mdash; which is why our existing idea survives.</p></div>
+<div><b>Sending goods to a disaster nobody asked for</b><p>The emergency management literature has a name for it: the second disaster. Trucks that should carry water carry junk, and somebody pays to landfill it. Cash and gift cards, always.</p></div>
+<div><b>Orphanage volunteering, and voluntourism generally</b><p>The Lancet called it misguided altruism. Paying to spend two weeks with institutionalised children creates demand that keeps children in institutions. UNICEF, ECPAT and Better Care Network are unanimous. Never, in any form.</p></div>
+<div><b>Turning up at a soup kitchen on Thanksgiving without booking</b><p>Some kitchens fill those shifts by August. Supervising a stranger for three hours costs real staff time. The act is asking which month they cannot staff.</p></div>
+<div><b>One-off unscoped pro bono</b><p>A day of unsolicited expertise that leaves a strategy document nobody asked for is a cost. The test: did they define the deliverable, or did you? Our existing &ldquo;day of professional skill&rdquo; should carry that question in its fact.</p></div>
+<div><b>Bags of used clothing left at a charity&rsquo;s door</b><p>Most of it is not sellable and disposing of it is a cost centre. A specific closet asking for specific sizes in specific condition is the right shape &mdash; which is what our clothing-closet idea already is.</p></div>
+<div><b>Donating a car through a for-profit intermediary</b><p>The middleman&rsquo;s cut can leave the charity with a fraction of the sale price. Sell it and give the cash.</p></div>
+<div><b>Donating credit card points or airline miles</b><p>Points redeemed to charity usually convert at a worse rate than cash back. Take the cash back and give the cash.</p></div>
+<div><b>Judging a charity by its overhead ratio</b><p>Charity Navigator, GuideStar and the BBB jointly published a letter telling donors to stop. Over a third of nonprofits report zero fundraising costs, so the ratio measures accounting, not effectiveness.</p></div>
+<div><b>Micro-restricting a small gift</b><p>&ldquo;This $25 is for pencils only&rdquo; obliges somebody to track $25 against a pencil budget. Below a few hundred dollars, restriction costs more than it directs.</p></div>
+<div><b>Giving blood the day after a mass-casualty event</b><p>The blood used that day was donated weeks earlier. Post-tragedy surges expire unused and the shelf is empty two months later. Our blood ideas should always point at scheduling, never at reacting.</p></div>
+<div><b>Starting a new drive, fund or nonprofit for something that already exists</b><p>The most expensive act of good available, and the one that feels best.</p></div>
+</div>
+</div>
+</section>
+<section class="cat">
+<h2>Rejected from the repositories <em>so nobody rediscovers them next year</em></h2>
+<div class="panel">
+<h3>What the kindness libraries are mostly made of</h3>
+<p>The repository seat read the big idea banks and calendars and reported that they are built for volume, not for action. These are the entries that dominate them, each failing on a stated ground.</p>
+<ul class="plain">
+<li>Smile at a stranger &middot; spread positivity &middot; give a compliment &mdash; slogans, not actions, and the single most common entry in every kindness calendar</li>
+<li>Sticky notes on public bathroom mirrors &mdash; performative, and litter somebody else cleans</li>
+<li>Tape quarters to the vending machine &middot; pay for the car behind you &mdash; performative; the chain-of-kindness framing is about being seen</li>
+<li>Hand a stranger a $5 gift card &mdash; money with no idea whether it helps, and it puts the receiver on the spot</li>
+<li>Let someone go ahead of you in line &mdash; manners, not an act</li>
+<li>Donate the books you have already read &middot; used stuffed animals &mdash; most are binned; infection control requires new</li>
+<li>A child&rsquo;s free lemonade stand &mdash; an adult&rsquo;s job dressed as a child&rsquo;s act</li>
+<li>Sponsor a child for $X a month via a platform &mdash; money handed to a platform rather than doing a thing</li>
+<li>Sign this petition &middot; post this to your story &mdash; performative, often party-political, nothing done</li>
+<li>Adopt a highway &mdash; a formal agreement, a safety briefing, a multi-year commitment and a minimum group size</li>
+<li>Crisis text counselling &mdash; thirty-plus hours of training and real risk of harm if done badly</li>
+<li>Be My Eyes &mdash; eleven million volunteers against 1.1 million blind users. We would be selling an act that mostly does not happen</li>
+</ul>
+</div>
+</section>
+<section class="cat">
+<h2>Three corrections to what we already have <em>the economics seat, asked to be blunt</em></h2>
+<div class="panel audit">
+<div><b>&ldquo;Check your employer&rsquo;s matching portal first, it can double you for free.&rdquo;</b><p>Substantially right, and &ldquo;can&rdquo; saves it &mdash; real programmes run from half to three times and most cap annually. But the availability figure everyone quotes is Fortune 500 only; among small and mid-size employers it is closer to 28 percent. The bigger fact is not in the library at all: only about 1.3 percent of eligible donations are ever matched.</p></div>
+<div><b>&ldquo;Call the district food services office, not the school. Ask for the negative-balance total.&rdquo;</b><p>Operationally excellent and worth keeping. Three caveats: some districts will not disclose or will not accept third-party payment; in states with universal free meals there may be no debt at all; and the act treats a symptom. A meaningful share of families carrying lunch debt qualify for free meals and never filed the form. The higher-leverage version &mdash; helping one family file &mdash; is missing from the library entirely.</p></div>
+<div><b>&ldquo;Buy the food bank&rsquo;s actual top-needs list.&rdquo;</b><p>Correct and safe, because it is a published request rather than a guess. But nothing tells a reader that cash still beats retail purchase even off the list. The top-needs list is right for people who want to shop; it is not the efficient frontier. A <em>why</em> line could say so warmly.</p></div>
+</div>
+</section>
+<footer>
+<p>Rule by category, or line by line. Nothing is in the app yet.</p>
+<p class="creed">PUT A LITTLE<br>MORE GOOD INTO<br>THE WORLD.</p>
+</footer>
+</div>
