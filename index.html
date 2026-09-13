@@ -1301,7 +1301,7 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
     </div>
 
     <!-- BUILD MARK — dev only, delete this div when the app ships -->
-    <div id="buildtag">BUILD 5F</div>
+    <div id="buildtag">BUILD 5G</div>
   </div>
 </section>
 
@@ -9909,6 +9909,20 @@ function wrapLines(g, text, maxW){
   return out;
 }
 
+/* THE LAST LINE THAT DOES NOT FIT. It used to drop "the last word" and add an
+   ellipsis — fine for a sentence, and wrong for the thing wrapLines was just
+   taught to handle: a pasted link is chopped BY LETTER, so its last line holds
+   no space at all, "the last word" is the whole line, and the end of the story
+   came out as a row of dots and nothing else. Trim to a word boundary only
+   when there is one; otherwise take letters off the end. Measured afterwards,
+   so the ellipsis cannot push the line back over the edge. */
+function tailCut(g, line, maxW){
+  const cut = String(line||'').replace(/\s*\S*$/,'');
+  let t = (cut.trim() ? cut : String(line||'').slice(0, Math.max(1, String(line||'').length-1))) + '\u2026';
+  while(t.length > 2 && g.measureText(t).width > maxW) t = t.slice(0, t.length-2) + '\u2026';
+  return t;
+}
+
 async function renderInvite(a){
   const W=1080, H=1350, k=W/100;
   const c=document.createElement('canvas'); c.width=W; c.height=H;
@@ -10078,7 +10092,7 @@ async function renderNote(a){
     const lines = wrapLines(g, story, W-24*k);
     lines.slice(0, room).forEach((l,i)=>{
       let t = l;
-      if(i === room-1 && lines.length > room) t = l.replace(/\s*\S*$/,'') + '\u2026';
+      if(i === room-1 && lines.length > room) t = tailCut(g, l, W-24*k);
       g.fillText(t, centre(t), y); y += 5.2*k;
     });
   }
