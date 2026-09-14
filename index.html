@@ -759,6 +759,8 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
 .btn:active{transform:scale(.985);opacity:.92}
 .btn.ghost{background:var(--paper);color:var(--ink);border:1.5px solid var(--line)}
 .btn.mini{padding:11px 16px;width:auto;display:inline-block;font-size:13.5px}
+.ideago{display:flex;gap:8px;flex-wrap:wrap}
+.ideago .btn.mini{margin-top:0}
 .askbar .btn.mini{display:block;width:auto;text-align:center;padding:13px 10px;
   font-size:14.5px}
 
@@ -897,6 +899,11 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
   font-size:13px;padding:10px 14px}
 .sugbox #sug-title{font-size:16px;display:block;margin-bottom:5px;line-height:1.3}
 .sugbox #sug-body{margin:0}
+/* the act sits under the occasion with a rule between them, so the card reads
+   as one thing with a consequence rather than as two things side by side */
+.sugbox #sug-act{margin-top:13px;padding-top:12px;border-top:1px solid var(--line)}
+.sugbox #sug-act b{font-size:14.5px;display:block;margin-bottom:9px;line-height:1.3}
+.sugbox #sug-act .btn.mini{margin-top:0}
 /* the shareable card — square, and sized to the real artwork's proportions */
 .cardface{container-type:inline-size;padding:0;border-radius:var(--r);overflow:hidden;
   aspect-ratio:1;display:flex;flex-direction:column;justify-content:flex-start}
@@ -1269,6 +1276,9 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
       </div>
       <b id="sug-title"></b>
       <p class="note" id="sug-body"></p>
+      <!-- The act an occasion brings with it. Empty and hidden unless there is
+           a confident one; a day with no act named reads exactly as it did. -->
+      <div id="sug-act" class="hide"></div>
     </div>
 
     <h3 style="font-size:13px;color:var(--muted);text-transform:uppercase;
@@ -1301,7 +1311,7 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
     </div>
 
     <!-- BUILD MARK — dev only, delete this div when the app ships -->
-    <div id="buildtag">BUILD 5G</div>
+    <div id="buildtag">BUILD 5H</div>
   </div>
 </section>
 
@@ -1364,7 +1374,11 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
   <!-- One question now, not two. G, 8 Sept: "I don't think we need to judge
        how everything went. And if there was something, they'll put it in
        anything you want to remember." -->
-  <p class="note" style="margin-bottom:16px">Nicely done. One quick question
+  <!-- "Nicely done" came out 13 Sep 2026 on Jessica's note, ruled by G. Every
+       line of pace judgement was stripped from this app on the grounds that it
+       does not get to grade you; praise is the same judgement pointed the other
+       way, and it arrived two words after somebody had been kind to a person. -->
+  <p class="note" style="margin-bottom:16px">One quick question
     while it's fresh, and it's optional.</p>
 
   <!-- One wording for one question, everywhere it is asked (G, 8 Sept). The
@@ -1475,8 +1489,6 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
     <input id="per-facebook" placeholder="Their name as it appears there"></div>
   <div class="field"><label for="per-threads">Threads</label>
     <input id="per-threads" placeholder="@handle" autocapitalize="off"></div>
-  <div class="field"><label for="per-x">X</label>
-    <input id="per-x" placeholder="@handle" autocapitalize="off"></div>
   <button class="btn" onclick="savePerson()">Save</button>
   <button class="btn ghost" style="margin-top:10px" id="per-acts"
     onclick="showTheirActs()">See their acts</button>
@@ -2239,6 +2251,9 @@ const TONE_SAY = {'light':'Light skin tone','medium-light':'Medium-light skin to
    ────────────────────────────────────────────────────────────── */
 const DB_NAME='actsofgood', STORE_NAME='photos', LS_KEY='actsofgood.state';
 let _db=null, _dbOpening=null, _storageOK=true, LOAD_MISSED=false;
+/* set when a year was put back from a snapshot rather than read off the file.
+   Nothing shows it yet — the copy for that is with G. */
+let RECOVERED = false;
 
 /* Safari is famous for an IndexedDB open() that simply never answers — the
    "Connection to Indexed Database server lost" stall, worst on the first launch
@@ -2388,7 +2403,7 @@ function serialise(){
     v:1, n:S.n, weeks:S.weeks, line:S.line, word:S.word,
     lineTouched:S.lineTouched, wordTouched:S.wordTouched,
     tone:S.tone,
-    name:S.name, bday:S.bday, why:S.why, email:S.email||'', pubkey:S.pubkey||'',
+    name:S.name, bday:S.bday, why:S.why, email:S.email||'',
     start:S.start.toISOString(),
     /* Finished years. RULED 12 September 2026: "the journal should stay intact
        no matter what, and a second session should build on the first."
@@ -2426,8 +2441,66 @@ function serialise(){
                           photos:(a.photos||[]).map(p=>p.id), offs:(a.photos||[]).map(p=>p&&p.off?1:0) }))
   };
 }
+/* ── THE LAST FEW SAVES, NOT ONLY THE CURRENT ONE ──────────────────────────
+   Built 13 September 2026, off the code seat's study of Obsidian, which ships
+   this as a core plugin that is ON by default: it snapshots at an interval and
+   keeps a week, stored OUTSIDE the vault so a corrupt vault cannot take the
+   snapshots with it. Ours is the same idea at one-file scale.
+
+   Until today this app kept exactly ONE copy of a year and overwrote it on
+   every keystroke. A single bad write, a single bad object, and the year was
+   the bad one. Now the previous good text is rolled aside first, at most once
+   every few minutes, three deep.
+
+   TWO RULES, AND THEY ARE THE WHOLE DESIGN:
+
+   1. THE SNAPSHOT MUST NEVER BREAK THE THING IT IS PROTECTING. Every snapshot
+      write is in its own try, and a failure never touches _storageOK and never
+      warns. If there is no room for a snapshot there is still room for the
+      year; we drop the oldest and carry on in silence.
+   2. IT IS ONLY WORTH HAVING IF SOMETHING READS IT. See recoverFromSnapshot()
+      in load(): a file that will not parse, or that comes back with no acts
+      when a snapshot has some, is repaired without anybody being asked. */
+const SNAPS = [LS_KEY+'.snap1', LS_KEY+'.snap2', LS_KEY+'.snap3'];
+const SNAP_EVERY = 4*60*1000;        // Obsidian's own order of magnitude
+let _lastSnap = 0;
+function keepSnapshot(){
+  const now = Date.now();
+  if(now - _lastSnap < SNAP_EVERY) return;
+  _lastSnap = now;                   // set FIRST: a throw must not retry every keystroke
+  let prev = null;
+  try{ prev = localStorage.getItem(LS_KEY); }catch(e){ return; }
+  if(!prev) return;                  // nothing to keep yet
+  /* never snapshot something that is not a readable year — a broken current
+     file must not push the three good ones off the end */
+  try{ const o = JSON.parse(prev); if(!o || !Array.isArray(o.acts)) return; }catch(e){ return; }
+  try{
+    for(let i=SNAPS.length-1; i>0; i--){
+      const older = localStorage.getItem(SNAPS[i-1]);
+      if(older != null) localStorage.setItem(SNAPS[i], older);
+    }
+    localStorage.setItem(SNAPS[0], prev);
+  }catch(e){
+    /* out of room. Give the year back its space and keep going, quietly. */
+    try{ localStorage.removeItem(SNAPS[SNAPS.length-1]); }catch(_){}
+    try{ localStorage.removeItem(SNAPS[SNAPS.length-2]); }catch(_){}
+  }
+}
+/* Newest first. Returns the parsed object, or null if there is nothing to go
+   back to. Only ever called when what is on disk is unusable. */
+function recoverFromSnapshot(){
+  for(let i=0;i<SNAPS.length;i++){
+    let raw=null;
+    try{ raw = localStorage.getItem(SNAPS[i]); }catch(e){ continue; }
+    if(!raw) continue;
+    let o=null; try{ o = JSON.parse(raw); }catch(e){ continue; }
+    if(o && Array.isArray(o.acts) && o.acts.length) return o;
+  }
+  return null;
+}
 function save(){
   if(!_storageOK) return;
+  keepSnapshot();
   try{ localStorage.setItem(LS_KEY, JSON.stringify(serialise())); }
   catch(e){
     /* Everything after this point was being kept in memory and lost on the next
@@ -2490,8 +2563,34 @@ function askToPersist(){
 async function load(){
   let raw=null;
   try{ raw=localStorage.getItem(LS_KEY); }catch(e){ _storageOK=false; return false; }
-  if(!raw) return false;
-  let o; try{ o=JSON.parse(raw); }catch(e){ return false; }
+  let o=null;
+  if(raw){ try{ o=JSON.parse(raw); }catch(e){ o=null; } }
+  /* THE SNAPSHOTS, READ. Three ways in: the file will not parse, the file
+     parses into something that is not a year, or the file says there are no
+     acts while a snapshot from minutes ago has some. The last is the one that
+     matters — a year replaced by an empty one is the failure this protects
+     against, and it is silent by nature.
+
+     Anything narrower than "a snapshot has acts and this does not" would be
+     dangerous: somebody who genuinely started over must not have last week
+     handed back to them. RESTART_AT is stamped when they do, and nothing older
+     than it is ever used. */
+  const fresh = (!o || !Array.isArray(o.acts));
+  const emptied = (o && Array.isArray(o.acts) && !o.acts.length);
+  if(fresh || emptied){
+    const back = recoverFromSnapshot();
+    /* Somebody who deliberately started over must never be handed last week
+       back. wipe() removes the snapshots in the same breath as the year, so by
+       the time this runs there is genuinely nothing to find — which is a
+       stronger guarantee than comparing timestamps, and one fewer thing to get
+       wrong. */
+    if(back && (fresh || (back.acts||[]).length)){
+      o = back;
+      RECOVERED = true;
+      try{ localStorage.setItem(LS_KEY, JSON.stringify(back)); }catch(e){}
+    }
+  }
+  if(!o) return false;
 
   /* A blob that PARSES can still throw INSIDE this function — one null entry in
      plans did — and the boot had no catch, so the app fell through to the setup
@@ -2535,6 +2634,10 @@ async function load(){
     S.past.push(Object.assign({}, y, { acts:pacts }));
   }
   S.people=o.people||[]; S.platforms=o.platforms||S.platforms;
+  /* An older file carries an x platform that nothing can switch on or read.
+     Drop it, or it rides in the backup for ever. Anything the app does not
+     know about is left alone — this names the one key being retired. */
+  if(S.platforms && S.platforms.x) delete S.platforms.x;
   S.started=!!o.started; S.letterSeen=!!o.letterSeen; S.bkup=o.bkup||''; S.bkupNag=o.bkupNag||'';
   S.bkupAt=o.bkupAt||0; S.bkupToldAt=o.bkupToldAt||0;
   /* An older journal wrote these as 1 for "yes". Read as a goal that would be
@@ -2553,6 +2656,14 @@ async function load(){
   S.fin=(o.fin&&typeof o.fin==='object')?o.fin:null;
   if(S.cat==='Neighbours') S.cat='Neighbors';   // the library went American
   S.zero=o.zero||null; S.tabToured=!!o.tabToured; S.opens=o.opens||0; S.todoOpens=o.todoOpens||0; S.handles=o.handles||{}; S.places=o.places||{};
+  /* A handle nobody can use should not go on living in the file or ride in
+     every backup. Anyone who typed an X name before today has it dropped on
+     the next load — quietly, because there is nothing to tell them: the app
+     never did anything with it and never showed it back except as a number. */
+  Object.keys(S.handles).forEach(n=>{
+    const h = S.handles[n];
+    if(h && typeof h === 'object' && h.x !== undefined) delete h.x;
+  });
   S.plans = await fatPlans(o.plans||{});
   /* The one-pipeline model, 30 Aug 2026: acts in the works. Photos rehydrate
      from IndexedDB exactly as plans' do. */
@@ -2607,6 +2718,29 @@ async function load(){
     /* ghost acts with no name, no number and no square are noise, not journal */
     if(!S.acts[S.acts.length-1].t && !slotOf(S.acts[S.acts.length-1]))
       S.acts.pop();
+  }
+
+  /* ── THE MASTER KEY IS RETIRED HERE ──────────────────────────────────────
+     Closed 13 September 2026. Every sheet has carried its own key since 5E,
+     but S.pubkey survived as a fallback for sheets made before that — ONE
+     secret that opens every old sheet a person ever made, sitting in the saved
+     file and riding out in every backup. It was narrowed in 5E and not closed.
+
+     It is closed by migration rather than deletion, because somebody may still
+     have an old sheet and deleting it would lock them out of their own poster:
+     each keyless sheet is handed the old key as its OWN key, and only then is
+     the master key dropped. After this runs once, per-sheet is the only kind of
+     key that exists anywhere and there is nothing left to leak.
+
+     Nothing writes S.pubkey any more — it has not been set anywhere in the code
+     for a long time — so this runs at most once per person, and then never. */
+  if(S.pubkey){
+    (S.works||[]).forEach(w=>{
+      const sh = w && w.sheet;
+      if(sh && typeof sh === 'object' && !sh.key) sh.key = S.pubkey;
+    });
+    S.pubkey = '';
+    try{ localStorage.setItem(LS_KEY, JSON.stringify(serialise())); }catch(e){}
   }
   return true;
 }
@@ -3032,6 +3166,12 @@ async function wipe(){
   /* it used to survive Start over and then be offered back, out of a journal the
      person had deliberately destroyed */
   try{ localStorage.removeItem(LS_KEY + '.draft'); }catch(e){}
+  /* AND THE SNAPSHOTS, for exactly the same reason and more urgently. Without
+     this line the rolling copies would outlive a deliberate Start over and the
+     very next load would hand the year straight back — the app undoing the one
+     irreversible thing a person ever asks it to do. */
+  SNAPS.forEach(k=>{ try{ localStorage.removeItem(k); }catch(e){} });
+  _lastSnap = Date.now();
   for(const a of S.acts) for(const p of (a.photos||[])) await idbDel(p.id);
   /* Start over used to leave behind every photo belonging to an act the app had
      already lost track of. Clear the whole store, not just what is in memory. */
@@ -3145,8 +3285,11 @@ const S = {
   outcome: 'Went to plan', lead: 'Today', cat: 'Anything', current: null,
   line: 'in year', word: '', lineTouched: false, wordTouched: false, tone: null, toneToured: false,
   name: '', bday: '', why: '',
+  /* x was here too, switched off and unreachable, and it travelled in every
+     backup — the same half-removal as the handle field, in a second place.
+     Taken out 13 Sep 2026 on the same ruling. */
   platforms: { instagram:{on:true,handle:''}, facebook:{on:true,handle:''},
-               threads:{on:false,handle:''}, x:{on:false,handle:''} }
+               threads:{on:false,handle:''} }
 };
 /* spell any age, not just round ones — "thirty-two", not "32" */
 const ONES=['zero','one','two','three','four','five','six','seven','eight','nine','ten',
@@ -3164,7 +3307,13 @@ const ORD = new Proxy({}, { get:(_,k)=> spellNum(k) });
 const WORDS = new Proxy({}, { get:(_,k)=> spellNum(k) });
 const NOPTS = [12,20,25,30,50];
 const WOPTS = [['A year',52],['Half a year',26],['A summer',13]];
-const LEADS = ['Today','This weekend','A week or two','Needs a month'];
+/* G, 13 Sep 2026: "we provided filters so why not all". The category row has
+   always started with Anything; the length row had four choices and no way to
+   see past one of them, so a person could never look at the library. ANY TIME
+   is first, for the same reason Anything is first beside it. It is not a
+   length — anything that reasons about lengths has to skip it. */
+const LEAD_ANY = 'Any time';
+const LEADS = [LEAD_ANY,'Today','This weekend','A week or two','Needs a month'];
 
 /* Categories are by WHO IS HELPED — Jessica's own axis, not by what you do.
    Her two lists (act 0, and the answers doc) gave 15-odd overlapping names;
@@ -3351,7 +3500,7 @@ const IDEAS = [
  {t:"A basket of tennis balls at the dog park",l:"Today",s:"An hour",c:"Animals",cost:"Under $20",
   d:"Left with a note. Cheap, silly, and remembered by every dog and half the owners.",
   why:"",tag:"",needs:[],art:""},
- {t:"Take a bag and a glove on your walk",l:"Today",s:"An hour",c:"Mother Earth",cost:"Free",
+ {t:"Take a trash bag and a garden glove on your walk",l:"Today",s:"An hour",c:"Mother Earth",cost:"Free",
   d:"Add it onto a walk you were taking anyway. You will be surprised what you find.",
   why:"",tag:"",needs:[],art:""},
  {t:"Organize a litter pick with friends or neighbors",l:"Needs a month",s:"A village",c:"Mother Earth",cost:"Under $20",
@@ -4819,18 +4968,83 @@ function suggestion(){
   const dated = OCCASIONS.map(o=>({o:o, n:daysUntil(0,o.m,o.d)}))
                          .concat(float)
                          .sort((a,b)=>a.n-b.n);
-  const pool = [];
-  if(dated.length) pool.push({tag:'Occasion \u00b7 '+inDays(dated[0].n),
-                              t:dated[0].o.t, b:dated[0].o.b});
-  dated.slice(1).filter(x=>x.n<=60).forEach(x=>
-    pool.push({tag:'Occasion \u00b7 '+inDays(x.n), t:x.o.t, b:x.o.b}));
-  QUIET.filter(q=>q.m===month).forEach(q=>
-    pool.push({tag:'Worth knowing', t:q.t, b:q.b}));
-  if(!pool.length) pool.push({tag:'Worth knowing', t:QUIET[0].t, b:QUIET[0].b});
-  /* IDEA_SEED already counts in WEEKS. Dividing it by seven again meant the
-     card changed once every seven weeks while the comment beside it, and the
-     paragraph above, both said it changed weekly. */
-  return pool[IDEA_SEED % pool.length];
+  /* ── RULED 3, 14 September 2026 ────────────────────────────────────────
+     G: "i am not happy how app is currently advertising very confusing and
+     needs to rotate."
+
+     He was right twice. THE OLD CARD DREW FROM TWO SMALL WELLS — occasions
+     inside sixty days, and a note or two about the month — and from this date
+     that pool held exactly THREE things. Twelve weeks running gave: Make a
+     Difference Day, First Responders Day, World Kindness Day, and then round
+     again. Seventeen viewings of the same card in a year.
+
+     And the 89 IDEAS WERE NOT IN THE POOL AT ALL. The one surface in the app
+     meant to suggest something never once suggested an act — it named a date
+     and left you to work out what to do about it, beside a button to Browse
+     all ideas, which is where the acts actually live. Two kinds of thing in
+     one box, with the one you cannot act on set in the big type.
+
+     Ruling 3: ideas most weeks; when an occasion is genuinely close it takes
+     over AND BRINGS AN ACT WITH IT.
+
+     CLOSE MEANS CLOSE. Sixty days is not close — "in nine weeks" was one of
+     the three things on that loop. Three weeks is close. */
+  const CLOSE = 21;
+  const near = dated.filter(x=>x.n>=0 && x.n<=CLOSE)[0] || null;
+  if(near){
+    const act = actForOccasion(near.o);
+    return { tag:'Occasion \u00b7 '+inDays(near.n), t:near.o.t, b:near.o.b, act:act };
+  }
+  /* ── otherwise, an idea, and a DIFFERENT one every week ─────────────────
+     89 is prime, so stepping by any stride visits all 89 before it repeats:
+     a year and three quarters of Sundays without seeing the same card twice.
+     Ideas already logged are stepped over rather than shown back. */
+  const list = IDEAS.filter(i=>!ideaUsed(i));
+  const from = list.length ? list : IDEAS;
+  if(from.length){
+    const i = from[(IDEA_SEED * 37) % from.length];
+    return { tag:'Worth doing', t:i.t, b:i.d, idea:i };
+  }
+  /* nothing left in the library — say something true about the month instead */
+  const q = QUIET.filter(x=>x.m===month);
+  const pick = q.length ? q[IDEA_SEED % q.length] : QUIET[0];
+  return { tag:'Worth knowing', t:pick.t, b:pick.b };
+}
+
+/* THE ACT AN OCCASION BRINGS WITH IT. Scored on the words the occasion and the
+   idea share, with a word in the idea's own TITLE counting double — and then a
+   floor under it, because below that the match is noise rather than a match.
+   Measured across all 26 occasions before the floor was chosen: above it the
+   pairings are right (Nurses Week to the night-shift coffee, National Night Out
+   to the block gathering, Teacher Appreciation to the classroom wish list);
+   below it they wander (Juneteenth to baking for new neighbours).
+
+   An occasion with no confident act shows as it always did, naming the day and
+   nothing else. That is honest. A guessed pairing is worse than none, and this
+   app does not guess at a person. */
+const OCC_STOP = ('the a an and or of to for in on at is are it its this that with your you their '+
+  'them day week days weeks month year national world international one two do not no yes by from '+
+  'as be been who what when where which how all any some most more than then they there here about '+
+  'into out over under again once because so if but can will just still every').split(' ');
+const OCC_FLOOR = 6;
+function occWords(t){
+  return String(t||'').toLowerCase().replace(/[^a-z ]/g,' ').split(/\s+/)
+    .filter(w=>w.length>3 && OCC_STOP.indexOf(w)<0);
+}
+function actForOccasion(o){
+  if(!o) return null;
+  const want = occWords(o.t+' '+(o.b||''));
+  if(!want.length) return null;
+  let best=null, bestN=0;
+  IDEAS.forEach(i=>{
+    if(ideaUsed(i)) return;                       // never offer one already done
+    const hay = occWords((i.t||'')+' '+(i.d||'')+' '+(i.why||'')+' '+(i.tag||'')+' '+(i.c||''));
+    const title = occWords(i.t||'');
+    let n=0;
+    want.forEach(w=>{ if(hay.indexOf(w)>-1) n++; if(title.indexOf(w)>-1) n++; });
+    if(n>bestN){ bestN=n; best=i; }
+  });
+  return bestN >= OCC_FLOOR ? best : null;
 }
 
 /* ── home ── */
@@ -4951,6 +5165,25 @@ function drawHome(){
   $('sug-tag').textContent   = sug.tag;
   $('sug-title').textContent = sug.t;
   $('sug-body').textContent  = sug.b;
+  /* THE ACT. An occasion that found one carries it; an idea IS one, so it gets
+     the same button and no second title. Ruled 3, 14 Sep 2026. */
+  const sa = $('sug-act');
+  const act = sug.act || sug.idea || null;
+  sa.classList.toggle('hide', !act);
+  sa.innerHTML = '';
+  if(act){
+    if(sug.act){
+      const h = document.createElement('b');
+      h.textContent = 'One act for it: ' + act.t;
+      sa.appendChild(h);
+    }
+    const go = document.createElement('button');
+    go.className = 'btn mini';
+    go.textContent = 'Start it now';
+    go.setAttribute('aria-label', 'Start ' + act.t + ' now');
+    go.onclick = ()=>startFromIdea(act);
+    sa.appendChild(go);
+  }
 
   drawMonth();
   drawGrid();
@@ -6019,6 +6252,19 @@ function startWork(expect, aim){
               _unsaved:true };
   openWork(w);
 }
+/* AN IDEA, STARTED TODAY. It goes through startWork so there is still only one
+   place that knows the shape of an act in the works — a field added there
+   reaches this too. The title and the idea's own extras are set after, then kept
+   at once: unlike a bare "Start a new act", this one already holds a choice the
+   person made, and leaving the screen must not throw it away. */
+function startFromIdea(i){
+  startWork();
+  if(!WK) return;
+  WK.t = i.t;
+  WK.seed = { why:i.why||'', tag:i.tag||'', needs:(i.needs||[]).slice(), art:i.art||'' };
+  const f = $('wk-t'); if(f) f.value = i.t;
+  workKeep(); save();
+}
 function workKeep(){
   if(!WK || !WK._unsaved) return;
   if(!( (WK.t||'').trim() || (WK.story||'').trim() || WK.d || (WK.who||[]).length ||
@@ -6622,8 +6868,10 @@ function sheetToken(){
 }
 function askKeyGet(){
   const sh=askOf(); if(!sh) return '';
-  /* older sheets, made before per-sheet tokens, fall back to the owner key */
-  if(!sh.key) { if(S.pubkey) return S.pubkey; sh.key = sheetToken(); workKeep(); save(); }
+  /* Older sheets used to fall back to an owner-wide master key. That key is
+     migrated into the sheets themselves on load and no longer exists, so a
+     sheet with no key here is a sheet that never had one: give it its own. */
+  if(!sh.key) { sh.key = sheetToken(); workKeep(); save(); }
   return sh.key;
 }
 
@@ -8052,8 +8300,13 @@ function drawPeople(){
        one in progress — so when the two differ the row says both rather than
        quietly disagreeing with the screen it leads to. */
     const here = S.acts.filter(a=>(a.who||[]).some(w=>String(w||'').trim().toLowerCase()===String(name||'').trim().toLowerCase())).length;
-    bits.push(!acts.length ? 'not in an act yet'
-            : acts.length===here ? acts.length+(acts.length===1?' act':' acts')
+    /* RULED 13 September 2026 on Jessica's note — G: "3C, it's a list and the
+       name is there for a reason." It used to say "not in an act yet", which
+       reads as a person who has failed to turn up — and they are very often on
+       this list BECAUSE they offered before there was anything to offer for.
+       Nobody has to account for being here. Nothing is said at all. */
+    if(acts.length) bits.push(acts.length===here
+            ? acts.length+(acts.length===1?' act':' acts')
             : acts.length+' acts, '+(here?here:'none')+' this year');
     if(money) bits.push('chipped in on '+money);
     bits.push(got.length ? got.length+(got.length===1?' handle':' handles') : 'no handles yet');
@@ -8071,7 +8324,13 @@ function drawPeople(){
    a friend is "a friend" on Facebook and @a_handle on
    Instagram, and another is "another person" and @another_handle. That can't
    be derived, so it has to be kept. The composer substitutes the right one. */
-const HANDLE_KEYS = ['email','instagram','facebook','threads','x'];
+/* RULED 13 September 2026 — G, on noticing it: "you have an x handle zone but
+   no options to post." X had been taken out of the places you can post, on
+   purpose, by somebody — the note in count() says so and no document anywhere
+   records why. The FIELD was left behind, so the app went on asking for a name
+   it could never use, counting it in "2 handles" on the person's row, and
+   carrying it in every backup. He ruled: finish the job. */
+const HANDLE_KEYS = ['email','instagram','facebook','threads'];
 function handlesOf(name){ return (S.handles||(S.handles={}))[name] || {}; }
 
 let PER_EDITING = null;
@@ -10363,7 +10622,8 @@ function drawBrowse(){
   chips($('catchips'),CATS,()=>S.cat||'Anything',v=>{S.cat=v;drawBrowse();});
   const box=$('ideas'); box.innerHTML='';
   const cat=S.cat||'Anything';
-  const list=IDEAS.filter(i=>i.l===S.lead && (cat==='Anything'||i.c===cat))
+  const anyLead = S.lead===LEAD_ANY;
+  const list=IDEAS.filter(i=>(anyLead||i.l===S.lead) && (cat==='Anything'||i.c===cat))
     .map(i=>({i:i, used:ideaUsed(i), r:ideaRank(i)}))
     .sort((a,b)=> (a.used?1:0)-(b.used?1:0) || a.r-b.r)
     .map(x=>x.i);
@@ -10372,8 +10632,12 @@ function drawBrowse(){
   if(sel && sel.scrollIntoView) sel.scrollIntoView({block:'nearest',inline:'center'});
   if(!list.length){
     /* never a dead end — say where that category does have something */
-    const other=LEADS.filter(L=>L!==S.lead && IDEAS.some(i=>i.l===L && i.c===cat));
-    let msg='<p class="note">Nothing for <b>'+cat+'</b> at that length yet.';
+    /* LEAD_ANY is not a length, so it can never be offered as "try this length
+       instead" — and when it is the one selected, there is no other length to
+       try, because every length was already searched. */
+    const other = anyLead ? []
+      : LEADS.filter(L=>L!==S.lead && L!==LEAD_ANY && IDEAS.some(i=>i.l===L && i.c===cat));
+    let msg='<p class="note">Nothing for <b>'+cat+'</b>'+(anyLead?' yet.':' at that length yet.');
     if(other.length){
       msg+=' There is something under '+other.map(L=>
         '<a class="tlink" href="#" onclick="S.lead=\''+L+'\';drawBrowse();return false">'+
@@ -10395,9 +10659,18 @@ function drawBrowse(){
         i.s + (i.cost ? ' \u00b7 ' + i.cost : '') + '</div>'+
       '<b style="font-size:15.5px;display:block;margin-bottom:6px">'+i.t+'</b>'+
       '<p class="note" style="margin:0 0 14px">'+i.d+'</p>'+
-      '<button class="btn mini ghost" aria-label="Save ' + esc(i.t) +
-        ' for later">Save for later</button>';
-    d.querySelector('button').onclick=()=>{
+      /* G, 13 Sep 2026: "why does it only say save for later". Every idea had
+         exactly one button and it was an offer to put the thing off — on a
+         screen whose first filter is TODAY. To do one you had to save it, leave,
+         find it again on the shelf and open it. Two buttons now, and the one
+         that does it today comes first. */
+      '<div class="ideago">'+
+      '<button class="btn mini" data-go="now" aria-label="Start ' + esc(i.t) +
+        ' now">Start it now</button>'+
+      '<button class="btn mini ghost" data-go="later" aria-label="Save ' + esc(i.t) +
+        ' for later">Save for later</button></div>';
+    d.querySelector('[data-go="now"]').onclick=()=>{ startFromIdea(i); };
+    d.querySelector('[data-go="later"]').onclick=()=>{
       /* "Save for later" now saves. It used to open the plan sheet with the
          title filled in and save nothing at all unless you found the seventh
          control down and pressed that instead — so dismissing the sheet the way

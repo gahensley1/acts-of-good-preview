@@ -18,36 +18,91 @@ again, here is why."*
 
 ---
 
-## THE STANDING SEATS
+## THE STANDING SEATS — TWELVE, AND THE HOUSES EACH ONE IS BASED ON
 
-Four seats, established 12 September 2026. Each has a permanent brief.
+**RULED 13 September 2026. G: _"This will be our engineer group."_**
 
-1. **Market & competition** — who else builds this, what they charge, what their users complain about.
-2. **Platform & integration** — what the phone, the browser and other companies' APIs will and will not permit.
-3. **Product & the long arc** — journalling, memory, the ending of a year, what makes someone come back.
-4. **Code & architecture** — what will break, what is fragile, what must not be touched.
+Twelve permanent seats. **Each seat now names the houses it is based on**, because G asked for the
+engineers to be grounded in real practice rather than in a job description, and because the first
+eight were not. Their work is on file: `claude/the-hundred.md` (100 projects) and
+`claude/the-design-panel.md` (55 projects).
 
-### FOUR MORE, established 13 September 2026 — the idea-finding panel
+**How to use this.** Commission a seat as an agent with a written brief (see HOW TO BRIEF THEM).
+Name its houses in the brief and tell it to measure our work against theirs. **A seat's houses are a
+starting point, not a cage** — a seat that finds a better example says so and names the swap.
+
+**They are equal with the tester panel. G decides.** A study is not permission.
+
+---
+
+### THE FOUR ENGINEERING SEATS — established 12 September 2026
+
+| # | Seat | The brief | Based on |
+|---|---|---|---|
+| **1** | **Market & competition** | Who else builds this, what they charge, what their users complain about. | **37signals** (Basecamp, HEY, ONCE) · **Panic** · and, for the sign-up sheet specifically, **SignUpGenius · Meal Train · Doodle · CaringBridge** |
+| **2** | **Platform & integration** | What the phone, the browser and other companies' APIs will and will not permit. | **Apple** (WebKit/Safari, the App Store) · **Google** (Chrome, Android, Play) |
+| **3** | **Product & the long arc** | Journalling, memory, the ending of a year, what makes someone come back. | **Automattic** (Day One, Pocket Casts, WordPress, Tumblr) · **Duolingo** |
+| **4** | **Code & architecture** | What will break, what is fragile, what must not be touched. | **SQLite / Hwaci** · **Obsidian** (Dynalist Inc.) |
+
+### THE FOUR IDEA-FINDING SEATS — established 13 September 2026
 
 G: *"I would like a new panel of NGO agents and the calendar and economics professors to run down more
 possible ideas, and use the web scraper to fish ideas from the web search, all the large depositories."*
 
-5. **NGO & frontline operations** — has run a volunteer programme and knows what happens when a
-   well-meaning stranger turns up. The unglamorous jobs, the skills gap, the barriers, and what is
-   actively unhelpful. **The barriers ARE the facts**: "no background check for day-of, photo ID only"
-   removes an excuse in one line.
-6. **The calendar** — owns nothing but time. Quiet months, dated occasions given as RULES rather than
-   2026 dates, institutional calendars, and the days that are hard for a person. **The quiet months are
-   the most valuable thing this seat finds.** An idea whose fact says "January is when they are short"
-   beats ten generic ones.
-7. **Economics of giving** — where a dollar and an hour go furthest, what is measurably
-   counterproductive, the unclaimed multipliers, and sceptical handling of the wellbeing literature.
-   Produces facts that are NUMBERS, and the never-recommend list that protects the product.
-8. **Repository** — fishes the large public idea banks. Most of what it finds fails the bar, and **the
-   reject list is half the value**: it stops us rediscovering the same slogans next year.
+| # | Seat | The brief | Based on |
+|---|---|---|---|
+| **5** | **NGO & frontline operations** | Has run a volunteer programme and knows what happens when a well-meaning stranger turns up. The unglamorous jobs, the barriers, and what is actively unhelpful. **The barriers ARE the facts** — "no background check for day-of, photo ID only" removes an excuse in one line. | **American Red Cross** · **Habitat for Humanity** |
+| **6** | **The calendar** | Owns nothing but time. Quiet months, occasions as RULES rather than dates, institutional calendars, and the days that are hard for a person. **The quiet months are the most valuable thing this seat finds.** | **AmeriCorps** · **Points of Light** |
+| **7** | **Economics of giving** | Where a dollar and an hour go furthest, what is measurably counterproductive, the unclaimed multipliers, sceptical handling of the wellbeing literature. Produces facts that are NUMBERS, and the never-recommend list. | **GiveWell** · **GiveDirectly** |
+| **8** | **Repository** | Fishes the large public idea banks. Most of what it finds fails the bar, and **the reject list is half the value.** | **Idealist** (which absorbed VolunteerMatch in 2025) · **DoSomething.org** |
 
-**First run: ~100 raw, 54 survived, 46 with confirmed facts.** Published as a ruling artifact and as
-`claude/panel-harvest.md`. **Nothing went into the app** — a study is not permission.
+### THE FOUR DESIGN SEATS — established 13 September 2026
+
+G named eleven studios: *"metalab, work & co, clay, ramotion, ideo, random international, refik
+anadol, ustwa, team lab, max shkret, baugass."* They sort into four briefs.
+
+| # | Seat | The brief | Based on |
+|---|---|---|---|
+| **9** | **Product & interface craft** | Screens, the icon, the store listing, what a brand system actually buys a one-person product, and where the craft budget goes. Holds the performance budget as a design constraint. | **Work & Co** · **MetaLab** · **Ramotion** · **Clay** |
+| **10** | **Method & the finished thing** | How you design around real people rather than opinions, and the hardest question we have: **does anybody finish?** Owns completion evidence. | **ustwo** (and ustwo games) · **IDEO** |
+| **11** | **The moment** | Response, timing, restraint, and how a thing ends — the six celebrations, the milestones, the closing card. **Delay is what reads as alive.** | **Random International** · **teamLab** |
+| **12** | **The still image** | The card, the book, the series — one fixed template with one thing changing — and the daily practice itself. | **Baugasm** (Vasjen Katro) · **Refik Anadol** · **Max Shkret** |
+
+**A recommendation on seat 12, for G's ruling.** **Max Shkret is the weakest name in the group and
+it is not close.** No museum acquisition, no auction record, no named brand campaign with a published
+result; his strongest recognition is a web award for his portfolio site, credited to the developer
+who built it. **Recommend: keep the seat, and swap the name when a better one turns up.** The seat's
+real weight is carried by Baugasm, who is the only person in the whole group who has actually done
+what this app asks somebody to do.
+
+---
+
+### WHAT THE SEATS HAVE PRODUCED SO FAR
+
+- **Seats 1-4, first round, 12 September** — four studies: the sign-up sheet against the market, the
+  Instagram hand-off, the journal against the best journalling and habit apps, and an architecture
+  review of the app and the Worker. Most of PART A and PART B of this file.
+- **Seats 5-8, first run, 13 September** — ~100 raw ideas, 54 survived, 46 with confirmed facts.
+  `claude/panel-harvest.md`. **Nothing went into the app** — a study is not permission.
+- **All eight, the hundred, 13 September** — five flagship projects from each house, 100 in total.
+  `claude/the-hundred.md`. Corrections to A2, new permanent facts in A1, landmines L30-L33.
+- **Seats 9-12, first run, 13 September** — 55 projects from eleven studios.
+  `claude/the-design-panel.md`. Landmines L34-L37. Two predicted failures measured and already right.
+
+### THE THREE THINGS THE WHOLE GROUP AGREES ON
+
+Worth carrying at the top of the file, because they came from unrelated seats and point the same way:
+
+1. **No competitor and no studio has built an ENDING.** Day One is an indefinite diary; Duolingo has
+   no ending by design; not one of the eleven design studios has made a deliberately finite thing
+   with a last page. There is no state of the art to be behind.
+2. **Elective continuation collapses.** Monument Valley's paid continuation was bought by 24% of
+   owners and finished by 5% of those — people who had already paid once and loved it. **A fifty-act
+   year is structurally closer to that than to the thing they finished.**
+3. **A public unbroken commitment generates its own pressure.** Baugasm kept a daily streak alive
+   through a hospitalisation for two broken ribs. Duolingo sells freezes and repairs *because* the
+   anxiety is real and monetisable. **Our no-accounts, no-audience, no-streak design is the
+   protection, and it is now evidenced rather than merely tasteful.**
 
 ### RULED 13 SEPTEMBER 2026 — G DECIDES, THE SEATS RECOMMEND
 
@@ -60,6 +115,29 @@ simply decided were not worth his time. That last group was not mine to decide.
 **THE RULE. Everything the seats find goes to him, with a recommendation attached.** Merges and
 exact duplicates of what we already ship can be collapsed silently; nothing else can. A candidate
 that is weak gets a recommendation saying so — it does not get deleted on the way to the page.
+
+### RULED 13 SEPTEMBER 2026 — THE LIBRARY IS JESSICA'S, AND NOTHING WE FIND GOES IN IT
+
+G: *"all new acts are to be put in the reviewed list only. jessicas reviewed list lives in the app."*
+
+**The 89 ideas in the app are Jessica's reviewed library, and that is the only thing the app
+carries.** No act reaches `index.html` from a seat, a harvest, a panel or a recommendation — not
+with a source, not with a confidence rating, not with G's own yes. The order is: a seat finds it →
+`claude/new-ideas-for-review.md` → G rules what is worth putting to her → **Jessica reviews** → only
+then the app.
+
+**The exception, and it is narrow:** an edit Jessica herself sends back on an act already in the
+library is her review, and lands in the app directly. The trash bag and the garden glove on 13
+September were exactly that.
+
+**Why this is the right rule and not bureaucracy.** The library is the one part of this product that
+is not ours. Its authority comes entirely from a real person who did the year standing behind every
+line. A well-researched act inserted by an agent has a source; it does not have her. **Ninety-seven
+ideas that have not been through her are worse than eighty-nine that have.**
+
+This retires a whole category of work. Two harvests have now produced ~90 candidates between them
+and **the correct number that has entered the app is zero.** That held by accident of process; it is
+now a rule. See `claude/working-rules.md` §8.
 
 ### THE CUT THAT PROVED IT — NICU baby cuddling
 
@@ -156,8 +234,15 @@ worth having is one of four:
 - **Feeding America has no page saying summer and January are its shortest months.** True, universally
   repeated by member food banks in local press, never stated nationally. Stop looking for a better source.
 - **"January is when volunteers vanish" cannot be sourced at all.** Never write a percentage for it.
-- **Make a Difference Day looks dead** — USA Today ended its sponsorship around 2019 and the national
-  infrastructure went with it. The date rule circulates with nothing behind it.
+- ~~**Make a Difference Day looks dead**~~ **WRONG, AND CORRECTED 14 September 2026.** USA Today did
+  end its sponsorship around 2019 — that part is true — but **Youth Service America now runs it**,
+  and YSA's own page carries a live countdown to **Saturday 24 October 2026** with toolkits, project
+  ideas and volunteer listings. The day is active. **Our own rule in the app — the fourth Saturday of
+  October — is also correct**: October 2026's Saturdays are the 3rd, 10th, 17th, 24th and 31st.
+  Nothing in the app needed changing.
+  **This is L28 for the second time in two days** — one source disappearing is not the thing dying.
+  The seat reasoned from the sponsor's exit to the day's death and never checked whether somebody had
+  picked it up. Ask who runs it now before writing an obituary.
 
 ---
 
@@ -204,6 +289,109 @@ These are settled. Re-open only if a named source says the world changed.
   Deliberate, written-up, savoured acts plus an 89-idea library against repetition. **We built the
   protocol without knowing it existed. Cite this, not a blog.**
 
+**Added 13 September 2026, from the hundred-project harvest (`claude/the-hundred.md`)**
+
+*The two stores*
+- **The privacy label and the data-safety form cover what the APP collects, not a companion web
+  page.** Both vendors' own current wording. The sign-up sheet — its own Worker, reached by scanning
+  a paper poster — is very likely outside the shipped app's declaration **as long as the app never
+  embeds the claiming form or deep-links into it.** That boundary is doing real compliance work for
+  free. Keep it deliberately.
+- **Web Push on iOS is server-triggered and is NOT the reminder.** Real since iOS 16.4 for
+  home-screen web apps, but it needs our own service calling Apple at the right moment for each
+  person. It cannot fire "Sunday at six" on the device. **The stated reason for going native holds
+  up exactly as stated.**
+- **Android 13+: a refused notification permission is final until reinstall**, and targeting an
+  older SDK hands the timing of the prompt to the system. Ask after the first act.
+- **Guideline 4.2 is judged by a human, and the only durable answer is a real capability gap.**
+  Cosmetic native chrome does not pass. Local reminders do.
+- **Google's deletion badge threshold is 90 days.** Our thirty clears it comfortably — if the app
+  ever declares the sheet at all.
+
+*Storage*
+- **Since Safari 17, a home-screen web app gets the same quota as Safari itself and there is no
+  storage prompt.** What "Add to Home Screen" really buys is favourable *recency* treatment, not a
+  bigger ceiling.
+- **`navigator.storage.persist()` is a Chromium-only lever** and Chrome decides silently from
+  engagement signals. It does nothing on iOS. The exact thresholds are deliberately undocumented.
+- **There is no "you were evicted" event in any browser.** The only honest pattern is: ask for
+  persistence, check the estimate on load, and if the year is empty where a returning visitor's
+  should not be, **say so** rather than showing a clean new year.
+- **A person who does ten acts in a fortnight and returns in March is the worst case for eviction**,
+  because the policy keys on recent interaction, not on how much the data matters.
+
+*The long arc*
+- **Nobody has an ending.** Day One is built for an indefinite diary and its only close is a book you
+  choose to buy; Duolingo has no ending by design. **Neither has attempted a deliberately finite
+  thing with a last page.** We are not behind the state of the art — there isn't one.
+- **One no-penalty invitation back beats months of nagging.** Duolingo's single "your streak history
+  is safe" campaign recovered **15.4 million lapsed streaks, nearly 8 million from genuinely
+  inactive people** — its own shareholder letter calls it one of its most successful ever.
+- **Strava, across 800 million logged activities: the median new year's resolution is abandoned on
+  19 January.** The closest honest number anywhere to "how many finish". **There is no sourced
+  completion rate for any fixed-length self-directed challenge — never quote a percentage.**
+- **Day One's book: $19.99 for 50 colour pages, 10c a page after, maximum 384 pages, +$5 hardcover,
+  fixed at 5.5 x 8.5in, iOS only.** The size is picked once, not offered as a choice.
+
+*The market*
+- **VolunteerMatch merged into Idealist** — announced 14 Jan 2025, completed Sept 2025; its old
+  listing URLs now redirect. **Any fact line saying "VolunteerMatch" will read as stale.**
+- **"Put it up again" is the most-praised mechanical feature in the whole sign-up category.**
+  SignUpGenius's duplicate-a-sheet is named repeatedly in its own review corpus. We built it in 5F;
+  it should be surfaced, not buried.
+- **CaringBridge tells its own users to go and set up meal coordination on mealtrain.com and paste
+  the link back.** Two accounts, two logins, one task. A single file that does the sheet, the
+  reminder and the journal is a structural advantage over an incumbent that had to partner.
+- **The thirty-day deletion is our least defensible claim.** Unique, but a cron job and a WHERE
+  clause to copy. The reason nobody has is business model — their growth loop needs the organiser's
+  contact list to persist. Be least smug about this one.
+
+*Giving, and what never to recommend*
+- **Bottle caps collected for chemotherapy, wheelchairs or prosthetics are a HOAX** — Snopes, citing
+  the American Cancer Society: no sponsoring organisation has ever been identified and the plastic
+  has no scrap value. **Distinct from pop tabs**, which are real and honestly labelled in our library.
+- **Buy-one-give-one fails on counterfactual.** Wydick's randomised trial of the TOMS model in rural
+  El Salvador, 1,578 children, published by the World Bank: impact "negligible" because most
+  recipients already had shoes — **and recipients became measurably more likely to say outsiders
+  should provide for their family.**
+- **Sponsor-a-child is a REVERSAL — do not blanket-condemn.** Wydick, *Journal of Political Economy*
+  2013, six countries: Compassion International's specific model produced more completed schooling
+  and higher odds of white-collar work in adulthood. **It validates one organisation's model, not
+  the category.**
+- **Cash to a person on the street is a REVERSAL with a caveat popular coverage drops.** Vancouver's
+  New Leaf Project: spending on alcohol, drugs and tobacco **fell** relative to controls. **But
+  participants were screened** for severe dependency and untreated serious mental illness. It rebuts
+  the stereotype; it does not make a roadside handoff equivalent.
+- **Corporate matching gifts: an estimated $4-7 billion goes unclaimed every year**; 65% of the
+  Fortune 500 offer a match, 91% of those dollar for dollar. An industry aggregator's figure, not
+  audited — say "most people never claim it", do not name the number.
+- **A good result from one well-run pilot does not survive scale.** GiveWell dropped a top charity
+  when the scaled replication found the effect had vanished, and published in Dec 2024 that a
+  thirty-year-old assumption had been inflating its own bednet numbers by 15-30%. **Treat any single
+  glowing claim — including inside our own library — as provisional until tested twice.**
+
+*The calendar*
+- **January and February are one blood shortage, not two facts.** The Red Cross declared shortages
+  in consecutive Januaries. **July is sharper: a declared emergency on 13 July 2026, a 25% drop**,
+  and the same language was used in July 2024 — a pattern, not an incident.
+- **April is the opposite of quiet.** National Volunteer Week (third full week), Global Volunteer
+  Month and Global Youth Service Day all land there. **The useful fact is the inversion: in April,
+  pick something that is not already flooded.**
+- **The holiday spike in domestic-violence hotline calls is a myth.** The National Domestic Violence
+  Hotline's own annually updated analysis, running since 2004, finds call volume **decreases** over
+  the holidays. A sourced myth-correction is exactly the fact shape this library wants.
+- **MLK Day is the third Monday in January and is the only federal holiday Congress designated a day
+  of service by law** (King Holiday and Service Act, 1994). **National Volunteer Week is the third
+  full week of April**, established 1974. **September 11 is the one genuinely fixed date.** **Global
+  Youth Service Day is redeclared each year — it has no ordinal rule and must not go in a
+  rules-based calendar until one is confirmed.**
+- **AmeriCorps/Census 2023: 75.7 million people (28.3%) formally volunteered, 4.99 billion hours,
+  $167.2 billion.** Miami's metro rate is 16.7%, the lowest of any major US metro; Chicago's 29.1%,
+  the highest.
+- **The "second disaster" is a standing fact, not a per-organisation one.** Unsolicited goods after
+  any crisis clog ports and cost money to destroy. It belongs here rather than being re-found every
+  time a disaster-adjacent act is researched.
+
 ## A2. Facts with an expiry date. Re-check before quoting.
 
 | Fact | Verified | Re-check |
@@ -215,10 +403,15 @@ These are settled. Re-open only if a named source says the world changed.
 | Safari evicts script storage after 7+ days with no interaction | 12 Sep 2026 | yearly |
 | WebKit exempts origins with an active page OR persistent storage, granted on heuristics "like whether the website is opened as a Home Screen Web App" | 12 Sep 2026 | yearly — **load-bearing for our whole storage story** |
 | Instagram opened in-app scheduling to all public accounts, ~25/day, 75 days ahead, no Stories | Mar 2026, **secondary sources only** | verify against Meta |
-| SignUpGenius $11.99 / $29.99 / $59.99 per month | 12 Sep 2026, Capterra | **conflicts with another source saying $8.99+** |
+| SignUpGenius **$8.99 / $22.49 / $44.99 per month, billed annually** | 13 Sep 2026, vendor's own blog + a third party quoting the live pricing page | **fast — the vendor cannot keep its own tier NAMES consistent between its blog and its pricing page.** Capterra's $11.99/$29.99/$59.99 was wrong by a third and is now discarded, not merely disputed |
 | Meal Train donation fee 7.9% + $0.30 | 12 Sep 2026, vendor | before quoting |
 | Day One $49.99 / $74.99 per year; book $19.99 for 50 colour pages at 5.5×8.5in, iOS only | 12 Sep 2026, vendor | **tier names changed Mar 2026; unstable** |
-| Doodle paused its iOS and Android apps 1 July 2026 | secondary | worth confirming — it is our best external validation of no-install |
+| Doodle paused its iOS and Android apps — **CONFIRMED from Doodle's own page**, last updated 11 Aug 2026: *"the Doodle mobile app will be officially paused on the Apple App Store and Google Play"* | 13 Sep 2026, vendor | the fact of the pause is settled; **the exact date is not** — Doodle says "starting soon", a third party says 1 July. Do not quote a date |
+| Doodle Pro **$11 per seat per month billed annually** (~$15 monthly); Enterprise from $15,000/yr | 13 Sep 2026, doodle.com/en/premium, fetched live | **fast** — half the aggregator web still repeats an old $6.95 |
+| **Doodle also sells a Sign-up Sheet** — its own nav lists it as a distinct product, basic on free, unlimited on Pro | 13 Sep 2026, vendor | a competitor we had not been counting. Our three claims survive against it |
+| Meal Train Plus **$10, one time, per page** — not a subscription; extends the page to childcare, lifts, dog-walking | 13 Sep 2026, vendor + independent user | yearly |
+| **Meal Train appears to have no native app at all** — solved reminders with email from mobile web | 13 Sep 2026, absence across both stores | worth one more targeted check before stating it flatly |
+| SignUpGenius app **1.3★ / 135 ratings**; CaringBridge app **4.9★ / 19,000 ratings** | 13 Sep 2026, App Store, live | **fast — ratings drift. CaringBridge is the bar to hold ourselves to** |
 | Buffer free = 3 channels / 10 queued; Essentials ~$6 per channel per month | Aug 2026, affiliate source | **fast** |
 
 ## A3. Dead ends. Do not repeat these searches.
@@ -240,6 +433,26 @@ These are settled. Re-open only if a named source says the world changed.
   SignUpReady, Grasshopper, SignupKit, Mixily, InviteDrop. Treat category research as adversarial.
   Corollary: this is a wide-open marketing channel and nobody in it has a story as good as an
   offline poster and a thirty-day wipe.
+
+**Added 13 September 2026**
+
+- **A sourced completion rate for any fixed-length self-directed challenge** — Duolingo courses,
+  Couch to 5K, Whole30, 100 Days of Code. Every source is a survivorship-biased blog post by
+  somebody who finished. Do not look again.
+- **A disclosed headcount or audited revenue for any private company we study** — 37signals, Panic,
+  Automattic, Obsidian. Every circulating figure traces to an estimation site whose own footer
+  admits no interview was recorded.
+- **An exact sales figure for REWORK.** A publisher's "Best Seller" badge exists; no number does.
+- **Chrome's engagement-score thresholds for granting persistent storage.** Deliberately undocumented.
+- **A national background-check policy for Habitat's in-home repair volunteers, or for a single Red
+  Cross smoke-alarm canvassing day.** Neither exists in writing nationally. **This needs a phone call
+  to a chapter, not another search.**
+- **A national figure for school clothing closets running empty before term.**
+- **A current national headcount for AmeriCorps Seniors**, and the Civic 50's founding year.
+- **`seniorcorps.org` now redirects to an unrelated commercial site.** Squatted or abandoned. Do not
+  link it.
+- **Every "XX Statistics 2026" aggregator.** Use only where two independents converge, and only for
+  figures the company itself does not publish.
 
 ## A4. Things rated LIKELY, not confirmed. Never quote these as fact.
 
@@ -828,7 +1041,7 @@ walked in headless Chromium, plus 13 on a fresh install; no console errors in ei
 | **3** | **Printing the book after a poster** came out on the wrong paper — two `@page` style elements, `#booksize` and `#postersize`, alive at once and of equal weight, so whichever was created last won every print thereafter | One `#printsize` element, written and re-appended by whichever print is about to happen. `setPageSize()` |
 | **4** | **Two preview panels ran a 60fps loop forever.** A closed panel has no width; both fitters asked for another frame until they got one | Bounded to 60 frames, and they stop at once if the panel is shut. **`fitPvScale` was also handed straight to `rAF`, so it received a timestamp — the retry counter has to be wrapped** |
 | **5** | The **artwork race** — share straight after choosing a new skin tone and the card went out with no hand on it | `renderCard` waits up to 1.5s for the image, then draws whatever is there |
-| **6** | **A long word ran off the card.** `wrapLines` only ever broke *between* words | Breaks by letter when one word is wider than the line |
+| **6** | **A long word ran off the card.** `wrapLines` only ever broke *between* words | Breaks by letter when one word is wider than the line. **HALF A FIX — see C19.** The same finding's second half, the note image collapsing to a row of dots, was not touched until 5G, and this fix is what made it reachable |
 | **7** | The **"this month" card** counted `S.acts.length`, the old way, so it could disagree with the number directly above it | `doneCount()` |
 | **8** | The **weekly idea changed every seven weeks** — `IDEA_SEED` already counts in weeks and was being divided by seven again, while the comment beside it said weekly | `IDEA_SEED % pool.length` |
 | **9** | The **month calendar reopened stale** — page back to March, close it, and it opened on March for the rest of the year | Opening it is a request for now |
@@ -1035,6 +1248,287 @@ reaches the list. It reports clean.
   is the builder format; the readable "every idea, in full" document is a different shape. Diffing
   one against the other produces hundreds of meaningless lines. Render the app's own array into
   whichever shape arrived, then diff that.
+
+## C19. BUILD 5G — THE ONE THAT WAS ONLY HALF FIXED, 13 September 2026
+
+G asked whether the ten engineering findings had all been addressed. Nine had. **The tenth was
+fixed at one end and broken at the other, by the fix itself.**
+
+The finding read: *"Long text in the pictures is broken between words only. A pasted link or a very
+long word runs off the edge of the posted card rather than wrapping, and in the personal-note image
+a truncated line made of one long word can collapse to nothing but a row of dots."* Two halves. 5A
+fixed the first — `wrapLines` now chops a word wider than the line, by letter. **The second half
+was never touched, and the first fix is what made it reachable.**
+
+The personal-note image fits as much of the story as it has room for and marks the cut with an
+ellipsis, and the way it did that was `l.replace(/\s*\S*$/,'') + '…'` — drop the last word, add
+the dots. Fine for a sentence. But `wrapLines` now hands it lines with **no spaces in them at all**,
+because that is what chopping by letter produces. On such a line "the last word" is the entire line.
+The regular expression ate it, and the end of somebody's story came out as `…` on its own.
+
+Proved before it was fixed, not argued: a pasted permalink, wrapped with the app's own `wrapLines`
+at the note image's own font and width, truncated with the app's own rule. Result: `"…"`.
+
+**Fixed** by pulling the rule out into `tailCut(g, line, maxW)` — trim to a word boundary *when
+there is one*, otherwise take letters off the end, then measure, because the ellipsis itself can
+push the line back over the edge. Ten checks: a link, a 400-letter word, an ordinary sentence
+(which must still cut at a word, as it always did), an empty line and a line of only spaces; then
+the note picture rendered end to end with a wall of link in it.
+
+**103 automated checks pass across the five harnesses. No console errors.**
+
+### New landmine
+
+- **L29 FIXING THE FIRST HALF OF A TWO-HALF FINDING CAN ARM THE SECOND.** The finding named two
+  failures with one cause; the fix changed the cause, and the second failure went from theoretical
+  to routine. **A finding with an "and" in it is two findings.** Tick them separately, and re-read
+  the original words — not the summary of them — before calling it closed. The row in C16 that said
+  this was done was written by me, off my own fix, without re-reading the sentence it answered.
+
+## C20. THE HUNDRED — 13 September 2026
+
+G: *"I want you to pull 5 of the most successful projects from each of the companies the engineers
+are based... get knowledge and code base to make our engineers more robust."*
+
+**He asked me to find the original prompt, because he remembered the seats being based on companies.
+I looked — the skill, this notebook, `consensus-review.md`, `four-reviews.md`,
+`panel-full-review.md`. The eight seats are BRIEFS, not companies; no company names are recorded
+anywhere in any surviving document.** The roster below is mine, named openly so it can be struck.
+He ruled the scope himself: *"1 and... add 2 to the end"* — best in each field first, our own market
+last.
+
+**Nine agents, exactly 100 projects, one day. Full report: `claude/the-hundred.md`.**
+
+| Seat | Studied | Projects |
+|---|---|---|
+| Market & competition | 37signals · Panic Inc. | 10 |
+| Platform & integration | Apple (WebKit, App Store) · Google (Chrome, Android, Play) | 10 |
+| Product & the long arc | Automattic (Day One, WordPress, Tumblr, Pocket Casts, WooCommerce) · Duolingo | 10 |
+| Code & architecture | SQLite (Hwaci) · Obsidian (Dynalist Inc.) | 10 |
+| NGO & frontline | American Red Cross · Habitat for Humanity | 10 |
+| The calendar | AmeriCorps · Points of Light | 10 |
+| Economics of giving | GiveWell · GiveDirectly | 10 |
+| Repository | VolunteerMatch · DoSomething.org | 10 |
+| Our own market | SignUpGenius · Meal Train · Doodle · CaringBridge | 20 |
+
+**The durable findings are filed where they belong** — new permanent facts in A1, corrections in A2,
+new dead ends in A3, new landmines below. What follows is only what the notebook itself must carry.
+
+### The three ideas that would change the product
+
+1. **Keep the last few saves, not just the current one.** Obsidian ships File Recovery as a core
+   plugin, on by default: five-minute snapshots, kept seven days, stored *outside* the vault so a
+   corrupt vault cannot take them with it. Before every destructive save, copy the current year to a
+   second key and keep the last few. **No server, no account, no build step, and it protects the one
+   thing here that cannot be replaced.** The single most applicable idea in the hundred.
+2. **Write the new year beside the old one, then swap.** SQLite's write-ahead log solved exactly one
+   problem — never overwrite the only good copy in place. Write to a shadow key, read it back, then
+   make it real. A browser killed mid-save can then never leave half a year behind.
+3. **Put a version number in the saved year.** SQLite promises its format through 2050 and the
+   promise is credible because the file carries a version. Ours is JSON with a schema, which is a
+   harder promise than plain text. We already hold "named in both halves or it vanishes"; this
+   extends it forward in time.
+
+### The honest verdict on SQLite-Wasm, asked and answered
+
+**Not credible today.** The bundle is roughly 469KB of JS plus 897KB of WASM — **it would more than
+double the file before a single act is written** — and it forces all storage into a Web Worker,
+which is an architectural change with no build step to manage the boundary. It solves concurrent
+multi-tab transactional access and relational queries, neither of which we have. **Revisit only if
+the product becomes genuinely relational, and then prototype OPFS-SahPool specifically**, because it
+is the one variant that needs no COOP/COEP response headers we do not control.
+
+### New landmines
+
+- **L30 THE PRETTY LANDING PAGE HAS NO NUMBERS IN IT.** Red Cross, Habitat and SignUpGenius all
+  return metadata or a JavaScript shell to a fetcher while the real figures sit in an annual-report
+  PDF, a press release, or an embedded dashboard one click away. **Go to the PDF or the newsroom
+  post, never the campaign page.** This cost two agents real time in one day.
+- **L31 `@page size` IS ADVISORY ON A PHONE.** iOS AirPrint chooses paper and scaling from the system
+  print sheet; what survives reliably from a print stylesheet is layout — breaks, hiding, pagination.
+  **Never design a poster or a book page that only works if we picked the paper.** Sourced from Apple
+  community threads, not documentation — **untested on a real device, and it must be tested before
+  launch.**
+- **L32 AN AGGREGATOR'S PRICE IS A GUESS.** Capterra had SignUpGenius a third too high and we had
+  been quoting it; half the web still repeats a Doodle price the vendor's own live page contradicts.
+  **Fetch the vendor first, the aggregator second, and when they disagree the vendor wins.**
+- **L33 THE FETCH TOOL MAY ONLY FOLLOW URLS IT HAS ALREADY SEEN.** Three of the best leads in the
+  repository pass died on it — the fetcher refused pages that only a search result had named, and
+  once refused a redirect target it had handed back itself. **There is also a per-session search cap
+  and two agents hit it.** Front-load the searches. Nimble Search worked as a fallback and in one
+  case reached vendor pages the general tool could not.
+
+### Six new act candidates, none of them in the app
+
+Recommended: **old glasses to a Lions Club box** · **a morning fitting free smoke alarms** (3 million
+alarms, 2,462 documented lives saved) · **a shift greeting donors at a blood drive** — the job that
+is not giving blood · **a one-day Habitat build** (16+, no experience, trained on site) · **ticking
+the matching-gift box at work**.
+
+Blocked on one check: **Crisis Text Line** — 30 hours of free virtual training, no clinical
+background, over 9 million conversations answered, **but the page that states whether there is a
+background check could not be reached.** Do not ship it until somebody reads that page.
+
+The clean no: **Habitat's Global Village** — $2,000-3,000 plus airfare, 7-9 days abroad. **It is the
+opposite of an act that removes an excuse: it adds several.**
+
+Full detail, with the seven fields and the confidence ratings, in `claude/the-hundred.md` Part Seven.
+
+## C22. RULINGS AND FIXES, 13-14 September 2026 — the run down the list
+
+G: *"let's go one by one, and once we solve it, you tell me the next one. We don't write any push
+until we get through them all."* Everything below is built and tested and **not yet pushed**.
+
+| # | What | Ruling |
+|---|---|---|
+| 1 | **Jessica's three notes** | **1A** — her words in the title: *Take a trash bag and a garden glove on your walk*. **"Nicely done" out** of the act-done sheet, and out of the app entirely. **3C** — nobody is told they are "not in an act yet"; G: *"it's a list and the name is there for a reason."* |
+| 2 | **The handles line** | **Leave it.** A person with nothing yet still reads "no handles yet". |
+| 3 | **"Any time" on the ideas filter** | **Built.** G: *"we provided filters so why not all."* The category row always started with Anything; the length row had four choices and no way past one of them, so **nobody could ever see the library**. LEAD_ANY is first, and is not a length — anything reasoning about lengths skips it. |
+| 4 | **"Start it now"** | **Built.** G: *"why does it only say save for later."* Every idea had one button and it was an offer to put the thing off — on a screen whose first filter is TODAY. Two buttons now, the one that does it today first. It goes through `startWork()` so one place still knows the shape of an act, and it is kept the moment it opens. |
+| 5 | **X** | **Out, both halves.** The code said X was dropped from the posting list deliberately and **no document anywhere records why**. The handle field had been left behind — and the export test found a second half nobody knew about: **the person's own X account was still in `S.platforms`**, switched off, unreachable, riding in every backup. Both gone, both cleaned out of older files on load. |
+| 6 | **See their acts** | **Leave it.** The row already says "6 acts, 2 this year", so nobody is lied to. The grid is the wrong instrument for the question and the journal was the honest alternative, but the cost is not worth it. **Closed — do not re-propose.** |
+| 7 | **The app icon** | **G: complete.** Off the list. |
+
+### What was BUILT off the engineers' own list
+
+**THE LAST FEW SAVES, NOT ONLY THE CURRENT ONE.** The top item from the hundred, taken from
+Obsidian's File Recovery. Until this build the app kept exactly one copy of a year and overwrote it
+on every keystroke. It now rolls the previous good copy aside, three deep, at most every four
+minutes — and, the half that matters, **something reads them**: a file that will not parse, or that
+comes back with no acts while a snapshot has some, is repaired without anybody being asked.
+
+Two rules hold it up, and both are tested against a simulated full disk:
+1. **The snapshot can never break the thing it is protecting.** Every snapshot write is in its own
+   try, never touches `_storageOK`, never warns. No room means drop the oldest and carry on silently.
+2. **A deliberate Start over takes the snapshots with it** — otherwise the next load hands back the
+   year somebody just destroyed, the app undoing the one irreversible thing it is ever asked to do.
+
+**THE MASTER KEY IS RETIRED.** C5 was narrowed in 5E and not closed. `S.pubkey` — one secret opening
+every sheet a person ever made — is migrated into the sheets themselves (each keyless sheet is
+handed it as its OWN key, so an old poster still opens) and then dropped from the file and from the
+export. Nothing has written it in a long time, so it runs once per person and then never.
+
+**TWO ITEMS WERE ALREADY DONE**, found by reading rather than assuming: the version marker on the
+saved file (`v:1`), and `askToPersist()` asking the phone not to evict us. Both already shipped.
+
+**AND THE CELEBRATIONS ARE FINISHED.** The design panel's one free idea — delay is what reads as
+alive — **was already built, and G ruled it himself on 8 September**: the moment does not fire on a
+timer, it waits until the square has stopped moving and then holds a beat. G, 14 Sep: *"finished."*
+
+### Still unbuilt, and why
+
+- **The dead code.** Traced rather than trusted, and the note is right: the plan sheet is never
+  opened, so its "This one's done" button cannot be pressed, so the old log screen and about eight
+  functions hanging off it are unreachable. **Not cut yet** — it is the riskiest change on the list
+  and deserves its own build with the whole battery, not folding in behind six other changes.
+- **"See their acts" across years** — closed by G, above.
+
+## C21. THE DESIGN PANEL — 13 September 2026
+
+G named eleven studios: *"metalab, work & co, clay, ramotion, ideo, random international, refik
+anadol, ustwa, team lab, max shkret, baugass."* Read as the same exercise as the hundred, run on the
+design side. **Five agents, fifty-five projects. Full report: `claude/the-design-panel.md`.**
+
+Every brief carried a hard line: **transferable principles only, never imitation.** No agent was
+permitted to describe how to reproduce a studio's screen, layout, motion or artwork. Where a finding
+could not be stated without becoming a style recipe, it was left out.
+
+### TWO PREDICTED FAILURES, BOTH MEASURED, BOTH ALREADY RIGHT
+
+The standing caution held twice in one afternoon — **open the source before believing anything is
+missing.**
+
+- **"Fifty squares will fail the tap-target minimum."** The grid is five across, not fifty in a row.
+  **Measured at four widths: 50.4pt at 320px, 61.4 at 375, 64.4 at 390, 72.4 at 430** — above the
+  44-point minimum on every phone made. Harness `tgrid.mjs`, four checks, all passing.
+- **"Six celebrations that play identically will feel cheaper by act forty."** Already built: every
+  one of the six is generated from fresh random parameters each time, and a bag guarantees all six
+  before any repeat, with the head of a new bag swapped so it cannot repeat across the join. The
+  tile is also scrolled into view first.
+
+### THE ONLY REAL DATA ON WHETHER ANYBODY FINISHES — the prize of the panel
+
+- **Monument Valley: 50% of those who started it finished it**, against an independently measured
+  median of roughly **35%** across games and an academic estimate of 10-16%. Length is the driver.
+- **And the part that should worry us: the paid continuation was bought by 24% of owners, and only
+  5% of those finished it.** People who had already paid once and loved it.
+- **A fifty-act year is structurally closer to the continuation than to the three-hour game.** That
+  is now an evidenced argument, not a reasoned one, for the ending being reachable at thirty-seven
+  acts as readily as at fifty.
+- **Baugasm is the one person in the panel who actually did what we ask.** One poster a day from
+  2016, continued well past the pledged year — **sources disagree on whether it was two years or
+  three, which tells you that past a point nobody, including him, was still counting.** What it
+  produced was a speaking career built on having sustained the habit, never on any poster in it:
+  **the compounding value was in the completed record.** What it cost him: he kept the streak alive
+  through a hospitalisation for two broken ribs, on painkillers, and every piece of coverage retells
+  it admiringly. **It is evidence that a public unbroken commitment generates its own pressure
+  regardless of the person's condition.** Our no-accounts, no-audience design is the protection. If
+  the no-streak ruling is ever questioned, this is the answer.
+
+### THE SEVEN INSTRUCTIONS
+
+1. **The icon is judged at sixty pixels in a grid beside a dozen strangers' apps** — decide it last,
+   once coral/cream/gold are locked, and never judge it on a white mockup.
+2. **The store listing's first three screenshots carry nearly all the weight.** First screenshot: the
+   year filling in. Subtitle: who it is for, specifically.
+3. **Say the size out loud and defend it.** Work & Co published an 850KB page-weight budget as a
+   design constraint. Ours is ~1.2MB in one file; write it down as a ceiling a feature must earn
+   past.
+4. **Diagnose with a number before redesigning.** Ramotion's best case rests on knowing 53% abandoned
+   at the homepage first. **We do not know which field a half-written act dies in.**
+5. **Spend the personality budget in one place.** The sash is it. Never a second live thing, never a
+   second element on the card. Baugasm proves the same from print: a series is one fixed template
+   with exactly one thing changing.
+6. **Delay is what reads as alive, not motion.** Random International's rods lag half a beat behind
+   an approaching hand — instant reads as a switch obeying you, delayed reads as a creature noticing
+   you. Each of the six could have its own delay and its own decay. An easing choice, not a compute
+   cost. **And end cleanly under two seconds** — neither studio lets a response outlast the attention
+   that earned it.
+7. **Test the private copy with real people.** The gold envelope and "how did it go?" have been
+   written and ruled on but never watched in use.
+
+### ONE OPEN QUESTION FOR G
+
+**Act fifty is a different kind of moment from act one and happens once ever.** If the closing card
+is the same size as every other celebration, that may be a missed beat rather than restraint. The
+six ordinary ones stay small without exception — but the closing card may deserve one register up.
+**Not built, not decided.**
+
+### THE HONEST VERDICT
+
+Eleven names produced roughly **seven instructions, three confirmations of decisions already made,
+and one important piece of data.** Work & Co and ustwo earned their places; Ramotion and Baugasm
+gave one strong thing each; **Max Shkret is the weakest seat by a clear margin** — no acquisition, no
+auction record, no named campaign, and his strongest recognition is a web award credited to the
+developer of his portfolio site. The spectacle group (Random International, teamLab, Anadol) is
+admiration for a different art form at a different scale.
+
+**And the gap worth naming: not one of the eleven has a proof point in a category anything like
+ours.** Every case is server-backed, account-backed or institutional. The principles had to be
+extracted from underlying values, never from a comparable product.
+
+### New landmines
+
+- **L34 DESIGN-INDUSTRY MYTHOLOGY IS NOT A SOURCE.** Three of IDEO's most-cited projects are
+  misattributed across the whole design press — **OXO Good Grips was Smart Design, the GE MRI
+  Adventure Series was in-house at GE, GlowCaps was Manta** — and the famous shopping cart was never
+  manufactured or sold. A story in a hundred articles is one story. Check who did the work.
+- **L35 "CLAY" IS TWO COMPANIES.** The agency is `clay.global`; `clay.com` is an unrelated
+  sales-prospecting company that dominates the results.
+- **L36 THE STUDIOS IN THE CASE STUDIES NO LONGER EXIST IN THAT FORM.** MetaLab went into Tiny in
+  2017; **Work & Co into Accenture Song in January 2024.**
+- **L37 A PORTFOLIO NUMBER IS A CLAIM.** Nearly every figure on a studio site is self-reported. The
+  trustworthy ones came with an outside judge attached — a Cannes jury, a Guinness certification, a
+  museum's press office, a client's own release, an auction result. **Ask who else says so.**
+
+### Dead ends added
+
+- Visitor or ticket figures for **Superblue Miami** — they do not publish attendance.
+- Any verified client, sale or acquisition figure for **Max Shkret**.
+- **Baugasm's exact streak length** or a first-party follower count.
+- **ustwo's non-games client work** with a checkable number.
+- **Behance and Awwwards refuse a fetcher** (403 and robots); Instagram is not fetchable at all, so
+  every follower figure anywhere is a third-party estimate.
 
 # PART D — WHAT MUST BE TESTED ON A REAL PHONE
 
