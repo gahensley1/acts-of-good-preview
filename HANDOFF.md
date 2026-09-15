@@ -1,16 +1,25 @@
-# HANDOFF — read this first, updated 14 Sep 2026
+# HANDOFF — read this first, updated 15 Sep 2026
 
-Build in G's hands: **5L**. `index.html`, **1,206,604 bytes** — 25KB smaller than 5H —
-md5 `e8b49f8a5529003374ed9cfc2c4a943d`, on both folders, read back off his disk and checksummed.
+Build in G's hands: **5M**. `index.html`, **1,219,324 bytes**,
+md5 `40007e76253fa43687b1bde43ac1397f`, on both folders, read back off his disk and checksummed.
 
-**5I THROUGH 5L ARE ALL UNPUSHED.** 5H is live on the site. One push carries all of them.
+**5I THROUGH 5M ARE ALL UNPUSHED.** 5H is live on the site. One push carries all of them.
 
-The Worker is at 5F on `actsofgood.app`. **5G–5J are phone-side only; it does not need redeploying.**
+The Worker is at 5F on `actsofgood.app`. **5G–5M are phone-side only; it does not need redeploying.**
 
-**86 checks across five harnesses, 0 failing, no console errors.**
+**111 checks across six harnesses, 0 failing, no console errors.**
 `tests/battery.mjs` (25) · `tests/snapshots.mjs` (14) · `tests/rulings-5j.mjs` (29) ·
-`tests/book.mjs` (4) · `tests/k-set.mjs` (14).
-**The harnesses read PAGE ERRORS, not only assertions.** That is what caught the bug below.
+`tests/book.mjs` (4) · `tests/k-set.mjs` (14) · `tests/review-fixes.mjs` (25).
+**The harnesses read PAGE ERRORS, not only assertions.** That is what caught the 5J bug below.
+
+**AND THEY RUN ON HIS MACHINE NOW.** Every harness used to hardcode two paths that exist only
+inside one cloud machine, so the battery **could not be started by the person who owns it**. First
+time only:
+
+```
+cd /d "C:\Users\tony\Documents\aog-push" && npm i -D playwright && npx playwright install chromium
+cd /d "C:\Users\tony\Documents\aog-push" && node tests/battery.mjs
+```
 
 ---
 
@@ -151,6 +160,110 @@ fills the part of the square both seats called empty.
 
 ---
 
+## 5M — THE REVIEW ROUND, 15 September. THIRTEEN FAULTS FOUND AND FIXED.
+
+**Full account: `claude/the-engineers-5m.md`. Read it.** It carries L52–L67 and the still-open list.
+
+Commissioned because **one person had written and reviewed four builds in a row**, and a name that
+does not exist had already shipped in 5J on the back of it. Three seats read 5L: seat 4 twice (once
+over the whole 5H→5L diff, once on the sign-up sheet's app side, which nobody had ever read) and
+seat 3 on the judgment rather than the code.
+
+**Six of the thirteen faults were written the day before by the person reviewing them.**
+
+**THE RULE THIS ROUND EXISTS TO ESTABLISH: the author must not be the only reviewer.**
+And the sharper one: **the comments in this file are unusually good, which makes them unusually
+dangerous.** Two of the worst faults were places where a careful, convincing comment described
+behaviour the code did not have. A reviewer who reads the comment instead of the code will agree
+with it.
+
+**The ones that undid a ruling**
+
+- **C5A did not work at all.** The daily copy was put inside the array the rolling rotation walks, so
+  every four minutes it was overwritten — and its own clock was untouched, so the app then believed
+  it held a fresh one for twenty hours. All four copies could be of the same afternoon: the exact
+  failure the ruling existed to prevent. **Two seats found it independently.** The rolling three and
+  the four are different things now.
+- **And the quota path sacrificed it first.** Out of room, the app dropped the copy meant to survive
+  longest. The two oldest **rolling** copies go now.
+
+**The ones that broke a promise**
+
+- **An undated sheet was never cleaned, ever** — a stranger's phone number, their message and their
+  release code sat on the phone permanently while the app believed the sheet was live. The public
+  page had promised those people the opposite. It is dated on the next launch now, or cleaned at once
+  if the date will not read.
+- **The thirty-day delete was undone in the spare copies**, because a save copies what is on disk
+  before it writes. **L61: a deletion made to keep a PROMISE has to take the snapshots with it.**
+- **A network value was written into a click handler and PROVED to execute.** Every word a stranger
+  types is escaped — a seat threw four payloads and could not get through — but the row's position
+  number went straight into the handler. Only our own Worker writes it, so it was a trip-wire rather
+  than an open door. **L66: "nothing a human TYPED reaches the page unescaped" was the invariant we
+  held. The one that was missing is "nothing from the NETWORK reaches code position."**
+
+**The ones in the book**
+
+- **The honour roll cut names off, silently** — at about twenty-one names on the tall page and
+  **nineteen** on the square one. At thirty names a third of them were simply not printed. **These
+  are the names the year was for.** It paginates now, and how many fit is derived from the trim
+  tokens rather than guessed.
+- **The fitting loop could not see half the overflow it exists to catch.** A centred page spills at
+  both ends and the measurement only ever revealed the half below, so the loop declared it fitted.
+  And its step-downs only ever reached an act's story and photographs, so the reason page, the honour
+  roll and the closing page could not be rescued at all.
+
+**The ones in the newest code**
+
+- **The bookend row could announce the year finished in March**, and tapping the empty ending started
+  an act aimed at it. It fills only when the year is done now, and the empty ending opens the journal.
+- **Act 0's bookend had no name for a screen reader.** The other one had been given one.
+- **A missing month printed a confident January.**
+- **S4B was argued on a fact that is not true.** The case for the lighter coral said the number "sits
+  on top with its own shadow". **It had no shadow** — that belongs to planned squares. White measures
+  3.28:1 on the lighter coral against 5.27:1 on the darker. **G's colour ruling stands; the number now
+  has the protection the argument assumed it already had.**
+- **The credits rendered as one solid block.** It is the one screen where readability is a legal point.
+- **The card's cache key could not vary** — it carried the word "feed" as a fixed string, so the story
+  crop and the feed crop shared one cached picture. **L64: a cache key entry written as a constant is
+  not a cache key entry.**
+- **The boot rescue still lost photographs, one launch later.** Blocking the sweep bought exactly one
+  launch; the next ordinary save wrote the picture-less journal to disk. Nothing can overwrite the
+  real file now until the app is restarted, and the message says so.
+
+**SEAT 3 ON THE JUDGMENT — the part that is not a bug.** Its verdict: the day made the product
+**correct and shippable** and moved it **not one inch toward completable.** Every change touched the
+artefact or the safety net; **none touched return.** Its findings, all G's to rule:
+
+- **The year screen has no view of intention.** The grid correctly became the finished year and
+  nothing replaced what it used to show. Dated plans no longer appear on the calendar after a
+  relaunch, the shelf's tab carries no count, and the line under the grid still says *"Tap an empty
+  one to plan it"* when tapping leaves the square exactly as empty as before. **Its recommendation:
+  one line above the grid showing the next thing in the works and its date; a mark on the tab; the
+  journal moved above the grid rather than below ten rows of tiles.**
+- **The bookend row's idea is right and its form is wrong.** A visible ending is a real asset almost
+  nobody else has. But an empty dashed numbered square is *the app's own visual language for undone
+  work*, promoted to the middle of the screen for twelve months. **Draw a horizon — a date, a
+  destination — never an empty box you have not ticked.**
+- **The date on the card earns its place for a reason nobody wrote down.** Not "fifty cards looked the
+  same" — nobody ever sees fifty cards side by side. **The card is the only artefact that leaves the
+  device.** An undated card in a camera roll two years later is an orphan; a dated one is a record.
+
+### STILL OPEN AFTER 5M — named, not fixed
+
+- **A live sheet is abandoned when the act is finished.** Public page still up, key thrown away, and
+  **there is no way in the app to end a sheet.** Needs a ruling: take it down on the server, ask at
+  the finish, or add a button.
+- **The server's reply is persisted whole**, unvalidated and uncapped. A large but entirely legal
+  sheet was measured pushing storage to 4.3MB — the same budget the journal lives in.
+- **Four network calls report every failure as "try again in a moment"** — including a sheet the
+  server has deleted, and a refusal for exceeding a cap the app never checks before sending.
+- **Legacy sheets all share one key.** The master key was retired correctly from the file and the
+  backup, but the migration copied the same value into every keyless sheet.
+- **Two tabs.** The one year-loss family seat 4 could not close.
+- **The photo-heavy book page** was never measured. It is the tallest page the book makes.
+
+---
+
 ## Open, waiting on G
 
 - **`reviews/S7-S10.html`** — S7 the five date formats (the real question is **which order the app
@@ -202,15 +315,20 @@ fills the part of the square both seats called empty.
 
 - **`device_bash` has been broken since 8 September.** Staging and committing work; anything needing
   a shell on his machine (git, wrangler) is handed to him as a command.
-- The battery lives in `tests/` in the repo now. Run it with
-  `cd /d "C:\Users\tony\Documents\aog-push" && node tests/battery.mjs`.
-- Playwright chromium at `/opt/pw-browsers/chromium`; the module is CommonJS at
-  `/opt/node-tools/node_modules/playwright/index.js`.
+- The battery lives in `tests/` in the repo and **runs on his machine now** — the install line is at
+  the top of this page. In the cloud it finds Playwright at `/opt/pw-browsers/chromium` and the
+  module at `/opt/node-tools/node_modules/playwright/index.js`; the harnesses resolve either.
+
+## The notebook
+
+`claude/the-engineers.md` is the permanent one (L1–L37). **Two rounds are still sitting outside it:
+`claude/the-engineers-5i.md` (L38–L51) and `claude/the-engineers-5m.md` (L52–L67). Merge both in and
+delete them.**
 
 ---
 
-## THE PUSH FOR 5I THROUGH 5L
+## THE PUSH FOR 5I THROUGH 5M
 
 ```
-cd /d "C:\Users\tony\Documents\aog-push" && git add -A && git commit -m "5I-5L: the rollover is no longer undone, the rescue keeps its photographs, reminders get a door, the card posts at full strength and carries its date, the book is square and opens on the logo, and the battery moves into the repo" && git push
+cd /d "C:\Users\tony\Documents\aog-push" && git add -A && git commit -m "5I-5M: the rollover is no longer undone, the rescue keeps its photographs, reminders get a door, the card posts at full strength and carries its date, the book is square and paginates its honour roll, the sheet keeps its privacy promise, and the battery moves into the repo and runs anywhere" && git push
 ```

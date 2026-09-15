@@ -363,6 +363,26 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
   page-break-after:always;break-after:page}
 .bpage:last-child{page-break-after:auto;break-after:auto}
 .bpage .bplate{position:absolute;inset:0.42in;border:1px solid #E4DCCB;pointer-events:none}
+/* THE STEP-DOWN ONLY EVER REACHED AN ACT'S STORY AND ITS PHOTOGRAPHS. Every
+   other page — the reason page, the honour roll, the closing page — could
+   overflow and `.bpage` is overflow:hidden, so it was cut in silence, at BOTH
+   ends on a centred page. The square trim made all of them worse. Measured: a
+   ~900-character reason lost two thirds of an inch top and bottom; a long story
+   overflowed by an inch at the smallest step the book had. So the steps reach
+   the rest of the page now, and there is one more of them. */
+.bpage.s2 .bline,.bpage.s2 .bwhy{font-size:11.5pt;line-height:1.45}
+.bpage.s3 .bline,.bpage.s3 .bwhy{font-size:10.5pt;line-height:1.38}
+.bpage.s4 .bline,.bpage.s4 .bwhy{font-size:9.5pt;line-height:1.32}
+.bpage.s5 .bstory{font-size:8.6pt;line-height:1.36}
+.bpage.s5 .bline,.bpage.s5 .bwhy{font-size:8.6pt;line-height:1.28}
+.bpage.s5 h1{font-size:17pt}
+.bpage.s5 .bhonlist{font-size:9pt;line-height:1.5}
+.bpage.s5 .bbig{font-size:38pt}
+.bpage.s5 .bmark{width:0.85in;margin-bottom:0.18in}
+.bpage.s4 .bhonlist{font-size:10pt;line-height:1.55}
+.bpage.s3 .bhonlist{font-size:11pt}
+.bpage.s4 .bbig{font-size:44pt}
+.bpage.s4 .bmark{width:1in;margin-bottom:0.24in}
 .bpage .bno{font-size:10.5pt;font-weight:700;letter-spacing:.15em;
   text-transform:uppercase;color:#C03F2B;margin:0 0 0.16in}
 .bpage h1{font-size:23pt;line-height:1.2;letter-spacing:-.01em;margin:0 0 0.1in;
@@ -966,7 +986,16 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
    they had been darkened for a reason that did not apply to them, and the grid
    then disagreed with the progress bar directly above it and with the card. One
    coral for the artwork, the grid and the bar; the darker one means "button". */
-.tile.done{background:var(--coral);border-color:var(--coral);color:#fff}
+.tile.done{background:var(--coral);border-color:var(--coral);color:#fff;
+  /* S4B WAS ARGUED ON A FACT THAT IS NOT TRUE. The case for the lighter coral
+     was that these squares "carry no words on the coral — the number sits on top
+     with its own shadow". The number has no shadow: the shadowed `.tilenum`
+     belongs to PLANNED squares, which are a different thing. White measures
+     3.28:1 on the lighter coral against 5.27:1 on the darker one, on the one
+     mark that tells a person which act a square is.
+     G's colour ruling stands. The number gets the protection the argument
+     assumed it already had. */
+  text-shadow:0 1px 2px rgba(0,0,0,.45)}
 /* THE BOOKENDS ROW. One row, tile-sized, so it costs a fifth of what the
    headed block did and never comes between the count and the year. */
 .bookends{display:flex;align-items:center;gap:10px;margin:22px 0 0}
@@ -1407,7 +1436,7 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
       licences</button></p>
 
     <!-- BUILD MARK — dev only, delete this div when the app ships -->
-    <div id="buildtag">BUILD 5L</div>
+    <div id="buildtag">BUILD 5M</div>
   </div>
 </section>
 
@@ -2619,7 +2648,25 @@ function serialise(){
    every other way — cleared by dropSnapshots(), read by recoverFromSnapshot(),
    and never allowed to break the year it is protecting. */
 const DAYSNAP = LS_KEY+'.day';
-const SNAPS = [LS_KEY+'.snap1', LS_KEY+'.snap2', LS_KEY+'.snap3', DAYSNAP];
+/* THE ROLLING RING, and ONLY the rolling ring.
+
+   DAYSNAP was in this array. The comment two paragraphs down said it "takes no
+   part in the rolling shuffle above" and it took full part in it: keepSnapshot()
+   walks this list to its end, so every four minutes the daily copy was
+   overwritten with the fourth-oldest rolling copy — and its own clock was not
+   touched, so the app then believed it held a fresh daily copy for twenty hours
+   and would not make a real one. All four copies could be of the same afternoon,
+   which is the precise failure G's C5A ruling existed to prevent.
+
+   Two seats found it independently and both ran it. L52: a snapshot slot with a
+   different replacement rule must not live in the array the rotation walks.
+   L53: lengthening a list changes the meaning of every LIST[LIST.length-k] in
+   the file — the quota path below was reaching for the two oldest ROLLING
+   copies and was quietly reaching for the daily one instead. */
+const RING = [LS_KEY+'.snap1', LS_KEY+'.snap2', LS_KEY+'.snap3'];
+/* Everything that READS or CLEARS a snapshot wants all four. Only the rotation
+   wants the ring alone. */
+const SNAPS = RING.concat([DAYSNAP]);
 const DAY_EVERY = 20*60*60*1000;     // "once a day", forgivingly
 const SNAP_EVERY = 4*60*1000;        // Obsidian's own order of magnitude
 let _lastSnap = 0;
@@ -2635,15 +2682,19 @@ function keepSnapshot(){
      file must not push the three good ones off the end */
   try{ const o = JSON.parse(prev); if(!o || !Array.isArray(o.acts)) return; }catch(e){ return; }
   try{
-    for(let i=SNAPS.length-1; i>0; i--){
-      const older = localStorage.getItem(SNAPS[i-1]);
-      if(older != null) localStorage.setItem(SNAPS[i], older);
+    for(let i=RING.length-1; i>0; i--){          // RING, never SNAPS — see above
+      const older = localStorage.getItem(RING[i-1]);
+      if(older != null) localStorage.setItem(RING[i], older);
     }
-    localStorage.setItem(SNAPS[0], prev);
+    localStorage.setItem(RING[0], prev);
   }catch(e){
-    /* out of room. Give the year back its space and keep going, quietly. */
-    try{ localStorage.removeItem(SNAPS[SNAPS.length-1]); }catch(_){}
-    try{ localStorage.removeItem(SNAPS[SNAPS.length-2]); }catch(_){}
+    /* Out of room. Give the year back its space and keep going, quietly — by
+       dropping the two OLDEST ROLLING copies. It read SNAPS here, which since
+       the daily copy joined that array meant the first thing sacrificed was the
+       one copy meant to survive longest, and its clock was left standing so it
+       would not be remade for twenty hours. */
+    try{ localStorage.removeItem(RING[RING.length-1]); }catch(_){}
+    try{ localStorage.removeItem(RING[RING.length-2]); }catch(_){}
   }
 }
 /* The one that is allowed to be old. Written at most once in twenty hours, and
@@ -7253,7 +7304,25 @@ function forgetOldClaims(){
   (S.works||[]).forEach(w=>{
     const sh = w && w.sheet;
     if(!sh) return;
-    if(claimAge(sh) < CLAIM_DAYS) return;                  // -1 and young both skip
+    /* AN UNDATED SHEET IS OLD, NOT YOUNG. This read `claimAge(sh) < CLAIM_DAYS`,
+       and claimAge returns -1 for "we never knew" — so a sheet the app never
+       dated failed the test for ever, on every launch, and kept a stranger's
+       number, their message and their private release code on the phone
+       permanently while the app went on believing the sheet was live. The public
+       page had promised those people the opposite.
+
+       Which sheets have no date? Any published by a build from before `sh.at`
+       was recorded, and any whose date will not parse.
+
+       Two things now. The sheet is dated the first time this runs, so it clears
+       thirty days from now rather than never — and if we cannot date it at all,
+       it is treated as old and cleaned immediately. Erring toward forgetting a
+       stranger's details is the only direction this promise can be wrong in. */
+    const age = claimAge(sh);
+    if(age < 0){
+      if(!sh.at){ sh.at = new Date().toISOString(); changed++; return; }
+      /* it HAS a date and it will not parse — do not keep guessing, clean it */
+    } else if(age < CLAIM_DAYS) return;
     if(Array.isArray(sh.claims)) sh.claims.forEach(c=>{
       if(!c || typeof c !== 'object') return;
       ['contact','note','release','release_hash'].forEach(k=>{
@@ -7268,7 +7337,19 @@ function forgetOldClaims(){
        something it already knew. It finishes instead. */
     if(sh.live){ sh.live = 0; sh.done = 1; changed++; }
   });
-  if(changed) save();
+  if(changed){
+    /* THE SPARE COPIES KEEP WHAT THIS JUST DELETED. save() snapshots what is on
+       disk BEFORE it writes, so the ordinary save below would roll the version
+       that still holds the phone numbers into snap1 — and on a phone opened once
+       a month it would sit there indefinitely. The delete was real in the live
+       file and undone in the copies.
+
+       L61: a deletion performed to keep a PROMISE has to take the snapshots with
+       it. Every other snapshot rule protects the year; this one protects
+       somebody who is not even holding the phone. */
+    dropSnapshots();
+    save();
+  }
   return changed;
 }
 
@@ -7362,8 +7443,25 @@ function drawClaims(){
         '&body='+encodeURIComponent(body)+'">Email</a>'
       /* ?&body= is the spelling both iOS and Android accept */
       : '<a href="sms:'+esc2(c.contact)+'?&body='+encodeURIComponent(body)+'">Message</a>') : '';
-    const free = got ? '<button class="cfree" type="button" onclick="askFree('+
-      (c.pos!=null?c.pos:'null')+')">Free it</button>' : '';
+    /* `pos` COMES OFF THE NETWORK AND WAS BEING WRITTEN INTO A CLICK HANDLER.
+       Every word a stranger types on this row is escaped — name, note, contact,
+       all of it, and a seat threw four payloads at them and could not get
+       through. This one value was not escaped, and a crafted `pos` was PROVED to
+       run as part of the app.
+
+       Only our own Worker writes `pos` today, so a stranger cannot reach it — a
+       trip-wire rather than an open door. It is still the one place in this
+       region where the rule was broken, and the rule is worth more than the odds.
+
+       It is a number or it is nothing, and the handler is bound below rather
+       than written into markup.
+       L66: the invariant was "nothing a human TYPED reaches innerHTML
+       unescaped". The one that was missing is "nothing from the NETWORK reaches
+       code position". Both hold now. */
+    const fpos = (typeof c.pos === 'number' && isFinite(c.pos)) ? c.pos
+               : (/^[0-9]{1,6}$/.test(String(c.pos)) ? +c.pos : null);
+    const free = (got && fpos!=null)
+      ? '<button class="cfree" type="button" data-free="'+fpos+'">Free it</button>' : '';
     /* Their words, under their name. This is the only thing a stranger can
        send back, and on an anonymous sheet it is the only channel there is.
        Escaped like everything else on this row: it is typed by the public. */
@@ -7374,6 +7472,10 @@ function drawClaims(){
       '<span class="cn">'+esc2(c.text||'')+(got?'<span class="cw">'+esc2(c.name)+
       (c.contact?' · '+esc2(c.contact):'')+'</span>':'')+said+'</span>'+reach+free+'</div>';
   }).join('');
+  /* bound, not interpolated — see the note on `pos` above */
+  el.querySelectorAll('[data-free]').forEach(b=>{
+    b.onclick = ()=>askFree(+b.getAttribute('data-free'));
+  });
 }
 
 /* Somebody texted to say they cannot make it after all. The Worker takes an
@@ -7627,12 +7729,42 @@ function bookHonours(acts){
                     (by[h] = by[h] || []).push(a); });
   const names = Object.keys(by).sort((x,y)=>x.localeCompare(y));
   if(!names.length) return '';
-  return '<div class="bpage"><div class="bplate"></div>'+
-    '<div class="bno">in honor of</div>'+
-    '<h1 style="margin-bottom:0.18in">The names this year was for</h1>'+
-    '<ul class="bhonlist">'+names.map(n=>'<li><b>'+esc(n)+'</b> '+
-      '<span>'+esc(by[n].map(a=>'act '+a.no).join(', '))+'</span></li>').join('')+
-    '</ul>'+ bookFoot('', 'in honor of') +'</div>';
+  /* THIS PAGE USED TO BE ONE PAGE WITH NO WAY TO MAKE A SECOND, and `.bpage` is
+     overflow:hidden — so past about nineteen names it simply stopped printing
+     them, and told nobody. At thirty names a third of them were missing. The
+     square trim made it worse, not better.
+
+     These are the names the year was FOR. It is the one page in the book where
+     being cut off is not a layout problem, it is the book failing to do the
+     thing it exists for. So it runs onto as many pages as it needs.
+
+     HOW MANY FIT is worked out from the trim rather than guessed, so it follows
+     a printer's spec like everything else: the text column is the page height
+     less its margins, less the heading and the footer, and a name is one line
+     at 12pt/1.55 plus its padding. The figure is deliberately conservative —
+     a short page is nothing, a cut name is the fault this fixes. Whatever is
+     left over, fitBook() still steps the type down. */
+  const PAGE_IN = parseFloat(getComputedStyle(document.documentElement)
+                    .getPropertyValue('--bookh')) || 8.5;
+  const MY_IN   = parseFloat(getComputedStyle(document.documentElement)
+                    .getPropertyValue('--bookmy')) || 0.7;
+  const usableIn = PAGE_IN - (MY_IN*2) - 1.15;          // heading + footer
+  const perName  = 0.30;                                 // 12pt x 1.55 + padding
+  const per = Math.max(6, Math.floor(usableIn / perName));
+  let out = '';
+  for(let start=0; start<names.length; start+=per){
+    const page = names.slice(start, start+per);
+    const more = start > 0;
+    out += '<div class="bpage"><div class="bplate"></div>'+
+      '<div class="bno">in honor of</div>'+
+      '<h1 style="margin-bottom:0.18in">'+
+        (more ? 'The names this year was for, continued'
+              : 'The names this year was for')+'</h1>'+
+      '<ul class="bhonlist">'+page.map(n=>'<li><b>'+esc(n)+'</b> '+
+        '<span>'+esc(by[n].map(a=>'act '+a.no).join(', '))+'</span></li>').join('')+
+      '</ul>'+ bookFoot('', 'in honor of') +'</div>';
+  }
+  return out;
 }
 
 async function printJournal(){
@@ -7754,16 +7886,35 @@ async function printJournal(){
 
 /* Same discipline as the poster: measure, do not guess. A long story steps
    down through four sizes rather than running off the bottom of the page. */
-const BOOK_STEPS = ['','s2','s3','s4'];
+const BOOK_STEPS = ['','s2','s3','s4','s5'];
 function fitBook(){
   const b = $('book'); if(!b) return;
   const prev = { d:b.style.display, pos:b.style.position, l:b.style.left };
   b.style.display='block'; b.style.position='fixed'; b.style.left='-20000px'; b.style.top='0';
+  /* L57: A CENTRED PAGE OVERFLOWS IN BOTH DIRECTIONS and `scrollHeight` only
+     ever reveals the half below — so the half above was lost with no signal at
+     all, and this loop happily declared the page fitted. Walk the children and
+     measure against the page's own box instead. */
+  const spills = g => {
+    const box = g.getBoundingClientRect();
+    const padT = parseFloat(getComputedStyle(g).paddingTop)  || 0;
+    const padB = parseFloat(getComputedStyle(g).paddingBottom)|| 0;
+    let top = Infinity, bot = -Infinity;
+    g.querySelectorAll(':scope > *').forEach(ch=>{
+      if(ch.classList.contains('bplate')) return;      // the border, not content
+      const r = ch.getBoundingClientRect();
+      if(!r.height && !r.width) return;
+      if(r.top < top) top = r.top;
+      if(r.bottom > bot) bot = r.bottom;
+    });
+    if(top === Infinity) return false;
+    return (top < box.top + padT - 1) || (bot > box.bottom - padB + 1);
+  };
   b.querySelectorAll('.bpage').forEach(g=>{
     for(const c of BOOK_STEPS){
       BOOK_STEPS.forEach(x=>{ if(x) g.classList.remove(x); });
       if(c) g.classList.add(c);
-      if(g.scrollHeight <= g.clientHeight + 1) break;
+      if(g.scrollHeight <= g.clientHeight + 1 && !spills(g)) break;
     }
   });
   b.style.display=prev.d; b.style.position=prev.pos; b.style.left=prev.l;
@@ -8159,15 +8310,33 @@ function drawGrid(){
     const zw=$('zerowrap'), bz=$('bk-zero'), bl=$('bk-last'), zn=$('zeronote');
     if(zw && bz && bl){
       drawBookend(bz, S.zero, '0');
-      const last = S.acts.filter(x=>slotOf(x)===S.n)[0] || null;
+      /* everything inside this button is aria-hidden — the mark and the dated
+         band both — so without this it was a button with nothing to say. The
+         other bookend was given a name; this one was missed. */
+      bz.setAttribute('aria-label', 'Act 0, the year declared'+
+        (S.zero && S.zero.d ? ', '+shortDate(S.zero.d) : '')+'. Open it.');
+      /* THE ENDING IS THE ENDING, NOT WHOEVER TOOK THE LAST NUMBER. An act can
+         hold the final slot early — a person can renumber one, and tapping the
+         empty ending itself used to start an act aimed at it — so this row could
+         read "Declared in March. Finished in June." with forty squares still
+         empty above it. The year is finished when the year is finished. */
+      const last = yearDone() ? (S.acts.filter(x=>slotOf(x)===S.n)[0] || null) : null;
       drawBookend(bl, last, String(S.n));
-      bl.onclick = last ? (()=>openAct(last)) : (()=>logSlot(S.n));
+      /* and tapping it does NOT start act fifty on day three. The empty ending
+         is a horizon, not a square you owe; it opens the year's own pages. */
+      bl.onclick = last ? (()=>openAct(last)) : (()=>go('journal'));
       bl.setAttribute('aria-label', last
         ? 'Act '+S.n+', the last one'+(last.d?', '+shortDate(last.d):'')+'. Open it.'
-        : 'Act '+S.n+', the last one, not done yet. Plan it.');
-      if(zn) zn.textContent = last
-        ? 'Declared in '+MONTHS_LONG[+((S.zero.d||'').split('-')[1])-1 || 0]+
-          '. Finished in '+MONTHS_LONG[+((last.d||'').split('-')[1])-1 || 0]+'.'
+        : 'The end of your year, act '+S.n+'. Not there yet.');
+      /* `MONTHS_LONG[+x-1 || 0]` printed January for a MISSING month exactly as
+         confidently as for a real one. Guard the parse, not the index. */
+      const monthOf = d => {
+        const m = /^(\d{4})-(\d{2})/.exec(String(d||''));
+        return m ? MONTHS_LONG[+m[2]-1] : '';
+      };
+      const m0 = monthOf(S.zero && S.zero.d), mL = monthOf(last && last.d);
+      if(zn) zn.textContent = (last && m0 && mL)
+        ? 'Declared in '+m0+'. Finished in '+mL+'.'
         /* voice.md: three em dashes in the whole corpus against twenty-two
            parentheses, "which is also why we now have none". Two short
            sentences instead, which is her rhythm anyway. */
@@ -10058,11 +10227,15 @@ function packKey(a){
   return [a.no, cw.n, cw.line, cw.word, (S.tone||DEFAULT_TONE),
           (a.zero?'zero':''), (a.fin?'fin':''),
           (a.anon?'anon':''), (CM_PLAT==='private'?'note':'card'), a.t||'', a.d||'', a.when||'',
-          /* INVARIANT 15. A card can now be drawn two sizes, so the key has to
-             say which one is cached or the wrong one ships — the exact failure
-             this list already exists to prevent. Nothing asks for a story card
-             yet; the key is correct in advance rather than after the bug. */
-          'feed',
+          /* INVARIANT 15. A card can be drawn two sizes, so the key has to say
+             WHICH — or the wrong one ships, which is the exact failure this list
+             exists to prevent.
+             This was the literal string 'feed', which can never say anything
+             else: a cache key entry written as a constant is not a cache key
+             entry (L64). It now comes from the thing that varies, so the day the
+             native build asks for a story card it cannot be handed the feed one
+             out of the cache. */
+          (CARD_FOR_STORY ? 'story' : 'feed'),
           (a.story||''), (a.who||[]).join('~'), a.out||'', shot].join('|');
 }
 async function prepack(){
@@ -10837,6 +11010,12 @@ const CREED = ['PUT A LITTLE','MORE GOOD INTO','THE WORLD.'];
    nothing asks for it, and it is here so that when something does, the number is
    already measured rather than guessed. */
 const CARD_CROP = 0.82;
+/* Which size the NEXT card is being packed for. It is a module-level flag rather
+   than an argument because packKey() is called from the pack path and renderCard
+   from the draw path, and the two have to agree about the same card. Nothing sets
+   it to true yet — reaching an Instagram story at all needs the native build —
+   and it is here so the key is right the day something does. */
+let CARD_FOR_STORY = false;
 async function renderCard(a, W, forStory){
   W = W || 1080;
   const k = W/100;                                   // one unit = 1% of width
@@ -11067,6 +11246,14 @@ function ideaRank(i){
 function ideaUsed(i){
   const t=i.t.toLowerCase();
   if(S.acts.some(a=>(a.t||'').toLowerCase()===t)) return true;
+  /* THE SHELF COUNTS. It did not, and that was true before "Put it in the works"
+     existed — load() empties S.plans onto S.works on every launch, so this check
+     has been blind to everything shelved since the one-pipeline change. C3A made
+     it total: three taps on one idea gave three identical entries, no warning,
+     no mark, and an undo that only reached the last one.
+     L58: this is the app's only duplicate guard on the ideas screen. Any new
+     home for a saved idea has to be added here in the same change. */
+  if((S.works||[]).some(w=>(w.t||'').toLowerCase()===t)) return true;
   return Object.keys(S.plans||{}).some(k=>((S.plans[k]||{}).t||'').toLowerCase()===t);
 }
 function reshuffle(){ IDEA_SEED = Math.floor(Math.random()*100000)+1; drawBrowse(); }
@@ -11395,7 +11582,13 @@ function toTop(){ window.scrollTo(0,0); document.documentElement.scrollTop=0; }
 function dlg(o){
   const box=$('dlg'); if(!box) return;
   $('dlg-title').textContent = o.title||'';
+  /* THE CREDITS ARE FOUR SEPARATE NOTICES and this ran them into one solid
+     block, because textContent on a normally-wrapped node drops the blank lines.
+     That is the one screen in the app where readability is a legal point rather
+     than a taste one — it carries other people's licence text. Nothing else in
+     the app passes a blank line, so this costs nothing anywhere else. */
   const n=$('dlg-note'); n.textContent=o.note||''; n.classList.toggle('hide', !o.note);
+  n.style.whiteSpace = (o.note && o.note.indexOf('\n') > -1) ? 'pre-line' : '';
   const f=$('dlg-field'), i=$('dlg-input');
   f.classList.toggle('hide', !o.input);
   if(o.input){ i.placeholder=o.placeholder||''; i.value=o.value||''; }
@@ -11799,10 +11992,23 @@ function closeLetter(){
            The rule is invariant 4 widened: if S was populated by anything other
            than a complete, successful load(), the sweep is not entitled to run. */
         LOAD_MISSED = true;
+        /* AND IT MUST NOT SAVE. Blocking the tidy-up bought exactly one launch:
+           the next ordinary save would write this picture-less journal to disk —
+           closing the welcome letter is enough — and the launch after that is a
+           clean one, so the tidy-up runs and every photograph goes.
+           `_storageOK = false` makes save() a silent no-op for the rest of the
+           session, which is precisely the behaviour wanted here: the words are
+           on screen, the file on disk is untouched, and the person is being told
+           to take a copy. Nothing can overwrite the real journal while they do.
+           L66 was "the rescue needs to refuse to save, or to keep the ids". This
+           is the first half, and it is the half that cannot lose anything. */
+        _storageOK = false;
         restored = true;
         setTimeout(()=>say('Something went wrong reading part of your journal',
-          'Your acts are all here. A photo or a plan record could not be read, '+
-          'so save a copy of your journal now, just in case.'), 800);
+          'Your acts are all here and your photographs are safe on this phone, '+
+          'but the app has stopped saving until you restart it, so that nothing '+
+          'can be written over them. Save a copy now, then close the app and '+
+          'open it again.'), 800);
       }
     } catch(e2){}
   }

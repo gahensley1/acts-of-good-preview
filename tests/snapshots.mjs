@@ -1,7 +1,34 @@
-import pw from '/opt/node-tools/node_modules/playwright/index.js';
-const { chromium } = pw;
+/* Runs anywhere. It used to hardcode two paths that exist only inside one cloud
+   machine, which meant the battery survived a session and could not be started
+   by the person who owns it — worse than the problem it was written to fix,
+   because it looked solved.
+
+     cd /d "C:\\Users\\tony\\Documents\\aog-push" && npm i -D playwright && npx playwright install chromium
+     cd /d "C:\\Users\\tony\\Documents\\aog-push" && node tests/snapshots.mjs
+
+   AOG=file:///some/other/index.html to point it somewhere else.                */
+import { pathToFileURL } from 'node:url';
+import path from 'node:path';
+import { createRequire } from 'node:module';
+const require_ = createRequire(import.meta.url);
+let pw = null;
+for(const where of ['playwright', 'playwright-core',
+                    '/opt/node-tools/node_modules/playwright/index.js']){
+  try { pw = require_(where); break; } catch(e) {}
+}
+if(!pw){
+  console.error('\nPlaywright is not installed here. From this folder:\n'+
+                '  npm i -D playwright && npx playwright install chromium\n');
+  process.exit(2);
+}
+const { chromium } = pw.default || pw;
+/* an explicit browser if one is named, the cloud one if it is there, else
+   whatever playwright installed for itself */
+const EXE = process.env.CHROME ||
+  (require_('node:fs').existsSync('/opt/pw-browsers/chromium') ? '/opt/pw-browsers/chromium' : undefined);
+const LAUNCH = EXE ? { executablePath: EXE } : {};
 const FILE = process.env.AOG || 'file:///home/claude/work/build/index.html';
-const b = await chromium.launch({ executablePath:'/opt/pw-browsers/chromium' });
+const b = await chromium.launch(LAUNCH);
 let pass=0, fail=0; const errs=[];
 function ck(name, cond, got){ if(cond){pass++; console.log('  ok   '+name);} else {fail++; console.log('  FAIL '+name+'  got: '+JSON.stringify(got));} }
 
