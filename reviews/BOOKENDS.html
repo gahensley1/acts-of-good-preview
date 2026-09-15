@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>The Bookends of a Year</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Montserrat:wght@400;500;600;700&family=Great+Vibes&display=swap">
+<style>
+:root{
+  --paper:#fff;--mist:#F6F4F1;--sunk:#EFECE7;--line:#E4E0DA;--ink:#14110D;--muted:#665F57;
+  --coral:#C03F2B;--art:#EA634F;--coralsoft:#F7E6E1;--gold:#E1BA52;--golddk:#B98C1E;--ok:#2F6B4F;
+  --serif:"Fraunces",Georgia,serif;
+  --sans:"Montserrat",-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+  --r:12px;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#15130F;--mist:#1D1A15;--sunk:#23201A;--line:#332E26;--ink:#F3EFE8;--muted:#A29A8E;
+  --coral:#F08268;--coralsoft:#33211C;--golddk:#E1BA52;--ok:#7FBF9C;}}
+:root[data-theme="dark"]{
+  --paper:#15130F;--mist:#1D1A15;--sunk:#23201A;--line:#332E26;--ink:#F3EFE8;--muted:#A29A8E;
+  --coral:#F08268;--coralsoft:#33211C;--golddk:#E1BA52;--ok:#7FBF9C;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);
+     font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+.wrap{max-width:740px;margin:0 auto;padding-inline:20px;padding-block:36px 96px}
+.eyebrow{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+         color:var(--coral);margin:0 0 14px}
+h1{font-family:var(--serif);font-weight:600;font-size:clamp(28px,7vw,40px);line-height:1.1;
+   letter-spacing:-.015em;margin:0 0 16px;text-wrap:balance}
+.standfirst{font-size:16px;color:var(--muted);margin:0 0 20px;max-width:60ch}
+.standfirst b{color:var(--ink);font-weight:600}
+.flag{border-left:3px solid var(--golddk);background:var(--mist);border-radius:0 12px 12px 0;
+      padding:15px 17px;margin:0 0 36px;font-size:14px;color:var(--muted)}
+.flag b{color:var(--ink)}
+
+.opt{border:1.5px solid var(--line);border-radius:14px;padding:18px 18px 20px;margin:0 0 14px;
+     background:var(--mist);cursor:pointer;transition:border-color .12s,background .12s}
+.opt:hover{border-color:var(--coral)}
+.opt[aria-pressed="true"]{border-color:var(--coral);background:var(--coralsoft)}
+.opt:focus-visible{outline:2px solid var(--coral);outline-offset:2px}
+.opthead{display:flex;align-items:baseline;gap:11px;margin:0 0 4px}
+.ltr{flex:0 0 auto;font-weight:700;font-size:12px;line-height:22px;width:22px;height:22px;
+     text-align:center;border-radius:50%;background:var(--sunk);color:var(--muted)}
+.opt[aria-pressed="true"] .ltr{background:var(--coral);color:var(--paper)}
+.opthead h3{font-family:var(--serif);font-size:19px;font-weight:600;margin:0;line-height:1.25}
+.why{font-size:13.5px;color:var(--muted);margin:0 0 14px;padding-left:33px;max-width:56ch}
+.rec{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.06em;
+     text-transform:uppercase;color:var(--ok);margin-left:6px}
+
+/* the mock screen fragment */
+.mock{background:var(--paper);border:1px solid var(--line);border-radius:12px;
+      padding:16px;margin-left:33px;max-width:340px}
+.lab{font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+     color:var(--muted);margin:0 0 8px}
+.g5{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.t{aspect-ratio:1;border-radius:8px;background:var(--sunk);display:flex;align-items:center;
+   justify-content:center;font-size:11px;color:#8b8279;font-weight:600;position:relative;overflow:hidden}
+.t.done{background:var(--art);color:#fff}
+.t.ghost{background:transparent;border:1.5px dashed var(--line);color:var(--muted)}
+.sash{position:absolute;inset:0}
+.sash svg{width:100%;height:100%;display:block}
+.note{font-size:12px;color:var(--muted);margin:8px 0 0;line-height:1.5}
+.row2{display:flex;align-items:center;gap:12px}
+.row2 .t{width:52px;flex:0 0 52px;aspect-ratio:1}
+.pair{display:flex;gap:10px;align-items:center}
+.pair .t{width:52px;flex:0 0 52px}
+.vs{flex:1 1 auto;border-top:1px dashed var(--line);margin:0 2px}
+.markt{font-family:"Great Vibes",cursive;font-size:22px;color:#fff;line-height:1}
+.cap{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;
+     font-weight:700;margin:6px 0 0}
+
+.answer{position:sticky;bottom:0;margin-top:30px;background:var(--paper);
+        border-top:1px solid var(--line);padding:14px 0 16px}
+.answerbox{border:1.5px solid var(--coral);border-radius:12px;background:var(--mist);padding:12px 14px}
+.answer .lbl{font-size:10.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+             color:var(--muted);margin:0 0 5px}
+#tape{font-size:15px;font-weight:700}
+#tape.empty{font-weight:500;color:var(--muted)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+</head>
+<body>
+<div class="wrap">
+
+<p class="eyebrow">50 Acts of Good · build 5J · act 0 and act 50</p>
+<h1>The bookends of a year</h1>
+<p class="standfirst">
+  Act 0 is separate and at the top, as you ruled. What is still open is <b>what it looks like there,
+  and what act 50 gets</b> — because they are the only two acts in the year that are not
+  interchangeable with any other.
+</p>
+
+<div class="flag">
+  <b>What everyone has already agreed, so none of these break it.</b> Act 0 is an
+  <b>ordinary tile</b> — you ruled that on 31 August ("just make it normal") and a gold outline was
+  rejected because an outline already means <i>planned, not done</i>. The app does not do badges and
+  does not score anybody. Every option below keeps the tile ordinary; what changes is where it sits
+  and whether act 50 gets to stand beside it.
+</div>
+
+<!-- A -->
+<div class="opt" role="button" tabindex="0" aria-pressed="false" data-q="Z" data-l="A">
+  <div class="opthead"><span class="ltr">A</span><h3>Leave it as 5J builds it</h3></div>
+  <p class="why">Its own heading, the tile, and a line underneath. Honest and plain — and it costs
+    about a fifth of the screen before you reach your year.</p>
+  <div class="mock">
+    <p class="lab">The declaration</p>
+    <div class="g5" style="grid-template-columns:repeat(5,1fr)">
+      <div class="t done">0<div class="sash"><svg viewBox="0 0 200 200"><path d="M200 0 200 70 70 200 0 200Z" fill="#fff"/><text x="135" y="62" font-size="26" fill="#EA634F" transform="rotate(-45 135 62)" text-anchor="middle" font-family="Montserrat">3-14-26</text></svg></div></div>
+    </div>
+    <p class="note">The day you said out loud that you were going to do this.</p>
+    <p class="lab" style="margin-top:14px">The 50</p>
+    <div class="g5"><div class="t done">1</div><div class="t done">2</div><div class="t done">3</div><div class="t">4</div><div class="t">5</div></div>
+  </div>
+</div>
+
+<!-- B -->
+<div class="opt" role="button" tabindex="0" aria-pressed="false" data-q="Z" data-l="B">
+  <div class="opthead"><span class="ltr">B</span><h3>One row — the tile and the line side by side</h3></div>
+  <p class="why">The same thing, half the height, no heading. It stops sitting between your count and
+    your year. Nothing about the tile changes.</p>
+  <div class="mock">
+    <div class="row2">
+      <div class="t done">0<div class="sash"><svg viewBox="0 0 200 200"><path d="M200 0 200 70 70 200 0 200Z" fill="#fff"/><text x="135" y="62" font-size="26" fill="#EA634F" transform="rotate(-45 135 62)" text-anchor="middle" font-family="Montserrat">3-14-26</text></svg></div></div>
+      <p class="note" style="margin:0">The day you declared it.</p>
+    </div>
+    <p class="lab" style="margin-top:14px">The 50</p>
+    <div class="g5"><div class="t done">1</div><div class="t done">2</div><div class="t done">3</div><div class="t">4</div><div class="t">5</div></div>
+  </div>
+</div>
+
+<!-- C -->
+<div class="opt" role="button" tabindex="0" aria-pressed="false" data-q="Z" data-l="C">
+  <div class="opthead"><span class="ltr">C</span><h3>Both bookends, and act 50 waits in its place<span class="rec">My recommendation</span></h3></div>
+  <p class="why">Act 0 on the left and act 50 on the right, with a rule between them. Act 50's square
+    sits there empty from day one and fills in on the day you finish — so the row is the shape of the
+    whole year from the very first morning, and the last act has somewhere to arrive rather than
+    being the fiftieth tile in a grid. Act 50 stays in the grid too; this is the same act shown in
+    the one place it means something different.</p>
+  <div class="mock">
+    <p class="lab">Your year, end to end</p>
+    <div class="pair">
+      <div class="t done">0<div class="sash"><svg viewBox="0 0 200 200"><path d="M200 0 200 70 70 200 0 200Z" fill="#fff"/><text x="135" y="62" font-size="26" fill="#EA634F" transform="rotate(-45 135 62)" text-anchor="middle" font-family="Montserrat">3-14-26</text></svg></div></div>
+      <div class="vs"></div>
+      <div class="t ghost">50</div>
+    </div>
+    <p class="note">Declared in March. Fifty is still to come.</p>
+    <p class="cap">and on the day it is finished —</p>
+    <div class="pair" style="margin-top:8px">
+      <div class="t done">0<div class="sash"><svg viewBox="0 0 200 200"><path d="M200 0 200 70 70 200 0 200Z" fill="#fff"/><text x="135" y="62" font-size="26" fill="#EA634F" transform="rotate(-45 135 62)" text-anchor="middle" font-family="Montserrat">3-14-26</text></svg></div></div>
+      <div class="vs"></div>
+      <div class="t done">50<div class="sash"><svg viewBox="0 0 200 200"><path d="M200 0 200 70 70 200 0 200Z" fill="#fff"/><text x="135" y="62" font-size="26" fill="#EA634F" transform="rotate(-45 135 62)" text-anchor="middle" font-family="Montserrat">2-9-27</text></svg></div></div>
+    </div>
+    <p class="note">March to February. Fifty acts of good.</p>
+  </div>
+</div>
+
+<!-- D -->
+<div class="opt" role="button" tabindex="0" aria-pressed="false" data-q="Z" data-l="D">
+  <div class="opthead"><span class="ltr">D</span><h3>C, and the two of them carry the mark instead of a number</h3></div>
+  <p class="why">The balloon, small and white, on act 0 and act 50 only — the two days the card
+    itself is about. <b>This is the one option that makes them different from every other tile</b>,
+    and it is the one both design seats would push back on: the whole strength of the grid is that
+    fifty-one identical squares fill in. I am drawing it because you asked for creative, not because
+    I would take it.</p>
+  <div class="mock">
+    <p class="lab">Your year, end to end</p>
+    <div class="pair">
+      <div class="t done"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round"><path d="M12 8.5c0-2 1.6-3.5 3.3-3.5 1.6 0 2.9 1.3 2.9 3 0 3-3.4 5-6.2 7-2.8-2-6.2-4-6.2-7 0-1.7 1.3-3 2.9-3C10.4 5 12 6.5 12 8.5Z"/><path d="M12 15v5"/></svg></div>
+      <div class="vs"></div>
+      <div class="t ghost">50</div>
+    </div>
+    <p class="note">The first and the last wear the mark. The forty-nine between them are numbers.</p>
+  </div>
+</div>
+
+<div class="answer">
+  <div class="answerbox">
+    <p class="lbl">Your ruling</p>
+    <div id="tape" class="empty">Tap an option and it appears here.</div>
+  </div>
+</div>
+
+</div>
+
+<script>
+(function(){
+  var K='aog-bookends', picks={};
+  try{ picks=JSON.parse(localStorage.getItem(K)||'{}')||{}; }catch(e){ picks={}; }
+  var tape=document.getElementById('tape');
+  var opts=[].slice.call(document.querySelectorAll('.opt'));
+  function paint(){
+    opts.forEach(function(o){
+      o.setAttribute('aria-pressed', picks.Z===o.getAttribute('data-l') ? 'true':'false');
+    });
+    if(picks.Z){ tape.textContent='Z'+picks.Z; tape.classList.remove('empty'); }
+    else { tape.textContent='Tap an option and it appears here.'; tape.classList.add('empty'); }
+    try{ localStorage.setItem(K, JSON.stringify(picks)); }catch(e){}
+  }
+  function pick(o){
+    var l=o.getAttribute('data-l');
+    if(picks.Z===l){ delete picks.Z; } else { picks.Z=l; }
+    paint();
+  }
+  opts.forEach(function(o){
+    o.addEventListener('click', function(){ pick(o); });
+    o.addEventListener('keydown', function(e){
+      if(e.key===' '||e.key==='Enter'){ e.preventDefault(); pick(o); }
+    });
+  });
+  paint();
+})();
+</script>
+
+</body>
+</html>

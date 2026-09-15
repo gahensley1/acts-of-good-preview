@@ -1,0 +1,653 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sixteen Days Without an Act</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Montserrat:wght@400;500;600;700&display=swap">
+<style>
+:root{
+  --paper:#ffffff;
+  --mist:#F6F4F1;
+  --sunk:#EFECE7;
+  --line:#E4E0DA;
+  --ink:#14110D;
+  --muted:#665F57;
+  --coral:#C03F2B;
+  --coralsoft:#F7E6E1;
+  --gold:#B98C1E;
+  --goldsoft:#F8EFD6;
+  --ok:#2F6B4F;
+  --serif:"Fraunces",Georgia,"Times New Roman",serif;
+  --sans:"Montserrat",-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+  --r:12px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#15130F;
+    --mist:#1D1A15;
+    --sunk:#23201A;
+    --line:#332E26;
+    --ink:#F3EFE8;
+    --muted:#A29A8E;
+    --coral:#F08268;
+    --coralsoft:#33211C;
+    --gold:#E1BA52;
+    --goldsoft:#2E2718;
+    --ok:#7FBF9C;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#15130F;
+  --mist:#1D1A15;
+  --sunk:#23201A;
+  --line:#332E26;
+  --ink:#F3EFE8;
+  --muted:#A29A8E;
+  --coral:#F08268;
+  --coralsoft:#33211C;
+  --gold:#E1BA52;
+  --goldsoft:#2E2718;
+  --ok:#7FBF9C;
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:var(--paper);
+  color:var(--ink);
+  font-family:var(--sans);
+  font-size:15px;
+  line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{
+  max-width:720px;
+  margin:0 auto;
+  padding-inline:20px;
+  padding-block:36px 96px;
+}
+
+/* ── masthead ─────────────────────────────────────────── */
+.eyebrow{
+  font-size:11px;
+  font-weight:700;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--coral);
+  margin:0 0 14px;
+}
+h1{
+  font-family:var(--serif);
+  font-weight:600;
+  font-size:clamp(30px,7.5vw,44px);
+  line-height:1.08;
+  letter-spacing:-.015em;
+  margin:0 0 16px;
+  text-wrap:balance;
+}
+.standfirst{
+  font-size:16px;
+  line-height:1.6;
+  color:var(--muted);
+  margin:0 0 26px;
+  max-width:60ch;
+}
+.standfirst strong{color:var(--ink);font-weight:600}
+
+.tally{
+  display:flex;
+  flex-wrap:wrap;
+  gap:1px;
+  background:var(--line);
+  border:1px solid var(--line);
+  border-radius:var(--r);
+  overflow:hidden;
+  margin:0 0 34px;
+}
+.tally div{
+  flex:1 1 150px;
+  background:var(--mist);
+  padding:14px 16px;
+}
+.tally b{
+  display:block;
+  font-family:var(--serif);
+  font-size:26px;
+  font-weight:600;
+  line-height:1;
+  font-variant-numeric:tabular-nums;
+  margin-bottom:5px;
+}
+.tally span{
+  font-size:11.5px;
+  letter-spacing:.06em;
+  text-transform:uppercase;
+  font-weight:600;
+  color:var(--muted);
+}
+
+/* ── how to answer ────────────────────────────────────── */
+.how{
+  border-left:3px solid var(--coral);
+  background:var(--mist);
+  border-radius:0 var(--r) var(--r) 0;
+  padding:16px 18px;
+  margin:0 0 40px;
+}
+.how p{margin:0;font-size:14.5px;color:var(--muted)}
+.how p + p{margin-top:8px}
+.how code{
+  font-family:var(--sans);
+  font-weight:700;
+  color:var(--ink);
+  background:var(--sunk);
+  padding:1px 6px;
+  border-radius:5px;
+}
+
+/* ── the list ─────────────────────────────────────────── */
+.item{
+  display:grid;
+  grid-template-columns:56px 1fr;
+  gap:0 16px;
+  padding:24px 0;
+  border-top:1px solid var(--line);
+}
+.item:last-of-type{border-bottom:1px solid var(--line)}
+
+.rail{
+  text-align:center;
+  padding-top:2px;
+}
+.rail .mon{
+  font-size:11px;
+  font-weight:700;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+  color:var(--coral);
+  display:block;
+}
+.rail .num{
+  font-family:var(--serif);
+  font-size:22px;
+  font-weight:600;
+  font-variant-numeric:tabular-nums;
+  color:var(--muted);
+  display:block;
+  line-height:1.2;
+}
+.rail .when{
+  font-size:10.5px;
+  color:var(--muted);
+  display:block;
+  line-height:1.3;
+  margin-top:3px;
+}
+
+.day{
+  font-family:var(--serif);
+  font-size:21px;
+  font-weight:600;
+  line-height:1.2;
+  margin:0 0 8px;
+  text-wrap:balance;
+}
+.says{
+  font-size:14px;
+  color:var(--muted);
+  margin:0 0 16px;
+  max-width:58ch;
+}
+.says em{font-style:normal;color:var(--ink)}
+
+.flag{
+  display:inline-block;
+  font-size:10.5px;
+  font-weight:700;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  background:var(--goldsoft);
+  color:var(--gold);
+  border-radius:99px;
+  padding:3px 10px;
+  margin:0 0 9px;
+}
+
+.opts{
+  display:flex;
+  flex-direction:column;
+  gap:7px;
+}
+.opt{
+  display:flex;
+  align-items:flex-start;
+  gap:11px;
+  width:100%;
+  text-align:left;
+  font:inherit;
+  color:inherit;
+  background:var(--mist);
+  border:1.5px solid var(--line);
+  border-radius:10px;
+  padding:10px 13px;
+  cursor:pointer;
+  transition:border-color .12s, background .12s;
+}
+.opt:hover{border-color:var(--coral)}
+.opt:focus-visible{outline:2px solid var(--coral);outline-offset:2px}
+.opt[aria-pressed="true"]{
+  background:var(--coralsoft);
+  border-color:var(--coral);
+}
+.opt .ltr{
+  flex:0 0 auto;
+  font-weight:700;
+  font-size:12px;
+  line-height:20px;
+  width:20px;
+  height:20px;
+  text-align:center;
+  border-radius:50%;
+  background:var(--sunk);
+  color:var(--muted);
+  font-variant-numeric:tabular-nums;
+}
+.opt[aria-pressed="true"] .ltr{background:var(--coral);color:var(--paper)}
+.opt .txt{flex:1 1 auto;font-size:14.5px;line-height:1.45}
+.opt .rec{
+  display:block;
+  font-size:11px;
+  font-weight:700;
+  letter-spacing:.06em;
+  text-transform:uppercase;
+  color:var(--ok);
+  margin-top:3px;
+}
+.opt .note{
+  display:block;
+  font-size:12.5px;
+  color:var(--muted);
+  margin-top:3px;
+}
+
+/* ── the answer bar ───────────────────────────────────── */
+.answer{
+  position:sticky;
+  bottom:0;
+  margin-top:32px;
+  background:var(--paper);
+  border-top:1px solid var(--line);
+  padding:14px 0 16px;
+}
+.answerbox{
+  border:1.5px solid var(--coral);
+  border-radius:var(--r);
+  background:var(--mist);
+  padding:12px 14px;
+}
+.answer .lbl{
+  font-size:10.5px;
+  font-weight:700;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+  color:var(--muted);
+  margin:0 0 5px;
+}
+#tape{
+  font-size:15px;
+  font-weight:700;
+  line-height:1.5;
+  word-break:break-word;
+  font-variant-numeric:tabular-nums;
+}
+#tape.empty{font-weight:500;color:var(--muted)}
+.answer .row{display:flex;gap:10px;align-items:center;justify-content:space-between;margin-top:9px}
+#count{font-size:12.5px;color:var(--muted)}
+.clear{
+  font:inherit;
+  font-size:12.5px;
+  font-weight:600;
+  color:var(--coral);
+  background:none;
+  border:none;
+  padding:4px 2px;
+  cursor:pointer;
+  text-decoration:underline;
+}
+.clear:focus-visible{outline:2px solid var(--coral);outline-offset:2px}
+
+.tail{
+  margin-top:40px;
+  padding-top:22px;
+  border-top:1px solid var(--line);
+  font-size:13.5px;
+  color:var(--muted);
+}
+.tail h2{
+  font-family:var(--serif);
+  font-size:17px;
+  font-weight:600;
+  color:var(--ink);
+  margin:0 0 10px;
+}
+.tail p{margin:0 0 10px;max-width:62ch}
+
+@media (max-width:420px){
+  .item{grid-template-columns:44px 1fr;gap:0 12px}
+  .rail .num{font-size:19px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{transition:none!important}
+}
+</style>
+
+</head>
+<body>
+<div class="wrap">
+
+  <p class="eyebrow">50 Acts of Good · for G to rule</p>
+  <h1>Sixteen days the app names but cannot answer</h1>
+  <p class="standfirst">
+    The home card knows twenty‑six occasions. When one is inside three weeks it takes over the card,
+    and where the app is confident it brings an act with it. <strong>Eleven of the twenty‑six find
+    one.</strong> Fifteen name the day and stop — and one has found the wrong act.
+    These are the sixteen. Pick a letter for each.
+  </p>
+
+  <div class="tally">
+    <div><b>26</b><span>Occasions in the app</span></div>
+    <div><b>11</b><span>Already bring an act</span></div>
+    <div><b>16</b><span>Waiting on you</span></div>
+  </div>
+
+  <div class="how">
+    <p>Tap a letter on each one and the line at the foot of the page writes itself — read it back to me as
+      <code>1A 2B 3A…</code></p>
+    <p><strong>“Name the day only”</strong> is what the app does today: it says the day, explains it, and
+      offers nothing. That is a real answer, not a failure — a guessed pairing is worse than none.</p>
+  </div>
+
+  <!-- 1 -->
+  <div class="item" data-q="1">
+    <div class="rail"><span class="mon">Jan</span><span class="num">1</span><span class="when">3rd Mon</span></div>
+    <div>
+      <h2 class="day">Martin Luther King Jr. Day of Service</h2>
+      <p class="says">The app says: <em>the one national holiday that asks for a day on, not a day off. Projects are listed weeks ahead and most still need hands.</em></p>
+      <div class="opts">
+        <button class="opt" aria-pressed="false" data-l="A"><span class="ltr">A</span><span class="txt">Take a shift at a shelter breakfast<span class="rec">My recommendation</span><span class="note">January is the emptiest month in the sector, and this is organised work somebody has already planned.</span></span></button>
+        <button class="opt" aria-pressed="false" data-l="B"><span class="ltr">B</span><span class="txt">Adopt one local cause for the whole stretch<span class="note">Fits “a day on” less well, but it is the act that lasts past the day.</span></span></button>
+        <button class="opt" aria-pressed="false" data-l="C"><span class="ltr">C</span><span class="txt">Name the day only</span></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2 -->
+  <div class="item" data-q="2">
+    <div class="rail"><span class="mon">Feb</span><span class="num">2</span><span class="when">1st</span></div>
+    <div>
+      <h2 class="day">Camp season</h2>
+      <p class="says">The app says: <em>fees and scholarship places are decided between January and March. By June they are allocated — a place funded in February is a summer someone else could not have paid for.</em></p>
+      <div class="opts">
+        <button class="opt" aria-pressed="false" data-l="A"><span class="ltr">A</span><span class="txt">Name the day only<span class="rec">My recommendation</span><span class="note">Nothing in the library funds a camp place. The nudge is good; the act does not exist yet.</span></span></button>
+        <button class="opt" aria-pressed="false" data-l="B"><span class="ltr">B</span><span class="txt">A care package to a child away at camp<span class="note">The only camp act there is — but it belongs in July, not February.</span></span></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3 -->
+  <div class="item" data-q="3">
+    <div class="rail"><span class="mon">Feb</span><span class="num">3</span><span class="when">17th</span></div>
+    <div>
+      <h2 class="day">Random Acts of Kindness Day</h2>
+      <p class="says">The app says: <em>five handwritten notes, a school lunch balance cleared, blankets to an animal shelter. Nothing here needs planning.</em></p>
+      <div class="opts">
+        <button class="opt" aria-pressed="false" data-l="A"><span class="ltr">A</span><span class="txt">Text five people one specific thing you admire<span class="rec">My recommendation</span><span class="note">The day’s own first example, and the one that needs nothing but a phone.</span></span></button>
+        <button class="opt" aria-pressed="false" data-l="B"><span class="ltr">B</span><span class="txt">Pay off a school’s lunch balances<span class="note">The day’s second example. Costs money, which the others do not.</span></span></button>
+        <button class="opt" aria-pressed="false" data-l="C"><span class="ltr">C</span><span class="txt">Name the day only</span></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4 -->
+  <div class="item" data-q="4">
+    <div class="rail"><span class="mon">Mar</span><span class="num">4</span><span class="when">1st</span></div>
+    <div>
+      <h2 class="day">Background checks take weeks</h2>
+      <p class="says">The app says: <em>anything involving children, hospitals or care homes needs clearing first. Apply in March and you can say yes all year.</em></p>
+      <div class="opts">
+        <button class="opt" aria-pressed="false" data-l="A"><span class="ltr">A</span><span class="txt">Adopt a resident who gets no visitors<span class="rec">My recommendation</span><span class="note">A care‑home role, which is exactly what the clearance is for.</span></span></button>
+        <button class="opt" aria-pressed="false" data-l="B"><span class="ltr">B</span><span class="txt">Sign up as a literacy or ESL tutor<span class="note">Also needs clearing — but this one is better used on “New term” below.</span></span></button>
+        <button class="opt" aria-pressed="false" data-l="C"><span class="ltr">C</span><span class="txt">Name the day only<span class="note">It is a logistics warning rather than a day, so naming it may be the whole job.</span></span></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5 -->
+  <div class="item" data-q="5">
+    <div class="rail"><span class="mon">Mar</span><span class="num">5</span><span class="when">2nd</span></div>
+    <div>
+      <span class="flag">The wrong one</span>
+      <h2 class="day">Read Across America Day</h2>
+      <p class="says">The app says: <em>offer an hour of reading aloud to a class, or fill a school library’s wish list of the books children actually ask for.</em> It currently brings <strong>Stock a little library for Black History Month</strong> — right shape, wrong month.</p>
+      <div class="opts">
+        <button class="opt" aria-pressed="false" data-l="A"><span class="ltr">A</span><span class="txt">Stock a Little Free Library that needs it<span class="rec">My recommendation</span><span class="note">The same act with no month attached to it.</span></span></button>
+        <button class="opt" aria-pressed="false" data-l="B"><span class="ltr">B</span><span class="txt">Name the day only</span></button>
+        <button class="opt" aria-pressed="false" data-l="C"><span class="ltr">C</span><span class="txt">Leave it as it is<span class="note">Books are books, and February is close enough to March.</span></span></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6 -->
+  <div class="item" data-q="6">
+    <div class="rail"><span class="mon">Apr</span><span class="num">6</span><span class="when">3rd wk</span></div>
+    <div>
+      <h2 class="day">National Volunteer Week</h2>
+      <p class="says">The app says: <em>if you have been meaning to ask an organization how to help, this is the week they are ready to answer.</em></p>
+      <div class="opts">
+        <button class="opt" aria-pressed="false" data-l="A"><span class="ltr">A</span><span class="txt">A day of your professional skill for a small charity<span class="rec">My recommendation</span><span class="note">The week is about making the approach, and this is the approach worth making.</span></span></button>
+        <button class="opt" aria-pressed="false" data-l="B"><span class="ltr">B</span><span class="txt">Name the day only<span class="note">April is already the most crowded volunteering month of the year. Standing aside is defensible.</span></span></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 7 -->
+  <div class="item" data-q="7">
+    <div class="rail"><span class="mon">Jun</span><span class="num">7</span><span class="when">14th</span></div>
+    <div>
+      <h2 class="day">World Blood Donor Day</h2>
+      <p class="says">The app says: <em>summer is the worst shortage of the year, because the regulars are all on holiday.</em></p>
+      <div class="opts">
+        <button class="opt" aria-pressed="false" data-l="A"><span class="ltr">A</span><span class="txt">Give blood, or platelets<span class="rec">My recommendation</span><span class="note">January already brings this one. Two days six months apart pointing at the same act is honest — and the app never offers an act you have already done.</span></span></button>
+        <button class="opt" aria-pressed="false" data-l="B"><span class="ltr">B</span><span class="txt">Name the day only</span></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 8 -->
+  <div class="item" data-q="8">
+    <div class="rail"><span class="mon">Jun</span><span class="num">8</span><span class="when">19th</span></div>
+    <div>
+      <h2 class="day">Juneteenth</h2>
+      <p class="says">The app says: <em>look for what is already being organized locally and turn up to help with it, rather than starting something of your own.</em></p>
+      <div class="opts">
+        <button class="opt" aria-pressed="false" data-l="A"><span class="ltr">A</span><span class="txt">Name the day only<span class="rec">My recommendation</span><span class="note">The day already carries its own instruction, and it is “go and find what is there”. Naming an act of ours cuts straight across it.</span></span></button>
+        <button class="opt" aria-pressed="false" data-l="B"><span class="ltr">B</span><span class="txt">Adopt one local cause for the whole stretch</span></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 9 -->
+  <div class="item" data-q="9">
+    <div class="rail"><span class="mon">Jul</span><span class="num">9</span><span class="when">1st</span></div>
+    <div>
+      <h2 class="day">The food bank trough</h2>
+      <p class="says">The app says: <em>school holidays are the demand peak and the donation low. July giving is worth more than December giving.</em></p>
+      <div class="opts">
+        <button class="opt" aria-pressed="false" data-l="A"><span class="ltr">A</span><span class="txt">Buy the food bank’s actual top‑needs list<span class="rec">My recommendation</span><span class="note">The one food act that answers a request rather than a guess.</span></span></button>
+        <button class="opt" aria-pressed="false" data-l="B"><span class="ltr">B</span><span class="txt">Work a sorting shift at a food pantry<span class="note">July is when the shifts go unfilled.</span></span></button>
+        <button class="opt" aria-pressed="false" data-l="C"><span class="ltr">C</span><span class="txt">Name the day only</span></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 10 -->
+  <div class="item" data-q="10">
+    <div class="rail"><span class="mon">Sep</span><span class="num">10</span><span class="when">1st</span></div>
+    <div>
+      <h2 class="day">Hunger Action Month</h2>
+      <p class="says">The app says: <em>September, when food banks ask outright. A standing monthly order is worth more to them than a December carload.</em></p>
+      <div class="opts">
+        <button class="opt" aria-pressed="false" data-l="A"><span class="ltr">A</span><span class="txt">A small monthly gift to a food bank<span class="rec">My recommendation</span><span class="note">The day’s own sentence, said as an act.</span></span></button>
+        <button class="opt" aria-pressed="false" data-l="B"><span class="ltr">B</span><span class="txt">Name the day only</span></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 11 -->
+  <div class="item" data-q="11">
+    <div class="rail"><span class="mon">Sep</span><span class="num">11</span><span class="when">1st</span></div>
+    <div>
+      <h2 class="day">New term</h2>
+      <p class="says">The app says: <em>literacy tutor intakes open now, and care homes are matching residents who get no visitors. Both want a term, not a day.</em></p>
+      <div class="opts">
+        <button class="opt" aria-pressed="false" data-l="A"><span class="ltr">A</span><span class="txt">Sign up as a literacy or ESL tutor<span class="rec">My recommendation</span><span class="note">The first of the two the day already names.</span></span></button>
+        <button class="opt" aria-pressed="false" data-l="B"><span class="ltr">B</span><span class="txt">Name the day only<span class="note">It names two acts; picking one quietly demotes the other.</span></span></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 12 -->
+  <div class="item" data-q="12">
+    <div class="rail"><span class="mon">Sep</span><span class="num">12</span><span class="when">11th</span></div>
+    <div>
+      <h2 class="day">9/11 Day of Service</h2>
+      <p class="says">The app says: <em>the largest day of charitable service in the country. Meal‑packing events take anyone, including children.</em></p>
+      <div class="opts">
+        <button class="opt" aria-pressed="false" data-l="A"><span class="ltr">A</span><span class="txt">Work a sorting shift at a food pantry<span class="rec">My recommendation</span><span class="note">The closest thing the library has to meal packing, and it takes a family.</span></span></button>
+        <button class="opt" aria-pressed="false" data-l="B"><span class="ltr">B</span><span class="txt">Name the day only</span></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 13 -->
+  <div class="item" data-q="13">
+    <div class="rail"><span class="mon">Oct</span><span class="num">13</span><span class="when">4th Sat</span></div>
+    <div>
+      <h2 class="day">Make a Difference Day</h2>
+      <p class="says">The app says: <em>built for exactly this: one day, one act, done alongside other people doing the same.</em></p>
+      <div class="opts">
+        <button class="opt" aria-pressed="false" data-l="A"><span class="ltr">A</span><span class="txt">Organize a litter pick with friends or neighbors<span class="rec">My recommendation</span><span class="note">The library’s one act that is explicitly done alongside other people.</span></span></button>
+        <button class="opt" aria-pressed="false" data-l="B"><span class="ltr">B</span><span class="txt">Name the day only</span></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 14 -->
+  <div class="item" data-q="14">
+    <div class="rail"><span class="mon">Nov</span><span class="num">14</span><span class="when">13th</span></div>
+    <div>
+      <h2 class="day">World Kindness Day</h2>
+      <p class="says">The app says: <em>and Veterans Day on the 11th. Recording one veteran’s story costs an afternoon and outlasts everyone in the room.</em></p>
+      <div class="opts">
+        <button class="opt" aria-pressed="false" data-l="A"><span class="ltr">A</span><span class="txt">Record a veteran or an older relative properly<span class="rec">My recommendation</span><span class="note">The day’s own second sentence, word for word.</span></span></button>
+        <button class="opt" aria-pressed="false" data-l="B"><span class="ltr">B</span><span class="txt">Name the day only</span></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 15 -->
+  <div class="item" data-q="15">
+    <div class="rail"><span class="mon">Nov</span><span class="num">15</span><span class="when">after Thx</span></div>
+    <div>
+      <h2 class="day">Giving Tuesday</h2>
+      <p class="says">The app says: <em>give where you already know the people, and say why. A named reason travels further than the money.</em></p>
+      <div class="opts">
+        <button class="opt" aria-pressed="false" data-l="A"><span class="ltr">A</span><span class="txt">Sponsor a friend’s fundraiser, and say why<span class="rec">My recommendation</span><span class="note">“And say why” is in both the day and the act. They were written for each other.</span></span></button>
+        <button class="opt" aria-pressed="false" data-l="B"><span class="ltr">B</span><span class="txt">Make one gift recurring<span class="note">The better advice on the most crowded giving day of the year.</span></span></button>
+        <button class="opt" aria-pressed="false" data-l="C"><span class="ltr">C</span><span class="txt">Name the day only</span></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 16 -->
+  <div class="item" data-q="16">
+    <div class="rail"><span class="mon">Dec</span><span class="num">16</span><span class="when">13th–19th</span></div>
+    <div>
+      <h2 class="day">Wreaths Across America</h2>
+      <p class="says">The app says: <em>an hour in a cold cemetery, laying wreaths and reading names aloud. Sponsorship money has to reach them by the start of December.</em></p>
+      <div class="opts">
+        <button class="opt" aria-pressed="false" data-l="A"><span class="ltr">A</span><span class="txt">Flowers on an unvisited headstone<span class="rec">My recommendation</span><span class="note">The same act at the scale of one person, for anyone with no cemetery taking part nearby.</span></span></button>
+        <button class="opt" aria-pressed="false" data-l="B"><span class="ltr">B</span><span class="txt">A wreath for a widow or widower<span class="note">Shares the word, not the act.</span></span></button>
+        <button class="opt" aria-pressed="false" data-l="C"><span class="ltr">C</span><span class="txt">Name the day only</span></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="answer">
+    <div class="answerbox">
+      <p class="lbl">Your ruling</p>
+      <div id="tape" class="empty">Tap a letter above and it appears here.</div>
+      <div class="row">
+        <span id="count">0 of 16 answered</span>
+        <button class="clear" id="clear" type="button">Start again</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="tail">
+    <h2>What happens to the ones you rule</h2>
+    <p>Right now the app guesses a pairing by counting the words a day and an act have in common,
+      and it refuses to offer anything below a confidence floor. Every day you rule gets its act
+      written down against it instead, so it is named rather than guessed — and the floor stays
+      where it is for everything else.</p>
+    <p>Nothing on this page touches the library. These are pairings between days the app already
+      names and acts already in it.</p>
+  </div>
+
+</div>
+
+<script>
+(function(){
+  var N = 16, K = 'aog-occ-16';
+  var picks = {};
+  try { picks = JSON.parse(localStorage.getItem(K) || '{}') || {}; } catch(e) { picks = {}; }
+
+  var tape = document.getElementById('tape');
+  var count = document.getElementById('count');
+
+  function paint(){
+    document.querySelectorAll('.item').forEach(function(it){
+      var q = it.getAttribute('data-q');
+      it.querySelectorAll('.opt').forEach(function(b){
+        b.setAttribute('aria-pressed', picks[q] === b.getAttribute('data-l') ? 'true' : 'false');
+      });
+    });
+    var out = [];
+    for (var i = 1; i <= N; i++) { if (picks[i]) out.push(i + picks[i]); }
+    if (out.length) { tape.textContent = out.join('  '); tape.classList.remove('empty'); }
+    else { tape.textContent = 'Tap a letter above and it appears here.'; tape.classList.add('empty'); }
+    count.textContent = out.length + ' of ' + N + ' answered';
+    try { localStorage.setItem(K, JSON.stringify(picks)); } catch(e) {}
+  }
+
+  document.querySelectorAll('.opt').forEach(function(b){
+    b.addEventListener('click', function(){
+      var q = b.closest('.item').getAttribute('data-q');
+      var l = b.getAttribute('data-l');
+      if (picks[q] === l) { delete picks[q]; } else { picks[q] = l; }
+      paint();
+    });
+  });
+
+  document.getElementById('clear').addEventListener('click', function(){
+    picks = {};
+    paint();
+  });
+
+  paint();
+})();
+</script>
+
+</body>
+</html>

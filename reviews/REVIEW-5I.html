@@ -1,0 +1,546 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>The Engineers on Build 5I</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Montserrat:wght@400;500;600;700&display=swap">
+<style>
+:root{
+  --paper:#ffffff; --mist:#F6F4F1; --sunk:#EFECE7; --line:#E4E0DA;
+  --ink:#14110D; --muted:#665F57;
+  --coral:#C03F2B; --coralsoft:#F7E6E1;
+  --gold:#B98C1E; --goldsoft:#F8EFD6;
+  --ok:#2F6B4F; --oksoft:#E4F0E9;
+  --serif:"Fraunces",Georgia,"Times New Roman",serif;
+  --sans:"Montserrat",-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+  --r:12px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#15130F; --mist:#1D1A15; --sunk:#23201A; --line:#332E26;
+    --ink:#F3EFE8; --muted:#A29A8E;
+    --coral:#F08268; --coralsoft:#33211C;
+    --gold:#E1BA52; --goldsoft:#2E2718;
+    --ok:#7FBF9C; --oksoft:#1C2A23;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#15130F; --mist:#1D1A15; --sunk:#23201A; --line:#332E26;
+  --ink:#F3EFE8; --muted:#A29A8E;
+  --coral:#F08268; --coralsoft:#33211C;
+  --gold:#E1BA52; --goldsoft:#2E2718;
+  --ok:#7FBF9C; --oksoft:#1C2A23;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);
+     font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+.wrap{max-width:740px;margin:0 auto;padding-inline:20px;padding-block:36px 96px}
+
+.eyebrow{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+         color:var(--coral);margin:0 0 14px}
+h1{font-family:var(--serif);font-weight:600;font-size:clamp(30px,7.5vw,44px);
+   line-height:1.08;letter-spacing:-.015em;margin:0 0 16px;text-wrap:balance}
+.standfirst{font-size:16px;line-height:1.6;color:var(--muted);margin:0 0 28px;max-width:60ch}
+.standfirst strong{color:var(--ink);font-weight:600}
+
+.done{border-left:3px solid var(--ok);background:var(--oksoft);border-radius:0 var(--r) var(--r) 0;
+      padding:18px 20px;margin:0 0 16px}
+.done h2{font-family:var(--serif);font-size:19px;font-weight:600;margin:0 0 10px}
+.done ul{margin:0;padding-left:20px}
+.done li{margin-bottom:7px;font-size:14.5px}
+.done li b{font-weight:600}
+.done p.sig{margin:12px 0 0;font-size:13px;color:var(--muted)}
+
+.how{border-left:3px solid var(--coral);background:var(--mist);
+     border-radius:0 var(--r) var(--r) 0;padding:16px 18px;margin:0 0 40px}
+.how p{margin:0;font-size:14.5px;color:var(--muted)}
+.how p+p{margin-top:8px}
+.how code{font-family:var(--sans);font-weight:700;color:var(--ink);background:var(--sunk);
+          padding:1px 6px;border-radius:5px}
+
+h2.sec{font-family:var(--serif);font-size:26px;font-weight:600;margin:48px 0 6px;
+       padding-top:26px;border-top:2px solid var(--ink);letter-spacing:-.01em}
+p.secsub{margin:0 0 8px;font-size:14px;color:var(--muted);max-width:58ch}
+
+.item{display:grid;grid-template-columns:52px 1fr;gap:0 14px;padding:22px 0;
+      border-top:1px solid var(--line)}
+.rail{padding-top:3px}
+.tag{display:block;font-family:var(--serif);font-size:20px;font-weight:600;
+     color:var(--coral);font-variant-numeric:tabular-nums;line-height:1.1}
+.conf{display:block;font-size:9.5px;font-weight:700;letter-spacing:.06em;
+      text-transform:uppercase;color:var(--muted);margin-top:4px;line-height:1.25}
+.day{font-family:var(--serif);font-size:20px;font-weight:600;line-height:1.25;
+     margin:0 0 8px;text-wrap:balance}
+.says{font-size:14px;color:var(--muted);margin:0 0 14px;max-width:58ch}
+.says strong{color:var(--ink);font-weight:600}
+.both{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.07em;
+      text-transform:uppercase;background:var(--goldsoft);color:var(--gold);
+      border-radius:99px;padding:3px 10px;margin:0 0 9px}
+
+.opts{display:flex;flex-direction:column;gap:7px}
+.opt{display:flex;align-items:flex-start;gap:11px;width:100%;text-align:left;font:inherit;
+     color:inherit;background:var(--mist);border:1.5px solid var(--line);border-radius:10px;
+     padding:10px 13px;cursor:pointer;transition:border-color .12s,background .12s}
+.opt:hover{border-color:var(--coral)}
+.opt:focus-visible{outline:2px solid var(--coral);outline-offset:2px}
+.opt[aria-pressed="true"]{background:var(--coralsoft);border-color:var(--coral)}
+.opt .ltr{flex:0 0 auto;font-weight:700;font-size:12px;line-height:20px;width:20px;height:20px;
+          text-align:center;border-radius:50%;background:var(--sunk);color:var(--muted)}
+.opt[aria-pressed="true"] .ltr{background:var(--coral);color:var(--paper)}
+.opt .txt{flex:1 1 auto;font-size:14.5px;line-height:1.45}
+.opt .rec{display:block;font-size:11px;font-weight:700;letter-spacing:.06em;
+          text-transform:uppercase;color:var(--ok);margin-top:3px}
+.opt .note{display:block;font-size:12.5px;color:var(--muted);margin-top:3px}
+
+.answer{position:sticky;bottom:0;margin-top:32px;background:var(--paper);
+        border-top:1px solid var(--line);padding:14px 0 16px}
+.answerbox{border:1.5px solid var(--coral);border-radius:var(--r);background:var(--mist);
+           padding:12px 14px}
+.answer .lbl{font-size:10.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+             color:var(--muted);margin:0 0 5px}
+#tape{font-size:15px;font-weight:700;line-height:1.5;word-break:break-word}
+#tape.empty{font-weight:500;color:var(--muted)}
+.answer .row{display:flex;gap:10px;align-items:center;justify-content:space-between;margin-top:9px}
+#count{font-size:12.5px;color:var(--muted)}
+.clear{font:inherit;font-size:12.5px;font-weight:600;color:var(--coral);background:none;
+       border:none;padding:4px 2px;cursor:pointer;text-decoration:underline}
+.clear:focus-visible{outline:2px solid var(--coral);outline-offset:2px}
+
+.keep{background:var(--mist);border-radius:var(--r);padding:20px 22px;margin:34px 0 0}
+.keep h3{font-family:var(--serif);font-size:20px;font-weight:600;margin:0 0 12px}
+.keep ul{margin:0;padding-left:20px}
+.keep li{margin-bottom:9px;font-size:14.5px;max-width:58ch}
+.keep li b{font-weight:600}
+
+.tail{margin-top:44px;padding-top:24px;border-top:1px solid var(--line);
+      font-size:13.5px;color:var(--muted)}
+.tail h3{font-family:var(--serif);font-size:18px;font-weight:600;color:var(--ink);margin:0 0 10px}
+.tail p{margin:0 0 11px;max-width:62ch}
+
+@media (max-width:420px){ .item{grid-template-columns:44px 1fr;gap:0 11px} .tag{font-size:18px} }
+@media (prefers-reduced-motion:reduce){ *{transition:none!important} }
+</style>
+
+</head>
+<body>
+<div class="wrap">
+
+<p class="eyebrow">50 Acts of Good · the engineers · 14 September 2026</p>
+<h1>What three seats found, and what needs your letter</h1>
+<p class="standfirst">
+  The code seat read the parts of the app nobody had ever reviewed. Two design seats looked at the
+  build as pictures. <strong>The code seat found something live in 5H that loses a year</strong> —
+  that is already fixed and is not on this page as a question. Everything below is what is left,
+  ranked, with a recommendation on each.
+</p>
+
+<div class="done">
+  <h2>Already built and tested — build 5I, no ruling needed</h2>
+  <ul>
+    <li><b>Starting a new year is no longer undone.</b> You finished a year, started a new one, closed the app — and the old year came back. Every time, for ever. It is the worst thing this app could do and it was live.</li>
+    <li><b>Deleting your last act is no longer undone</b> — under a warning that said it could not be undone.</li>
+    <li><b>The rescue no longer deletes every photograph.</b> When the app struggled to read a journal it saved the words, deleted all the pictures, and then told the person to back up.</li>
+    <li><b>A repair no longer takes photographs with it.</b></li>
+    <li><b>Restoring a backup clears the old spare copies</b>, so the thing you just replaced cannot come back over it.</li>
+    <li><b>The saved file now records how many acts it should hold</b>, so the app can tell "something ate this" from "the person emptied it" instead of guessing. Guessing was the cause of all of the above.</li>
+    <li><b>The test battery now lives in the repo.</b> It never did — it lived in a cloud workspace and vanished with every session, so "181 checks pass" was a sentence nobody could re-run. 35 checks, in your folders, runnable for ever.</li>
+  </ul>
+  <p class="sig">35 checks pass, no errors. On both folders, read back and checksummed. The push command is at the foot of this page.</p>
+</div>
+
+<div class="how">
+  <p>Tap a letter on anything below and the line at the foot writes itself. Read it back as <code>C2A S3B K3B</code>.</p>
+  <p>Nothing here is built. <strong>C</strong> is the code seat, <strong>S</strong> is the screens, <strong>K</strong> is the card.</p>
+</div>
+
+<h2 class="sec">C — The code seat</h2>
+<p class="secsub">Based on SQLite and Obsidian. It read the persistence, the card drawing and the plan code — and named what it did not read, which is most of the sign-up sheet and almost all the styling.</p>
+
+<div class="item" data-q="C1">
+  <div class="rail"><span class="tag">C1</span><span class="conf">Confirmed</span></div>
+  <div>
+    <h3 class="day">Reminders do not exist, and they are inside the code you told me to cut</h3>
+    <p class="says">The "remind me that morning / the day before" choices are only reachable through a screen nothing opens any more. Inviting <em>someone else</em> with a calendar invite still works — different path, alive. But a person cannot remind themselves of anything. <strong>I need this before I can cut.</strong></p>
+    <div class="opts">
+      <button class="opt" aria-pressed="false" data-l="A"><span class="ltr">A</span><span class="txt">Lift the reminder machinery out first and give it a door in the act editor<span class="note">A date already lives there. It would work on the web version today.</span></span></button>
+      <button class="opt" aria-pressed="false" data-l="B"><span class="ltr">B</span><span class="txt">Cut it with the rest and write down that reminders wait for the store build<span class="rec">My recommendation</span><span class="note">The store version schedules them on the phone itself — no server, nothing sent. That is the whole reason the store build is worth doing. Keeping a half-built web version gives us two to maintain.</span></span></button>
+    </div>
+  </div>
+</div>
+
+<div class="item" data-q="C2">
+  <div class="rail"><span class="tag">C2</span><span class="conf">Confirmed</span></div>
+  <div>
+    <h3 class="day">The backup file does not say which version made it — and this is only cheap today</h3>
+    <p class="says">Every backup has claimed "version 1" since the beginning, through several changes to what a backup holds. Today that is fine, because there is one version. <strong>The day the app is in two stores with people on different versions, someone makes a backup on the new one, restores it onto an older phone, and everything the new version added is deleted without a word.</strong> Backups are the only lifeboat. This can be fixed now for almost nothing and <em>cannot be fixed later</em>, because the old builds will already be on people's phones.</p>
+    <div class="opts">
+      <button class="opt" aria-pressed="false" data-l="A"><span class="ltr">A</span><span class="txt">Do it now, before the first store build<span class="rec">My recommendation</span><span class="note">An older app meets a newer backup and says so kindly: "This was made by a newer version. Update, then bring it back."</span></span></button>
+      <button class="opt" aria-pressed="false" data-l="B"><span class="ltr">B</span><span class="txt">Go further: an older app keeps what it does not understand and hands it back untouched<span class="note">Better for the person, more work.</span></span></button>
+      <button class="opt" aria-pressed="false" data-l="C"><span class="ltr">C</span><span class="txt">Leave it and accept the loss</span></button>
+    </div>
+  </div>
+</div>
+
+<div class="item" data-q="C3">
+  <div class="rail"><span class="tag">C3</span><span class="conf">Confirmed</span></div>
+  <div>
+    <h3 class="day">"Save for later" puts an idea in a square you cannot open</h3>
+    <p class="says">On Ideas, Save for later puts the idea into a numbered square on the grid. Tapping that square does not open it — it starts a blank act. Close the app and reopen it and the whole thing sorts itself out and the idea appears properly on the shelf. So a saved idea lives in a different place depending on whether you have restarted. It is also the one thing that can still put an unfinished ghost into the grid you ruled was the finished year.</p>
+    <div class="opts">
+      <button class="opt" aria-pressed="false" data-l="A"><span class="ltr">A</span><span class="txt">Save for later puts it straight on the shelf, which is where it ends up anyway<span class="rec">My recommendation</span><span class="note">Removes the ghost and the dead end at once — and it is a prerequisite for cutting the dead code.</span></span></button>
+      <button class="opt" aria-pressed="false" data-l="B"><span class="ltr">B</span><span class="txt">Keep the square and restore a way to open it<span class="note">This re-opens the code you asked me to remove.</span></span></button>
+    </div>
+  </div>
+</div>
+
+<div class="item" data-q="C4">
+  <div class="rail"><span class="tag">C4</span><span class="conf">Confirmed</span></div>
+  <div>
+    <h3 class="day">The app never says when it has put an older copy back</h3>
+    <p class="says">It already knows — it makes a note to itself and then never reads it. Silence is right for a repair that worked perfectly. It is wrong for one that has moved someone's journal backwards by minutes or a session, because then the person's own memory is the only evidence anything happened.</p>
+    <div class="opts">
+      <button class="opt" aria-pressed="false" data-l="A"><span class="ltr">A</span><span class="txt">One quiet line, once: "Some of what you wrote most recently could not be read, so this is the last good copy. Check your latest act."</span></button>
+      <button class="opt" aria-pressed="false" data-l="B"><span class="ltr">B</span><span class="txt">That line, plus a one-tap offer to save a copy<span class="rec">My recommendation</span><span class="note">The moment a person most needs a backup is the moment the app has just proved it can lose something.</span></span></button>
+      <button class="opt" aria-pressed="false" data-l="C"><span class="ltr">C</span><span class="txt">Say nothing</span></button>
+    </div>
+  </div>
+</div>
+
+<div class="item" data-q="C5">
+  <div class="rail"><span class="tag">C5</span><span class="conf">Confirmed</span></div>
+  <div>
+    <h3 class="day">The three spare copies collapse into one for a person who dips in and out</h3>
+    <p class="says">A new spare copy is taken every time the app opens. Somebody who opens it, logs one act and closes it takes a fresh one every visit — so after three visits all three copies are of the same few minutes. "Three deep" implies you can reach back. The person who would benefit most gets the least.</p>
+    <div class="opts">
+      <button class="opt" aria-pressed="false" data-l="A"><span class="ltr">A</span><span class="txt">Keep one deliberately old copy, replaced once a day, alongside the two rolling ones<span class="rec">My recommendation</span><span class="note">Smallest change that makes the claim true — you can always reach back to yesterday.</span></span></button>
+      <button class="opt" aria-pressed="false" data-l="B"><span class="ltr">B</span><span class="txt">Space all three by real time rather than by openings</span></button>
+      <button class="opt" aria-pressed="false" data-l="C"><span class="ltr">C</span><span class="txt">Leave it</span></button>
+    </div>
+  </div>
+</div>
+
+<div class="item" data-q="C6">
+  <div class="rail"><span class="tag">C6</span><span class="conf">Confirmed</span></div>
+  <div>
+    <h3 class="day">Two decorative script fonts are built into the app and nothing uses them</h3>
+    <p class="says">About 55KB of dead weight, and two more other-people's licences riding along for no benefit. Given your ruling that there are no new script faces, they are also a loaded gun — the rule is currently enforced only by nobody having typed their names.</p>
+    <div class="opts">
+      <button class="opt" aria-pressed="false" data-l="A"><span class="ltr">A</span><span class="txt">Take them out<span class="rec">My recommendation</span></span></button>
+      <button class="opt" aria-pressed="false" data-l="B"><span class="ltr">B</span><span class="txt">Leave them in case they are wanted later</span></button>
+    </div>
+  </div>
+</div>
+
+<div class="item" data-q="C7">
+  <div class="rail"><span class="tag">C7</span><span class="conf">Confirmed</span></div>
+  <div>
+    <h3 class="day">No licence notices ship with the app</h3>
+    <p class="says">The barcode-drawing code and all four typefaces are other people's work under licences that require their notice to travel with the software. There is a one-line credit for the barcode code and nothing else. This is store paperwork, not engineering, and it is the kind of thing that is trivial now and awkward at submission.</p>
+    <div class="opts">
+      <button class="opt" aria-pressed="false" data-l="A"><span class="ltr">A</span><span class="txt">Add a credits page with the notices before the store build<span class="rec">My recommendation</span></span></button>
+      <button class="opt" aria-pressed="false" data-l="B"><span class="ltr">B</span><span class="txt">Leave it to the store submission</span></button>
+    </div>
+  </div>
+</div>
+
+<h2 class="sec">S — The screens</h2>
+<p class="secsub">Seat 9, based on Work &amp; Co, MetaLab, Ramotion and Clay. Its verdict: the build is good, and the journal is the best-made screen in it. Its one structural note is that three screens each repeat one loud element until it stops meaning anything.</p>
+
+<div class="item" data-q="S1">
+  <div class="rail"><span class="tag">S1</span><span class="conf">Confirmed</span></div>
+  <div>
+    <span class="both">Both design seats found this independently</span>
+    <h3 class="day">The picture you post is smaller than the one you drew</h3>
+    <p class="says">On the card screen the artwork fills the square. The file that lands on Instagram has a white border all the way round and the artwork sits smaller inside it — about four-fifths strength. It was done deliberately, to stop the card being cropped in a story, and for stories it works. <strong>But a square posted to the feed is never cropped</strong>, so every feed post is paying for a crop that is not happening, next to photographs that are not paying it.</p>
+    <div class="opts">
+      <button class="opt" aria-pressed="false" data-l="A"><span class="ltr">A</span><span class="txt">Leave it. One card, safe everywhere, quieter in the feed.</span></button>
+      <button class="opt" aria-pressed="false" data-l="B"><span class="ltr">B</span><span class="txt">Make the card fill more of the square and accept a story trimming the edge</span></button>
+      <button class="opt" aria-pressed="false" data-l="C"><span class="ltr">C</span><span class="txt">Two versions — full strength for the feed, the protected one for stories<span class="rec">My recommendation</span><span class="note">It is one number in the file. Costs almost nothing and gives up nothing.</span></span></button>
+    </div>
+  </div>
+</div>
+
+<div class="item" data-q="S2">
+  <div class="rail"><span class="tag">S2</span><span class="conf">Confirmed</span></div>
+  <div>
+    <h3 class="day">What you approve is not what you post</h3>
+    <p class="says">Separate from S1 and true whichever way you rule it. The preview on the card screen and the file that gets made are drawn by two different parts of the app, and they disagree about how much air is around the artwork. The preview flatters it.</p>
+    <div class="opts">
+      <button class="opt" aria-pressed="false" data-l="A"><span class="ltr">A</span><span class="txt">Make the preview show exactly what gets posted, whatever S1 turns out to be<span class="rec">My recommendation</span></span></button>
+      <button class="opt" aria-pressed="false" data-l="B"><span class="ltr">B</span><span class="txt">Leave the preview generous and say so in a line</span></button>
+      <button class="opt" aria-pressed="false" data-l="C"><span class="ltr">C</span><span class="txt">Leave both</span></button>
+    </div>
+  </div>
+</div>
+
+<div class="item" data-q="S3">
+  <div class="rail"><span class="tag">S3</span><span class="conf">Confirmed</span></div>
+  <div>
+    <h3 class="day">The fifty grid reads like warning tape</h3>
+    <p class="says">Eleven finished squares, each with a white diagonal stripe and a date, all touching. One stripe is lovely. Eleven line up into a single repeating diagonal and the top of your year reads as hazard stripes rather than eleven good things. <strong>You ruled on 8 September that every stripe stays and I am not asking you to undo that</strong> — every date should stay. The only question is how loudly each is said.</p>
+    <div class="opts">
+      <button class="opt" aria-pressed="false" data-l="A"><span class="ltr">A</span><span class="txt">Leave every stripe as it is</span></button>
+      <button class="opt" aria-pressed="false" data-l="B"><span class="ltr">B</span><span class="txt">Keep every stripe and date, but let the newest one sing and the rest sit back<span class="rec">My recommendation</span><span class="note">Nothing is removed. The newest act is the one the eye should find anyway.</span></span></button>
+      <button class="opt" aria-pressed="false" data-l="C"><span class="ltr">C</span><span class="txt">Keep every date but take it off the diagonal, so a block no longer lines up into a pattern</span></button>
+    </div>
+  </div>
+</div>
+
+<div class="item" data-q="S4">
+  <div class="rail"><span class="tag">S4</span><span class="conf">Confirmed</span></div>
+  <div>
+    <h3 class="day">There are two reds and they sit next to each other</h3>
+    <p class="says">On the card screen "act 11 of 50" is the artwork's warm coral and the button below it is a deeper brick red. On Your year the thin progress line is the warm coral and the finished squares under it are the deeper red. The reason is sound — white words on the warm coral are hard to read, so a darker one was made for anything carrying words. But the finished squares do not carry words on the red and were changed anyway.</p>
+    <div class="opts">
+      <button class="opt" aria-pressed="false" data-l="A"><span class="ltr">A</span><span class="txt">Leave it</span></button>
+      <button class="opt" aria-pressed="false" data-l="B"><span class="ltr">B</span><span class="txt">Put the finished squares back to the artwork coral, so the grid, the progress line and the card are one colour<span class="rec">My recommendation</span><span class="note">The deeper red then means "button", which is a job worth having.</span></span></button>
+      <button class="opt" aria-pressed="false" data-l="C"><span class="ltr">C</span><span class="txt">The other way — make the progress line the deeper red too, and the warm coral belongs to the artwork alone</span></button>
+    </div>
+  </div>
+</div>
+
+<div class="item" data-q="S5">
+  <div class="rail"><span class="tag">S5</span><span class="conf">Confirmed</span></div>
+  <div>
+    <h3 class="day">The ideas page is a wall of red buttons</h3>
+    <p class="says">Around forty cards and every one has the same filled red "Start it now". A page where everything shouts is a page where nothing does. <strong>This is not about removing the second button</strong> — that was your 13 September fix and it was right. It is only about weight.</p>
+    <div class="opts">
+      <button class="opt" aria-pressed="false" data-l="A"><span class="ltr">A</span><span class="txt">Leave it</span></button>
+      <button class="opt" aria-pressed="false" data-l="B"><span class="ltr">B</span><span class="txt">Both buttons as outlines, so the page reads as a library<span class="rec">My recommendation</span></span></button>
+      <button class="opt" aria-pressed="false" data-l="C"><span class="ltr">C</span><span class="txt">Keep the filled red but make Save for later a small mark instead of a button</span></button>
+    </div>
+  </div>
+</div>
+
+<div class="item" data-q="S6">
+  <div class="rail"><span class="tag">S6</span><span class="conf">Confirmed</span></div>
+  <div>
+    <h3 class="day">In the journal, the loudest thing on every page is the least important action</h3>
+    <p class="says">Every page carries the same dashed box with an envelope in it, and dashed boxes read as "something is missing here". Scrolling the journal, that box is what you see eleven times — while "Write it up", the thing you actually want people doing, is a small underlined line above it.</p>
+    <div class="opts">
+      <button class="opt" aria-pressed="false" data-l="A"><span class="ltr">A</span><span class="txt">Leave it</span></button>
+      <button class="opt" aria-pressed="false" data-l="B"><span class="ltr">B</span><span class="txt">Make the envelope a quiet line like "Write it up", so the page is two calm options<span class="rec">My recommendation</span></span></button>
+      <button class="opt" aria-pressed="false" data-l="C"><span class="ltr">C</span><span class="txt">Keep the box but show it only on an opened page</span></button>
+    </div>
+  </div>
+</div>
+
+<div class="item" data-q="S7">
+  <div class="rail"><span class="tag">S7</span><span class="conf">Confirmed</span></div>
+  <div>
+    <h3 class="day">Dates are written five different ways</h3>
+    <p class="says">A finished square says <em>3-14-26</em>, the line under it says <em>5 Sep</em>, the journal says <em>March 21, 2026</em>, a message says <em>Monday 21 March 2026</em>, a date button says <em>20 Sep '26</em>. Two put the month first, three put the day first. Nobody will name it, but it is part of why the app feels slightly less made than the card does.</p>
+    <div class="opts">
+      <button class="opt" aria-pressed="false" data-l="A"><span class="ltr">A</span><span class="txt">Leave it</span></button>
+      <button class="opt" aria-pressed="false" data-l="B"><span class="ltr">B</span><span class="txt">One everyday format everywhere, except the journal, which keeps its handwritten style<span class="rec">My recommendation</span><span class="note">The journal's script date is the one place a date should look written by hand.</span></span></button>
+      <button class="opt" aria-pressed="false" data-l="C"><span class="ltr">C</span><span class="txt">One format everywhere including the journal</span></button>
+    </div>
+  </div>
+</div>
+
+<div class="item" data-q="S8">
+  <div class="rail"><span class="tag">S8</span><span class="conf">Confirmed</span></div>
+  <div>
+    <h3 class="day">The grid ends with one square alone on the last row</h3>
+    <p class="says">Because the declaring act sits first, the fifty that follow are pushed along by one and number 50 ends up on its own with four empty spaces beside it. It reads as a mistake rather than as an ending.</p>
+    <div class="opts">
+      <button class="opt" aria-pressed="false" data-l="A"><span class="ltr">A</span><span class="txt">Leave it</span></button>
+      <button class="opt" aria-pressed="false" data-l="B"><span class="ltr">B</span><span class="txt">Take the declaring act out of the grid and give it its own place, so the fifty are ten clean rows</span></button>
+      <button class="opt" aria-pressed="false" data-l="C"><span class="ltr">C</span><span class="txt">Keep it in the grid but make it look different, so the last row reads as deliberate<span class="note">You ruled on 31 August: "just make it normal." This would reverse that, which is why it is not my recommendation.</span></span></button>
+    </div>
+  </div>
+</div>
+
+<div class="item" data-q="S9">
+  <div class="rail"><span class="tag">S9</span><span class="conf">Confirmed</span></div>
+  <div>
+    <h3 class="day">The backup offer lands on top of the grid</h3>
+    <p class="says">The black bar sits across a row of finished squares for nine seconds, once. Not permanent damage, but it covers the thing the person came to look at, at the moment they are looking. And nothing stops the little black "pick a day" label being on screen at the same time, so two black things can appear together.</p>
+    <div class="opts">
+      <button class="opt" aria-pressed="false" data-l="A"><span class="ltr">A</span><span class="txt">Leave it</span></button>
+      <button class="opt" aria-pressed="false" data-l="B"><span class="ltr">B</span><span class="txt">Hold the backup offer until the person has finished looking, and never let two black bars share the screen<span class="rec">My recommendation</span></span></button>
+    </div>
+  </div>
+</div>
+
+<div class="item" data-q="S10">
+  <div class="rail"><span class="tag">S10</span><span class="conf">Confirmed</span></div>
+  <div>
+    <h3 class="day">People, with nobody in it, is the emptiest screen in the app</h3>
+    <p class="says">Two grey paragraphs and one outline button on plain white, then a large area of nothing. Every other screen has a ground, a warmth, a card. This one has none, and a new person lands on it early.</p>
+    <div class="opts">
+      <button class="opt" aria-pressed="false" data-l="A"><span class="ltr">A</span><span class="txt">Leave it</span></button>
+      <button class="opt" aria-pressed="false" data-l="B"><span class="ltr">B</span><span class="txt">Give it the journal's warm ground so it feels like part of the same object<span class="rec">My recommendation</span></span></button>
+      <button class="opt" aria-pressed="false" data-l="C"><span class="ltr">C</span><span class="txt">Keep the design and cut the second paragraph — it says the same as the first</span></button>
+    </div>
+  </div>
+</div>
+
+<h2 class="sec">K — The card</h2>
+<p class="secsub">Seat 12, the still image. Its verdict: the lockup is good and the white ground is a real advantage in a feed of photographs — but as a <em>series</em> it does not survive fifty postings, because the only thing that changes is a small count, and a count is not a fact about a day.</p>
+
+<div class="item" data-q="K1">
+  <div class="rail"><span class="tag">K1</span><span class="conf">Confirmed</span></div>
+  <div>
+    <h3 class="day">The card hangs on two different centres</h3>
+    <p class="says">Draw a line down through the middle of "50", "acts of good" and "fifty-three" — they all sit on one axis. "act 11 of 50" does not. It sits about a tenth of the card's width to the right of it, on the centre of the whole square, and the thin rule does the same. The top half hangs off the words; the bottom half hangs off the square. Small on one card, recurring across fifty.</p>
+    <div class="opts">
+      <button class="opt" aria-pressed="false" data-l="A"><span class="ltr">A</span><span class="txt">Leave it — the foot is centred on the whole picture including the balloon, which is defensible</span></button>
+      <button class="opt" aria-pressed="false" data-l="B"><span class="ltr">B</span><span class="txt">Slide the rule and the act line left until the whole card hangs on one line<span class="rec">My recommendation</span><span class="note">Nothing inside the lockup moves. This is the smallest change on the page.</span></span></button>
+      <button class="opt" aria-pressed="false" data-l="C"><span class="ltr">C</span><span class="txt">Leave the act line and make the rule measure something — from under the widest word to under the balloon's edge</span></button>
+    </div>
+  </div>
+</div>
+
+<div class="item" data-q="K2">
+  <div class="rail"><span class="tag">K2</span><span class="conf">Confirmed on what changes</span></div>
+  <div>
+    <h3 class="day">Fifty of these are fifty of the same picture</h3>
+    <p class="says">The same audience sees this square fifty times and the only difference is one small coral number. A stranger scrolling cannot tell act 3 from act 41. <strong>A count is an index — it says where we are in a list, not what happened.</strong> The card already knows one other thing that is true, specific, and different every single time, and it needs no new element and no new colour: the date.</p>
+    <div class="opts">
+      <button class="opt" aria-pressed="false" data-l="A"><span class="ltr">A</span><span class="txt">Leave it. The count is the series and the caption carries the rest.</span></button>
+      <button class="opt" aria-pressed="false" data-l="B"><span class="ltr">B</span><span class="txt">Put the date beside the count in the same coral, smaller<span class="rec">My recommendation</span><span class="note">Fifty cards become a record of a year rather than fifty copies of a counter — and it reuses the dated band already on your grid.</span></span></button>
+      <button class="opt" aria-pressed="false" data-l="C"><span class="ltr">C</span><span class="txt">Let the rule fill with coral in proportion to how far through the fifty you are<span class="note">Flagging honestly: that is a progress bar on the card, which brushes against your no-score ruling. Your call, not mine.</span></span></button>
+    </div>
+  </div>
+</div>
+
+<div class="item" data-q="K3">
+  <div class="rail"><span class="tag">K3</span><span class="conf">Confirmed</span></div>
+  <div>
+    <h3 class="day">The person's own photograph is hidden behind the card</h3>
+    <p class="says">When an act has photographs, the card always goes out first and the photographs are the slides after it. In a feed the first slide is the only one most people ever see — so the one picture that is genuinely different every time never gets seen, and the identical card is what does.</p>
+    <div class="opts">
+      <button class="opt" aria-pressed="false" data-l="A"><span class="ltr">A</span><span class="txt">Leave it. The card is the thing and it must lead.</span></button>
+      <button class="opt" aria-pressed="false" data-l="B"><span class="ltr">B</span><span class="txt">Let the person choose, per act, which goes first<span class="rec">My recommendation</span><span class="note">It is their post. Some acts have a photograph worth leading with and some have nothing.</span></span></button>
+      <button class="opt" aria-pressed="false" data-l="C"><span class="ltr">C</span><span class="txt">Card first on the declaration and the closing card, photograph first on an ordinary act</span></button>
+    </div>
+  </div>
+</div>
+
+<div class="item" data-q="K4">
+  <div class="rail"><span class="tag">K4</span><span class="conf">Confirmed</span></div>
+  <div>
+    <h3 class="day">The card sits high, and the declaration card has a third of its face empty</h3>
+    <p class="says">There is noticeably more white below the act line than above the balloon — the composition is pushed up against the top of the square and the bottom looks like a shelf nobody put anything on. It is worst on the declaration card, which carries no rule and no act line at all, and which is the card most likely to be shared widest.</p>
+    <div class="opts">
+      <button class="opt" aria-pressed="false" data-l="A"><span class="ltr">A</span><span class="txt">Leave both. Nothing has happened yet and the emptiness says so.</span></button>
+      <button class="opt" aria-pressed="false" data-l="B"><span class="ltr">B</span><span class="txt">Move the rule and act line down so the blank below matches the blank above, and give the declaration card the rule with nothing under it<span class="rec">My recommendation</span><span class="note">A ruled-off empty shelf reads as "about to begin". An unruled empty third reads as unfinished.</span></span></button>
+      <button class="opt" aria-pressed="false" data-l="C"><span class="ltr">C</span><span class="txt">Give the declaration card the date the year starts, exactly where the act number sits on every other card</span></button>
+    </div>
+  </div>
+</div>
+
+<div class="item" data-q="K5">
+  <div class="rail"><span class="tag">K5</span><span class="conf">Confirmed</span></div>
+  <div>
+    <h3 class="day">The book and the card are strangers</h3>
+    <p class="says">The book is already a good object — cream paper, a fine ruled plate, a coral act line, a short gold rule, the date in the script face. But it shares almost nothing with the card: the card is white, the book is cream; the card's rule is long and black, the book's short and gold. <strong>And the balloon, hand and heart — the one thing anybody would recognise — appear nowhere in the book at all, not even on the title page.</strong></p>
+    <div class="opts">
+      <button class="opt" aria-pressed="false" data-l="A"><span class="ltr">A</span><span class="txt">Leave them as two objects. One is public, one is private.</span></button>
+      <button class="opt" aria-pressed="false" data-l="B"><span class="ltr">B</span><span class="txt">Put the mark on the book's title page and again on its last page, and change nothing else<span class="rec">My recommendation</span><span class="note">The book then opens and closes on the same picture the year was posted with. The fifty act pages stay exactly as they are.</span></span></button>
+      <button class="opt" aria-pressed="false" data-l="C"><span class="ltr">C</span><span class="txt">Bring the card's white ground and long black rule into the book throughout</span></button>
+    </div>
+  </div>
+</div>
+
+<div class="item" data-q="K6">
+  <div class="rail"><span class="tag">K6</span><span class="conf">Confirmed</span></div>
+  <div>
+    <h3 class="day">The book is set to two different page sizes</h3>
+    <p class="says">The file tells the printer the book is US Letter, 8.5 by 11 inches. A note in the same file describes it as 8.5 by 8.5 square, and the journal pages you read on the phone are laid out square. <strong>So what a person reads on screen and what comes out of a printer are currently different shapes.</strong> This wants ruling before a printer is ever chosen.</p>
+    <div class="opts">
+      <button class="opt" aria-pressed="false" data-l="A"><span class="ltr">A</span><span class="txt">Square, 8.5 by 8.5<span class="rec">My recommendation</span><span class="note">It matches the card, it matches what the phone already shows, and a square photo book is a normal thing to order.</span></span></button>
+      <button class="opt" aria-pressed="false" data-l="B"><span class="ltr">B</span><span class="txt">Letter, 8.5 by 11<span class="note">Cheaper and printable anywhere, including at home.</span></span></button>
+      <button class="opt" aria-pressed="false" data-l="C"><span class="ltr">C</span><span class="txt">Wait until you have printed one from your phone and seen which the phone will actually give you</span></button>
+    </div>
+  </div>
+</div>
+
+<div class="item" data-q="K7">
+  <div class="rail"><span class="tag">K7</span><span class="conf">Recommendation</span></div>
+  <div>
+    <h3 class="day">The twelfth seat's third name should change</h3>
+    <p class="says">You named Max Shkret for the still-image seat. He is the weakest name in the group by a clear margin — no acquisition, no auction record, no named campaign, and he has never made a series or kept a daily practice. The seat proposes <strong>On Kawara</strong>: one ground, one typeface, one rule, made across forty-eight years, where the only thing that ever changed was the date. He answers our hardest question directly and answers it against us — his changing element was never an index, always a fact about the specific day. That is the whole argument behind K2.</p>
+    <div class="opts">
+      <button class="opt" aria-pressed="false" data-l="A"><span class="ltr">A</span><span class="txt">Swap in On Kawara<span class="rec">My recommendation</span><span class="note">Baugasm stays as the working commercial practitioner who anchors the seat.</span></span></button>
+      <button class="opt" aria-pressed="false" data-l="B"><span class="ltr">B</span><span class="txt">Swap in Karel Martens instead<span class="note">Half a century of one fixed process where only the overprint changes — and real authority on what a repeating mark does on paper, which is our book and our poster.</span></span></button>
+      <button class="opt" aria-pressed="false" data-l="C"><span class="ltr">C</span><span class="txt">Keep Shkret</span></button>
+    </div>
+  </div>
+</div>
+
+<div class="answer">
+  <div class="answerbox">
+    <p class="lbl">Your ruling</p>
+    <div id="tape" class="empty">Tap a letter above and it appears here.</div>
+    <div class="row">
+      <span id="count">0 of 24 answered</span>
+      <button class="clear" id="clear" type="button">Start again</button>
+    </div>
+  </div>
+</div>
+
+<div class="keep">
+  <h3>What both seats said not to touch</h3>
+  <ul>
+    <li><b>The card lockup. Not one element of it.</b> Everything proposed above is about the foot, the axis and the margin — nothing inside the mark moves.</li>
+    <li><b>The white ground.</b> It is the only reason this square stops a thumb in a column of photographs. Every card in this category eventually gets a colour, a gradient or a shadow because white looks unfinished on a designer's screen. Refuse it every time it comes back.</li>
+    <li><b>The journal's warm paper and its gold hairline.</b> The best-made screen in the build.</li>
+    <li><b>The script on the journal dates.</b> Not two places — three. A journal is the one place a date should look written by hand.</li>
+    <li><b>Act 0 as an ordinary tile.</b> The moment it gets special treatment it becomes a badge, and this app does not do badges.</li>
+    <li><b>Four things under the surface that are already right:</b> the app clears the notch and the home bar from one setting; Reduce Motion is handled properly — the movement stops but the message still arrives; the poster and book have real print rules and the book is laid out on screen at printed proportions; and every square in the grid is a real button with a spoken label.</li>
+    <li><b>Do not add more motion, and do not put a handle, a logo, an app name or a QR code on the card.</b> It is the person's year, not our advertisement.</li>
+  </ul>
+</div>
+
+<div class="tail">
+  <h3>What nobody has looked at yet</h3>
+  <p>Silence is not approval, so: the setup screens and Jessica's letter have never been reviewed and are the first thing a new person sees. Most of the sign-up sheet's app side is unread, and it is the only part that touches a network. The printed poster has never been judged. Nobody has looked at the app at the narrow end of the phone range, where the idea filters are already running off the edge.</p>
+  <p>And the two things that can only be settled on a real phone: whether a card posted to a real feed at full strength actually beats one at four-fifths, and whether the book prints at all.</p>
+
+  <h3>The push for 5I</h3>
+  <p style="font-family:var(--sans);font-weight:600;color:var(--ink);background:var(--sunk);padding:12px 14px;border-radius:8px;word-break:break-all">cd /d "C:\Users\tony\Documents\aog-push" &amp;&amp; git add -A &amp;&amp; git commit -m "5I: the rollover is no longer undone, the rescue no longer deletes photographs, the saved file records its own act count, and the test battery moves into the repo" &amp;&amp; git push</p>
+</div>
+
+</div>
+
+<script>
+(function(){
+  var K='aog-review-5i';
+  var picks={};
+  try{ picks=JSON.parse(localStorage.getItem(K)||'{}')||{}; }catch(e){ picks={}; }
+  var tape=document.getElementById('tape'), count=document.getElementById('count');
+  var order=[];
+  document.querySelectorAll('.item').forEach(function(it){ order.push(it.getAttribute('data-q')); });
+
+  function paint(){
+    document.querySelectorAll('.item').forEach(function(it){
+      var q=it.getAttribute('data-q');
+      it.querySelectorAll('.opt').forEach(function(b){
+        b.setAttribute('aria-pressed', picks[q]===b.getAttribute('data-l') ? 'true':'false');
+      });
+    });
+    var out=[];
+    order.forEach(function(q){ if(picks[q]) out.push(q+picks[q]); });
+    if(out.length){ tape.textContent=out.join('  '); tape.classList.remove('empty'); }
+    else { tape.textContent='Tap a letter above and it appears here.'; tape.classList.add('empty'); }
+    count.textContent=out.length+' of '+order.length+' answered';
+    try{ localStorage.setItem(K, JSON.stringify(picks)); }catch(e){}
+  }
+  document.querySelectorAll('.opt').forEach(function(b){
+    b.addEventListener('click', function(){
+      var q=b.closest('.item').getAttribute('data-q'), l=b.getAttribute('data-l');
+      if(picks[q]===l){ delete picks[q]; } else { picks[q]=l; }
+      paint();
+    });
+  });
+  document.getElementById('clear').addEventListener('click', function(){ picks={}; paint(); });
+  document.getElementById('count').textContent='0 of '+order.length+' answered';
+  paint();
+})();
+</script>
+
+</body>
+</html>

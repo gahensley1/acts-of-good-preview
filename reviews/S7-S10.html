@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Dates, the People Screen, and Act Zero's New Home</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Montserrat:wght@400;500;600;700&display=swap">
+<style>
+:root{
+  --paper:#fff; --mist:#F6F4F1; --sunk:#EFECE7; --line:#E4E0DA;
+  --ink:#14110D; --muted:#665F57; --coral:#C03F2B; --coralart:#EA634F;
+  --coralsoft:#F7E6E1; --gold:#B98C1E; --ok:#2F6B4F;
+  --serif:"Fraunces",Georgia,serif;
+  --sans:"Montserrat",-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#15130F;--mist:#1D1A15;--sunk:#23201A;--line:#332E26;--ink:#F3EFE8;
+  --muted:#A29A8E;--coral:#F08268;--coralart:#EA634F;--coralsoft:#33211C;--gold:#E1BA52;--ok:#7FBF9C;}}
+:root[data-theme="dark"]{
+  --paper:#15130F;--mist:#1D1A15;--sunk:#23201A;--line:#332E26;--ink:#F3EFE8;
+  --muted:#A29A8E;--coral:#F08268;--coralart:#EA634F;--coralsoft:#33211C;--gold:#E1BA52;--ok:#7FBF9C;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);
+     font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+.wrap{max-width:760px;margin:0 auto;padding-inline:20px;padding-block:36px 96px}
+.eyebrow{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+         color:var(--coral);margin:0 0 14px}
+h1{font-family:var(--serif);font-weight:600;font-size:clamp(28px,7vw,40px);line-height:1.1;
+   letter-spacing:-.015em;margin:0 0 16px;text-wrap:balance}
+.standfirst{font-size:16px;color:var(--muted);margin:0 0 34px;max-width:60ch}
+h2.sec{font-family:var(--serif);font-size:25px;font-weight:600;margin:46px 0 6px;
+       padding-top:24px;border-top:2px solid var(--ink)}
+p.secsub{margin:0 0 20px;font-size:14px;color:var(--muted);max-width:58ch}
+
+/* the date table */
+.dates{width:100%;border-collapse:collapse;margin:0 0 8px;font-size:14px}
+.dates th{text-align:left;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;
+          color:var(--muted);font-weight:700;padding:0 10px 8px 0;border-bottom:1px solid var(--line)}
+.dates td{padding:10px 10px 10px 0;border-bottom:1px solid var(--line);vertical-align:top}
+.dates td.where{color:var(--muted);font-size:13px;width:40%}
+.dates td.val{font-weight:600;font-variant-numeric:tabular-nums}
+.dates tr.now td.val{color:var(--ink)}
+.order{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.06em;
+       text-transform:uppercase;border-radius:99px;padding:2px 8px;margin-left:8px;
+       background:var(--sunk);color:var(--muted)}
+.scriptdate{font-family:var(--serif);font-style:italic;font-weight:400;color:var(--gold);font-size:17px}
+
+/* phone mockups */
+.phones{display:flex;gap:18px;flex-wrap:wrap;margin:6px 0 0}
+.phone{flex:1 1 300px;min-width:0}
+.phone h4{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+          color:var(--muted);margin:0 0 8px}
+.phone h4 b{color:var(--coral)}
+.screen{border:1px solid var(--line);border-radius:16px;overflow:hidden;background:#fff;
+        color:#14110D;font-size:13px;line-height:1.5}
+.screen.warm{background:#F6F4F1}
+.sc-top{padding:14px 16px 12px;border-bottom:1px solid #E4E0DA;background:#fff}
+.screen.warm .sc-top{background:#F6F4F1}
+.sc-top h5{margin:0;font-size:19px;font-weight:700;letter-spacing:-.01em}
+.sc-top span{display:block;font-size:11.5px;color:#665F57;margin-top:2px}
+.sc-body{padding:16px}
+.sc-note{color:#665F57;font-size:12.5px;margin:0 0 16px;line-height:1.55}
+.sc-btn{display:inline-block;border:1.5px solid #C03F2B;color:#C03F2B;border-radius:99px;
+        padding:8px 16px;font-size:12.5px;font-weight:600}
+.sc-card{background:#fff;border:1px solid #E4E0DA;border-radius:12px;padding:14px 16px;margin-bottom:10px}
+.sc-empty{height:150px}
+.sc-tabs{display:flex;border-top:1px solid #E4E0DA;background:#fff;padding:9px 0 11px}
+.sc-tabs div{flex:1;text-align:center;font-size:9.5px;color:#665F57}
+.sc-tabs div.on{color:#C03F2B;font-weight:700}
+.sc-tabs i{display:block;width:16px;height:16px;border:1.6px solid currentColor;
+           border-radius:4px;margin:0 auto 4px}
+
+/* tiles for the act-0 question */
+.grid5{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;margin:10px 0 0}
+.t{aspect-ratio:1;border-radius:9px;background:#EFECE7;display:flex;align-items:center;
+   justify-content:center;font-size:11px;color:#8b8279;font-weight:600}
+.t.done{background:var(--coralart);color:#fff}
+.t.zero{background:var(--coralart);color:#fff;outline:2px dashed var(--coral);outline-offset:2px}
+.lab{font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+     color:var(--muted);margin:14px 0 0}
+
+.opts{display:flex;flex-direction:column;gap:7px;margin-top:16px}
+.opt{display:flex;align-items:flex-start;gap:11px;width:100%;text-align:left;font:inherit;
+     color:inherit;background:var(--mist);border:1.5px solid var(--line);border-radius:10px;
+     padding:10px 13px;cursor:pointer;transition:border-color .12s,background .12s}
+.opt:hover{border-color:var(--coral)}
+.opt:focus-visible{outline:2px solid var(--coral);outline-offset:2px}
+.opt[aria-pressed="true"]{background:var(--coralsoft);border-color:var(--coral)}
+.opt .ltr{flex:0 0 auto;font-weight:700;font-size:12px;line-height:20px;width:20px;height:20px;
+          text-align:center;border-radius:50%;background:var(--sunk);color:var(--muted)}
+.opt[aria-pressed="true"] .ltr{background:var(--coral);color:var(--paper)}
+.opt .txt{flex:1 1 auto;font-size:14.5px;line-height:1.45}
+.opt .rec{display:block;font-size:11px;font-weight:700;letter-spacing:.06em;
+          text-transform:uppercase;color:var(--ok);margin-top:3px}
+.opt .note{display:block;font-size:12.5px;color:var(--muted);margin-top:3px}
+
+.answer{position:sticky;bottom:0;margin-top:34px;background:var(--paper);
+        border-top:1px solid var(--line);padding:14px 0 16px}
+.answerbox{border:1.5px solid var(--coral);border-radius:12px;background:var(--mist);padding:12px 14px}
+.answer .lbl{font-size:10.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+             color:var(--muted);margin:0 0 5px}
+#tape{font-size:15px;font-weight:700}
+#tape.empty{font-weight:500;color:var(--muted)}
+.flag{border-left:3px solid var(--gold);background:var(--mist);border-radius:0 12px 12px 0;
+      padding:15px 17px;margin:18px 0 0;font-size:14px;color:var(--muted)}
+.flag b{color:var(--ink)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+</head>
+<body>
+<div class="wrap">
+
+<p class="eyebrow">50 Acts of Good · build 5J · 14 September 2026</p>
+<h1>The two you wanted to see, and one I want you to look at</h1>
+<p class="standfirst">
+  S7 and S10 as they actually are, side by side with what changing them would do. Plus S8B, which I
+  built exactly as you ruled it — and which I think needs your eye before it ships.
+</p>
+
+<h2 class="sec">S7 · The five ways the app writes a date</h2>
+<p class="secsub">All five are real, taken out of the running build just now. Every one is the same
+  day: Saturday, 21 March 2026.</p>
+
+<table class="dates">
+  <tr><th>Where you see it</th><th>What it says</th></tr>
+  <tr class="now"><td class="where">On a finished square</td><td class="val">3-21-26<span class="order">month first</span></td></tr>
+  <tr class="now"><td class="where">This month, and most lists</td><td class="val">21 Mar<span class="order">day first</span></td></tr>
+  <tr class="now"><td class="where">A date button</td><td class="val">21 Mar ’26<span class="order">day first</span></td></tr>
+  <tr class="now"><td class="where">A message or a confirmation</td><td class="val">Saturday 21 March 2026<span class="order">day first</span></td></tr>
+  <tr class="now"><td class="where">A journal page</td><td class="val scriptdate">March 21, 2026<span class="order">month first</span></td></tr>
+</table>
+
+<div class="flag">
+  <b>The thing worth knowing before you pick.</b> You are American and the app is being built for
+  an American store — and the two places that already read American, month first, are the square and
+  the journal page. The three day-first ones are the ones nobody chose; they are just what got
+  written. So the honest question is not "make them match", it is <b>which order the app speaks in</b>.
+</div>
+
+<div class="opts" data-q="S7">
+  <button class="opt" aria-pressed="false" data-l="A"><span class="ltr">A</span><span class="txt">Leave all five as they are</span></button>
+  <button class="opt" aria-pressed="false" data-l="B"><span class="ltr">B</span><span class="txt">Month first everywhere — <b>Mar 21</b> · <b>Mar 21, 2026</b> · <b>Saturday, March 21</b><span class="rec">My recommendation</span><span class="note">It matches the square and the journal, which are the two a person looks at most, and it matches the way you would say it out loud.</span></span></button>
+  <button class="opt" aria-pressed="false" data-l="C"><span class="ltr">C</span><span class="txt">Day first everywhere — <b>21 Mar</b> · <b>21 March 2026</b> · <b>Saturday 21 March</b><span class="note">Fewer changes, because three of the five are already this way. But it means changing the square and the journal, which are the two that currently read right.</span></span></button>
+</div>
+<p class="secsub" style="margin-top:14px">Either way the journal keeps its handwritten gold date —
+  that is the one place a date should look written by hand, and both seats said leave it.</p>
+
+<h2 class="sec">S10 · People, with nobody in it yet</h2>
+<p class="secsub">Left is the screen as it is today. Right is the same screen on the journal's warm
+  paper. Nothing else changes — same words, same button, same order.</p>
+
+<div class="phones">
+  <div class="phone">
+    <h4>Now</h4>
+    <div class="screen">
+      <div class="sc-top"><h5>People</h5><span>who’s in your year</span></div>
+      <div class="sc-body">
+        <p class="sc-note">Everyone who’s been part of an act, and anyone who’s offered. Tap a name
+          to add their handles. That’s what fills in the tags when you post.</p>
+        <span class="sc-btn">+ Add someone</span>
+        <div class="sc-empty"></div>
+      </div>
+      <div class="sc-tabs"><div><i></i>Your year</div><div><i></i>Plan &amp; Log</div><div><i></i>Ideas</div><div class="on"><i></i>People</div><div><i></i>You</div></div>
+    </div>
+  </div>
+  <div class="phone">
+    <h4><b>B</b> — the journal's ground</h4>
+    <div class="screen warm">
+      <div class="sc-top"><h5>People</h5><span>who’s in your year</span></div>
+      <div class="sc-body">
+        <div class="sc-card">
+          <p class="sc-note" style="margin:0">Everyone who’s been part of an act, and anyone who’s
+            offered. Tap a name to add their handles. That’s what fills in the tags when you post.</p>
+        </div>
+        <span class="sc-btn">+ Add someone</span>
+        <div class="sc-empty"></div>
+      </div>
+      <div class="sc-tabs"><div><i></i>Your year</div><div><i></i>Plan &amp; Log</div><div><i></i>Ideas</div><div class="on"><i></i>People</div><div><i></i>You</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="opts" data-q="S10">
+  <button class="opt" aria-pressed="false" data-l="A"><span class="ltr">A</span><span class="txt">Leave it on plain white</span></button>
+  <button class="opt" aria-pressed="false" data-l="B"><span class="ltr">B</span><span class="txt">The journal's warm ground, with the words on a card<span class="rec">My recommendation</span><span class="note">It is the only screen in the app standing on nothing, and it is one a new person lands on early.</span></span></button>
+  <button class="opt" aria-pressed="false" data-l="C"><span class="ltr">C</span><span class="txt">Warm ground, and cut the second sentence<span class="note">“Tap a name to add their handles” means nothing when there are no names yet.</span></span></button>
+</div>
+
+<h2 class="sec">S8B · I built it, and I think it costs more than it earns</h2>
+<p class="secsub">You ruled act 0 out of the grid so the fifty are ten clean rows. That part works.
+  But giving it its own place put a heading, a tile and a line of explanation between your progress
+  and your year — and the heading I had to invent, “The year”, collides with the screen's own name.</p>
+
+<div class="phones">
+  <div class="phone">
+    <h4>What 5J does now</h4>
+    <div class="screen">
+      <div class="sc-body" style="padding-bottom:6px">
+        <p class="lab" style="margin-top:0">The year</p>
+        <div class="grid5" style="grid-template-columns:repeat(5,1fr)">
+          <div class="t zero">0</div><div></div><div></div><div></div><div></div>
+        </div>
+        <p class="sc-note" style="margin:10px 0 0">The day you said out loud that you were going to
+          do this.</p>
+        <p class="lab">The 50</p>
+        <div class="grid5">
+          <div class="t done">1</div><div class="t done">2</div><div class="t done">3</div><div class="t">4</div><div class="t">5</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="phone">
+    <h4><b>An alternative</b> — one row, no heading</h4>
+    <div class="screen">
+      <div class="sc-body" style="padding-bottom:6px">
+        <p class="lab" style="margin-top:0">The 50</p>
+        <p class="sc-note" style="margin:0 0 8px">Every tile is one act. Tap an empty one to plan it.</p>
+        <div class="grid5">
+          <div class="t done">1</div><div class="t done">2</div><div class="t done">3</div><div class="t">4</div><div class="t">5</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;margin-top:14px">
+          <div class="t zero" style="width:46px;flex:0 0 46px">0</div>
+          <p class="sc-note" style="margin:0">The day you declared it.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="opts" data-q="S8">
+  <button class="opt" aria-pressed="false" data-l="A"><span class="ltr">A</span><span class="txt">Ship it as I built it — its own heading above the fifty</span></button>
+  <button class="opt" aria-pressed="false" data-l="B"><span class="ltr">B</span><span class="txt">Below the fifty, one row, no heading<span class="rec">My recommendation</span><span class="note">The fifty stay ten clean rows, act 0 keeps its own place and its ordinary tile, and nothing gets between your count and your year.</span></span></button>
+  <button class="opt" aria-pressed="false" data-l="C"><span class="ltr">C</span><span class="txt">Put it back in the grid — the eleventh row was not worth this<span class="note">That restores your 31 August ruling, which S8B reversed.</span></span></button>
+</div>
+
+<div class="answer">
+  <div class="answerbox">
+    <p class="lbl">Your ruling</p>
+    <div id="tape" class="empty">Tap a letter and it appears here.</div>
+  </div>
+</div>
+
+</div>
+
+<script>
+(function(){
+  var K='aog-s7-s10', picks={};
+  try{ picks=JSON.parse(localStorage.getItem(K)||'{}')||{}; }catch(e){ picks={}; }
+  var tape=document.getElementById('tape');
+  var groups=[].slice.call(document.querySelectorAll('.opts'));
+  function paint(){
+    groups.forEach(function(g){
+      var q=g.getAttribute('data-q');
+      g.querySelectorAll('.opt').forEach(function(b){
+        b.setAttribute('aria-pressed', picks[q]===b.getAttribute('data-l')?'true':'false');
+      });
+    });
+    var out=[];
+    groups.forEach(function(g){ var q=g.getAttribute('data-q'); if(picks[q]) out.push(q+picks[q]); });
+    if(out.length){ tape.textContent=out.join('  '); tape.classList.remove('empty'); }
+    else { tape.textContent='Tap a letter and it appears here.'; tape.classList.add('empty'); }
+    try{ localStorage.setItem(K, JSON.stringify(picks)); }catch(e){}
+  }
+  groups.forEach(function(g){
+    var q=g.getAttribute('data-q');
+    g.querySelectorAll('.opt').forEach(function(b){
+      b.addEventListener('click', function(){
+        var l=b.getAttribute('data-l');
+        if(picks[q]===l){ delete picks[q]; } else { picks[q]=l; }
+        paint();
+      });
+    });
+  });
+  paint();
+})();
+</script>
+
+</body>
+</html>
