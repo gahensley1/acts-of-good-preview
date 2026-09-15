@@ -741,6 +741,180 @@ head('the card on the year screen');
      one.n===1 && Math.abs(one.w[0]-one.row)<2, one);
 }
 
+/* ── 12. THE REMINDER IS A PULL-DOWN. Ruled 15 September 2026. ────────────  */
+head('the reminder');
+{ const p=await app(2);
+  const r=await p.evaluate(()=>{
+    S.works=[{pid:'w1',t:'A meal for the station',d:'2026-09-22',who:[],hon:'',cost:0,
+              spends:[],story:'',exp:'',startedAt:'',sheet:null,seed:null,photos:[],
+              notes:[],njr:0}];
+    save();
+    openWork(S.works[0]);
+    const box=document.getElementById('wk-remind');
+    const sel=box.querySelector('select');
+    const cs=sel?getComputedStyle(sel):null;
+    return { chips:box.querySelectorAll('.chip').length,
+             isSelect: !!sel,
+             shown: sel?sel.options[sel.selectedIndex].textContent:'',
+             value: sel?sel.value:'',
+             options: sel?[...sel.options].map(o=>o.textContent):[],
+             h: sel?Math.round(sel.getBoundingClientRect().height):0,
+             font: cs?cs.fontSize:'',
+             named: sel?sel.getAttribute('aria-label'):'' };
+  });
+  ck('the five buttons are gone', r.chips===0, r.chips);
+  ck('and it is one pull-down', r.isSelect===true, r);
+  ck('showing the default, a day before', r.shown==='Day before' && r.value==='1', r);
+  ck('with every choice still in it', r.options.length===5, r.options);
+  ck('a thumb can hit it', r.h>=44, r.h);
+  /* below 16px iOS zooms the whole page when the control takes focus and leaves
+     the person scrolled somewhere else entirely */
+  ck('and iOS will not zoom the page to reach it', r.font==='16px', r.font);
+  ck('it says what it is to a screen reader', /remind/i.test(r.named||''), r.named);
+
+  const chg=await p.evaluate(()=>{
+    const sel=document.querySelector('#wk-remind select');
+    sel.value='7'; sel.dispatchEvent(new Event('change'));
+    let disk=null; try{ disk=JSON.parse(localStorage.getItem(LS_KEY)).works[0].r; }catch(e){}
+    return { wk:WK.r, disk, stillOpen: !!document.querySelector('#wk-remind select') };
+  });
+  ck('choosing one keeps it', chg.wk==='7' && chg.disk==='7', chg);
+  /* redrawing a select inside its own change handler closes the wheel twice on
+     iOS and reads as a flicker */
+  ck('and the box is not rebuilt under the finger', chg.stillOpen===true, chg);
+
+  /* a value the list does not hold must not leave the box blank */
+  const odd=await p.evaluate(()=>{
+    WK.r='99'; drawWorkRemind();
+    const sel=document.querySelector('#wk-remind select');
+    return { shown:sel.options[sel.selectedIndex] ? sel.options[sel.selectedIndex].textContent : '' };
+  });
+  ck('a value it does not know still reads as something', odd.shown==='Day before', odd);
+
+  /* RULED 15 Sep 2026: "you need a trigger for the reminder. You select the
+     time and hit a button to set it up. It should be in line with the pull
+     down." Picking a lead time never did anything on its own \u2014 it only
+     described what the alarm WOULD be if you found the calendar icon three rows
+     above, beside the date. */
+  const trig=await p.evaluate(()=>{
+    const row=document.querySelector('.remindrow');
+    const sel=row?row.querySelector('select'):null;
+    const btn=document.getElementById('wk-setremind');
+    const sb=btn?btn.getBoundingClientRect():null, sr=sel?sel.getBoundingClientRect():null;
+    return { inRow: !!(row && sel && btn && row.contains(btn)),
+             sameLine: (sb&&sr) ? Math.abs(Math.round(sb.top)-Math.round(sr.top))<=1 : false,
+             sameHeight: (sb&&sr) ? Math.abs(Math.round(sb.height)-Math.round(sr.height))<=1 : false,
+             h: sb?Math.round(sb.height):0,
+             word: btn?btn.textContent:'',
+             oldIcon: document.querySelectorAll('#s-work .calgo').length };
+  });
+  ck('there is a button to set it', trig.word==='Set it', trig);
+  ck('and it is in line with the pull-down', trig.inRow && trig.sameLine, trig);
+  ck('the same height as it', trig.sameHeight && trig.h>=44, trig);
+  ck('and the old calendar icon is not left behind it', trig.oldIcon===0, trig.oldIcon);
+
+  /* "None" is a real choice and it is not a reminder */
+  const none=await p.evaluate(()=>{
+    const sel=document.querySelector('#wk-remind select');
+    sel.value='none'; sel.dispatchEvent(new Event('change'));
+    const a=document.getElementById('wk-setremind').textContent;
+    sel.value='1'; sel.dispatchEvent(new Event('change'));
+    return { none:a, back:document.getElementById('wk-setremind').textContent };
+  });
+  ck('with None it does not claim to set a reminder', none.none==='Add the day', none);
+  ck('and it comes back when a time is chosen', none.back==='Set it', none);
+
+  /* a day is needed before anything can be handed over */
+  const noday=await p.evaluate(()=>{
+    let got=null; const realS=window.say; window.say=(t,n)=>{got={t,n};};
+    let clicked=0; const realC=HTMLAnchorElement.prototype.click;
+    HTMLAnchorElement.prototype.click=function(){clicked++;};
+    /* THE FORM IS THE TRUTH, NOT THE OBJECT. workToCalendar re-reads the editor
+       before it does anything, so clearing WK.d alone is undone a line later by
+       the hidden date field. Both, or the test proves nothing. */
+    const keep=WK.d, el=document.getElementById('wk-when'), keepEl=el?el.value:'';
+    WK.d=''; if(el) el.value='';
+    workToCalendar();
+    WK.d=keep; if(el) el.value=keepEl;
+    window.say=realS; HTMLAnchorElement.prototype.click=realC;
+    return { got, clicked };
+  });
+  ck('no day means nothing is handed over', noday.clicked===0, noday);
+  ck('and it says which is missing',
+     !!noday.got && /needs a day/i.test(noday.got.t||''), noday.got);
+
+  /* and with a day, the file really carries the chosen alarm */
+  const fired=await p.evaluate(()=>{
+    const sel=document.querySelector('#wk-remind select');
+    sel.value='7'; sel.dispatchEvent(new Event('change'));
+    const f=icsFor(WK.t, WK.d, '4', [], WK.r, false);
+    return { alarm:f.text.indexOf('BEGIN:VALARM')>-1,
+             trigger:(f.text.match(/TRIGGER:([^\r\n]+)/)||[])[1] };
+  });
+  ck('a week before really is a week before', fired.alarm && fired.trigger==='-PT159H', fired);
+
+  /* voice.md: the em dash came out of the line above it */
+  const line=await p.evaluate(()=>
+    document.getElementById('wk-remind').closest('.field').querySelector('label').textContent);
+  ck('and the label has no em dash in it', line.indexOf('\u2014')===-1, line);
+}
+
+/* ── 13. "TIGHTEN UP THIS SECTION." Ruled 15 September 2026. ──────────────  */
+head('the editor is tighter');
+{ const p=await app(2);
+  const r=await p.evaluate(()=>{
+    S.people=['Jessica','Ginger','Kate'];
+    S.works=[{pid:'w1',t:'A meal for the crew at Station 1',d:'2026-09-22',who:['Jessica'],
+              hon:'',cost:0,spends:[],story:'',exp:'',startedAt:'',sheet:null,seed:null,
+              photos:[],notes:[],njr:0}];
+    save(); openWork(S.works[0]);
+    const sc=document.getElementById('s-work');
+    /* every label on one line: measured against its own line-height, so this
+       holds if the type ever changes */
+    const wrapped=[];
+    sc.querySelectorAll('.field > label').forEach(l=>{
+      const lh=parseFloat(getComputedStyle(l).lineHeight) ||
+               parseFloat(getComputedStyle(l).fontSize)*1.4;
+      if(l.getBoundingClientRect().height > lh*1.6)
+        wrapped.push(l.textContent.slice(0,40));
+    });
+    /* and nothing got cramped: a gap between fields must still be bigger than
+       the gap inside one, or they stop reading as separate things */
+    const f=sc.querySelector('.field');
+    const between=parseFloat(getComputedStyle(f).marginBottom);
+    const inside=parseFloat(getComputedStyle(f.querySelector('label')).marginBottom);
+    /* nor did any target this change touched shrink.
+       `.nhit` is excluded DELIBERATELY and it is not a pass: the tick boxes on
+       the sign-up panel and the notes list are 34px, which is under the 44px a
+       thumb wants, and they were 34px long before today. Tightening the spacing
+       did not make them, and widening them belongs in its own change with its
+       own look at the rows they sit in. `.ntx`, the one-line note row, is the
+       same story: `min-height:34px`, set long before today and untouched by it.
+       NAMED, NOT SWEPT UP \u2014 both are in the handoff as open. */
+    let small=0; const smallest=[];
+    sc.querySelectorAll('.btn,.chip,select,input,textarea:not(.ntx)').forEach(el=>{
+      const h=el.getBoundingClientRect().height;
+      if(h>0 && h<44){ small++; smallest.push(el.className+':'+Math.round(h)); }
+    });
+    return { height:Math.round(sc.getBoundingClientRect().height),
+             wrapped, between, inside, small, smallest };
+  });
+  /* it was 1823px before the trim */
+  ck('the editor is shorter than it was', r.height < 1750, r.height);
+  ck('no label wraps to a second line', r.wrapped.length===0, r.wrapped);
+  ck('fields are still further apart than their own parts', r.between > r.inside, r);
+  ck('and nothing became too small for a thumb', r.small===0, r.smallest);
+
+  /* the tally line is written by the code on every draw, so the markup alone
+     proves nothing about what a person reads */
+  const tally=await p.evaluate(()=>{
+    wkCostState();
+    return (document.getElementById('wk-spendnote')||{}).textContent||'';
+  });
+  ck('the tally line is the short one on screen, not just in the file',
+     tally==='One number is fine. Or keep a running tally.', tally);
+}
+
 ck('no page or console errors anywhere', errs.length===0, errs.slice(0,4));
 console.log('\n'+pass+' passed, '+fail+' failed, console/page errors: '+errs.length);
 await b.close();

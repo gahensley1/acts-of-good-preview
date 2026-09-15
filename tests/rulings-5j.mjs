@@ -65,15 +65,23 @@ head('C1 — the reminder has a door');
     startWork(); WK.t='Doughnuts'; WK.d='2026-10-01'; workKeep();
     const row=document.getElementById('wk-remind');
     drawWorkRemind();
-    return { exists:!!row, chips:row?row.querySelectorAll('.chip').length:0,
-             labels:row?[...row.querySelectorAll('.chip')].map(c=>c.textContent):[] };
+    /* RULED by G, 15 September 2026: the five chips became one pull-down with
+       "Day before" showing. What C1 was ever about is unchanged \u2014 the lead
+       time has a door in the LIVE editor, it offers every choice, and the choice
+       survives a reload. Only the control changed. */
+    const sel=row?row.querySelector('select'):null;
+    return { exists:!!row, isSelect:!!sel,
+             labels:sel?[...sel.options].map(o=>o.textContent):[],
+             shown:sel?sel.options[sel.selectedIndex].textContent:'' };
   });
-  ck('the lead-time row is in the live editor', r.exists && r.chips===5, r);
+  ck('the lead-time control is in the live editor',
+     r.exists && r.isSelect && r.labels.length===5, r);
   ck('it offers every lead time', r.labels.join('|').indexOf('A week before')>-1, r.labels);
+  ck('and shows the default without being asked', r.shown==='Day before', r.shown);
   const set=await p.evaluate(()=>{
-    const bs=[...document.querySelectorAll('#wk-remind .chip')];
-    bs[4].click();                        // a week before
-    return { r:WK.r, pressed:bs.map(x=>x.getAttribute('aria-pressed')) };
+    const sel=document.querySelector('#wk-remind select');
+    sel.value='7'; sel.dispatchEvent(new Event('change'));   // a week before
+    return { r:WK.r, shown:sel.options[sel.selectedIndex].textContent };
   });
   ck('choosing one is remembered', set.r==='7', set);
   const ics=await p.evaluate(()=>{
