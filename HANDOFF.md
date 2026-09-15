@@ -1,15 +1,23 @@
 # HANDOFF — read this first, updated 15 Sep 2026
 
-Build in G's hands: **5M**. `index.html`, **1,219,324 bytes**,
-md5 `40007e76253fa43687b1bde43ac1397f`, on both folders, read back off his disk and checksummed.
+Build in G's hands: **5P**. `index.html`, **1,253,938 bytes**,
+md5 `a95f5fde3cc0c9a9aaf95d5feacc61e0`, on both folders, read back off his disk and checksummed.
 
-**5I THROUGH 5M ARE ALL UNPUSHED.** 5H is live on the site. One push carries all of them.
+**5I THROUGH 5M ARE PUSHED** — `9bb6596..459a558`, 15 Sep. **5P IS NOT.** The command is at the
+foot of this page.
 
-The Worker is at 5F on `actsofgood.app`. **5G–5M are phone-side only; it does not need redeploying.**
+**5N WAS NEVER PUSHED AND MUST NOT BE.** It passed 161 checks and a three-seat review found
+**twenty-one faults in it**, two of which could lose a year. 5O is 5N with all of them fixed.
+Nothing labelled 5N exists anywhere but in that day's record.
 
-**111 checks across six harnesses, 0 failing, no console errors.**
-`tests/battery.mjs` (25) · `tests/snapshots.mjs` (14) · `tests/rulings-5j.mjs` (29) ·
-`tests/book.mjs` (4) · `tests/k-set.mjs` (14) · `tests/review-fixes.mjs` (25).
+The Worker is at 5F on `actsofgood.app`. **5G–5O are phone-side only; it does not need
+redeploying.** Taking a sheet down needed no Worker change at all: the `closed` route has been
+there since the sheet shipped and the phone simply never called it.
+
+**205 checks across seven harnesses, 0 failing, no page or console errors.**
+`tests/battery.mjs` (26) · `tests/snapshots.mjs` (14) · `tests/rulings-5j.mjs` (29) ·
+`tests/book.mjs` (12) · `tests/k-set.mjs` (14) · `tests/review-fixes.mjs` (25) ·
+`tests/landmines.mjs` (85).
 **The harnesses read PAGE ERRORS, not only assertions.** That is what caught the 5J bug below.
 
 **AND THEY RUN ON HIS MACHINE NOW.** Every harness used to hardcode two paths that exist only
@@ -160,6 +168,116 @@ fills the part of the square both seats called empty.
 
 ---
 
+## 5P — G'S RULINGS OF 15 SEPTEMBER. THE LAST TWO AESTHETIC QUESTIONS ARE CLOSED.
+
+Put to him as `reviews/TWO-RULINGS.html`, four options drawn onto the live screen at phone size.
+
+- **1D — THE END OF THE YEAR IS A MILEPOST.** The empty dashed square numbered 50 is gone. In its
+  place, in the same 52px column, a fine coral rule and the month the year lands in. **Why it went:
+  a dashed numbered square is the app's own language for work you have not done** — it is exactly
+  what an unplanned act looks like in the grid two inches below — and that one sat in the middle of
+  the screen for twelve months. The month is the declared day plus the weeks the year was set for.
+  Tapping it opens the journal, as the empty ending already did.
+- **"say the month and not day" — THE ROW SPEAKS IN MONTHS AT BOTH ENDS.** Copy change, shown
+  before it landed:
+
+  | Where | Before | After | Why |
+  |---|---|---|---|
+  | Under the bookends row | The day you declared it. And the day you finish. | Declared in March. Finishes in March 2027. | G's ruling. It also stops promising a day nobody has picked, and the row no longer shows one at either end. |
+
+  The finished line is unchanged and was already months: *"Declared in March. Finished in May."*
+  **The year is added only when the two month names match** — a year declared in March finishes in
+  March, and two identical months side by side read as a mistake rather than as a lap of the
+  calendar.
+- **2A — THE JOURNAL STAYS BELOW THE GRID.** G: *"just leave the grid in place."* Moving it up
+  worked exactly as the seat argued and pushed *The 50* off the first screen entirely on a 390px
+  phone. **Do not re-propose this.**
+- **EVERY SASH IS THE SAME STRENGTH. THIS REVERSES S3B.** G: *"i do not like the more transparent
+  sash make them all the same."* S3B set older sashes back so eleven of them would not line up into
+  one repeating diagonal; he has looked at it and ruled the other way. The `older` class is still
+  applied and now does nothing, so nothing has to be unpicked if he changes his mind.
+
+**One thing I did NOT change and he may have meant:** act 0's own sash still carries a full date
+(`3-14-26`), because that is the sash system S3B ruled on and not this row's copy. If "say the month
+and not day" was meant to reach the sashes too, it is one line.
+
+**Three checks in the battery asserted the old dashed square and had to be rewritten.** They now
+hold the same intent — an act holding the last number must not make the row announce a finished year
+in March — against the new shape, and against the tense rather than the box.
+
+---
+
+## 5O — THE REVIEW OF 5N. TWENTY-ONE FAULTS, ALL FIXED. 15 September.
+
+**Full account: `claude/the-engineers-5o.md`.** Three seats read the 5N diff, because the rule from
+the previous round — the author must not be the only reviewer — had been followed for the code and
+not for the day's own work.
+
+**The finding that matters most is about the tests, not the code: FOUR OF THE FORTY-FIVE NEW
+CHECKS PASSED WITH THE FEATURE DELETED.** A seat proved it by deleting the code and re-running.
+**L75: a check that has never been seen to fail has not been written yet.**
+
+The two that could have cost a year:
+
+- **The two-tab guard was written and then bypassed three times.** Three other places write the
+  journal directly and none raised the version — including the backup restore, which is the one
+  operation with no undo. Restore a backup in one window and the other one writes its old year
+  straight back over it, after the restore has already deleted the old year's photographs and
+  dropped all four spare copies. One function writes the journal now.
+- **The backup carried strangers' phone numbers again.** The rule that strips them has lived in the
+  works loop since the sheet shipped, because an act never had a sheet. 5N gave an act a sheet.
+
+And, in short: taking a page down could not be undone while the dialog promised it could; taking it
+down wiped the day off the sheet; a refusal reported "The page is down" and hid the buttons that
+could have fixed it; a two-photograph book page printed two tall slivers; the honour roll's
+pagination was still arithmetic and overflowed by 185px on twenty-five real names; "Next" on the
+year screen was the *oldest* thing on the shelf rather than the next one; and the tab count went
+stale whenever anything changed it from another screen.
+
+---
+
+## 5N — THE STILL-OPEN LIST, CLOSED. 15 September. **SUPERSEDED BY 5O — DO NOT SHIP 5N.**
+
+G: **"NEW LANDMINES fix what is not aesthetic."** Everything the 5M review left open and named is
+done except the two things that are his to rule. **Full account: `claude/the-engineers-5n.md`.**
+
+- **A live sign-up sheet can be ended, and is no longer abandoned at the finish.** Finishing an act
+  used to delete the sheet's key along with the work, leaving a public page up asking strangers to
+  help with something already done and no way to read it, change it or take it down. The sheet rides
+  onto the act now, the thirty-day promise follows it there, and **there is a button that takes the
+  page down** — which the server has been able to do the whole time and the phone never asked for.
+- **What the server sends back is shaped and capped before it is saved.** It used to be written into
+  the journal whole: a legal sheet was measured pushing the file to 4.3MB, in the same few megabytes
+  the journal lives in, and every byte of it rode out in the backup.
+- **Four calls stop blaming the signal.** A sheet the server had deleted, a sheet refused for being
+  too big, a closed page and a phone in a tunnel all said "try again in a moment". Only the last one
+  was true; the second was a loop that could never end. **And the size limit is now checked before
+  the sheet is sent**, so the app knows rather than finding out.
+- **One secret no longer opens every old sheet.** The retired master key was handed to every keyless
+  sheet — the same value into all of them. It now goes only to a sheet that is still live, which is
+  the only one it can still open.
+- **TWO TABS — the last of the year-loss family, closed.** A second tab holding January would write
+  January back over a year finished in the first. The file carries a version beside it now; a tab
+  whose copy is behind stops writing, before the spare copies, and says so.
+- **The photo-heavy book page was measured for the first time and it was clipping by 366px.** Four
+  photographs are more than seven inches of an eight-and-a-half inch page before a word is set, and
+  the step-downs only ever shrank type. The pictures are what give now.
+- **The year screen has a view of intention again.** Dated plans had vanished from the calendar
+  entirely — the migration empties the old plan store on first load and nothing else read the shelf.
+  The calendar reads the shelf, the tab carries its count, one line above the grid names what is
+  next and when, and **"Tap an empty one to plan it" is gone**, because it had stopped being true.
+
+**AND A FAULT IN THE TESTS.** `tests/book.mjs` seeded `st` and `people`; the book reads `story` and
+`who`. Every page it had ever measured was blank. It passed on nothing.
+
+### Still G's to rule — not built
+
+- **The bookend row's form.** Seat 3: an empty dashed numbered square is the app's own language for
+  undone work, sat in the middle of the screen for twelve months. *Draw a horizon, not an empty box.*
+- **Whether the journal moves above the grid** rather than below ten rows of tiles.
+
+---
+
 ## 5M — THE REVIEW ROUND, 15 September. THIRTEEN FAULTS FOUND AND FIXED.
 
 **Full account: `claude/the-engineers-5m.md`. Read it.** It carries L52–L67 and the still-open list.
@@ -248,19 +366,7 @@ artefact or the safety net; **none touched return.** Its findings, all G's to ru
   same" — nobody ever sees fifty cards side by side. **The card is the only artefact that leaves the
   device.** An undated card in a camera roll two years later is an orphan; a dated one is a record.
 
-### STILL OPEN AFTER 5M — named, not fixed
-
-- **A live sheet is abandoned when the act is finished.** Public page still up, key thrown away, and
-  **there is no way in the app to end a sheet.** Needs a ruling: take it down on the server, ask at
-  the finish, or add a button.
-- **The server's reply is persisted whole**, unvalidated and uncapped. A large but entirely legal
-  sheet was measured pushing storage to 4.3MB — the same budget the journal lives in.
-- **Four network calls report every failure as "try again in a moment"** — including a sheet the
-  server has deleted, and a refusal for exceeding a cap the app never checks before sending.
-- **Legacy sheets all share one key.** The master key was retired correctly from the file and the
-  backup, but the migration copied the same value into every keyless sheet.
-- **Two tabs.** The one year-loss family seat 4 could not close.
-- **The photo-heavy book page** was never measured. It is the tallest page the book makes.
+### What 5M left open — **all of it closed in 5N above**, except the two aesthetic rulings.
 
 ---
 
@@ -321,14 +427,15 @@ artefact or the safety net; **none touched return.** Its findings, all G's to ru
 
 ## The notebook
 
-`claude/the-engineers.md` is the permanent one (L1–L37). **Two rounds are still sitting outside it:
-`claude/the-engineers-5i.md` (L38–L51) and `claude/the-engineers-5m.md` (L52–L67). Merge both in and
-delete them.**
+`claude/the-engineers.md` is the permanent one (L1–L37). **THREE rounds are sitting outside it:
+`claude/the-engineers-5i.md` (L38–L51), `claude/the-engineers-5m.md` (L52–L67) and
+`claude/the-engineers-5n.md` (L68–L74) and `claude/the-engineers-5o.md` (L75–L84). Merge all four
+in and delete them.**
 
 ---
 
-## THE PUSH FOR 5I THROUGH 5M
+## THE PUSH FOR 5O AND 5P
 
 ```
-cd /d "C:\Users\tony\Documents\aog-push" && git add -A && git commit -m "5I-5M: the rollover is no longer undone, the rescue keeps its photographs, reminders get a door, the card posts at full strength and carries its date, the book is square and paginates its honour roll, the sheet keeps its privacy promise, and the battery moves into the repo and runs anywhere" && git push
+cd /d "C:\Users\tony\Documents\aog-push" && git add -A && git commit -m "5O-5P: a sign-up sheet can be ended and put back up, the backup carries no strangers, one writer raises the journal's version, the book measures its own pages, the year screen says what is next, and the end of the year is a milepost rather than an empty box" && git push
 ```

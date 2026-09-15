@@ -100,14 +100,21 @@ head('logging an act');
     shown: !document.getElementById('zerowrap').classList.contains('hide'),
     zeroDone: document.getElementById('bk-zero').classList.contains('done'),
     zeroMark: !!document.querySelector('#bk-zero .bkmark'),
+    /* RULED 1D, G, 15 September 2026. The ending is a milepost, not a numbered
+       square: "an empty dashed numbered square is the app's own visual language
+       for undone work." So what is checked is the milepost, and that it is not
+       the square any more. */
+    lastPost: !!document.querySelector('#bk-last .mpost'),
     lastWaiting: document.getElementById('bk-last').classList.contains('waiting'),
     lastNum: document.getElementById('bk-last').textContent.trim(),
     goal: S.n }));
   ck('the fifty are whole rows, act 0 is out of them', z.inGrid===z.goal, z);
   ck('the bookend row is shown', z.shown===true, z);
   ck('act 0 wears the mark', z.zeroDone===true && z.zeroMark===true, z);
-  ck('the last act waits, numbered, until it is done',
-     z.lastWaiting===true && z.lastNum===String(z.goal), z);
+  ck('the end of the year is a milepost, not an empty numbered box',
+     z.lastPost===true && z.lastWaiting===false, z);
+  ck('and it names the month the year lands in',
+     /^[A-Z]{3}$/.test(z.lastNum) && z.lastNum!==String(z.goal), z);
   ck('the count on disk keeps up', r.disk===4, r);
   /* S8B, 14 Sept: act 0 left the grid and got its own place, so the fifty tiles
      and the count are now simply equal. This check used to read done+1. */

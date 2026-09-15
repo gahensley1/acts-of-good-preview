@@ -156,12 +156,18 @@ head('the ending cannot announce itself early');
     save(); drawGrid();
     const bl=document.getElementById('bk-last');
     return { done:yearDone(), waiting:bl.classList.contains('waiting'),
+             post: !!bl.querySelector('.mpost'),
              note:document.getElementById('zeronote').textContent,
              zeroLabel: document.getElementById('bk-zero').getAttribute('aria-label') };
   });
   ck('an act holding the last number does not finish the year', r.done===false, r);
-  ck('the ending still reads as waiting', r.waiting===true, r);
-  ck('and says nothing about finishing', /And the day you finish/.test(r.note), r.note);
+  /* RULED 1D, 15 September 2026: the ending is a milepost rather than a dashed
+     numbered square. What this check has always been FOR is unchanged \u2014 an
+     act holding the last number must not make the row announce a finished year
+     in March. It is the tense that matters, not the shape. */
+  ck('the ending has not become the finished square', r.post===true, r);
+  ck('and the row does not speak in the past tense',
+     /Finishes in/.test(r.note) && !/Finished in/.test(r.note), r.note);
   ck('act 0 can be read aloud', /Act 0/.test(r.zeroLabel||''), r.zeroLabel);
   }
 

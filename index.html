@@ -395,12 +395,32 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
 .bpage .bstory{font-size:12pt;line-height:1.72;color:#3A342C;margin:0;
   white-space:pre-wrap}
 .bpage .bstory.none{color:#8A8177;font-style:italic}
+/* THE PICTURES ARE WHAT GIVE.
+   Four photographs in a two-by-two of squares is about seven and a half inches
+   of a page that has seven and two thirds between its margins, and the title,
+   the date, the names and the story all come first. Measured 15 Sep: the
+   photo-heavy page ran over its box by 366px and was cut off, in silence,
+   because the step-downs only ever reached TYPE. No amount of smaller writing
+   buys back an inch of photograph.
+
+   So the block is a flex item that is allowed to shrink. `aspect-ratio` gives
+   it the size it would like, `min-height:0` lets the page take it back when
+   there is not room, and the pictures fill whatever row height is left rather
+   than being cropped by the page edge \u2014 a slightly shorter photograph is a
+   photograph; half a photograph and a missing footer is a printing fault. */
+/* ONE ASPECT FOR FOUR PHOTOGRAPHS IS THE WRONG ASPECT FOR TWO. Found in review:
+   a square block with `1fr` rows makes ONE row when there are two pictures, and
+   gives that row the block's whole square height \u2014 so two landscape photos
+   printed as two tall slivers with their sides cropped away, in a block as deep
+   as four. The block's shape is set by how many are in it now: one row wants a
+   short block, two rows want a tall one, and every cell lands near 4:3. */
 .bpage .bshots{display:grid;grid-template-columns:repeat(2,1fr);gap:0.14in;
-  margin-top:0.24in}
-.bpage .bshots.one{grid-template-columns:1fr}
-.bpage .bshots img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:3px;
-  display:block}
-.bpage .bshots.one img{aspect-ratio:4/3}
+  margin-top:0.24in;grid-auto-rows:1fr;aspect-ratio:4/3;
+  flex:0 1 auto;min-height:2.1in;overflow:hidden}
+.bpage .bshots.one{grid-template-columns:1fr;aspect-ratio:4/3;min-height:1.6in}
+.bpage .bshots.two{aspect-ratio:8/3;min-height:1in}
+.bpage .bshots img{width:100%;height:100%;object-fit:cover;border-radius:3px;
+  display:block;min-height:0}
 .bpage .bfoot{margin-top:auto;padding-top:0.2in;font-size:9pt;color:#A79E90;
   letter-spacing:.12em;text-transform:uppercase;display:flex;
   justify-content:space-between}
@@ -433,9 +453,23 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
 /* a long story simply gets smaller type before it gets cut */
 .bpage.s2 .bstory{font-size:11pt;line-height:1.62}
 .bpage.s3 .bstory{font-size:10pt;line-height:1.5}
-.bpage.s3 .bshots{margin-top:0.16in;gap:0.1in}
 .bpage.s4 .bstory{font-size:9pt;line-height:1.42}
-.bpage.s4 .bshots{margin-top:0.12in}
+/* THE FLOOR WAS THE OVERFLOW. Measured in review: a full page at the last step
+   spilled 4px, and the block was sitting exactly on its own `min-height`. A
+   floor that cannot be crossed is a page that cannot fit. It comes down at every
+   step and reaches nothing at the last one, so the final step always has an
+   answer \u2014 and because the block gives up its height gradually rather than
+   all at once, the type steps down with it instead of after it. */
+.bpage.s2 .bshots{min-height:1.7in}
+.bpage.s2 .bshots.one{min-height:1.3in}
+.bpage.s2 .bshots.two{min-height:0.85in}
+.bpage.s3 .bshots{margin-top:0.16in;gap:0.1in;min-height:1.3in}
+.bpage.s3 .bshots.one{min-height:1in}
+.bpage.s3 .bshots.two{min-height:0.7in}
+.bpage.s4 .bshots{margin-top:0.12in;min-height:0.85in}
+.bpage.s4 .bshots.one,.bpage.s4 .bshots.two{min-height:0.6in}
+.bpage.s5 .bshots{margin-top:0.1in;gap:0.08in;min-height:0}
+.bpage.s5 .bshots.one,.bpage.s5 .bshots.two{min-height:0}
 .bpage.s4 h1{font-size:19pt}
 /* what a claimer wanted to say, under their name */
 .claimrow .csaid{display:block;font-size:13px;line-height:1.45;color:#3A342C;
@@ -785,10 +819,10 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
   color:var(--muted);text-decoration:underline;text-underline-offset:3px;
   min-height:44px;padding:0 12px;cursor:pointer;
   -webkit-tap-highlight-color:transparent}
-#storagebar{position:fixed;left:0;right:0;top:0;z-index:80;background:var(--coralink);
+#storagebar,#stalebar{position:fixed;left:0;right:0;top:0;z-index:80;background:var(--coralink);
   color:#fff;display:flex;align-items:center;gap:12px;justify-content:center;
   padding:calc(8px + var(--safetop)) 14px 8px;font-size:13.5px;font-weight:600}
-#storagebar button{background:#fff;color:var(--coralink);border:0;border-radius:8px;
+#storagebar button,#stalebar button{background:#fff;color:var(--coralink);border:0;border-radius:8px;
   font-weight:700;font-size:13px;padding:8px 12px;min-height:36px;cursor:pointer}
 /* The bar is 64px plus the safe-area inset, and a fixed 44px of body padding did
    not move a sticky header anyway — so it sat over "Your year". It now pushes
@@ -1000,7 +1034,19 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
    headed block did and never comes between the count and the year. */
 .bookends{display:flex;align-items:center;gap:10px;margin:22px 0 0}
 .tile.bookend{width:52px;flex:0 0 52px;aspect-ratio:1;position:relative;padding:0}
+/* RULED 1D. The old `waiting` square is gone; nothing draws it. Kept only so an
+   older cached page cannot lose its border mid-update. */
 .tile.bookend.waiting{background:transparent;border:1.5px dashed var(--line);color:var(--muted)}
+/* THE MILEPOST. Same 52px column the square held, so the row's rhythm is
+   unchanged: a fine coral rule where the year lands, and the month under it. */
+.bookend.milepost{width:52px;flex:0 0 52px;aspect-ratio:1;position:relative;padding:0;
+  background:transparent;border:0;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:5px;cursor:pointer;
+  font-family:inherit;-webkit-tap-highlight-color:transparent}
+.bookend.milepost .mpost{display:block;width:2px;height:22px;border-radius:1px;
+  background:var(--coralink);opacity:.75}
+.bookend.milepost .mpm{display:block;font-size:10.5px;font-weight:700;
+  color:var(--coralink);letter-spacing:.03em;line-height:1}
 .bkrule{flex:0 0 22px;border-top:1px dashed var(--line)}
 .bookends .note{flex:1 1 auto;margin:0;font-size:12.5px;line-height:1.4}
 /* The sash runs across the top-right corner, so a centred mark sits underneath
@@ -1010,7 +1056,13 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
   justify-content:flex-start;padding:0 0 5px 5px}
 .bkmark svg{width:54%;height:54%;display:block}
 /* S3B: every sash keeps its date; only the newest is at full strength */
-.tile .sash.older{opacity:.55}
+/* RULED by G, 15 September 2026: "i do not like the more transparent sash make
+   them all the same." S3B had the newest sash at full strength and every older
+   one set back, to stop eleven of them lining up into one repeating diagonal.
+   He has looked at it and ruled the other way. Every sash is the same.
+   The class is kept and does nothing, so nothing has to be unpicked if he
+   changes his mind; `older` is still put on the older ones. */
+.tile .sash.older{}
   border-color:var(--coralink);color:#fff}
 .tile.next{border:1.5px dashed var(--coralink);color:var(--coralink);background:#FFF6F4}
 .tile .tilenum{position:absolute;left:4px;bottom:2px;color:#fff;font-size:11px;
@@ -1115,6 +1167,12 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
 .tabdot{position:absolute;top:1px;right:calc(50% - 16px);width:9px;height:9px;
   border-radius:50%;background:var(--coral);
   box-shadow:0 0 0 2px rgba(255,255,255,.96)}
+/* THE SHELF HAD NO NUMBER ON IT ANYWHERE A PERSON LOOKS FIRST. Three things
+   waiting to be done sat behind a tab that looked exactly like an empty one.
+   Same dot, given room to say how many. */
+.tabdot.num{width:auto;min-width:15px;height:15px;top:-1px;right:calc(50% - 21px);
+  border-radius:8px;padding:0 4px;color:#fff;font-size:9.5px;font-weight:700;
+  line-height:15px;text-align:center;font-family:inherit}
 .tabs button.on{color:var(--coralink)}
 .tabs .ic{line-height:1}
 /* One drawn set, all five, on a 24 grid at 1.5px with round caps: the same
@@ -1398,8 +1456,8 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
 
     <h3 style="font-size:13px;color:var(--muted);text-transform:uppercase;
         letter-spacing:.05em;margin:26px 0 4px" id="grid-title">The 25</h3>
-    <p class="note" id="grid-note" style="margin:0 0 14px">Every tile is one act.
-      Tap an empty one to plan it.</p>
+    <p class="note" id="grid-next" style="margin:0 0 6px"></p>
+    <p class="note" id="grid-note" style="margin:0 0 14px">Every tile is one act.</p>
     <div class="grid" id="grid"></div>
     <div id="filternote" class="hide" style="margin-top:14px"></div>
 
@@ -2362,7 +2420,7 @@ What you actually did. Why it mattered. Say the awkward parts."></textarea>
 
 <nav class="tabs hide" id="tabs" aria-label="Main">
   <button data-t="home" onclick="go('home')"><span class="ic ics"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3.7 4.6h16.6v14.9H3.6z"/><path d="M3.75 8.9h16.5"/><path d="M9.3 9v10.4"/><path d="M14.75 8.95v10.5"/><path d="M3.8 14.2h16.4"/></svg></span>Your year</button>
-  <button data-t="works"  onclick="go('works')"><span class="ic ics"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.4"/><path d="M12 8.1v7.9"/><path d="M8.05 12h7.9"/></svg></span>Plan &amp; Log</button>
+  <button data-t="works"  onclick="go('works')"><span class="ic ics"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.4"/><path d="M12 8.1v7.9"/><path d="M8.05 12h7.9"/></svg></span><span class="tabdot num hide" id="worksdot"></span>Plan &amp; Log</button>
   <button data-t="browse" onclick="go('browse')"><span class="ic ics"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.6c-3.2 0-5.4 2.3-5.4 5.2 0 1.9 1 3 1.9 3.9.55.55.85 1.15.85 1.85h5.3c0-.7.3-1.3.85-1.85.9-.9 1.9-2 1.9-3.9 0-2.9-2.2-5.2-5.4-5.2z"/><path d="M9.6 17.5h4.8"/><path d="M10.6 20.1h2.8"/></svg></span>Ideas</button>
   <button data-t="people" onclick="go('people')"><span class="ic ics"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="16.8" cy="7" r="2.4"/><path d="M16.4 12a5.1 5.1 0 0 1 4.3 4.6"/><circle cx="8.7" cy="9.1" r="3.2"/><path d="M3.1 19a5.8 5.8 0 0 1 11.3 0"/></svg></span>People</button>
   <button data-t="you" onclick="go('you')"><span class="ic ics"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8.2" r="3.4"/><path d="M5.4 19.6a6.8 6.8 0 0 1 13.2 0"/></svg></span><span class="tabdot hide" id="youdot"></span>You</button>
@@ -2612,6 +2670,10 @@ function serialise(){
                           photos:(w.photos||[]).map(p=>p&&p.id).filter(Boolean),
                           notes:w.notes||[], njr:w.njr||0, askShut:w.askShut?1:0 })),
     acts:S.acts.map(a=>({ no:a.no, t:a.t, out:a.out, who:a.who, cost:a.cost, spends:a.spends||[],
+                          /* the sign-up sheet rides onto the act at the finish
+                             (L62). Named here AND in load() \u2014 invariant 1,
+                             the rule this file has broken four times. */
+                          sheet:a.sheet||null,
                           story:a.story, note:a.note||'', d:a.d||'', hon:a.hon||'', anon:!!a.anon, pipelined:!!a.pipelined, evalAsked:!!a.evalAsked, captions:a.captions||{},
                           posted:a.posted||{},
                           photos:(a.photos||[]).map(p=>p.id), offs:(a.photos||[]).map(p=>p&&p.off?1:0) }))
@@ -2763,10 +2825,100 @@ function dropSnapshots(){
      immediately snapshot the empty year we just deliberately created */
   _lastSnap = Date.now();
 }
+/* ── TWO TABS, AND THE YEAR ONE OF THEM STILL BELIEVES IN ──────────────────
+   The last of the year-loss family, and the one that stayed open through five
+   builds because it cannot be fixed inside a single tab's head.
+
+   `S` is this tab's copy of the year and it is read once, at launch. Open the
+   app in a second tab, finish the year there and start a new one, and the first
+   tab is still holding January — and the moment anything makes it save, it
+   writes January back over the new year. Every guard we added protects against
+   DAMAGE; this is not damage, it is a second honest writer with an old page.
+
+   So the file gets a version number that lives beside it. Every successful save
+   raises it by one. Before writing, a tab checks whether the number on disk is
+   still the one it last wrote: if it is higher, somebody else has written since
+   this tab loaded, and this tab's copy is history. It stops writing — for good,
+   like the storage failure does — and says so, because a tab that quietly keeps
+   saving is exactly the bug.
+
+   Reading one short string on every save costs nothing. The alternative, parsing
+   the whole file back, costs real time on a phone. */
+const GENKEY = LS_KEY + '.gen';
+let _gen = 0;               // the generation THIS tab last put on disk
+let _stale = false;         // another tab has written since we loaded
+function readGen(){
+  try{ return +(localStorage.getItem(GENKEY) || 0) || 0; }catch(e){ return 0; }
+}
+function otherTabAhead(){
+  if(_stale) return true;
+  if(readGen() > _gen){ _stale = true; staleBroke(); return true; }
+  return false;
+}
+/* THE GENERATION IS ONLY A GUARD IF EVERY WRITER RAISES IT.
+   Found in review, and it was the whole fix undone: THREE places wrote the
+   journal key directly and none of them touched the generation — the backup
+   restore, the boot rescue and the old-key migration. The worst of the three is
+   the restore, because it is the one operation with no undo:
+
+     two tabs open, both at generation 5. Tab A restores a backup: the file on
+     disk is replaced, the spare copies are dropped, and every photograph of the
+     old year is DELETED. The generation is still 5, so tab B is not stale, and
+     tab B's next save writes its old year straight back over the restore. The
+     person is left with the words of a year whose photographs have all gone,
+     and no spare copy to go back to.
+
+   One function writes the journal now, and nothing else may. */
+function writeJournal(text){
+  localStorage.setItem(LS_KEY, text);          // throws on a full disk, as before
+  _gen = readGen() + 1;
+  try{ localStorage.setItem(GENKEY, String(_gen)); }catch(_e){}
+}
+/* The browser tells the OTHER tabs when one of them writes, so the tab holding
+   the old year finds out at the moment it happens rather than the next time it
+   tries to save something. */
+try{
+  window.addEventListener('storage', e=>{
+    if(!e || (e.key !== GENKEY && e.key !== LS_KEY)) return;
+    if(readGen() > _gen){ _stale = true; staleBroke(); }
+  });
+}catch(_e){}
+let STALE_WARNED = false;
+function staleBroke(){
+  try{ showStaleBar(); }catch(e){}
+  if(STALE_WARNED) return;
+  STALE_WARNED = true;
+  dlg({ title:'This year is open somewhere else',
+        note:'Another tab or window has this journal open and has saved '+
+             'something newer. To keep from writing over it, this one has '+
+             'stopped saving. Reload to catch up.',
+        ok:'Reload', cancel:'Not now', then:()=>{ try{ location.reload(); }catch(_){} } });
+}
+function showStaleBar(){
+  if($('stalebar')) return;
+  /* both bars are fixed to the top; the running-out-of-room one is the more
+     urgent of the two and it is already saying "not saving" */
+  if($('storagebar')) return;
+  const d = document.createElement('div');
+  d.id = 'stalebar'; d.setAttribute('role','alert');
+  d.innerHTML = '<span>Not saving. This year is open in another window.</span>';
+  const b = document.createElement('button');
+  b.type='button'; b.textContent='Reload';
+  b.onclick = ()=>{ try{ location.reload(); }catch(_){} };
+  d.appendChild(b);
+  document.body.appendChild(d);
+  document.body.classList.add('hasbar');
+  requestAnimationFrame(()=>{
+    document.body.style.setProperty('--barh', Math.ceil(d.getBoundingClientRect().height)+'px');
+  });
+}
 function save(){
   if(!_storageOK) return;
+  /* BEFORE the snapshot, not after: a stale tab must not roll its old year into
+     the spare copies either. */
+  if(otherTabAhead()) return;
   keepSnapshot();
-  try{ localStorage.setItem(LS_KEY, JSON.stringify(serialise())); }
+  try{ writeJournal(JSON.stringify(serialise())); }
   catch(e){
     /* Everything after this point was being kept in memory and lost on the next
        launch, while the app went on saying "Nicely done". Silence was the bug. */
@@ -2828,6 +2980,8 @@ function askToPersist(){
 async function load(){
   let raw=null;
   try{ raw=localStorage.getItem(LS_KEY); }catch(e){ _storageOK=false; return false; }
+  /* what was on disk when this tab picked the year up — see the note on save() */
+  _gen = readGen();
   let o=null;
   if(raw){ try{ o=JSON.parse(raw); }catch(e){ o=null; } }
   /* THE SNAPSHOTS, READ. Three ways in: the file will not parse, the file
@@ -2863,7 +3017,7 @@ async function load(){
     if(back && (fresh || (back.acts||[]).length)){
       o = back;
       RECOVERED = true;
-      try{ localStorage.setItem(LS_KEY, JSON.stringify(back)); }catch(e){}
+      try{ writeJournal(JSON.stringify(back)); }catch(e){}
     }
   }
   if(!o) return false;
@@ -2990,6 +3144,8 @@ async function load(){
                   spends:Array.isArray(a.spends)?a.spends:[],
                   d:a.d||'', hon:a.hon||'', anon:!!a.anon, pipelined:!!a.pipelined, evalAsked:!!a.evalAsked, captions:a.captions||{},
                   posted:a.posted||{}, note:a.note||'',
+                  /* named in serialise() too — invariant 1 */
+                  sheet:(a.sheet && typeof a.sheet==='object') ? a.sheet : null,
                   story:a.story||'', photos });
     (Array.isArray(a.offs)?a.offs:[]).forEach((v,i)=>{ if(v && photos[i]) photos[i].off=true; });
     /* ghost acts with no name, no number and no square are noise, not journal */
@@ -3011,15 +3167,44 @@ async function load(){
 
      Nothing writes S.pubkey any more — it has not been set anywhere in the code
      for a long time — so this runs at most once per person, and then never. */
+  /* ONE SECRET STILL OPENED EVERY OLD SHEET. The master key was retired from
+     the file correctly, and then handed to every keyless sheet \u2014 the same
+     value into all of them. Changing that value is not ours to do: the server
+     stored its fingerprint when the sheet went up and will not accept another,
+     so a fresh key locks the owner out of their own poster.
+
+     What CAN be done is give it only to the sheets it is still the key to.
+     A sheet that is not live has nothing left to open: the page is down or
+     deleted, the words are on the phone either way, and putting it up again
+     mints a new sheet with a key of its own. So a live legacy sheet keeps it,
+     everything else gets nothing, and the one secret now opens only the pages
+     that are actually up \u2014 for most people, none. */
   if(S.pubkey){
     (S.works||[]).forEach(w=>{
       const sh = w && w.sheet;
-      if(sh && typeof sh === 'object' && !sh.key) sh.key = S.pubkey;
+      /* `live` is cleared by the thirty-day sweep on any sheet whose date will
+         not parse \u2014 which is exactly what a legacy sheet has \u2014 so keying
+         on `live` alone could deny a still-up poster the only key that opens it,
+         permanently, and the master key is dropped two lines later. Erring the
+         other way costs nothing: a key to a dead sheet opens nothing. */
+      if(sh && typeof sh === 'object' && !sh.key && !sh.done) sh.key = S.pubkey;
     });
     S.pubkey = '';
-    try{ localStorage.setItem(LS_KEY, JSON.stringify(serialise())); }catch(e){}
+    try{ writeJournal(JSON.stringify(serialise())); }catch(e){}
   }
   return true;
+}
+
+/* One rule, one place. It used to live inline in the works loop, which is why
+   it did not follow the sheet when the sheet moved onto an act. */
+function stripClaims(holder){
+  if(!holder || !holder.sheet || typeof holder.sheet !== 'object') return holder;
+  const sheet = Object.assign({}, holder.sheet);
+  if(Array.isArray(sheet.claims))
+    sheet.claims = sheet.claims.map(c=>(c && typeof c==='object')
+      ? { pos:c.pos, grp:c.grp, text:c.text, taken:!!(c.name) } : null);
+  holder.sheet = sheet;
+  return holder;
 }
 
 /* ── taking a copy with you ─────────────────────────────────────────────────
@@ -3060,6 +3245,13 @@ async function exportJournal(){
       const a = Object.assign({}, o.acts[i]);
       const live = S.acts.filter(x=>String(x.no)===String(a.no))[0];
       delete a.photos;
+      /* THE CLAIM LIST DOES NOT GO IN THE BACKUP. The works loop below has said
+         so since the sheet shipped; an act never carried a sheet, so an act
+         never needed it. Since the sheet rides onto the act at the finish, it
+         did — and forty strangers' names, phone numbers and messages went
+         straight into a file the app tells people to put in iCloud Drive. The
+         rule moves with the data. */
+      stripClaims(a);
       if(i) parts.push(',');
       const aj = JSON.stringify(a);
       parts.push(aj.slice(0, aj.length-1));
@@ -3095,13 +3287,7 @@ async function exportJournal(){
          credential for it. What does not travel is other people's details. A
          restored journal shows the sheet and re-reads the live one from the
          server, which is where the thirty-day rule already lives. */
-      if(slim.sheet && typeof slim.sheet === 'object'){
-        const sheet = Object.assign({}, slim.sheet);
-        if(Array.isArray(sheet.claims))
-          sheet.claims = sheet.claims.map(c=>(c && typeof c==='object')
-            ? { pos:c.pos, grp:c.grp, text:c.text, taken:!!(c.name) } : null);
-        slim.sheet = sheet;
-      }
+      stripClaims(slim);
       if(i) parts.push(',');
       const wj = JSON.stringify(slim);
       parts.push(wj.slice(0, wj.length-1));
@@ -3134,6 +3320,7 @@ async function exportJournal(){
       const pacts = yr.acts||[];
       for(let i=0;i<pacts.length;i++){
         const pa = Object.assign({}, pacts[i]); delete pa.photos;
+        stripClaims(pa);            // a past year's acts carry sheets too
         if(i) parts.push(',');
         const aj = JSON.stringify(pa);
         parts.push(aj.slice(0, aj.length-1));
@@ -3316,7 +3503,7 @@ function importJournal(input){
           }
 
           const olds = currentPhotoIds();
-          localStorage.setItem(LS_KEY, JSON.stringify(slim));   // the point of no return
+          writeJournal(JSON.stringify(slim));   // the point of no return
           /* the spare copies belong to the journal that has just been replaced,
              and its photographs are about to be deleted a few lines down. Left
              behind, they could be handed back over the imported year — words
@@ -6191,6 +6378,21 @@ function drawCal(){
     if(d.getMonth()===m && d.getFullYear()===y)
       (plans[d.getDate()] = plans[d.getDate()]||[]).push(Object.assign({no:slot},pl));
   });
+  /* WHAT YOU MEANT TO DO VANISHED FROM THE CALENDAR.
+     Plans used to live in numbered squares and this read them from there. The
+     grid became the finished year, plans became acts in the works, and the
+     migration empties S.plans on the first load after the update \u2014 so from
+     that launch on, every dated intention the person had disappeared from the
+     month view. Tapping the day still opened the right thing; there was simply
+     nothing on the day to tell them it was there.
+     The shelf is where an intention lives now, so that is what this reads. */
+  (S.works||[]).forEach(w=>{
+    if(!w || !w.d) return;
+    const d=new Date(w.d+'T00:00:00');
+    if(isNaN(d.getTime())) return;
+    if(d.getMonth()===m && d.getFullYear()===y)
+      (plans[d.getDate()] = plans[d.getDate()]||[]).push({t:w.t||'', wk:1});
+  });
 
   const count = Object.keys(acts).reduce((n,k)=>n+acts[k].length,0);
   $('cal-sub').textContent = count
@@ -6260,8 +6462,9 @@ function drawCal(){
       list += '<div style="display:flex;gap:10px;padding:7px 0;border-top:1px solid var(--line)">'+
         '<b style="min-width:26px;color:var(--gold)">'+d+'</b>'+
         '<span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;'+
-        'white-space:nowrap;font-size:14.5px;color:var(--muted)">'+esc(pl.t||'Planned')+'</span>'+
-        '<span class="note" style="margin:0">planned</span></div>';
+        'white-space:nowrap;font-size:14.5px;color:var(--muted)">'+
+        esc(pl.t||(pl.wk?'In the works':'Planned'))+'</span>'+
+        '<span class="note" style="margin:0">'+(pl.wk?'in the works':'planned')+'</span></div>';
     });
   });
   $('cal-list').innerHTML = list;
@@ -6918,6 +7121,12 @@ function drawSheetPanel(){
       '<button class="btn mini ghost" type="button" onclick="askRefresh()">Who signed up</button>'+
       '<button class="btn mini ghost" type="button" onclick="askPoster(ASK_PV)">Print it</button>'+
       '</div>'+
+      /* L62. Until now the only way a sheet came down was the Worker deleting
+         it at thirty days. */
+      '<div class="askbar" style="margin-top:8px">'+
+      '<button class="btn mini ghost" type="button" onclick="askTakeDown()">'+
+        'Take the page down</button>'+
+      '</div>'+
       '<p class="askhint" style="padding-left:0;text-align:center;margin:12px 0 2px">'+
         'Or send the link instead of printing anything:</p>'+
       '<p class="qrlink">actsofgood.app/a/'+sh.id+'</p>'
@@ -7197,14 +7406,108 @@ function askKeyGet(){
   return sh.key;
 }
 
+/* ── WHAT ACTUALLY WENT WRONG ──────────────────────────────────────────────
+   Four calls talk to the sheet and, between them, they had three sentences:
+   "try again in a moment", "try once more in a moment", and "no connection".
+   Every one of these came back as the first of those:
+
+     · the sheet has been up thirty days and the server has DELETED it. Trying
+       again in a moment will not bring it back, and the app already knew.
+     · the sheet was refused for holding more than sixty things. Trying again
+       sends the same sheet and gets the same refusal, for ever.
+     · the sheet was closed and somebody is trying to free a row on it.
+     · the phone is on a train.
+
+   Only the last of those is "in a moment". The rest are the app blaming the
+   signal for something it had been told in plain words. The server has always
+   answered with a reason; nothing read it.
+
+   `e` is whatever the call threw or returned: a Response, or an error. No
+   response at all is the only genuine "no connection". */
+async function sheetTrouble(e, tail){
+  const also = tail ? ' ' + tail : '';
+  if(!e || typeof e.status !== 'number'){
+    say('No connection', 'The sheet needs the internet.' + also +
+        ' The poster does not.');
+    return;
+  }
+  let msg = '';
+  try{ const j = await e.json(); msg = (j && j.error) ? String(j.error) : ''; }catch(_){}
+  if(e.status === 401){
+    say('This sheet is not yours',
+        'It was made on another phone. Make a new sheet and it is yours.');
+    return;
+  }
+  if(e.status === 404 || msg === 'gone'){
+    say('This sheet has finished',
+        'A sheet comes down thirty days after it goes up, and everything on it '+
+        'is deleted then \u2014 which is what the page promised the people who '+
+        'signed it. What you wrote is still here, and you can put it up again.');
+    return;
+  }
+  if(e.status === 400 && /up to/.test(msg)){
+    say('That is more than one sheet holds', msg);
+    return;
+  }
+  if(msg === 'closed'){
+    say('The page is down',
+        'This sheet has been taken down, so nothing on it can change. Put it '+
+        'up again first.');
+    return;
+  }
+  if(msg === 'not yet'){
+    say('That did not go through',
+        'The sheet needs its newest update before rows can be put back.');
+    return;
+  }
+  if(msg === 'not yours'){
+    say('Nobody is holding that one',
+        'It is already back on the list.');
+    return;
+  }
+  /* genuinely unexplained: the honest version of "try again" */
+  say('Something went wrong at the other end',
+      'The sheet did not answer properly.' + also + ' Try again in a moment.');
+}
+
+/* THE CAP THE APP NEVER CHECKED BEFORE SENDING. The server refuses a sheet
+   holding more than sixty things, and the phone found out by being refused and
+   then told the person to try again \u2014 which sent the identical sheet, and
+   was refused identically, for as long as they were willing to keep tapping. */
+const ASK_MAX = 60;
+
 async function askPublish(){
   const sh=askOf(); if(!sh) return;
+  /* A POSTER WHOSE KEY CANNOT BE SAVED IS A POSTER YOU HAVE ALREADY LOST.
+     askKeyGet() mints a key and calls save() to keep it. In a tab that has
+     stopped saving \u2014 out of room, or holding an old year behind another
+     window \u2014 that save is a no-op: the sheet goes up on the internet, the
+     server stores the key's fingerprint, and the only copy of the key is thrown
+     away when the tab closes. The owner cannot read it, free a row or take it
+     down, ever. It comes down at thirty days and not before. */
+  if(!_storageOK || _stale){
+    say('Not while this is not saving',
+        _stale ? 'This journal is open in another window, so nothing here is '+
+                 'being kept \u2014 including the key to a new sheet, which you '+
+                 'would never get back. Reload first.'
+               : 'Your phone has run out of room, so the key to this sheet '+
+                 'could not be saved and you would not be able to take the page '+
+                 'down again. Free some space first.');
+    return;
+  }
   /* keep each need's count with it as the blanks are dropped */
   const q=sh.qty||[];
   const needs=(sh.slots||[]).map((t,i)=>({text:String(t).trim(), n:(q[i]>1?q[i]:1)}))
                             .filter(x=>x.text);
   const slots=needs;
   if(!slots.length){ say('Nothing on it yet','Add at least one thing that is needed.'); return; }
+  /* asked BEFORE it is sent, so the answer is the truth rather than a refusal */
+  if(slots.length > ASK_MAX){
+    say('That is more than one sheet holds',
+        'A sheet can hold up to '+ASK_MAX+' different things and this one has '+
+        slots.length+'. Split it into two sheets.');
+    return;
+  }
   /* RULED 21A, 12 September 2026 — the page shows what the poster shows.
 
      Four of seven testers stopped on "Someone with a van, Saturday morning."
@@ -7223,14 +7526,15 @@ async function askPublish(){
                 where:fact('where'), who:fact('who') };
   const key=askKeyGet(); if(!key) return;
   try{
+    /* `closed:0` IS THE WHOLE OF "put it up again". The server only touches that
+       column when the field is present, so without this a sheet taken down
+       stayed shut for ever while the app insisted it was live and the dialog
+       promised it could be put back. */
     const r=await fetch(AOG_BASE+'/a/'+sh.id,{method:'PUT',
       headers:{'content-type':'application/json','authorization':'Bearer '+key},
       body:JSON.stringify({reason:sh.reason||'',lede:sh.lede||'',when:(WK&&WK.d)||'',
-                           facts:facts,slots:slots})});
-    if(r.status===401){
-      say('This sheet is not yours',
-          'It was made on another phone. Make a new sheet and it is yours.'); return; }
-    if(!r.ok){ say('It did not go up','Try again in a moment.'); return; }
+                           facts:facts,slots:slots,closed:0})});
+    if(!r.ok){ await sheetTrouble(r, 'It did not go up.'); return; }
     /* WHEN it went up, written by the app on the first publish and never
        touched again. The Worker has always had its own `created_at`; the phone
        had nothing, which is why it could not honour the same thirty days. */
@@ -7257,7 +7561,85 @@ async function askPublish(){
                 'the sheet exactly as they were read. Message them if anything '+
                 'needs to change.');
     }catch(_){ /* an older Worker says nothing; that is not a failure */ }
-  }catch(_){ say('No connection','The sheet needs the internet to go up. The poster does not.'); }
+  }catch(_){ await sheetTrouble(null, 'It did not go up.'); }
+}
+
+/* ── TAKING IT DOWN ────────────────────────────────────────────────────────
+   There was no request in the app that ended a sheet. A sheet came down when
+   the Worker deleted it at thirty days and not one moment before, so an act
+   finished on the Tuesday left a page up for another three weeks inviting
+   people to bring something to a thing that had already happened.
+
+   The Worker has been able to do this the whole time — `closed` is a column on
+   the sheet, it refuses new sign-ups, and the public page turns into the thank
+   -you it shows when everything is taken. The phone simply never sent it. This
+   sends it.
+
+   The needs are sent again unchanged because the route requires them, and it
+   is the same route: nothing is deleted, the names already on it stay readable,
+   and putting it up again is still one tap. */
+/* THE SERVER'S UPSERT OVERWRITES WHAT A PUBLISH DOES NOT MENTION.
+   Found in review, and it was two faults in one line. `facts` is guarded on the
+   Worker \u2014 a publish that does not mention details leaves them alone \u2014
+   but `when_date` is NOT: it is written from `body.when` every time, so a close
+   that sent no date silently wiped the day off the sheet. And `closed` is only
+   touched when it is present, so a close that was never followed by an OPEN
+   left the sheet shut in the database for ever: the app would say "Live", the
+   poster would scan, and every stranger would be told it was over.
+
+   One builder for both, so the close and the publish can never disagree about
+   what a sheet is again. */
+/* `day` is the ISO date the route stores. It is NOT `sh.when`, which is already
+   the ticked "When" detail \u2014 free text like "Friday, September 11" that the
+   organiser types. Writing a date into that field would have replaced what the
+   poster says with 2026-09-20. Grep a name before taking it. */
+function askBody(sh, day, extra){
+  const q = sh.qty||[];
+  const slots = (sh.slots||[]).map((t,i)=>({text:String(t).trim(), n:(q[i]>1?q[i]:1)}))
+                              .filter(x=>x.text);
+  const on = sh.on||{};
+  const fact = k=> on[k] ? String(sh[k]||'').trim().slice(0,140) : '';
+  const body = { reason:sh.reason||'', lede:sh.lede||'',
+                 when: day ? String(day) : '',
+                 facts:{ why:fact('why'), when:fact('when'), time:fact('time'),
+                         where:fact('where'), who:fact('who') },
+                 slots:slots };
+  return Object.assign(body, extra||{});
+}
+/* A REFUSAL IS NOT A SUCCESS. This used to answer three of its own guards with
+   `return false`, and both callers only caught a throw \u2014 so a sheet with no
+   key, or whose needs had been emptied, reported "The page is down", marked
+   itself finished, and hid the only buttons that could have fixed it, while the
+   poster went on taking sign-ups. It throws now, like the network does. */
+async function askSetClosed(sh, on, day){
+  if(!sh || !sh.id) throw new Error('no sheet');
+  if(!sh.key) throw new Error('no key');
+  const body = askBody(sh, day, { closed: on?1:0 });
+  if(!body.slots.length) throw new Error('nothing on it');
+  const r = await fetch(AOG_BASE+'/a/'+sh.id,{method:'PUT',
+    headers:{'content-type':'application/json','authorization':'Bearer '+sh.key},
+    body:JSON.stringify(body)});
+  if(!r.ok) throw r;
+  return true;
+}
+function askTakeDown(){
+  const sh = askOf(); if(!sh) return;
+  /* the day the sheet is for lives on the work, not on the sheet; it is carried
+     so the server's upsert does not write an empty one over it */
+  const day = (WK && WK.d) || '';
+  checkFirst('Take the page down?',
+    'Anyone who scans the square or follows the link sees a thank you instead '+
+    'of a list. Nobody new can sign up. Everyone already on it stays on it, and '+
+    'you can put it back up whenever you like.',
+    'Take it down',
+    async ()=>{
+      try{
+        await askSetClosed(sh, 1, day);
+        sh.live = 0; sh.done = 1;
+        workKeep(); save(); drawSheetPanel();
+        undoBar('The page is down.', ()=>{}, ()=>{});
+      }catch(e){ sheetTrouble(e, 'The page is still up.'); }
+    }, 'Leave it up');
 }
 
 async function askRefresh(){
@@ -7265,10 +7647,67 @@ async function askRefresh(){
   const key=askKeyGet(); if(!key) return;
   try{
     const r=await fetch(AOG_BASE+'/a/'+sh.id+'.json',{headers:{'authorization':'Bearer '+key}});
-    if(!r.ok){ say('Could not read it back','Check the key, or try again in a moment.'); return; }
+    if(!r.ok){
+      /* a sheet the server has deleted answers 404, and the app used to tell
+         the person to check the key */
+      await sheetTrouble(r, 'The names could not be read back.');
+      /* it is gone at the other end: stop calling it live */
+      if(r.status===404){ sh.live=0; sh.done=1; workKeep(); save(); drawSheetPanel(); }
+      return;
+    }
     const j=await r.json();
-    sh.claims=j.slots||[]; save(); drawClaims();
-  }catch(_){ say('No connection','Try again when you have signal.'); }
+    sh.claims=takeClaims(j);
+    /* THE SERVER SAYS SO ON EVERY READ AND NOTHING LISTENED. `closed` comes back
+       on the owner's own read of their own sheet; the filter dropped it, so the
+       app could go on calling a shut page live for ever. */
+    if(j && j.closed){ sh.live = 0; sh.done = 1; }
+    save(); drawClaims(); drawSheetPanel();
+  }catch(_){ await sheetTrouble(null, 'The names could not be read back.'); }
+}
+
+/* ── WHAT COMES BACK FROM THE SERVER IS NOT TRUSTED ────────────────────────
+   L65. `sh.claims = j.slots || []` wrote the reply into the saved journal whole:
+   no shape checked, no length limit, every field kept whatever it was and
+   however long. A perfectly legal sheet was measured pushing the saved file to
+   4.3MB \u2014 the same few megabytes the whole journal lives in, so a busy
+   sign-up sheet could take the year down with it, and every one of those bytes
+   rode out in the backup file too.
+
+   Our own Worker writes this, so it is a wall rather than a door. The point is
+   that the journal's size must not be decided at the other end of a network
+   call. Fields we name, lengths we set, and a ceiling on the rows. */
+/* A ROW COUNT IS NOT A SIZE. The first attempt capped at 400 rows against a
+   comment that said twelve places to a need; the real ceiling is FORTY, which
+   the app enforces in askQtyTyped and the Worker in the same breath, so the
+   largest sheet the product can make is sixty needs of forty \u2014 2400 places.
+   Capping at 400 would silently lose rows an organiser can count on their own
+   poster. Capping at 2400 with every field at its limit is 1.9MB, which is the
+   fault this exists to prevent wearing a different hat.
+
+   So the budget is in BYTES, and it sheds in the order that costs least. Every
+   row keeps its place and its name, because that is what the organiser came to
+   read. What a claimer typed is the long field and the first to go. Nothing
+   here is a limit a real sheet will ever meet: act 22, the largest we have,
+   wanted eight things. */
+const CLAIM_MAX  = 2400;        // sixty needs, each able to want forty
+const CLAIM_SOFT = 200000;      // past this, stop keeping what people typed
+const CLAIM_HARD = 500000;      // past this, stop keeping rows at all
+function takeClaims(j){
+  const raw = (j && Array.isArray(j.slots)) ? j.slots : [];
+  const cut = (v,n) => v==null ? '' : String(v).slice(0,n);
+  const num = v => (typeof v==='number' && isFinite(v)) ? v : null;
+  const out = [];
+  let size = 0;
+  for(let i=0; i<raw.length && i<CLAIM_MAX && size<CLAIM_HARD; i++){
+    const c = raw[i];
+    if(!c || typeof c !== 'object') continue;
+    const row = { pos:num(c.pos), grp:num(c.grp), text:cut(c.text,200),
+                  name:cut(c.name,60), contact:cut(c.contact,120),
+                  note: size<CLAIM_SOFT ? cut(c.note,400) : '' };
+    size += row.text.length + row.name.length + row.contact.length + row.note.length + 60;
+    out.push(row);
+  }
+  return out;
 }
 
 /* ── "someone signed up" ──────────────────────────────────────────────────
@@ -7301,7 +7740,17 @@ function claimAge(sh){
 }
 function forgetOldClaims(){
   let changed = 0;
-  (S.works||[]).forEach(w=>{
+  /* A sheet now survives the finish (L62), so the promise has to follow it
+     there. This walked the shelf only, and a sheet that had moved on to a
+     finished act would have kept a stranger's number for ever \u2014 the same
+     hole the undated sheet had, in a new place. */
+  /* AND A PAST YEAR. A rollover moves S.acts into S.past whole, and nothing
+     walked it — so a sheet that rode onto an act and then survived a rollover
+     kept every contact and note for ever, and exported them in every backup.
+     Before the sheet followed the act this was not reachable. It is now. */
+  const past = (S.past||[]).reduce((n,y)=>n.concat((y&&y.acts)||[]), []);
+  const holders = (S.works||[]).concat(S.acts||[], past);
+  holders.forEach(w=>{
     const sh = w && w.sheet;
     if(!sh) return;
     /* AN UNDATED SHEET IS OLD, NOT YOUNG. This read `claimAge(sh) < CLAIM_DAYS`,
@@ -7356,8 +7805,12 @@ function forgetOldClaims(){
 let CLAIMBAR_T = null;
 async function claimSweep(){
   const live = [];
-  (S.works||[]).forEach(w=>{ if(w && w.sheet && w.sheet.live && w.sheet.key)
-                               live.push(w.sheet); });
+  /* THE SHEET SURVIVES THE FINISH NOW AND THIS DID NOT FOLLOW IT. Somebody who
+     answered "leave it up" at the finish had a live page nobody ever looked at
+     again: no "someone signed up", and the names frozen at the moment they
+     finished. */
+  (S.works||[]).concat(S.acts||[]).forEach(w=>{
+    if(w && w.sheet && w.sheet.live && w.sheet.key) live.push(w.sheet); });
   if(!live.length) return;
   let fresh = 0, where = '';
   for(const sh of live){
@@ -7367,7 +7820,7 @@ async function claimSweep(){
                              cache:'no-store'});
       if(!r.ok) continue;
       const j = await r.json();
-      const slots = j.slots || [];
+      const slots = takeClaims(j);
       sh.claims = slots;
       const taken = slots.filter(x=>x && x.name).length;
       const was = (sh.seen === undefined) ? taken : sh.seen;
@@ -7393,7 +7846,9 @@ function dropClaimBar(){ const b=$('claimbar'); if(b) b.classList.remove('up');
 function goClaims(){
   dropClaimBar();
   const w = (S.works||[]).find(x=>x && x.sheet && x.sheet.live);
-  if(w) openWork(w);
+  if(w){ openWork(w); return; }
+  const a = (S.acts||[]).find(x=>x && x.sheet && x.sheet.live);
+  if(a){ S.current = a; go('card'); }
 }
 
 /* small numbers as words, the same as the sheet page uses */
@@ -7496,11 +7951,11 @@ async function askFree(pos){
         const r=await fetch(AOG_BASE+'/a/'+sh.id+'/release',{method:'POST',
           headers:{'content-type':'application/json','authorization':'Bearer '+key},
           body:JSON.stringify({pos:pos})});
+        if(!r.ok){ await sheetTrouble(r, 'The row was not put back.'); return; }
         const j=await r.json().catch(()=>({}));
-        if(!r.ok || j.error){
-          say('That did not go through', j.error==='not yet'
-            ? 'The sheet needs its newest update before rows can be put back.'
-            : 'Try once more in a moment.');
+        if(j && j.error){
+          /* a 200 carrying a reason: hand it the same reader by wrapping it */
+          await sheetTrouble({status:409, json:async()=>j}, 'The row was not put back.');
           return;
         }
         /* show it immediately, then let the next look confirm it */
@@ -7508,7 +7963,7 @@ async function askFree(pos){
         if(row){ row.name=''; row.contact=''; row.note=''; }
         workKeep(); save(); drawClaims(); drawAsk();
         undoBar('Put back on the list', ()=>{}, ()=>{});
-      }catch(e){ say('No connection','Try again in a moment.'); }
+      }catch(e){ await sheetTrouble(null, 'The row was not put back.'); }
     }, 'Leave it');
 }
 
@@ -7715,7 +8170,7 @@ async function bookAct(a, mark, goal){
     (a.d ? '<p class="bdate">'+esc(fmtLong(a.d))+'</p>' : '')+
     who+'<div class="brule"></div>'+
     (a.story ? '<p class="bstory">'+esc(a.story)+'</p>' : '')+
-    (shots.length ? '<div class="bshots'+(shots.length===1?' one':'')+'">'+
+    (shots.length ? '<div class="bshots'+(shots.length===1?' one':shots.length===2?' two':'')+'">'+
         shots.map(u=>'<img src="'+esc(u)+'" alt="">').join('')+'</div>' : '')+
     bookFoot(mark||'', 'act '+esc(a.no)) + '</div>';
 }
@@ -7738,12 +8193,13 @@ function bookHonours(acts){
      being cut off is not a layout problem, it is the book failing to do the
      thing it exists for. So it runs onto as many pages as it needs.
 
-     HOW MANY FIT is worked out from the trim rather than guessed, so it follows
-     a printer's spec like everything else: the text column is the page height
-     less its margins, less the heading and the footer, and a name is one line
-     at 12pt/1.55 plus its padding. The figure is deliberately conservative —
-     a short page is nothing, a cut name is the fault this fixes. Whatever is
-     left over, fitBook() still steps the type down. */
+     HOW MANY FIT starts from the trim — the text column is the page height less
+     its margins, less the heading and the footer, and a name is one line at
+     12pt/1.55 plus its padding — but that is only a FIRST GUESS and it is wrong
+     whenever a name wraps or somebody is honoured in several acts. Twenty-five
+     real names overflowed a page by 185px with this number alone.
+     reflowHonours() measures the rendered pages afterwards and moves names off
+     any page that does not fit. This number only decides where it starts. */
   const PAGE_IN = parseFloat(getComputedStyle(document.documentElement)
                     .getPropertyValue('--bookh')) || 8.5;
   const MY_IN   = parseFloat(getComputedStyle(document.documentElement)
@@ -7887,6 +8343,59 @@ async function printJournal(){
 /* Same discipline as the poster: measure, do not guess. A long story steps
    down through four sizes rather than running off the bottom of the page. */
 const BOOK_STEPS = ['','s2','s3','s4','s5'];
+/* Does anything inside this page stand outside its margins? `scrollHeight` only
+   ever reveals what runs off the BOTTOM, and a centred page spills at both ends
+   — the blind spot that let fitBook declare a clipped page fitted. */
+function spills(g){
+  const box = g.getBoundingClientRect();
+  const padT = parseFloat(getComputedStyle(g).paddingTop)  || 0;
+  const padB = parseFloat(getComputedStyle(g).paddingBottom)|| 0;
+  let top = Infinity, bot = -Infinity;
+  g.querySelectorAll(':scope > *').forEach(ch=>{
+    if(ch.classList.contains('bplate')) return;        // the border, not content
+    const r = ch.getBoundingClientRect();
+    if(!r.height && !r.width) return;
+    if(r.top < top) top = r.top;
+    if(r.bottom > bot) bot = r.bottom;
+  });
+  if(top === Infinity) return false;
+  return (top < box.top + padT - 1) || (bot > box.bottom - padB + 1);
+}
+/* THE HONOUR ROLL WAS PAGINATED BY ARITHMETIC AND THE ARITHMETIC WAS A GUESS.
+   5M worked out how many names fit from the trim and a fixed height per name —
+   which is right only if every name is one line. A long name, or somebody
+   honoured in six acts, wraps; twenty-five real names overflowed the first page
+   by 185px and `.bpage` clips in silence. The same fault as before, one layer
+   further in: a NUMBER standing in for a MEASUREMENT.
+
+   So it is measured. A page that does not fit hands its last name to the next
+   one, and makes a next one if there is none. Bounded by the number of names,
+   which is bounded by the number of acts. These are the names the year was for;
+   they are worth a loop. */
+function reflowHonours(b){
+  const pages = [...b.querySelectorAll('.bpage')].filter(p=>p.querySelector('.bhonlist'));
+  if(!pages.length) return;
+  let guard = 0;
+  for(let i=0; i<pages.length && guard < 4000; i++){
+    const pg = pages[i], ul = pg.querySelector('.bhonlist');
+    if(!ul) continue;
+    while(ul.children.length > 1 &&
+          (pg.scrollHeight > pg.clientHeight + 1 || spills(pg)) &&
+          guard++ < 4000){
+      let next = pages[i+1];
+      if(!next){
+        next = pg.cloneNode(true);
+        const h = next.querySelector('h1');
+        if(h) h.textContent = 'The names this year was for, continued';
+        const nl = next.querySelector('.bhonlist'); if(nl) nl.innerHTML = '';
+        pg.parentNode.insertBefore(next, pg.nextSibling);
+        pages.push(next);
+      }
+      const nul = next.querySelector('.bhonlist');
+      nul.insertBefore(ul.lastElementChild, nul.firstChild);
+    }
+  }
+}
 function fitBook(){
   const b = $('book'); if(!b) return;
   const prev = { d:b.style.display, pos:b.style.position, l:b.style.left };
@@ -7895,21 +8404,7 @@ function fitBook(){
      ever reveals the half below — so the half above was lost with no signal at
      all, and this loop happily declared the page fitted. Walk the children and
      measure against the page's own box instead. */
-  const spills = g => {
-    const box = g.getBoundingClientRect();
-    const padT = parseFloat(getComputedStyle(g).paddingTop)  || 0;
-    const padB = parseFloat(getComputedStyle(g).paddingBottom)|| 0;
-    let top = Infinity, bot = -Infinity;
-    g.querySelectorAll(':scope > *').forEach(ch=>{
-      if(ch.classList.contains('bplate')) return;      // the border, not content
-      const r = ch.getBoundingClientRect();
-      if(!r.height && !r.width) return;
-      if(r.top < top) top = r.top;
-      if(r.bottom > bot) bot = r.bottom;
-    });
-    if(top === Infinity) return false;
-    return (top < box.top + padT - 1) || (bot > box.bottom - padB + 1);
-  };
+  reflowHonours(b);
   b.querySelectorAll('.bpage').forEach(g=>{
     for(const c of BOOK_STEPS){
       BOOK_STEPS.forEach(x=>{ if(x) g.classList.remove(x); });
@@ -8162,6 +8657,7 @@ function drawWork(){ if(!WK){ go('works'); return; } killDisarm(); }
 function drawWorks(){
   const box=$('workslist'); box.innerHTML='';
   const list=(S.works||[]);
+  try{ drawNext(); }catch(_e){}      // the shelf and its badge, from one truth
   $('works-h').textContent = list.length ? 'Acts in the works \u00b7 '+list.length : 'Acts in the works';
   $('works-sub').textContent = S.acts.length ? (S.acts.length+' done') : '';
   if(!list.length){
@@ -8213,16 +8709,50 @@ function finishGo(){
               story:w.story||'', d:d,
               anon: FIN_ANON, pipelined:true, captions:{}, posted:{}, note:'',
               photos:(w.photos||[]).slice() };
+  /* L62 — THE SHEET USED TO DIE HERE, IN SILENCE.
+     The work object is deleted two lines down and everything hung off it goes
+     with it, including the sign-up sheet: its id, its key, and the only record
+     that the page exists. The public page stayed up asking strangers to help
+     with something already finished, and the person who put it there had no way
+     left to read it, to put a row back, or to take it down. Not a leak — the
+     names went with the work — but an abandoned promise on a public address.
+
+     The sheet rides onto the act instead. Same object, same key, so everything
+     that knows how to talk to a sheet still can. */
+  if(w.sheet && w.sheet.id) a.sheet = w.sheet;
   S.acts.push(a); S.current=a;
   workKeep();
   const i=S.works.indexOf(w); if(i>-1) S.works.splice(i,1);
   WK=null; save();
   sheet(null);
+  /* L62, the other half. The sheet now survives the finish, but a finished act
+     has no screen that shows one \u2014 so if it is still live this is the last
+     moment anybody can be asked about it. Asked, not done: taking a page down
+     is the organiser's call, and somebody may well be collecting for one more
+     day. Saying no is not a dead end; it comes down on its own at thirty days
+     either way. */
+  if(a.sheet && a.sheet.live) setTimeout(()=>offerTakeDown(a), 0);
   CM_BACK='home';   // a first-time finisher has never seen the card screen
   /* one posting page, ruled 30 Aug: the finish lands directly on Post it —
      card, photos riding along, your post, where, share. The card screen stays
      reachable from the act itself for halves, renumbering, do-it-again. */
   openCompose();
+}
+
+function offerTakeDown(a){
+  const sh = a && a.sheet; if(!sh || !sh.live) return;
+  const day = a.d || '';                     // see askTakeDown
+  checkFirst('The sign-up page is still up',
+    'People can still scan the square and put their name down for something '+
+    'that has now happened. Taking it down leaves a thank you in its place. '+
+    'Everyone already on it stays on it.',
+    'Take it down',
+    async ()=>{
+      try{
+        await askSetClosed(sh, 1, day);
+        sh.live = 0; sh.done = 1; save();
+      }catch(e){ await sheetTrouble(e, 'The page is still up.'); }
+    }, 'Leave it up');
 }
 
 /* ── grid ── */
@@ -8247,9 +8777,38 @@ function drawBookend(el, act, n){
     }
     el.onclick = ()=>{ S.current = act; go(act.zero ? 'card' : 'card'); };
   } else {
-    el.className = 'tile bookend waiting';
-    el.textContent = n;
+    /* RULED 1D by G, 15 September 2026, from four drawn options.
+       WHY THE BOX WENT. A dashed numbered square is the app's own visual
+       language for work you have not done \u2014 it is exactly what an unplanned
+       act looks like in the grid two inches below \u2014 and this one sat in the
+       middle of the screen for twelve months. So the end of the year is a
+       milepost the row travels toward: a fine coral rule and the month you land
+       in. A destination, not a box you owe.
+       "say the month and not day" \u2014 so it is a month, and the line under the
+       row speaks in months at both ends. */
+    el.className = 'bookend milepost';
+    el.innerHTML = '<span class="mpost" aria-hidden="true"></span>'+
+                   '<span class="mpm">'+esc(endMonth3())+'</span>';
+    el.onclick = ()=>go('journal');
   }
+}
+/* WHEN THE YEAR LANDS. The declared day plus the number of weeks it was set
+   for \u2014 the same two numbers the progress bar has always used. Short month,
+   because a 52px column is what it has to live in. */
+function endDate(){
+  if(!S.start) return null;
+  const d = new Date(S.start.getTime());
+  if(isNaN(d.getTime())) return null;
+  d.setDate(d.getDate() + (7 * (+S.weeks || 52)));
+  return d;
+}
+function endMonth3(){
+  const d = endDate(); if(!d) return '';
+  return MON3[d.getMonth()].toUpperCase();
+}
+function endMonthLong(){
+  const d = endDate(); if(!d) return '';
+  return MONTHS_LONG[d.getMonth()];
 }
 function sashSVG(txt){
   /* G's chosen design (his Gemini reference, 30 Aug): a simple white band across
@@ -8327,20 +8886,33 @@ function drawGrid(){
       bl.onclick = last ? (()=>openAct(last)) : (()=>go('journal'));
       bl.setAttribute('aria-label', last
         ? 'Act '+S.n+', the last one'+(last.d?', '+shortDate(last.d):'')+'. Open it.'
-        : 'The end of your year, act '+S.n+'. Not there yet.');
+        : 'The end of your year'+(endMonthLong()?', '+endMonthLong():'')+
+          '. Not there yet. Opens your journal.');
       /* `MONTHS_LONG[+x-1 || 0]` printed January for a MISSING month exactly as
          confidently as for a real one. Guard the parse, not the index. */
       const monthOf = d => {
         const m = /^(\d{4})-(\d{2})/.exec(String(d||''));
         return m ? MONTHS_LONG[+m[2]-1] : '';
       };
+      /* RULED by G, 15 September 2026: "say the month and not day". The row is
+         the arc of a year, so both ends of it speak in months. The finished line
+         already did; the waiting one said "the day you declared it. And the day
+         you finish", which promised a day nobody has picked and which the row no
+         longer shows at either end. */
       const m0 = monthOf(S.zero && S.zero.d), mL = monthOf(last && last.d);
-      if(zn) zn.textContent = (last && m0 && mL)
-        ? 'Declared in '+m0+'. Finished in '+mL+'.'
-        /* voice.md: three em dashes in the whole corpus against twenty-two
-           parentheses, "which is also why we now have none". Two short
-           sentences instead, which is her rhythm anyway. */
-        : 'The day you declared it. And the day you finish.';
+      const mE = endMonthLong();
+      /* voice.md: three em dashes in the whole corpus against twenty-two
+         parentheses, "which is also why we now have none". Two short sentences
+         instead, which is her rhythm anyway. */
+      if(zn) zn.textContent =
+          (last && m0 && mL) ? 'Declared in '+m0+'. Finished in '+mL+'.'
+        /* A YEAR DECLARED IN MARCH FINISHES IN MARCH, and two identical month
+           names side by side read as a mistake rather than as a lap of the
+           calendar. The year is added only when it has to be. */
+        : (m0 && mE)         ? 'Declared in '+m0+'. Finishes in '+mE+
+                               (mE===m0 ? ' '+endDate().getFullYear() : '')+'.'
+        : m0                 ? 'Declared in '+m0+'.'
+                             : 'The month you declared it. And the month you finish.';
       zw.classList.remove('hide');
     } else { g.appendChild(z); }      // markup missing: never lose act 0
   } else {
@@ -8400,12 +8972,64 @@ function drawGrid(){
     g.appendChild(t);
   }
 
+  /* THE INSTRUCTION WAS NOT TRUE ANY MORE, AND NOTHING SAID WHAT WAS COMING.
+     "Tap an empty one to plan it" was written when planning put a ghost in the
+     square. Planning moved to the shelf; the sentence stayed, so the app asked
+     people to do a thing and then left the square exactly as empty as before.
+     What replaces it is not another instruction. It is the thing the screen
+     had stopped being able to answer: what is next, and when. */
+  drawNext();
+
   const fn=$('filternote');
   fn.classList.toggle('hide', !f);
   if(f) fn.innerHTML='<p class="note">Showing acts with <b>'+esc(f)+'</b>. '+
     '<a class="tlink" href="#" onclick="S.filterPerson=null;drawGrid();return false">'+
     'show everything</a></p>';
 }
+/* One line above the grid: the next thing in the works and the day it is for.
+   Undated things still count \u2014 they are in the works, they just have no day
+   yet \u2014 so the line says how many are waiting rather than pretending. */
+function drawNext(){
+  const el=$('grid-next'); if(!el) return;
+  /* THE SAME NUMBER THE SHELF ITSELF SHOWS. This counted only works with a name
+     or a day, while Acts in the works lists every one \u2014 so a work started
+     from a photograph or a note appeared on the shelf and not in the count on
+     its own tab, and the two numbers on screen disagreed. */
+  const wk=(S.works||[]);
+  const dot=$('worksdot');
+  if(dot){
+    dot.textContent = wk.length ? String(wk.length) : '';
+    dot.classList.toggle('hide', !wk.length);
+  }
+  if(!wk.length){ el.textContent=''; el.classList.add('hide'); return; }
+  el.classList.remove('hide');
+  /* NEXT MEANS NEXT. This sorted every dated thing and took the first, with no
+     regard for today \u2014 so one abandoned plan from March pinned the line for
+     the rest of the year and hid the thing that really was coming. Nothing
+     prunes the shelf, so that is not a rare shape. */
+  const today = todayISO();
+  const dated = wk.filter(w=>w.d && /^\d{4}-\d{2}-\d{2}$/.test(w.d))
+                  .sort((a,b)=>a.d<b.d?-1:a.d>b.d?1:0);
+  const ahead = dated.filter(w=>w.d >= today);
+  const rest  = wk.length - 1;
+  const more  = rest > 0 ? ' And '+rest+' more in the works.' : '';
+  if(ahead.length){
+    const nx = ahead[0];
+    el.textContent = 'Next: ' + (nx.t || 'something in the works') +
+                     ', ' + shortDate(nx.d) + '.' + more;
+  } else if(dated.length){
+    /* every day on the shelf has already gone by. Say that, rather than naming
+       the oldest one as though it were coming. */
+    const nx = dated[dated.length-1];
+    el.textContent = (nx.t || 'Something in the works') +
+                     ' was for ' + shortDate(nx.d) + ', and is still waiting.' + more;
+  } else {
+    el.textContent = wk.length===1
+      ? 'One thing in the works, with no day on it yet.'
+      : wk.length + ' things in the works, none with a day on them yet.';
+  }
+}
+
 /* Which square the sash was on last time the grid was drawn, and which act is
    still owed its moment. Session only: a moment is for the act you just did. */
 let SASH_SEEN = null, CEL_DUE = 0, SASH_STRAP = 0;
@@ -11818,6 +12442,12 @@ function go(v){
   if(v !== 'work') killDisarm();   // a primed delete never survives the screen
   if(SCREEN==='compose' && v!=='compose') leaveCompose();
   SCREEN = v;
+  /* THE BADGE IS ON EVERY SCREEN AND WAS DRAWN BY ONE OF THEM. drawNext() was
+     reached only through drawGrid, so deleting a work, adding one from Ideas,
+     doing one again, or finishing one all left the number on the tab saying
+     what it used to be \u2014 with the tab bar on screen the whole time. Every
+     change of screen is the cheapest place that catches all of them. */
+  try{ drawNext(); }catch(_e){}
   VIEWS.forEach(x=>$('s-'+x).classList.add('hide'));
   $('s-'+v).classList.remove('hide');
   toTop();
