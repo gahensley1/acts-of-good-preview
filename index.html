@@ -876,18 +876,49 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
 /* The cost row. The tally is a named, bordered control rather than a bare
    glyph, and it is pushed to the right so its edge lines up with the calendar
    button sitting in the row above it — both stop 8px short of the wrap. */
-.costrow{display:flex;align-items:center;gap:10px}
-/* G's markup, 31 Aug: both boxes run out to fill the row rather than sitting as
-   a small field and a floating glyph. The amount grows into the space it has;
-   the calculator keeps its content width and stops 8px short of the wrap, so
-   its right edge still lines up with the calendar button in the row above. */
-.costrow #wk-cost{flex:1;min-width:0;max-width:none}
-.tallybtn{flex:none;margin-right:8px;display:inline-flex;align-items:center;gap:10px;
-  border:1.5px solid var(--line);border-radius:12px;background:var(--paper);
-  padding:6px 12px 6px 15px;min-height:44px;font-family:inherit;cursor:pointer}
-.tallybtn .tl{font-size:12.5px;font-weight:600;color:var(--muted);
-  letter-spacing:.02em;white-space:nowrap}
-.tallybtn svg{display:block}
+.costrow{display:flex;align-items:center;gap:8px}
+/* RULED BY G, 15 September: "I need to be able to keep a number and keep a
+   note." Drawn as three options and he took the till-roll with a note on each
+   line. So the row is an ENTRY row — an amount, what it was for, and a plus —
+   and the lines it makes sit right underneath it. No sheet to find, and the
+   thing he reached for (somewhere to put a second number) is on the screen.
+   The amount is fixed narrow because amounts are short and the note is not. */
+.costrow #wk-cost{flex:0 0 clamp(72px,26vw,96px);width:auto;min-width:0;text-align:right;
+  padding-left:8px;font-variant-numeric:tabular-nums}
+.costrow #wk-what{flex:1;min-width:0}
+.plusbtn{flex:none;min-width:52px;min-height:44px;border:1.5px solid var(--coral);
+  border-radius:12px;background:var(--paper);color:var(--coralink);
+  font-family:inherit;font-size:21px;font-weight:600;line-height:1;cursor:pointer}
+.plusbtn:disabled{opacity:.4;border-color:var(--line);color:var(--muted);cursor:default}
+/* the roll. Each line is a thumb-height row with its own way off. */
+.roll{margin:10px 0 0}
+.roll .ln{display:flex;align-items:center;gap:10px;padding:0;
+  border-bottom:1px solid var(--line);font-size:14.5px}
+.roll .ln .w{flex:1;font-weight:600;min-width:0;overflow-wrap:anywhere}
+.roll .ln .w em{font-style:normal;font-weight:400;color:var(--muted)}
+.roll .ln .w small{display:block;font-size:12.5px;font-weight:400;color:var(--muted);
+  margin-top:1px}
+.roll .ln .a{font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+.roll .ln .a.gave{color:var(--coralink)}
+.roll .ln .x{background:none;border:0;color:var(--muted);font-size:19px;line-height:1;
+  padding:10px 2px;min-width:44px;min-height:44px;cursor:pointer}
+.rolltot{display:flex;justify-content:space-between;align-items:baseline;padding:11px 0 0}
+.rolltot .lbl{color:var(--muted);font-weight:500;font-size:14.5px}
+.rolltot .val{font-size:19px;font-weight:700;font-variant-numeric:tabular-nums}
+/* THE BROWSER'S OWN hidden RULE IS display:none AT THE LOWEST SPECIFICITY, so
+   any class that sets display beats it and the element stays on the screen
+   while the code believes it is put away. Both of these set display. */
+.rolltot[hidden],.morepay[hidden]{display:none}
+/* It is the ONLY way to a split or to somebody else having paid, and as a bare
+   text link it measured 209 by 16 — under the 44px every other control on this
+   screen keeps. */
+.morepay{margin-top:4px;font-size:13px;display:inline-flex;align-items:center;
+  min-height:44px;padding:11px 0}
+/* G's 31 August rule for this row — amount grows, calculator keeps its width —
+   went with the calculator button on 15 September. IT WAS STILL WINNING: it sat
+   LATER in the file than the new rule above, so `flex:1` beat `flex:0 0 96px`
+   and the amount box was quietly the same width as the note beside it. The
+   render looked reasonable, which is how a cascade collision hides. */
 .datewrap .calgo{position:absolute;right:8px;top:50%;transform:translateY(-50%);
   padding:5px;line-height:0;border-radius:9px;min-width:44px;min-height:44px;display:inline-flex;align-items:center;justify-content:center}
 .datewrap .calgo svg{display:block}
@@ -1742,45 +1773,12 @@ select.pick::-ms-expand{display:none}
     onclick="deletePerson()">Remove them</button>
 </div></div>
 
-<!-- ══ SHEET — plan a slot ══ -->
-<div class="sheet hide" id="sheet-plan" role="dialog" aria-modal="true" aria-labelledby="plan-h3"><div class="panel">
-  <!-- Done means done, not discarded: this is the control everyone reaches for. -->
-  <button class="sheetback" onclick="savePlan()">‹ Done</button>
-  <h3 id="plan-h3">Plan act 4</h3>
-  <p class="note" style="margin-bottom:18px">Put something in the journal. It sits in the
-    grid until you do it. Nothing nags you, and any reminder comes from your own
-    calendar, never from this app.</p>
-  <div class="field"><label for="pl-title">What are you thinking?</label>
-    <input id="pl-title" aria-label="What are you thinking?" placeholder="Doughnuts for the vet"></div>
-  <div class="field"><label>Which act?</label>
-    <div class="chips scrollrow" id="pl-slot"></div></div>
-  <div class="field"><label>When? (optional)</label>
-    <input id="pl-when" type="hidden" aria-hidden="true">
-    <div class="datewrap">
-      <button class="datebtn" id="pl-when-btn" onclick="openDate('pl-when')" data-lab="When" aria-label="When, pick a date" ></button>
-      <button class="calgo" onclick="openCal()" aria-label="Month calendar"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--coral)" stroke-width="1.5"><rect x="3" y="5" width="18" height="16" rx="2.5"/><path d="M3 10h18M8 3v4M16 3v4"/><path d="M9 10.4v10.6M15 10.4v10.6M3 13.7h18M3 17.3h18" stroke-width=".5"/></svg></button>
-    </div>
-    <p class="note" style="margin-top:8px">Tap the date to pick a day. Leave it if
-      you do not know yet.</p></div>
-  <div class="field"><label>Who's coming?</label>
-    <div class="chips" id="pl-who"></div>
-    <p class="note" style="margin-top:8px">Tap anyone who's in on it. New names go in
-      from People.</p></div>
-  <div class="field"><label>Remind me</label>
-    <div id="pl-remind"></div>
-    <p class="note" style="margin-top:8px">Anything but None hands the day to your
-      phone's calendar, which does the reminding.</p></div>
-
-  <button class="btn" onclick="savePlan()">Put it in the grid</button>
-  <button class="btn ghost" style="margin-top:10px" onclick="planDone()"
-    id="pl-done">This one's done. Complete it</button>
-  <button class="btn ghost" style="margin-top:10px" onclick="planToCalendar()">
-    Add to my phone calendar</button>
-  <button class="btn ghost" style="margin-top:10px" onclick="openAsk('plan')"
-    id="pl-ask">Ask a friend along</button>
-  <button class="btn ghost" style="margin-top:10px" onclick="clearPlan()"
-    id="pl-clear">Clear this slot</button>
-</div></div>
+<!-- THE PLAN SHEET WAS HERE. Cut 15 September 2026 on G's ruling: "if it's old
+     code remove it to streamline." NOTHING OPENED IT — it was the only one of
+     fifteen sheets with no door (L41), and the function called openPlan() started
+     an act in the works instead, which was the trap in its name (L39) — that
+     function is now startInSquare(). Its work is done by the live editor, the one
+     pipeline, since 30 August. -->
 
 <!-- ══════════ THE LETTER ══════════ -->
 <div id="letter" class="hide" role="dialog" aria-modal="true" aria-label="A letter from Jessica">
@@ -1801,58 +1799,10 @@ select.pick::-ms-expand{display:none}
   </div>
 </div>
 
-<!-- ══════════ LOG ══════════ -->
-<section id="s-log" class="hide" role="main" aria-label="Plan and log an act">
-  <div class="top"><button class="back" aria-label="Back to your year" onclick="go('home')">‹</button>
-    <h2 id="log-h2">Plan &amp; Log</h2><div class="sub" id="log-no"></div></div>
-  <div class="wrap">
-    <div class="field"><label id="l-titlelab">What did you do?</label>
-      <input id="l-title" aria-label="What did you do?" oninput="saveDraft()" placeholder="Doughnuts for the vet clinic staff"></div>
-
-    <div class="field"><label for="l-num">Number</label>
-      <input id="l-num" oninput="saveDraft()" style="max-width:120px">
-      <p class="note" style="margin-top:8px">Editable.</p></div>
-
-    <div class="field"><label for="l-when">When?</label>
-      <input id="l-when" type="hidden" aria-hidden="true">
-      <div class="datewrap">
-        <button class="datebtn" id="l-when-btn" onclick="openDate('l-when')" data-lab="When" aria-label="When, pick a date" ></button>
-        <button class="calgo" onclick="openCal()" aria-label="Month calendar"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--coral)" stroke-width="1.5"><rect x="3" y="5" width="18" height="16" rx="2.5"/><path d="M3 10h18M8 3v4M16 3v4"/><path d="M9 10.4v10.6M15 10.4v10.6M3 13.7h18M3 17.3h18" stroke-width=".5"/></svg></button>
-      </div>
-      <div style="display:flex;gap:10px;margin-top:10px">
-        <button class="btn mini ghost" style="margin:0" onclick="actToCalendar()">
-          Add to my phone calendar</button>
-        <button class="btn mini ghost" style="margin:0" onclick="openAsk('log')">
-          Ask a friend along</button>
-      </div>
-      <p class="note" style="margin-top:8px">Today unless you change it. Put a future
-        date in and the app can hand the day to your calendar, which does any
-        reminding.</p></div>
-
-    <div class="field"><label id="l-wholab">Who's in it with you?</label>
-      <div class="chips" id="pchips"></div>
-      <p class="note" style="margin-top:8px">Tap to add. They're remembered for next time.</p></div>
-
-    <div class="field" id="f-photos"><label>Photos</label>
-      <div class="photos" id="l-photos"></div>
-      <input type="file" id="l-file" accept="image/*" multiple hidden>
-      <p class="note" style="margin-top:8px">These become the slides after your card.
-        You can add more later.</p></div>
-
-    <div class="field"><label for="l-cost">What did it cost? <span style="text-transform:none;
-      font-weight:400">(keep a running cost, or split it with someone)</span></label>
-      <div style="display:flex;gap:10px;align-items:center">
-        <input id="l-cost" placeholder="$0" style="max-width:140px" oninput="costTyped()">
-        <button class="btn mini ghost" style="margin:0" onclick="openSpends()"
-          id="l-tabbtn">Keep a tally</button>
-      </div>
-      <p class="note" id="l-spendnote" style="margin-top:8px">One number is fine. Or keep
-        a tally as you buy things. It adds up your share.</p></div>
-
-    <button class="btn" id="l-save" onclick="saveAct()">Complete this act</button>
-    <button class="btn ghost" id="l-save2" style="margin-top:10px" onclick="saveAct('later')">Save it, write it up later</button>
-  </div>
-</section>
+<!-- THE LOG SCREEN WAS HERE. Cut the same day, for the same reason: nothing put
+     it on the display either. It carried the one line that made this whole region
+     dangerous to delete — see the note where that line used to sit, at the foot of
+     the script. -->
 
 <!-- ══════════ THE DOOR & THE WORKS (one pipeline, 30 Aug 2026) ══════════
      Every act starts here, ripens as long as it likes, and finishes by
@@ -1919,17 +1869,26 @@ select.pick::-ms-expand{display:none}
       <div id="wk-ask"></div></div>
 
     <div class="field"><label for="wk-cost">Keep a tally of your costs <span style="text-transform:none;font-weight:400">(if anything)</span></label>
-      <div class="costrow">
-        <input id="wk-cost" placeholder="$0" oninput="wkCostTyped()">
-        <!-- G, 31 Aug: the tally gets a box and a name, and its right edge
-             lines up with the calendar icon in the row above. It used to be a
-             bare icon with class="calgo" — which is position:absolute with no
-             positioned parent here, so it was placing itself against the page
-             rather than against this row. -->
-        <button type="button" class="tallybtn" onclick="openSpends()" id="wk-tabbtn"
-          aria-label="Act calculator, keep a running total"><span class="tl">act calculator</span><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="var(--coral)" stroke-width="1.5"><rect x="5" y="2.5" width="14" height="19" rx="2.5"/><rect x="8" y="5.5" width="8" height="3.4" rx="1"/><path d="M8.6 12.6h.01M12 12.6h.01M15.4 12.6h.01M8.6 16h.01M12 16h.01M15.4 16h.01M8.6 19.2h.01M12 19.2h.01M15.4 19.2h.01" stroke-linecap="round" stroke-width="2.1"/></svg></button>
+      <!-- THE ACT CALCULATOR BUTTON WAS HERE, and it is what started this.
+           A calculator glyph beside a plain text box reads as "do your sum in
+           here", so G typed 29+56=85 into it and the app kept nothing and said
+           nothing. The sum has somewhere to go now. What the button opened —
+           splits, someone else paying, someone chipping in — is still one tap
+           away on the line below, because that sheet is the same list. -->
+      <div class="costrow" id="wk-costrow">
+        <input id="wk-cost" placeholder="$0" inputmode="decimal" enterkeyhint="next"
+          autocomplete="off" oninput="wkCostTyped()">
+        <input id="wk-what" placeholder="What was it?" enterkeyhint="done"
+          autocomplete="off" aria-label="What was it?" oninput="wkPlusState()">
+        <button type="button" class="plusbtn" id="wk-plus" onclick="wkPushSpend()"
+          disabled aria-label="Add this to the tally">+</button>
       </div>
-      <p class="note" id="wk-spendnote" style="margin-top:6px">One number is fine. Or keep a running tally.</p></div>
+      <div class="roll" id="wk-roll"></div>
+      <div class="rolltot" id="wk-rolltot" hidden><span class="lbl" id="wk-rolllbl">Your share</span><span class="val" id="wk-rollval">$0</span></div>
+      <!-- it is the only place "that is not an amount" is said, so it has to
+           speak to somebody who cannot see it -->
+      <p class="note" id="wk-spendnote" role="status" aria-live="polite" style="margin-top:6px">One number is fine. Or add them one at a time.</p>
+      <button type="button" class="linky morepay" onclick="openSpends()" id="wk-tabbtn">Split one, or someone else paid</button></div>
 
     <div class="field"><label>Notes <span style="text-transform:none;font-weight:400">(private, never printed)</span></label>
       <div id="wk-notes"></div></div>
@@ -4528,7 +4487,7 @@ function strayGo(){
   if(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   const mo = $('moment'); if(mo && mo.classList.contains('up')) return;
   const wrap = $('actcf'); if(!wrap || wrap.classList.contains('up')) return;
-  if(['you','social','spend','plan','person','cal','date','ask','done','finish','eval','pv']
+  if(['you','social','spend','person','cal','date','ask','done','finish','eval','pv']
      .some(x=>{ const el=$('sheet-'+x); return el && !el.classList.contains('hide'); })) return;
   if(!acSize()) return;
 
@@ -5243,7 +5202,7 @@ function celTick(){
   /* the moment overlay SHOWS with .up, it is not hidden with .hide. Guarding
      on the wrong class is how bkupBar stayed invisible for a whole build. */
   const mo = $('moment'); if(mo && mo.classList.contains('up')) return;
-  const anySheet = ['you','social','spend','plan','person','cal','date','ask',
+  const anySheet = ['you','social','spend','person','cal','date','ask',
                     'done','finish','eval','pv'].some(x=>{
     const el = $('sheet-'+x); return el && !el.classList.contains('hide'); });
   if(anySheet) return;
@@ -5872,20 +5831,16 @@ const ALARM = { '0':'PT9H', '1':'-PT15H', '3':'-PT63H', '7':'-PT159H' };
 
    Nothing is sent from the app and no phone numbers are stored: it opens the
    person's own Messages or Mail with the words in place, recipient blank.   */
-let ASK_MODE = 'text', ASK_CTX = 'plan', ASK_KIND = 'along', ASK_PV = 'full';
+let ASK_MODE = 'text', ASK_CTX = 'work', ASK_KIND = 'along', ASK_PV = 'full';
 
 function askDetails(){
   /* The auto-written invite NEVER mentions money — standing rule, 30 Aug 2026.
      Cost-sharing enters an invite only if the sender types it themselves. */
-  if(ASK_CTX==='work' && WK){
-    return { t:(WK.t||'').trim(), d:WK.d||'', no:String(WK.exp||nextSlot(true)), who:(WK.who||[]).slice() };
-  }
-  if(ASK_CTX==='log'){
-    return { t:$('l-title').value.trim(), d:$('l-when').value,
-             no:$('l-num').value||'1', who:(S.chosen||[]).slice() };
-  }
-  return { t:$('pl-title').value.trim(), d:$('pl-when').value,
-           no:S.planSlot, who:(S.planWho||[]).slice() };
+  /* There used to be three ways in here — a plan sheet, a log screen and the
+     editor. The first two are gone; the editor is the only place an invite can
+     start from now, so an empty answer just means nothing is open. */
+  if(WK) return { t:(WK.t||'').trim(), d:WK.d||'', no:String(WK.exp||nextSlot(true)), who:(WK.who||[]).slice() };
+  return { t:'', d:'', no:'', who:[] };
 }
 function whenWords(iso){
   if(!iso) return 'sometime soon';
@@ -5947,7 +5902,7 @@ function askDrafts(){
 }
 
 function openAsk(ctx){
-  ASK_CTX = ctx || 'plan';
+  ASK_CTX = ctx || 'work';
   const a = askDetails();
   if(!a.t && !a.d){ say('Not quite yet','Give it a name or a date first, then there’s something to ask about.'); return; }
   drawAsk();
@@ -6045,7 +6000,7 @@ async function prepackInvite(){
 async function shareInvite(withCard){
   const a = askDetails();
   if(!a.d){ say('It needs a date','Nobody can put it in their diary without one.'); return; }
-  const remind = ASK_CTX==='plan' ? (S.planRemind||'1') : '1';
+  const remind = '1';   /* a day before, the same for every invite */
   const file = icsFor(a.t, a.d, a.no, a.who, remind, true);
   const blob = new File([file.text], file.name, { type:'text/calendar' });
   const body = $('ask-body').value;
@@ -6226,7 +6181,6 @@ function dpPick(iso){
   $(DP.id).value = iso;
   syncDateBtn(DP.id);
   sheet(null);
-  if(DP.id==='l-when') logMode();
   /* the write screen's date edits the act itself, and saves like everything
      else there does */
   if(DP.id==='w-when' && S.current){ S.current.d = iso; save(); }
@@ -6601,7 +6555,7 @@ function drawCal(){
       const existing = Object.keys(S.plans||{}).find(k=>(S.plans[k]||{}).d===iso);
       sheet(null);
       { const w=(S.works||[]).filter(x=>x.d===iso)[0];
-        if(w){ openWork(w); } else openPlan(existing ? +existing : null, iso); }
+        if(w){ openWork(w); } else startInSquare(existing ? +existing : null, iso); }
     };
   });
 
@@ -6921,9 +6875,13 @@ async function draftToWork(d){
     if(typeof id!=='string') continue;
     try{ const url=(await idbGet(THUMB(id)))||(await idbGet(id)); if(url) photos.push({id:id,url:url}); }catch(e){}
   }
-  const w={ pid:newWorkId(), t:(d&&d.t)||'', d:(d&&d.d)||'', who:((d&&d.who)||[]).slice(),
-            hon:'', cost:+((d&&d.cost)||0)||0, spends:((d&&d.spends)||[]).slice(),
-            story:(d&&d.note)||'', exp:String((d&&d.no)||''), startedAt:todayISO(), photos:photos };
+  /* The old draft called the day "when", not "d", and wrote the money as the
+     text that stood in the field — "$12.50", not 12.5. Reading them under the
+     new names quietly handed back an act with no day and nothing spent, under a
+     dialog that had just promised to pick it up where she left off. */
+  const w={ pid:newWorkId(), t:(d&&d.t)||'', d:(d&&(d.when||d.d))||'', who:((d&&d.who)||[]).slice(),
+            hon:'', cost:readMoney(d&&d.cost)||0, spends:((d&&d.spends)||[]).slice(),
+            story:'', exp:String((d&&d.no)||''), startedAt:todayISO(), photos:photos };
   S.works=S.works||[]; S.works.push(w);
   clearDraft(); save();
   openWork(w);
@@ -8604,8 +8562,12 @@ function openWork(w){
   $('wk-when').value = w.d || todayISO(); syncDateBtn('wk-when');
   $('wk-hon').value = w.hon||'';
   $('wk-story').value = w.story||'';
-  const t = tally(w.spends||[]);
-  $('wk-cost').value = (w.spends||[]).length ? (t.mine?money(t.mine):'') : (w.cost ? money(w.cost) : '');
+  /* THE BOX IS AN ENTRY FIELD NOW, not the readout. Once there are lines the
+     total belongs under the roll and the box stands empty, ready for the next
+     thing she bought. It only carries a figure in the one-number case, where
+     there is no roll for it to live in. */
+  $('wk-cost').value = (w.spends||[]).length ? '' : (w.cost ? money(w.cost) : '');
+  $('wk-what').value = '';
   wkCostState();
   drawWorkRemind();
   drawWorkWho();
@@ -8626,28 +8588,141 @@ function wkEdited(){
 }
 function wkCostTyped(){
   if(!WK) return;
-  /* once a tally exists it owns the figure — same protection the old log
-     screen had; typing here must never be silently discarded */
-  if((WK.spends||[]).length) return;
+  wkPlusState();
+  /* With lines on the roll, what is in the box is a PENDING entry and must not
+     touch the recorded figure — the roll owns that. With no lines it is the
+     one-number case and the box is the figure. Either way nothing typed is
+     discarded: an amount left in the box becomes a line the moment focus
+     leaves the row, and an unreadable one says so rather than vanishing. */
+  if((WK.spends||[]).length){ wkRollNote(); return; }
   const v = readMoney($('wk-cost').value);
-  if(v !== null) WK.cost = v;
+  /* IT USED TO KEEP THE LAST READABLE FIGURE AND SAY NOTHING. Typing 29+56=85
+     one key at a time passes through "2", "29" — both amounts — and then goes
+     unreadable, so the app quietly stood on 29 while the box showed an
+     equation, and the next draw replaced her text with a $29 she never meant.
+     A number the screen does not show is not a number she agreed to. */
+  WK.cost = (v === null) ? 0 : v;
   workKeep(); save();
+  wkRollNote(v === null ? BADNUM : '');
 }
+const BADNUM = 'That is not an amount. A number, like 12 or 12.50. Put the second one on its own line.';
+/* the plus is dead until there is something to add */
+/* EVERY WAY OUT OF THE EDITOR RUNS THROUGH HERE. The focusout tick is a
+   convenience for moving about inside the screen; it fires a beat too late to
+   save anything from a tap that CHANGES the screen, because go() has already
+   run and the guard refuses. So the doors flush the row themselves, in the same
+   breath, and nothing typed is left standing. */
+function wkFlushRow(){
+  if(SCREEN !== 'work' || !WK) return;
+  wkPushSpend(true);
+  const w=$('wk-what'); if(w) w.value='';     // a note with no money is not carried on
+}
+/* Runs on every keystroke in either field, which is the only place that knows
+   money is in play before a line exists. */
+function wkPlusState(){
+  const b=$('wk-plus'); if(!b) return;
+  const n=readMoney(($('wk-cost')||{}).value);
+  b.disabled = !(n && n>0);
+  /* G ruled this section TIGHTER on 15 September and the roll must not quietly
+     give that back. A split, or somebody else paying, only arises once there is
+     money in play — so at rest the door to it is not on the screen at all, and
+     it opens the moment there is an amount to split. IT MUST NOT BE HUNG OFF
+     wkCostState(): that only runs when a line already exists, which left the
+     first split of an act with no way in. */
+  const more=$('wk-tabbtn');
+  if(more) more.hidden = !((n && n>0) || (((WK&&WK.spends)||[]).length));
+}
+/* One line onto the roll. This is the ONLY thing that makes one from the box,
+   so the box can never be counted twice: whatever is pushed is then cleared.
+   quiet=true is the focus-leaving-the-row case, where an empty box or a
+   half-typed one is ordinary rather than a mistake to complain about. */
+function wkPushSpend(quiet){
+  if(!WK) return false;
+  const f=$('wk-cost'), raw=(f?f.value:'').trim();
+  if(!raw) return false;
+  const n=readMoney(raw);
+  if(n===null){
+    /* THE ORIGINAL FAULT, and it is closed here. 29+56=85 used to be swallowed
+       whole: nothing recorded, nothing said, and the text wiped off the screen
+       the next time the editor drew. It stays put and the line underneath says
+       what is wrong. */
+    wkRollNote(BADNUM);
+    /* ON THE WAY OUT the note is no use: the screen is about to be covered or
+       left, and a warning written onto it goes with it. Say it out loud. */
+    if(quiet) say('That is not an amount', BADNUM);
+    else if(f) f.focus();
+    return false;
+  }
+  if(!n){ if(!quiet && f) f.focus(); return false; }
+  const list = currentSpends();
+  list.push({ a:n, w:($('wk-what').value||'').trim(), p:'me', n:'' });
+  f.value=''; $('wk-what').value='';
+  wkPlusState(); syncCost();
+  return true;
+}
+/* THE MARKUP IS NOT THE COPY. Every line below is written here on each draw,
+   so shortening one in the HTML changes nothing anybody would ever see. */
+function wkRollNote(msg){
+  const note=$('wk-spendnote'); if(!note) return;
+  if(msg){ note.textContent=msg; note.className='note warn'; return; }
+  note.className='note';
+  const list=(WK&&WK.spends)||[], n=list.length;
+  if(!n){ note.textContent='One number is fine. Or add them one at a time.'; return; }
+  const t=tally(list);
+  note.textContent = Math.abs(t.all - t.mine) < 0.005
+    ? n + (n===1?' thing':' things') + ' on the tally.'
+    : 'Your share of ' + money(t.all) + ' spent in all.';
+}
+/* The roll, under the row that makes it. The sheet behind "Split one, or
+   someone else paid" draws the SAME list, so the two can never disagree —
+   a line added there appears here and a line taken off here is gone there. */
 function wkCostState(){
   if(!WK) return;
-  const f=$('wk-cost'), n=(WK.spends||[]).length, note=$('wk-spendnote');
-  if(!f) return;
-  f.readOnly = !!n;
-  if(note){
-    const t = n ? tally(WK.spends) : null;
-    note.textContent = !n
-      /* THE MARKUP IS NOT THE COPY. This line is written here on every draw, so
-         shortening it in the HTML changed nothing anybody would ever see. */
-      ? 'One number is fine. Or keep a running tally.'
-      : (Math.abs(t.all - t.mine) < 0.005
-          ? 'From your tally of ' + n + (n===1?' item':' items') + '. Change it there.'
-          : 'Your share of ' + money(t.all) + ' spent in all. Change it in the tally.');
+  const box=$('wk-roll'); if(!box) return;
+  const list = WK.spends || [];
+  box.textContent='';
+  list.forEach((sp,i)=>{
+    const r=document.createElement('div'); r.className='ln';
+    const w=document.createElement('div'); w.className='w';
+    if(sp.w) w.textContent=sp.w;
+    else { const em=document.createElement('em');
+           em.textContent = sp.p==='gave' ? 'Towards it' : 'Something'; w.appendChild(em); }
+    /* who paid only gets a second line when it is NOT the ordinary case */
+    if(sp.p && sp.p!=='me'){
+      const sm=document.createElement('small');
+      sm.textContent = sp.p==='gave' ? ((nameList(sp)||'someone')+' chipped in')
+        : sp.p==='split' ? (money(+sp.a||0)+' split '+ways(sp)+' ways'+(nameList(sp)?' with '+nameList(sp):''))
+        : ((nameList(sp)||'someone else')+' paid '+money(+sp.a||0));
+      w.appendChild(sm);
+    }
+    /* THE COLUMN HAS TO ADD UP TO THE TOTAL UNDER IT. A split line printed its
+       WHOLE amount while the total counted only her share, so two numbers on
+       one screen disagreed by three quarters of a shop. This column is HER
+       share; the whole belongs in the small print above, where the sheet
+       already puts it. Somebody else paying costs her nothing at all. */
+    const share = sp.p==='split' ? (+sp.a||0)/ways(sp)
+                : sp.p==='them'  ? 0
+                : (+sp.a||0);
+    const a=document.createElement('div');
+    a.className='a'+(sp.p==='gave'?' gave':'');
+    a.textContent=(sp.p==='gave'?'\u2212':'')+money(share);
+    const x=document.createElement('button'); x.type='button'; x.className='x';
+    x.textContent='\u00D7';
+    x.setAttribute('aria-label','Remove '+(sp.w||'this line'));
+    x.onclick=()=>{ list.splice(i,1); syncCost(); };
+    r.appendChild(w); r.appendChild(a); r.appendChild(x); box.appendChild(r);
+  });
+  const tot=$('wk-rolltot');
+  if(tot){
+    tot.hidden = !list.length;
+    if(list.length){
+      const t=tally(list);
+      $('wk-rolllbl').textContent = Math.abs(t.all-t.mine)<0.005 ? 'The tally' : 'Your share';
+      $('wk-rollval').textContent = money(t.mine);
+    }
   }
+  wkPlusState();
+  wkRollNote();
 }
 /* The lead time for an act in the works. Kept on the work itself rather than on
    S, because two acts in the works want different answers — and because a field
@@ -8717,7 +8792,25 @@ function workToCalendar(){
   wkEdited();
   if(!WK.d){ say('It needs a day first','Pick one above and the reminder can go in.'); return; }
   /* was hardcoded '1'. The choice above is now real. */
-  toCalendar(WK.t, WK.d, WK.exp||nextSlot(true), WK.who, WK.r || '1');
+  const r = WK.r || '1', slot = WK.exp||nextSlot(true), who = WK.who,
+        title = WK.t || ('Act '+slot), day = WK.d;
+  /* RULED 12–13 September: the phone is asked FIRST and the calendar is offered
+     when the phone cannot — never both, because two alarms for one promise is
+     worse than one. On the web canRemind() is false and this falls straight
+     through, which is why it looks like nothing. It is not nothing: it is the
+     one line the native build needs, and the cut of 15 September took the only
+     other copy of it out with the screen it lived on. */
+  if(PHONE.canRemind()){
+    PHONE.remind(day, r, title, who)
+      .then(ok=>{ if(ok) say('That is set',
+                    'Your phone will remind you' + (r==='0' ? ' that morning'
+                      : r==='1' ? ' the day before' : ' ' + r + ' days before') +
+                    '. Nothing was sent anywhere — it is your own phone, reminding you.');
+                  else toCalendar(title, day, slot, who, r); })
+      .catch(()=>toCalendar(title, day, slot, who, r));
+    return;
+  }
+  toCalendar(title, day, slot, who, r);
   /* AND IT SAYS NOTHING AFTERWARDS, ON PURPOSE. The app hands the phone a
      calendar entry and cannot know whether the person accepted it \u2014 the
      import sheet is the phone's, not ours. "Reminder set" would be a claim we
@@ -8727,6 +8820,35 @@ function workToCalendar(){
 }
 /* Leaves the act on the shelf exactly as typed. Non-destructive by design:
    the old button here deleted it. */
+/* The app can be discarded and reloaded by the OS whenever it likes, so the
+   last thing standing in the row is written down before the page goes. */
+window.addEventListener('pagehide', ()=>{ try{ wkFlushRow(); }catch(_e){} });
+
+/* THE KEYBOARD, which is where this round started. The box was a plain text
+   field: an iPhone gave it the whole alphabet — which is how +, = and a whole
+   equation got in — and a Return key with nothing to return to, so it would
+   not go away. It takes the number pad now, Return moves on to the note, and
+   Return on the note adds the line and closes the keyboard.
+   AND NOTHING IS LEFT BEHIND: an amount still standing in the box when focus
+   leaves the row becomes a line by itself, so forgetting to tap + costs
+   nothing. Checked after a tick, because the tap that moves focus INSIDE the
+   row (amount to note, or either to the plus) must not trigger it. */
+(function(){
+  const row=$('wk-costrow'); if(!row) return;
+  $('wk-cost').addEventListener('keydown', e=>{
+    if(e.key==='Enter'){ e.preventDefault(); $('wk-what').focus(); }
+  });
+  $('wk-what').addEventListener('keydown', e=>{
+    if(e.key==='Enter'){ e.preventDefault(); if(wkPushSpend()) $('wk-cost').focus(); }
+  });
+  row.addEventListener('focusout', ()=>{
+    setTimeout(()=>{
+      if(row.contains(document.activeElement)) return;
+      if(SCREEN==='work' && WK) wkPushSpend(true);
+    }, 0);
+  });
+})();
+
 function saveForLater(){
   wkEdited(); save(); go('works');
 }
@@ -8864,6 +8986,7 @@ function drawWorks(){
 /* the finish: one confirming glance, then the card */
 function finishWork(anon){
   if(!WK) return;
+  wkFlushRow();      // the finish is a SHEET, so go() never sees it
   wkEdited();
   if(!WK.t){ say('It needs a name','Everything else can wait. That bit can\u2019t.'); return; }
   FIN_ANON = !!anon;
@@ -9129,7 +9252,7 @@ function drawGrid(){
     /* The grid is the tabs of a journal — a tile takes you to its page.
        Done goes to the write-up; empty or planned goes to Log, with that
        number already set and anything you'd planned filled in. */
-    t.onclick = a ? (()=>openAct(a)) : (()=>logSlot(i));
+    t.onclick = a ? (()=>openAct(a)) : (()=>startInSquare(i));
     t.setAttribute('aria-label',
       a  ? 'Act '+a.no+', '+(a.t||'logged')+'. Open it.'
     : pl ? 'Act '+i+', planned'+(pl.t?': '+pl.t:'')+(pl.d?', '+shortDate(pl.d):'')+'. Open it.'
@@ -9233,62 +9356,27 @@ const shortDate = d => {
   return MON3[+p[1]-1] + ' ' + (+p[2]);
 };
 
-/* ── planning an empty slot ─────────────────────────────────────────────────
+/* ── starting in an empty square ────────────────────────────────────────────
    Two thirds of the grid is empty for most of the year. Leaving those tiles
    inert made it a scoreboard; making them tappable makes it a planning board,
-   which is the half of the north star the grid wasn't serving.              */
-/* start logging into a particular slot in the grid */
-/* Which plan this log screen was opened from. The square number alone is not an
-   identity — squares get cleared, re-planned and moved between — so a draft
-   picked up days later could delete a completely different plan that happened to
-   have moved into the same square. The fingerprint is checked before anything is
-   deleted. */
-let PLAN_SOURCE = null, PLAN_SOURCE_KEY = null;   // where the draft came from
-let PLAN_TAKEOVER = null;                          // a square whose plan we have agreed to absorb
-/* A plan needs an identity of its own. Fingerprinting it by title and date said
-   YES to a plan that had been cleared and re-created with the same words — and
-   destroyed it — and NO to one that had merely been rescheduled, which then
-   counted its money twice. An id does neither. */
-let _plid = Date.now();
-function newPlanId(){ return 'pl'+(_plid++)+Math.random().toString(36).slice(2,7); }
-function planKey(pl){
-  if(!pl) return null;
-  if(!pl.pid) pl.pid = newPlanId();     // plans made by an earlier build
-  return pl.pid;
-}
-function sourcePlanStillThere(){
-  if(PLAN_SOURCE == null) return false;
-  const pl = (S.plans||{})[PLAN_SOURCE];
-  if(!pl) return false;
-  if(PLAN_SOURCE_KEY == null) return true;      // an older draft; trust the square
-  return planKey(pl) === PLAN_SOURCE_KEY;
-}
-function forgetSourcePlan(){
-  if(sourcePlanStillThere()){
-    const gone = S.plans[PLAN_SOURCE];
-    delete S.plans[PLAN_SOURCE];
-    releasePhotos(gone.photos);      // anything the act did not take over
-  }
-  PLAN_SOURCE = null; PLAN_SOURCE_KEY = null;
-}
-function logSlot(i){
-  /* one pipeline: an empty square starts an act in the works, expecting i */
-  startWork(i);
-}
+   which is the half of the north star the grid wasn't serving.
 
-function openPlan(i, whenISO){
-  /* one pipeline: planning from the calendar or an occasion starts an act in
-     the works, aimed at that day — kept only once something is typed */
+   CUT 15 SEPTEMBER, on G's ruling "if it's old code remove it to streamline":
+   logSlot() and openPlan() were two names for one thing, left over from the two
+   screens that are now gone, and openPlan() in particular said "plan" while
+   starting an act in the works — the trap L39 warned about. One door now.
+   Tapping an empty square or a calendar day both arrive here.
+   Gone with them: newPlanId(), which minted an identity for a plan (nothing
+   mints plans any more — an old year's plans each get newWorkId() on upgrade),
+   the PLAN_SOURCE bookmarks that told a draft where it came from, and
+   nextFreeSlot(), whose only caller was the log screen's Do it again.         */
+function startInSquare(i, whenISO){
   startWork(i, whenISO||'');
 }
-/* nextSlot() ignored plans and nextFreeSlot() counted them, so "Do it again"
-   could offer a number a plan already held — and saving then deleted that plan,
-   its date and the calendar event the person had already accepted. One helper
-   with one flag, and the clash check below looks at both. */
-/* When nothing is free this used to clamp onto the last square, so planning
-   from the calendar wrote into a square an act already owned — invisible, and
-   replaced by the next plan you wrote. Zero means "there is no room". */
-function nextFreeSlot(){ const n = nextSlot(true); return n <= S.n ? n : 0; }
+/* nextSlot() ignored plans and its partner counted them, so "Do it again" could
+   offer a number a plan already held — and saving then deleted that plan, its
+   date and the calendar event the person had already accepted. One helper with
+   one flag, and the clash check below looks at both. */
 
 /* Lowering the goal used to strand every act above the new ceiling: the grid
    stopped drawing them, nothing warned, and their cards read "act 20 of 12". */
@@ -9340,96 +9428,6 @@ function setGoal(v){
       drawSetup(); save(); drawGrid();
     });
 }
-function drawPlan(){
-  const pl=(S.plans||{})[S.planSlot]||{};
-  $('plan-h3').textContent='Plan act '+S.planSlot;
-  $('pl-clear').classList.toggle('hide', !pl.t && !pl.d);
-
-  /* which act number this fills — done ones are out, planned ones are shown */
-  const done={}; S.acts.forEach(x=>done[slotOf(x)]=1);
-  const opts=[];
-  for(let i=1;i<=S.n;i++) if(!done[i]) opts.push([String(i), i]);
-  /* Moving the chip used to carry whatever was typed onto the new square and
-     merge it over the plan already sitting there — a different act's title and
-     date, with the old one's photos and money still attached underneath, and no
-     warning. Ask, then move everything across properly. */
-  chips($('pl-slot'), opts, ()=>S.planSlot, v=>{
-    if(v === S.planSlot) return;
-    const occupied = (S.plans||{})[v];
-    const typed = $('pl-title').value.trim() || $('pl-when').value;
-    const move = ()=>{
-      const from = S.planSlot;
-      S.planSlot = v;
-      /* whatever this sheet is holding follows the chip */
-      if(typed){
-        const carried = Object.assign({}, (S.plans||{})[from] || {});
-        if((S.plans||{})[from]) delete S.plans[from];
-        S.plans = S.plans || {};
-        const prev = S.plans[v];
-        S.plans[v] = Object.assign({}, carried, {
-          t: $('pl-title').value.trim(), d: $('pl-when').value,
-          who: (S.planWho||[]).slice(), r: S.planRemind || carried.r || '1'
-        });
-        if(prev) releasePhotos(prev.photos);
-        save();
-      }
-      drawPlan();
-    };
-    if(occupied && typed && (occupied.t || occupied.d)){
-      checkFirst('Act '+v+' is already planned',
-        (occupied.t ? '“'+occupied.t+'”' : 'Something')+' is in that square. Moving '+
-        'this one there replaces it.', 'Move it there', move);
-      return;
-    }
-    move();
-  });
-  const sel=[...$('pl-slot').children].find(c=>c.classList.contains('on'));
-  if(sel && sel.scrollIntoView) sel.scrollIntoView({block:'nearest',inline:'center'});
-
-  /* the same control in both places, or the two drift */
-  remindPicker($('pl-remind'), ()=>S.planRemind||'1', v=>{ S.planRemind=v; });
-
-  const box=$('pl-who'); box.innerHTML='';
-  if(!S.people.length){
-    box.innerHTML='<p class="note" style="margin:0">Nobody in your people list yet.</p>';
-  }
-  S.people.forEach(name=>{
-    const b=document.createElement('button');
-    b.className='chip'+((S.planWho||[]).indexOf(name)>-1?' on':'');
-    b.textContent=name;
-    b.onclick=()=>{
-      S.planWho = S.planWho||[];
-      const i=S.planWho.indexOf(name);
-      if(i>-1) S.planWho.splice(i,1); else S.planWho.push(name);
-      drawPlan();
-    };
-    box.appendChild(b);
-  });
-}
-function savePlan(){
-  S.plans=S.plans||{};
-  const t=$('pl-title').value.trim(), d=$('pl-when').value;
-  if(!t && !d){ sheet(null); return; }
-  const r = S.planRemind||'1';
-  /* A whole-object replace threw away the cost and the photos that a future
-     dated act had put here — and since tapping the backdrop calls this, the
-     gesture for "leave this alone" was the gesture that stripped it. Merge. */
-  const prev = S.plans[S.planSlot] || {};
-  S.plans[S.planSlot] = Object.assign({ pid:newPlanId() }, prev,
-    { t:t, d:d, who:(S.planWho||[]).slice(), r:r });
-  save();
-  /* Picking a reminder used to store a letter and do nothing. The app has no
-     notifications by choice, so the only thing that can actually remind anybody
-     is the phone's own calendar — which means asking for it here, at the moment
-     they said they wanted reminding, rather than hoping they find a second
-     button afterwards. */
-  if(r && r!=='none' && d){
-    sheet(null); drawHome();
-    remindMe(t, d, S.planSlot, (S.planWho||[]).slice(), r);
-    return;
-  }
-  sheet(null); drawHome();
-}
 
 /* ── the reminder, and the one inch that was missing ───────────────────────
    RULED 12–13 September 2026: this ships as a real app in both stores.
@@ -9456,43 +9454,15 @@ function savePlan(){
    rather than a whole year, and top it up each time the app is opened. And
    PHONE.remind must be allowed to fail: a person can refuse permission, and
    when they do this falls straight back to the calendar with no scolding. */
-function remindMe(t, d, slot, who, r){
-  const title = t || ('Act '+slot);
-  if(PHONE.canRemind()){
-    PHONE.remind(d, r, title, who).then(ok=>{
-      if(ok) say('That is set',
-        'Your phone will remind you' + (r==='0' ? ' that morning'
-          : r==='1' ? ' the day before' : ' ' + r + ' days before') +
-        '. Nothing was sent anywhere \u2014 it is your own phone, reminding you.');
-      else askCalendar(title, d, slot, who, r);
-    }).catch(()=>askCalendar(title, d, slot, who, r));
-    return;
-  }
-  askCalendar(title, d, slot, who, r);
-}
 
 /* The way it has always worked, and still the only way on the web. */
-function askCalendar(t, d, slot, who, r){
-  checkFirst('Put it in your calendar?',
-    'That is the only way the reminder can reach you here, this app never sends '+
-    'notifications. Your calendar does the reminding.',
-    'Add it', ()=>toCalendar(t, d, slot, who, r));
-}
 
 /* ── handing a plan to the phone's calendar ─────────────────────────────────
    No notifications, no permissions, no background anything, the app writes a
    standard .ics event and lets the phone's own calendar own the reminder.
    That keeps the "app you can ignore for three weeks" posture intact: the
    nagging, if any, belongs to a calendar the person already trusts.         */
-function planToCalendar(){
-  toCalendar($('pl-title').value.trim(), $('pl-when').value, S.planSlot,
-             S.planWho||[], S.planRemind||'1');
-}
 /* the same hand-off, from the log screen */
-function actToCalendar(){
-  toCalendar($('l-title').value.trim(), $('l-when').value,
-             $('l-num').value||'1', (S.chosen||[]), '1');
-}
 /* An .ics with METHOD:REQUEST and named attendees is a genuine invitation —
    Mail and Calendar show Accept / Maybe / Decline rather than a bare event.
    Without an address it degrades to a plain event, which still offers a
@@ -9542,53 +9512,8 @@ function toCalendar(title, d, no, who, remind){
 }
 /* a plan becomes an act: the log screen opens already filled in, dated today,
    and the only thing left to press is Complete. */
-function planDone(){
-  /* This is the second door into the log screen from a plan, and the money and
-     the photos were handed back through the other one only. Someone who planned
-     ahead, attached the receipt and the photo, then pressed "This one's done"
-     lost both without a word — and the orphan sweep deleted the pictures on the
-     next launch. There is one function that fills the log screen from a plan
-     now, and both doors go through it. */
-  const slot = S.planSlot;
-  const pl = (S.plans||{})[slot] || {};
-  const typed = $('pl-title').value.trim();
-  sheet(null);
-  fillLogFromPlan(slot, Object.assign({}, pl, {
-    t: typed || pl.t || '',
-    who: (S.planWho || pl.who || []).slice()
-  }), todayISO());
-}
 
 /* the one place a plan becomes a log screen */
-function fillLogFromPlan(slot, pl, whenISO){
-  newAct();
-  $('l-num').value = slot;
-  $('log-no').textContent = 'act '+slot+' of '+S.n;
-  if(pl.t) $('l-title').value = pl.t;
-  $('l-when').value = whenISO || pl.d || todayISO();
-  syncDateBtn('l-when');
-  if(pl.who) S.chosen = pl.who.slice();
-  /* the plan's figure is a committed number, same as one she typed */
-  if(pl.cost){ $('l-cost').value = String(pl.cost); COST_TYPED = true; }
-  if(pl.spends) S.draftSpends = pl.spends.slice();
-  /* Copies, not the same objects. Sharing them meant that clearing the plan
-     afterwards deleted the photos the act now owned. */
-  if(pl.photos && pl.photos.length) S.newPhotos = pl.photos.map(p=>({ id:p.id, url:p.url }));
-  PLAN_SOURCE = slot; PLAN_SOURCE_KEY = planKey((S.plans||{})[slot]);
-  drawLog(); logMode(); updateSpendNote();
-}
-function clearPlan(){
-  const slot = S.planSlot;
-  const gone = (S.plans||{})[slot];
-  if(!gone){ sheet(null); return; }
-  checkFirst('Clear act '+slot+'?',
-    gone.t ? '“'+gone.t+'” and anything kept with it.' : 'Nothing is kept from it.',
-    'Clear it', ()=>{
-      delete S.plans[slot];
-      releasePhotos(gone.photos);      // the one guarded path
-      save(); sheet(null); drawGrid();
-    });
-}
 
 /* ── people ─────────────────────────────────────────────────────────────────
    Ten of Jessica's first nineteen acts started with a person rather than an
@@ -9976,9 +9901,62 @@ const money = n => {
 };
 
 function openSpends(){
-  const a = S.current || {};
   if(!S.current){ S.draftSpends = S.draftSpends || []; }
+  /* FLUSH FIRST. This opens inside the click handler, before the focusout tick
+     runs, so without this the sheet drew the list as it was one entry ago —
+     showing a total too low, under a heading that says it is the authority.
+     Somebody looking at that types the missing money in again. */
+  wkFlushRow();
+  carryCostIn();
   sheet('spend'); drawSpends();
+}
+/* RULED BY G, 15 September: "It needs to automatically keep what you put in,
+   and then you delete it yourself, but it should always keep it in tally."
+
+   A figure typed straight into the cost box used to be REPLACED the moment a
+   tally started. Type 12.50 for the doughnuts, buy a 5.00 thing two days later,
+   add it, and the box read 5.00 with nothing said — under a line telling her the
+   tally was the authority. The old log screen had a rescue for this; the editor
+   never did, and the cut of 15 September took the last copy of it out.
+
+   So it is carried in as the first line, where she can SEE it with an × beside
+   it, rather than being merged behind her back when she next adds something.
+   Nothing is decided for her and nothing disappears.
+
+   HOW IT KNOWS IT WAS TYPED, with no flag to keep and nothing to persist: the
+   tally and the person are the only two writers of this number, and an empty
+   tally writes nought. So a tally with no lines and a cost above nought can
+   only have been typed. That is the whole test, and it is why the old
+   COST_TYPED flag is not needed — a flag that has to be saved, restored and
+   named in both halves of serialise/load is a year-loss waiting to happen.
+
+   IT MUST ALSO NEVER DOUBLE. The trap the old code named: after removing a line
+   the field still holds the OLD total, which looks exactly like a figure she
+   typed, so the app added it back as a phantom line and her costs grew every
+   time she deleted one. The empty-tally test closes that too — removing a line
+   leaves the tally non-empty, and emptying it writes the cost to nought. */
+function carryCostIn(){
+  /* ONLY the act in the works. There is one door into the tally and it is the
+     button inside the editor, so this is the only holder that can be meant.
+     Falling back to S.current looks harmless and is not: S.current survives
+     completing an act and opening any old one, so it would have carried a
+     FINISHED act's cost into a phantom line and syncCost() would then have
+     rewritten that finished act's recorded money. That is the exact bug the
+     note above currentSpends() says was fixed by preferring WK, and it should
+     not be re-argued in a second place. */
+  if(SCREEN !== 'work' || !WK) return;
+  const list = currentSpends();
+  if(list.length) return;                       // the tally already owns it
+  const had = +WK.cost || 0;
+  if(had <= 0) return;
+  /* it takes her words if she wrote any. Stamping 'What you entered' over a
+     note she had already typed threw it away AND left it in the box, where it
+     then attached itself to the next line, about something else entirely. */
+  const wrote=(($('wk-what')||{}).value||'').trim();
+  list.push({ a:had, w:wrote || 'What you entered', p:'me', n:'' });
+  const f=$('wk-cost'); if(f) f.value='';      // it is a line now, not a pending entry
+  const wf=$('wk-what'); if(wf) wf.value='';
+  syncCost();
 }
 /* Which act the tally is about. It used to be "whatever S.current happens to be",
    and S.current survives completing an act and opening any old one — so a brand
@@ -9987,7 +9965,6 @@ function openSpends(){
    writing today's. The log screen always means the draft. */
 function currentSpends(){
   if(SCREEN === 'work' && WK){ workKeep(); return (WK.spends = WK.spends || []); }
-  if(SCREEN === 'log') return (S.draftSpends = S.draftSpends || []);
   return S.current ? spendsOf(S.current) : (S.draftSpends = S.draftSpends || []);
 }
 
@@ -10071,18 +10048,11 @@ function drawSpends(){
 }
 
 function addSpend(){
-  /* A figure she typed straight into the cost field is not thrown away the
-     moment she starts a tally — it becomes the first line, so the total is right
-     and she can see where it came from. This is the ONLY moment that rescue is
-     true: doing it inside syncCost meant that REMOVING a line re-added the
+  /* The rescue for a figure typed into the cost box is NOT here any more. It
+     runs once, on opening the tally — see carryCostIn(). It must never move
+     into syncCost(): doing it there meant REMOVING a line re-added the
      pre-removal total as a phantom line, and her costs grew every time she
      deleted one. */
-  const list0 = currentSpends();
-  if(SCREEN === 'log' && COST_TYPED && !list0.length){
-    const typed = readMoney($('l-cost').value);
-    if(typed) list0.push({ a:typed, w:'', p:'me', n:'' });
-    COST_TYPED = false;
-  }
   const amt = readMoney($('sp-amt').value);
   if(amt === null){
     say('That is not an amount', 'A number, like 12 or 12.50. Nothing else.');
@@ -10096,59 +10066,29 @@ function addSpend(){
   syncCost(); drawSpends();
 }
 
-/* the tab writes back into the one number on the log screen */
-/* Is there a committed figure standing in this field that the tally does not
-   know about? Guessing at that from the value alone was a mistake: after
-   removing a line the field still holds the OLD total, which looked exactly like
-   a figure she had typed, so the app added it back as a new line and her costs
-   grew every time she deleted one. So the flag is set explicitly — and by every
-   route the number can arrive by, not only the keyboard. Reading it as "did she
-   just type" meant a figure restored from a draft, or carried in from a plan,
-   was thrown away the first time she opened the tally. */
-let COST_TYPED = false;
-function costTyped(){ COST_TYPED = true; updateSpendNote(); saveDraft(); }
+/* The tally writes back into the one cost figure on whatever is open.
+   The tally is the one control the app tells her to use OVER DAYS — "add things
+   as you buy them" — and nothing here once wrote it down. Every line lived in
+   memory until the act was saved, so a reload in between threw the receipts
+   away. The save() in each branch is that fix, and it must stay.
+   The wording under the field, and the field's own read-only state, are written
+   by wkCostState() — the log screen had a second copy of that logic and it is
+   gone with the screen. */
 function syncCost(){
   const list = currentSpends();
   const t = tally(list);
-  if($('l-cost')){ $('l-cost').value = t.mine ? money(t.mine) : ''; COST_TYPED = false; }
-  if(SCREEN === 'work' && WK){ WK.cost = t.mine; const f=$('wk-cost'); if(f) f.value = t.mine?money(t.mine):''; wkCostState(); save(); }
-  else if(SCREEN !== 'log' && S.current){ S.current.cost = t.mine; save(); }
-  else if(SCREEN === 'log') saveDraft();
-  /* The tally is the one control the app tells her to use OVER DAYS — "add
-     things as you buy them" — and nothing here ever wrote it down. Every line
-     lived in memory until the act was saved, so a reload in between threw the
-     receipts away, and the restore dialog handed back a title with an empty
-     tally and said nothing about it. */
-  updateSpendNote();
-}
-/* typing straight into the field is still allowed — it just claims the number,
-   so the two can never disagree silently */
-function updateSpendNote(){
-  const n = currentSpends().length;
-  const btn = $('l-tabbtn'), note = $('l-spendnote');
-  if(!btn) return;
-  btn.textContent = n ? (n + (n===1?' item':' items')) : 'Keep a tally';
-  if(note){
-    /* the field shows HER SHARE and the note quoted the TOTAL, two lines apart,
-       under a label reading "what did it cost?" — both true, and they read as a
-       contradiction at a glance */
-    const t = n ? tally(currentSpends()) : null;
-    note.textContent = !n
-      ? 'One number is fine. Or keep a tally as you buy things. It adds up your share.'
-      : (Math.abs(t.all - t.mine) < 0.005
-          ? 'From your tally of ' + n + (n===1?' item':' items') + '. Change it there.'
-          : 'Your share of ' + money(t.all) + ' spent in all. Change it in the tally.');
+  /* It used to write the running total back INTO the box. With the roll on the
+     screen that would refill the entry field with the total, and the next tap
+     of + would add the whole tally to itself. The box is left alone; the total
+     belongs under the roll. */
+  if(SCREEN === 'work' && WK){
+    WK.cost = t.mine; wkCostState(); save();
+    /* the roll and the sheet are one list, so they are redrawn together —
+       whichever of them is on top of the other */
+    const sp=$('sheet-spend');
+    if(sp && !sp.classList.contains('hide')) drawSpends();
   }
-  /* Once a tally exists this field is its readout, not an input. Leaving it
-     editable meant a number typed over it was silently replaced by the next
-     tally change — and there was no honest way to guess which line she meant to
-     correct. The tally owns the number, and says so. */
-  const f = $('l-cost');
-  if(f){
-    f.readOnly = n > 0;
-    f.style.opacity = n > 0 ? .72 : 1;
-    f.title = n > 0 ? 'Kept by your tally' : '';
-  }
+  else if(S.current){ S.current.cost = t.mine; save(); }
 }
 
 /* what the whole year has cost, for the Progress screen */
@@ -10161,30 +10101,18 @@ function yearSpend(){
   return {all:all, mine:mine};
 }
 
-/* ── log ── */
-/* The log screen holds the only work in the app that lives nowhere but the DOM.
-   An installed home-screen app is discarded and reloaded by the OS whenever it
-   likes, so a title, a cost and two photos could simply evaporate — and the
-   startup orphan sweep would then delete the photos during the very load that
-   lost them. The draft is written down as you type, restored on the next
-   launch, and cleared the moment the act is saved or deliberately dropped. */
+/* ── the old draft, read only ── */
+/* The log screen used to hold the only work in the app that lived nowhere but
+   the DOM, so a title, a cost and two photos could simply evaporate when the OS
+   discarded an installed app. It wrote itself down as you typed. That screen is
+   gone and an act in the works is saved from the first keystroke, but a draft
+   written by an older build is still offered back on the next launch. */
 const DRAFT_KEY = LS_KEY + '.draft';
+/* Nothing WRITES a draft any more — the editor keeps an act in the works from
+   the first keystroke, which is the same protection by a better route. What is
+   left here only READS one, so that anyone upgrading with a half-written act
+   still gets it back. */
 let DRAFT_T = null, DRAFT_HELD = {};
-function saveDraft(){
-  clearTimeout(DRAFT_T);
-  DRAFT_T = setTimeout(()=>{
-    try {
-      if(!draftHasWork()){ localStorage.removeItem(DRAFT_KEY); return; }
-      localStorage.setItem(DRAFT_KEY, JSON.stringify({
-        no: $('l-num').value, t: $('l-title').value, cost: $('l-cost').value,
-        when: $('l-when').value, who: (S.chosen||[]).slice(),
-        spends: (S.draftSpends||[]).slice(),
-        photos: (S.newPhotos||[]).map(p=>p.id).filter(Boolean),
-        from: PLAN_SOURCE, fromKey: PLAN_SOURCE_KEY
-      }));
-    } catch(e){}
-  }, 400);
-}
 function clearDraft(){
   clearTimeout(DRAFT_T); DRAFT_HELD = {};
   try { localStorage.removeItem(DRAFT_KEY); } catch(e){}
@@ -10196,52 +10124,6 @@ function draftWorth(d){
   return !!(d && (d.t || (d.photos||[]).length || (d.spends||[]).length ||
                   (d.cost && readMoney(d.cost))));
 }
-/* Anything typed or attached on the log screen lives only there until Complete
-   is pressed, so walking back to it from the tab bar used to wipe a half-written
-   act and its photos with no warning at all. */
-function draftHasWork(){
-  return !!(($('l-title')&&$('l-title').value.trim()) ||
-            (S.newPhotos&&S.newPhotos.length) ||
-            (S.draftSpends&&S.draftSpends.length) ||
-            ($('l-cost')&&$('l-cost').value.trim()));
-}
-function newAct(){
-  clearDraft();
-  COST_TYPED = false;
-  S.current = null;           // this act does not exist yet; nothing belongs to it
-  PLAN_SOURCE = null; PLAN_SOURCE_KEY = null; PLAN_TAKEOVER = null;
-  /* counting the plans: this offered a square a plan already held, and saving
-     into it then deleted that plan, its cost, its photo and the calendar event
-     the person had already accepted */
-  const next = nextFreeSlot();
-  $('l-num').value=next; $('l-title').value=''; $('l-cost').value='';
-  $('l-when').value=todayISO(); syncDateBtn('l-when');
-  S.chosen=[]; S.outcome='Went to plan'; S.newPhotos=[]; S.draftSpends=[];
-  $('log-no').textContent='act '+next+' of '+S.n;
-  drawLog(); updateSpendNote(); logMode(); go('log');
-}
-function drawLog(){
-  saveDraft();
-  drawPhotos('l-photos','l-file', S.newPhotos, drawLog);
-  const pc=$('pchips'); pc.innerHTML='';
-  S.people.forEach(p=>{
-    const b=document.createElement('button');
-    b.className='chip'+(S.chosen.indexOf(p)>-1?' on':'');
-    b.textContent=p;
-    b.onclick=()=>{
-      const i=S.chosen.indexOf(p);
-      if(i>-1) S.chosen.splice(i,1); else S.chosen.push(p);
-      drawLog();
-    };
-    pc.appendChild(b);
-  });
-  const add=document.createElement('button');
-  add.className='chip';
-  add.textContent = S.people.length ? '+ someone new' : '+ add someone';
-  add.onclick=()=>askFor('Who else was there?','First name is plenty',
-      n=>{ S.people.push(n); S.chosen.push(n); save(); drawLog(); });
-  pc.appendChild(add);
-}
 /* ── logged, or planned? ────────────────────────────────────────────────────
    The same screen serves both, because an act takes time to arrange and the
    moment you think of it is the moment you'd write it down. A date in the
@@ -10251,23 +10133,6 @@ function isFuture(iso){
   if(!iso) return false;
   return iso > todayISO();
 }
-function logMode(){
-  const future = isFuture($('l-when').value);
-  const save=$('l-save'), save2=$('l-save2'), head=$('log-h2');
-  if(save)  save.textContent  = future ? 'Put it in the grid as planned'
-                                       : 'Complete this act';
-  if(save2) save2.classList.toggle('hide', future);
-  if(save2) save2.textContent = 'Save it, write it up later';
-  /* 5, G: one name for one screen. The tab, this screen and the act all say
-     the same thing now, so a plan and a log no longer arrive under two
-     different titles. */
-  if(head)  head.textContent  = 'Plan \u0026 Log';
-  /* a plan hasn't happened yet, so the past-tense fields step aside */
-  const t=$('l-titlelab'), w=$('l-wholab');
-  if(t) t.textContent = future ? 'What are you thinking?' : 'What did you do?';
-  if(w) w.textContent = future ? "Who's coming?" : "Who's in it with you?";
-  const fp=$('f-photos'); if(fp) fp.classList.toggle('hide', future);
-}
 
 /* The number field invites free typing and used to accept anything. "abc"
    became NaN, which took the whole grid with it: no tile filled, and no next
@@ -10275,201 +10140,12 @@ function logMode(){
    the act afterwards. It also still took 2.5 long after half acts were removed
    in 1X, while telling the person it wanted a whole number, and drew a tile
    wearing a class whose CSS had gone. Whole numbers only, and it means it. */
-function readActNo(){
-  const raw = ($('l-num').value||'').trim();
-  const n = parseFloat(raw);
-  if(!raw || !isFinite(n) || n <= 0 || n > S.n || Math.round(n) !== n){
-    say('That act number will not work',
-        'A whole number between 1 and '+S.n+'.');
-    return null;
-  }
-  return { no: String(n), slot: Math.ceil(n) };
-}
 
 /* What a plan is carrying, said the same way in both dialogs — and the merge
    that makes the sentence true. The old carry() skipped whenever the draft
    already had a cost or a photo, which is precisely the case the dialog was
    describing, so it promised to keep the receipt and then dropped it. */
-function keptNote(pl){
-  const has = [];
-  if(pl.cost) has.push(money(pl.cost));
-  /* the number that will actually arrive, not the number it is holding: nine is
-     the ceiling and the draft may already have some of its own */
-  const room = Math.max(0, 9 - (S.newPhotos||[]).length);
-  const have = {}; (S.newPhotos||[]).forEach(p=>{ if(p&&p.id) have[p.id]=1; });
-  const incoming = (pl.photos||[]).filter(p=>p && p.id && !have[p.id]);
-  const fits = Math.min(incoming.length, room);
-  const lost = incoming.length - fits;
-  if(fits) has.push(fits===1 ? 'a photo' : fits+' photos');
-  if(!has.length) return ' Nothing is kept from it.';
-  return ' It has '+listWords(has)+' with it, and '+(has.length===1?'that comes':'those come')+
-         ' across to this one.' +
-         (lost ? ' '+(lost===1?'One more photo does':lost+' more photos do')+
-                 ' not fit, because nine is the most an act can carry, and '+
-                 (lost===1?'it will not be kept.':'they will not be kept.') : '');
-}
-let MERGE_LEFT = [];
-function mergeFromPlan(pl){
-  if(!pl) return;
-  MERGE_LEFT = [];
-  if(pl.photos && pl.photos.length){
-    const have = {}; (S.newPhotos||[]).forEach(p=>{ if(p&&p.id) have[p.id]=1; });
-    const incoming = pl.photos.filter(p=>p && p.id && !have[p.id]);
-    const room = Math.max(0, 9 - (S.newPhotos||[]).length);
-    /* nine is the ceiling, and the dialog has just promised a number: if some
-       will not fit, say so rather than dropping them into the sweep */
-    S.newPhotos = (S.newPhotos||[]).concat(incoming.slice(0, room)).map(p=>({ id:p.id, url:p.url }));
-    /* the ones that would not fit were named in the dialog before this ran, so
-       they are let go here rather than left behind for the sweep to find */
-    MERGE_LEFT = incoming.slice(room).map(p=>p.id);
-  }
-  /* The money is the awkward part: both sides can have a number, and quietly
-     picking one of them loses the other. Anything already committed becomes a
-     line on the tally, so the total is right AND you can see where it came
-     from — which is what the tally is for. */
-  const planSpends = (pl.spends||[]).slice();
-  const planLoose  = (!planSpends.length && pl.cost) ? pl.cost : 0;
-  const draftTyped = (!(S.draftSpends||[]).length) ? (readMoney($('l-cost').value)||0) : 0;
-  if(planSpends.length || planLoose){
-    S.draftSpends = S.draftSpends || [];
-    if(draftTyped) S.draftSpends.push({ a:draftTyped, w:'', p:'me', n:'' });
-    planSpends.forEach(sp=>{
-      if(!S.draftSpends.some(x=>x.a===sp.a && x.w===sp.w && x.n===sp.n))
-        S.draftSpends.push(sp);
-    });
-    if(planLoose){
-      const label = (pl.t||'planned');
-      /* deduped like the itemised ones: a dialog that could be answered twice
-         used to add this line twice, and her tally grew each time she pressed */
-      if(!S.draftSpends.some(x=>x.a===planLoose && x.w===label))
-        S.draftSpends.push({ a:planLoose, w:label, p:'me', n:'' });
-    }
-    syncCost();
-  }
-  drawLog(); updateSpendNote();
-}
 
-function saveAct(writeNow){
-  const title=$('l-title').value.trim();
-  if(!title){ say('It needs a title','Everything else can wait. That bit can’t.'); return; }
-  const num = readActNo(); if(!num) return;
-  /* readMoney says "that is not an amount" and both callers here used to throw
-     the answer away with ||0 — so "about 10" saved as nothing and "12,50" as
-     twelve hundred and fifty. */
-  const moneyIn = readMoney($('l-cost').value);
-  if(moneyIn === null){
-    say('That is not an amount', 'A number, like 12 or 12.50. Or leave it blank '+
-        'and use the tally.');
-    return;
-  }
-
-  /* future date → this is a plan, not a journal entry */
-  if(isFuture($('l-when').value)){
-    S.plans = S.plans || {};
-    /* The past-dated path checks this; the future-dated one did not, so a plan
-       could be filed into a square a finished act already owned. It saved, said
-       nothing, and then never appeared anywhere again — the grid gives the act
-       the tile, and every other view reads from the acts. */
-    const takenBy = S.acts.filter(x=>slotOf(x)===num.slot)[0];
-    if(takenBy){
-      say('Act '+num.slot+' is already used',
-          '“'+takenBy.t+'” is in that square. Give this one a different number.');
-      return;
-    }
-    const prevP = S.plans[num.slot];
-    /* it used to replace whatever was in that square outright, before the guard
-       below ever ran: title, date, cost, photo and the reminder they chose */
-    /* PLAN_SOURCE == null was the wrong question: arriving here FROM a plan and
-       landing on a square another plan occupies skipped the warning entirely and
-       destroyed the occupant. What matters is whether the plan in this square is
-       a different one from the one being moved. */
-    const ownSquare = prevP && planKey(prevP) === PLAN_SOURCE_KEY;
-    if(prevP && !ownSquare && PLAN_TAKEOVER !== num.slot && prevP.t && prevP.t !== title){
-      checkFirst('Act '+num.slot+' is already planned',
-        '“'+prevP.t+'” is in that square. Planning this replaces it.'+
-        keptNote(prevP), 'Replace it',
-        ()=>{ mergeFromPlan(prevP); PLAN_TAKEOVER = num.slot; saveAct(writeNow); });
-      return;
-    }
-    /* Re-planning the same square with the same words is how anybody reschedules,
-       and it used to skip the guard entirely and then release the plan's photo —
-       so moving the date deleted the picture. Its own square: nothing to merge,
-       everything is already here. */
-    if(prevP && !ownSquare && PLAN_TAKEOVER !== num.slot) mergeFromPlan(prevP);
-    const spendsP=(S.draftSpends||[]).slice();
-    /* the cost and the photos used to be silently dropped here */
-    S.plans[num.slot] = { pid:(prevP&&prevP.pid) || (PLAN_SOURCE!=null && (S.plans[PLAN_SOURCE]||{}).pid) || newPlanId(),
-      t:title, d:$('l-when').value, who:(S.chosen||[]).slice(),
-      /* the reminder they chose, whether this square already had a plan or the
-         plan is arriving here from another square */
-      r: (prevP && prevP.r) || (PLAN_SOURCE!=null && (S.plans[PLAN_SOURCE]||{}).r) || '1',
-      spends: spendsP,
-      cost: spendsP.length ? tally(spendsP).mine : moneyIn,
-      photos: (S.newPhotos||[]).slice() };
-    /* If this draft came from a plan and has landed in a different square, the
-       original has to go — it used to stay, so rescheduling produced two gold
-       tiles, two reminders and two copies of the same act. */
-    /* the plan this draft came from, wherever it was, unless it IS this square */
-    if(PLAN_SOURCE !== num.slot) forgetSourcePlan();
-    PLAN_TAKEOVER = null;
-    dropUndo();
-    S.draftSpends=[]; S.newPhotos=[]; PLAN_SOURCE=null; PLAN_SOURCE_KEY=null;
-    clearDraft(); save();
-    /* a plan that was overwritten leaves its pictures behind; drop the ones
-       nothing else is holding rather than leaving them to the sweep */
-    if(prevP) releasePhotos(prevP.photos);
-    go('home');
-    return;
-  }
-  /* two acts in one square means one of them disappears */
-  const clash = S.acts.filter(x=>slotOf(x)===num.slot)[0];
-  if(clash){
-    say('Act '+num.slot+' is already used',
-        '“'+clash.t+'” is in that square. Give this one a different number, or '+
-        'open that act and change its number first.');
-    return;
-  }
-  /* A plan in that square is about to be replaced. Its cost and its photos come
-     across rather than being deleted — this is the same act happening, not a
-     different one — and if it was plainly a different act, the dialog says so
-     and names what would go. */
-  const planned = (S.plans||{})[num.slot];
-  const ownsIt = planned && planKey(planned) === PLAN_SOURCE_KEY;
-  if(planned && !ownsIt && PLAN_TAKEOVER !== num.slot){
-    const sameThing = !planned.t || planned.t === title;
-    const carry = ()=>{ mergeFromPlan(planned); PLAN_TAKEOVER = num.slot; saveAct(writeNow); };
-    if(sameThing){ carry(); return; }
-    checkFirst('Act '+num.slot+' was planned as something else',
-      '“'+planned.t+'” is in that square.'+keptNote(planned),
-      'Log it here', carry);
-    return;
-  }
-  const spends=(S.draftSpends||[]).slice();
-  const a={no:num.no, t:title, out:S.outcome, who:S.chosen.slice(),
-           cost:spends.length ? tally(spends).mine : moneyIn,
-           spends:spends, story:'', d:$('l-when').value||todayISO(),
-           photos:S.newPhotos.slice()};
-  S.draftSpends=[];
-  /* only now, once the act genuinely exists: withdrawing the offer at the top of
-     this function meant a save that then failed validation had already taken
-     away the only way back for a photo the person had just removed */
-  dropUndo();
-  S.acts.push(a); S.current=a; clearDraft();
-  if(S.plans){
-    delete S.plans[num.slot];
-    if(MERGE_LEFT.length){ releaseIds(MERGE_LEFT); MERGE_LEFT = []; }
-    /* renumbering during logging used to leave the original plan behind, still
-       pointing at the photos the act had just taken over — but only if it is
-       still the same plan that was picked up */
-    forgetSourcePlan();
-  }
-  PLAN_SOURCE = null; PLAN_SOURCE_KEY = null; PLAN_TAKEOVER = null;
-  save();
-  /* 'later' means save it quietly. Otherwise the act has just been completed,
-     and the questions that only make sense afterwards get asked now. */
-  if(writeNow==='later'){ go('home'); return; }
-  go('home'); sheet('done');
-}
 
 /* ── the follow-up ──────────────────────────────────────────────────────────
    How it went is a past-tense question. Asking it on the form, before the act
@@ -12012,15 +11688,26 @@ function cardBlob(a, W, forStory){
 /* ── do it again ────────────────────────────────────────────────────────────
    Act 5 → act 12 → Autumn Bingo in October is the same act three times, and
    act 4 → act 15 is the same breakfast twice. She rebuilds them by hand. This
-   copies what's reusable, the title, the people, what it cost, and leaves the
-   story, photos and outcome blank, because those belong to the day it happens. */
+   copies what's reusable, the title and the people, and leaves the story, the
+   photographs, the outcome AND THE MONEY blank, because those belong to the day
+   it happens.
+
+   THE MONEY USED TO COPY, and it was wrong twice over. On its own it meant that
+   doing an act again and never touching the money recorded LAST time's spend as
+   this time's. And it wrote a cost with no tally lines under it, which is the
+   one state carryCostIn() reads as "she typed this" — so from 15 September it
+   would have invented a line for money nobody spent, and then this year's real
+   receipts would have been added on top of it. Sixty pounds spent, a hundred
+   and twenty written down.
+
+   THE RULE THIS LEAVES BEHIND: nothing writes a cost without writing the spend
+   lines that justify it, from the same source. Twelve of the thirteen places
+   that write a cost already did. This was the thirteenth. */
 function doItAgain(){
-  /* the same act, another day: reusable facts copy into a fresh act in the
-     works; story, photos and outcome belong to the day it happens */
   const a = S.current || S.acts[S.acts.length-1];
   if(!a) return;
   const w = { pid:newWorkId(), t:a.t||'', d:'', who:(a.who||[]).slice(), hon:'',
-              cost:+a.cost||0, spends:[], story:'', exp:'', startedAt:todayISO(), photos:[] };
+              cost:0, spends:[], story:'', exp:'', startedAt:todayISO(), photos:[] };
   S.works = S.works || [];
   S.works.push(w); save();
   openWork(w);
@@ -12491,7 +12178,7 @@ function checkFirst(title, note, okLabel, then, cancelLabel){
 let SHEET_FROM = null;
 function sheet(which){
   dropUndo();      // an offer does not follow you into or out of a sheet
-  ['you','social','spend','plan','person','cal','date','ask','done','finish','eval','pv','bkup','past','restart'].forEach(x=>{ const el=$('sheet-'+x); if(el) el.classList.add('hide'); });
+  ['you','social','spend','person','cal','date','ask','done','finish','eval','pv','bkup','past','restart'].forEach(x=>{ const el=$('sheet-'+x); if(el) el.classList.add('hide'); });
   if(which){ $('sheet-'+which).classList.remove('hide'); }
   if(which==='you'){ const r=$('you-restore'); if(r) r.classList.toggle('hide', !!S.started); }
   if(which==='social') drawPlats();
@@ -12525,12 +12212,11 @@ document.addEventListener('keydown', e=>{
   /* 'restart' is deliberately absent from both this list and the backdrop one:
      it is a step in the rollover, not a panel, and escaping it would leave
      somebody with an empty year and no way back to the declaration. */
-  const open = ['you','social','spend','plan','person','cal','date','ask','done','past']
+  const open = ['you','social','spend','person','cal','date','ask','done','past']
     .filter(x=>!$('sheet-'+x).classList.contains('hide'))[0];
   if(!open) return;
   if(!S.started && (open==='you' || open==='social')) return;
   if(open==='past'){ savePastStory(); return; }
-  if(open==='plan'){ savePlan(); return; }
   if(open==='person'){ if(($('per-name').value||'').trim()) savePerson(); else sheet(null); return; }
   if(open==='you'){ saveYou(); return; }
   sheet(null);
@@ -12538,7 +12224,7 @@ document.addEventListener('keydown', e=>{
 /* Tapping the dimmed area is the gesture everybody tries first, and nothing was
    listening for it — which left the 28px 'Done' as the only way out. The plan
    sheet saves on the way, exactly as its own Done button does. */
-['you','social','spend','plan','person','cal','date','ask','done','past'].forEach(x=>{
+['you','social','spend','person','cal','date','ask','done','past'].forEach(x=>{
   const el = $('sheet-'+x); if(!el) return;
   el.addEventListener('click', e=>{
     if(e.target !== el) return;             // a tap on the panel is not a tap outside it
@@ -12552,7 +12238,6 @@ document.addEventListener('keydown', e=>{
        these were falling through to a bare close, so the app nagged you to fill
        in a field, took what you typed, and then still said it was blank. */
     if(x==='past'){ savePastStory(); return; }
-    if(x==='plan'){ savePlan(); return; }
     if(x==='person'){
       if(($('per-name').value||'').trim()) savePerson(); else sheet(null);
       return;
@@ -12624,9 +12309,11 @@ function finishSetup(){
 }
 
 /* ── nav ── */
-const VIEWS=['setup','zero','home','log','write','card','compose','browse','people','you','journal','works','work'];
+/* 'log' left this list on 15 September with the screen itself. */
+const VIEWS=['setup','zero','home','write','card','compose','browse','people','you','journal','works','work'];
 let SCREEN = 'home';
 function go(v){
+  if(v !== 'work') wkFlushRow();     // before the screen changes under it
   if(v !== SCREEN) dropUndo();
   if(v !== 'home') strayStop();   // it belongs to Your year and nowhere else
   if(v !== 'work') killDisarm();   // a primed delete never survives the screen
@@ -12709,7 +12396,7 @@ function readBday(){
    in the viewport AND with no sheet covering it. An IntersectionObserver alone
    can't tell: an element behind a full-screen overlay still 'intersects'. */
 function sheetOpen(){
-  return ['you','social','spend','plan','person','cal','date','ask','done','bkup'].some(x=>!$('sheet-'+x).classList.contains('hide'));
+  return ['you','social','spend','person','cal','date','ask','done','bkup'].some(x=>!$('sheet-'+x).classList.contains('hide'));
 }
 function tourIfVisible(){
   if(S.toneToured || sheetOpen()) return;
@@ -12914,7 +12601,15 @@ function onBdayChange(){
     ? "You're in year " + (ORD[a]||a) + ", that's the word on your card. Change it if you like."
     : "Used to work out which year you're marking. That's the word on your card.";
 }
-$('l-file').addEventListener('change', ()=>takeFiles($('l-file'), S.newPhotos, drawLog));
+/* L42, CLOSED 15 September 2026. A line stood HERE that reached into the dead
+   log screen, and it is why that region could not simply be deleted: it ran at
+   the TOP LEVEL of the script, so with its element gone the lookup returned
+   null, the line threw, and everything below it never ran — the birthday
+   dropdowns, the reason line, the script word, the reset and three photo
+   pickers would all have lost their handlers, silently, on an app that looked
+   like it had started perfectly. It went out with the markup it reached into,
+   which is the only safe order. Grep for this shape before deleting markup:
+   it was the only one in the file, and it was checked again today. */
 /* the keyboard must never cover the field being typed in: when the visual
    viewport shrinks (iOS keyboard), the open sheet's panel lifts above it and
    the focused control scrolls into view */
