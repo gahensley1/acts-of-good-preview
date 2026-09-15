@@ -631,6 +631,116 @@ head("the two rulings");
   ck('the journal stays below the grid', jrn==='after', jrn);
 }
 
+/* ── 11. THE SUGGESTION CARD, RULED 15 SEPTEMBER ──────────────────────────
+   G: the label must say what the thing IS; the explanation waits for a tap;
+   it rotates every time you open it; and it never offers one already taken. */
+head('the card on the year screen');
+{ const p=await app(4);
+  const r=await p.evaluate(()=>{
+    drawHome();
+    const tag=document.getElementById('sug-tag'),
+          ttl=document.getElementById('sug-title'),
+          bod=document.getElementById('sug-body');
+    return { tag:tag.textContent, title:ttl.textContent,
+             body:bod.textContent, hidden:bod.classList.contains('hide'),
+             tappable: ttl.tagName==='BUTTON' && ttl.classList.contains('canwhy'),
+             expanded: ttl.getAttribute('aria-expanded') };
+  });
+  ck('the label says what it is', r.tag==='An idea', r.tag);
+  ck('and never says "worth doing"', !/worth/i.test(r.tag), r.tag);
+  ck('the card leads with the act itself', r.title.length>3, r.title);
+  ck('the explanation is written but not shown', r.body.length>10 && r.hidden===true, r);
+  ck('and the title is the thing you tap', r.tappable===true, r);
+  ck('which says so to a screen reader', r.expanded==='false', r.expanded);
+
+  const tapped=await p.evaluate(()=>{
+    const ttl=document.getElementById('sug-title'), bod=document.getElementById('sug-body');
+    ttl.click();
+    const open={ hidden:bod.classList.contains('hide'), exp:ttl.getAttribute('aria-expanded'),
+                 turned:ttl.classList.contains('open') };
+    ttl.click();
+    return { open, shut:{ hidden:bod.classList.contains('hide'),
+                          exp:ttl.getAttribute('aria-expanded') } };
+  });
+  ck('a tap shows the explanation', tapped.open.hidden===false && tapped.open.exp==='true', tapped.open);
+  ck('and the mark turns with it', tapped.open.turned===true, tapped.open);
+  ck('a second tap closes it again',
+     tapped.shut.hidden===true && tapped.shut.exp==='false', tapped.shut);
+
+  /* AN OCCASION IS THE OTHER WAY ROUND — a date with no line says nothing, so
+     that branch keeps its words on the card. */
+  const occ=await p.evaluate(()=>{
+    const s=suggestion.toString();
+    return /tapForWhy:true/.test(s) && (s.match(/tapForWhy/g)||[]).length===1;
+  });
+  ck('only the idea hides its words, not the occasion', occ===true, occ);
+
+  /* IT ROTATES. Two different seeds must be able to reach different ideas. */
+  const rot=await p.evaluate(()=>{
+    const seen=new Set();
+    const live=IDEAS.filter(i=>!ideaUsed(i));
+    for(let k=1;k<=40;k++) seen.add(live[(k*37)%live.length].t);
+    return { picks:seen.size, weekly:(typeof weekSeed==='function' && SUG_SEED===weekSeed()) };
+  });
+  ck('the pick really does move with the seed', rot.picks>10, rot);
+  ck('and the seed is not the weekly one', rot.weekly===false, rot);
+
+  /* AND IT NEVER OFFERS ONE THEY HAVE TAKEN. Every idea gets shelved, so there
+     is nothing left to suggest — the card must not hand the library back. */
+  const used=await p.evaluate(()=>{
+    S.works = IDEAS.map((i,k)=>({pid:'u'+k,t:i.t,d:'',who:[],hon:'',cost:0,spends:[],
+      story:'',exp:'',startedAt:'',sheet:null,seed:null,photos:[],notes:[],njr:0}));
+    save();
+    const s=suggestion();
+    return { tag:s.tag, isIdea: !!s.idea,
+             stillOffered: IDEAS.some(i=>i.t===s.t) };
+  });
+  ck('with the library all taken, no idea is offered back',
+     used.isIdea===false && used.stillOffered===false, used);
+  ck('and the card says something true about the month instead',
+     used.tag==='This month', used.tag);
+}
+
+/* RULED 15 Sep 2026: "move all the buttons to the bottom and align them." */
+{ const p=await app(4);
+  const r=await p.evaluate(()=>{
+    drawHome();
+    const head=document.querySelectorAll('.sughead .btn').length;
+    const bs=[...document.querySelectorAll('#sug-btns .btn')].map(b=>{
+      const x=b.getBoundingClientRect();
+      return { t:b.textContent, w:Math.round(x.width), h:Math.round(x.height),
+               y:Math.round(x.top), ghost:b.classList.contains('ghost') };
+    });
+    const row=document.getElementById('sug-btns').getBoundingClientRect();
+    const card=document.querySelector('.sugbox').getBoundingClientRect();
+    return { head, bs, fromFoot: Math.round(card.bottom - row.bottom) };
+  });
+  ck('no button is left up on the label line', r.head===0, r.head);
+  ck('both buttons are in the one row at the foot', r.bs.length===2, r.bs);
+  ck('they sit on the same line', r.bs[0].y===r.bs[1].y, r.bs);
+  ck('they are the same height', r.bs[0].h===r.bs[1].h, r.bs);
+  /* the outlined button carries a border and the filled one does not, which is
+     two pixels of difference unless it is asked for */
+  ck('and exactly the same width', r.bs[0].w===r.bs[1].w, r.bs);
+  ck('the outline is still an outline', r.bs[1].ghost===true, r.bs);
+  ck('and the row really is at the bottom of the card', r.fromFoot < 30, r.fromFoot);
+
+  /* an occasion the app could not confidently pair an act with has one button,
+     and a row with a hole in it is not aligned, it is broken */
+  const one=await p.evaluate(()=>{
+    const real=window.suggestion;
+    window.suggestion=()=>({tag:'Occasion \u00b7 in 3 days',t:'Some Day',b:'A line about it.'});
+    drawHome();
+    const bs=[...document.querySelectorAll('#sug-btns .btn')];
+    const w=bs.map(b=>Math.round(b.getBoundingClientRect().width));
+    const row=Math.round(document.getElementById('sug-btns').getBoundingClientRect().width);
+    window.suggestion=real; drawHome();
+    return { n:bs.length, w, row };
+  });
+  ck('a day with no act to start shows one button, full width',
+     one.n===1 && Math.abs(one.w[0]-one.row)<2, one);
+}
+
 ck('no page or console errors anywhere', errs.length===0, errs.slice(0,4));
 console.log('\n'+pass+' passed, '+fail+' failed, console/page errors: '+errs.length);
 await b.close();

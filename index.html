@@ -970,21 +970,40 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
 .sughead{display:flex;align-items:baseline;gap:12px;margin-bottom:7px}
 .sughead #sug-tag{font-size:11px;color:var(--coralink);font-weight:600;
   letter-spacing:.05em;text-transform:uppercase;flex:1;min-width:0;line-height:1.35}
-/* It reads as a button because it is one — the same bordered box it was at the
-   foot of the card, moved up onto this line rather than restyled into a link.
-   Nothing about it changed except where it sits. */
-.sughead .btn{flex:none;white-space:nowrap;margin-top:-3px;
-  /* a hair smaller than the button was at the foot of the card: at full size it
-     pushed "Occasion · in 11 weeks" onto a second line, which put back the
-     height this was meant to save */
-  font-size:13px;padding:10px 14px}
-.sugbox #sug-title{font-size:16px;display:block;margin-bottom:5px;line-height:1.3}
+/* RULED 15 Sep 2026 — both buttons at the foot. Equal halves, so "align them"
+   means aligned on every edge rather than merely sitting on one line. A lone
+   button takes the full width, which is what it did before it was moved up. */
+.sugbtns{display:flex;gap:10px;margin-top:13px;padding-top:13px;
+  border-top:1px solid var(--line)}
+/* EQUAL MEANS EQUAL. The outlined button carries a 1.5px border and the filled
+   one does not, so without these two lines the halves came out 153px and 151px
+   \u2014 two pixels, which is exactly the kind of thing "align them" is asking
+   about. The filled button gets the same border in nothing. */
+.sugbtns .btn{flex:1 1 0;min-width:0;margin-top:0;white-space:nowrap;
+  box-sizing:border-box;font-size:13.5px;padding:11px 10px}
+/* and ONLY the filled one, or this wins the cascade against .btn.ghost and
+   rubs the outline off the button beside it — which it did, and the render
+   caught it: "Browse all ideas" came out as a line of text. */
+.sugbtns .btn:not(.ghost){border:1.5px solid transparent}
+.sugbtns:empty{display:none}
+.sugbox #sug-title{font-size:16px;display:block;margin-bottom:5px;line-height:1.3;
+  font-weight:700;font-family:inherit;color:inherit;background:none;border:0;
+  padding:0;width:100%;text-align:left;cursor:pointer;
+  -webkit-tap-highlight-color:transparent}
+/* it is a button, so it has to look like one can be pressed \u2014 quietly. The
+   chevron turns when the words are open. */
+.sugbox #sug-title.canwhy::after{content:'\203A';display:inline-block;margin-left:7px;
+  color:var(--coralink);font-weight:700;transform:rotate(90deg);
+  transition:transform .18s ease;vertical-align:baseline}
+.sugbox #sug-title.canwhy.open::after{transform:rotate(-90deg)}
+@media (prefers-reduced-motion:reduce){ .sugbox #sug-title.canwhy::after{transition:none} }
 .sugbox #sug-body{margin:0}
 /* the act sits under the occasion with a rule between them, so the card reads
-   as one thing with a consequence rather than as two things side by side */
+   as one thing with a consequence rather than as two things side by side. The
+   rule that used to close this block now opens the button row below it, so
+   there is exactly one line on the card and it is where the doing starts. */
 .sugbox #sug-act{margin-top:13px;padding-top:12px;border-top:1px solid var(--line)}
-.sugbox #sug-act b{font-size:14.5px;display:block;margin-bottom:9px;line-height:1.3}
-.sugbox #sug-act .btn.mini{margin-top:0}
+.sugbox #sug-act b{font-size:14.5px;display:block;margin:0;line-height:1.3}
 /* the shareable card — square, and sized to the real artwork's proportions */
 .cardface{container-type:inline-size;padding:0;border-radius:var(--r);overflow:hidden;
   aspect-ratio:1;display:flex;flex-direction:column;justify-content:flex-start}
@@ -1404,20 +1423,26 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
     <div id="month" class="pace joint-bot" style="position:relative"></div>
 
 
-    <!-- The heading over this said "Worth knowing about", which the card's own
-         first line already says. The way out was a full-width button at the
-         foot of the box; it sits beside the occasion line now, so the box is
-         the height of what it has to say and nothing more. -->
+    <!-- RULED by G, 15 September 2026: "move all the buttons to the bottom and
+         align them." The two buttons used to sit at opposite corners \u2014 one up
+         on the label line, one down under a rule \u2014 so the card had a control
+         in the top right and another in the bottom left and no line where the
+         reading stopped and the doing began. They are one row at the foot now,
+         equal halves, one rule above them. -->
     <div class="cardbox sugbox">
       <div class="sughead">
         <span id="sug-tag">Occasion · in 9 days</span>
-        <button class="btn mini ghost" onclick="go('browse')">Browse all ideas</button>
       </div>
-      <b id="sug-title"></b>
+      <!-- RULED 15 Sep 2026. The title is what you tap to see why. An idea's
+           own words are behind it; an occasion still shows its line, because a
+           date on its own says nothing. -->
+      <button type="button" id="sug-title"></button>
       <p class="note" id="sug-body"></p>
       <!-- The act an occasion brings with it. Empty and hidden unless there is
            a confident one; a day with no act named reads exactly as it did. -->
       <div id="sug-act" class="hide"></div>
+      <!-- Both buttons, at the foot, the same size as each other. -->
+      <div id="sug-btns" class="sugbtns"></div>
     </div>
 
     <!-- RULED S8B, G, 14 September 2026. Act 0 sat first IN the grid, which
@@ -5501,16 +5526,35 @@ function suggestion(){
      89 is prime, so stepping by any stride visits all 89 before it repeats:
      a year and three quarters of Sundays without seeing the same card twice.
      Ideas already logged are stepped over rather than shown back. */
+  /* RULED by G, 15 September 2026, three things about this card.
+
+     IT ROTATES ON EVERY OPEN. It used to turn over once a WEEK \u2014 the same
+     idea on the same screen for seven days, which on an app somebody opens most
+     mornings is the same card six times running. SUG_SEED is drawn fresh at
+     launch and held for the session, so moving between tabs does not shuffle it
+     under you and closing the app does.
+
+     AND IT NEVER OFFERS ONE THEY HAVE ALREADY TAKEN. The filter was here, and
+     then `: IDEAS` handed the whole library back the moment it came up empty
+     \u2014 so a person who had worked through their library was shown the acts
+     they had already done, as suggestions. If there is nothing left to suggest,
+     the card says something true about the month instead. */
   const list = IDEAS.filter(i=>!ideaUsed(i));
-  const from = list.length ? list : IDEAS;
-  if(from.length){
-    const i = from[(IDEA_SEED * 37) % from.length];
-    return { tag:'Worth doing', t:i.t, b:i.d, idea:i };
+  if(list.length){
+    const i = list[(SUG_SEED * 37) % list.length];
+    /* NO EXPLANATION ON THE CARD. G: "don't have an explanation that's when you
+       tap." The idea's own words are still here, on `b`, and drawHome keeps them
+       behind a tap rather than printing them. An act is a thing you do; the
+       reasoning behind it is for the moment you want it. */
+    return { tag:'An idea', t:i.t, b:i.d, idea:i, tapForWhy:true };
   }
   /* nothing left in the library — say something true about the month instead */
+  /* The sibling of the label above, and the same fault: "Worth knowing" names
+     how we feel about it rather than what it is. This one is a note about the
+     month you are standing in. */
   const q = QUIET.filter(x=>x.m===month);
-  const pick = q.length ? q[IDEA_SEED % q.length] : QUIET[0];
-  return { tag:'Worth knowing', t:pick.t, b:pick.b };
+  const pick = q.length ? q[SUG_SEED % q.length] : QUIET[0];
+  return { tag:'This month', t:pick.t, b:pick.b };
 }
 
 /* THE ACT AN OCCASION BRINGS WITH IT. Scored on the words the occasion and the
@@ -5665,27 +5709,71 @@ function drawHome(){
 
   const sug = suggestion();
   $('sug-tag').textContent   = sug.tag;
-  $('sug-title').textContent = sug.t;
-  $('sug-body').textContent  = sug.b;
+  const st = $('sug-title'), sb = $('sug-body');
+  st.textContent = sug.t;
+  sb.textContent = sug.b || '';
+  /* THE EXPLANATION WAITS FOR A TAP. G, 15 September 2026: "don't have an
+     explanation that's when you tap." An idea is a thing to do, and the card
+     says what it is and offers to start it. The reasoning is one tap away and
+     it closes again. An occasion is the other way round \u2014 it names a DATE,
+     and a date with no line under it says nothing at all \u2014 so that one is
+     left open as it was. */
+  const why = !!(sug.tapForWhy && sug.b);
+  st.classList.toggle('canwhy', why);
+  st.classList.remove('open');
+  sb.classList.toggle('hide', why);
+  st.onclick = why ? (()=>{
+    const open = sb.classList.toggle('hide');
+    st.classList.toggle('open', !open);
+    st.setAttribute('aria-expanded', String(!open));
+  }) : null;
+  if(why){
+    st.setAttribute('aria-expanded','false');
+    st.setAttribute('aria-label', sug.t + '. Tap to see why.');
+  } else {
+    st.removeAttribute('aria-expanded');
+    st.removeAttribute('aria-label');
+  }
   /* THE ACT. An occasion that found one carries it; an idea IS one, so it gets
-     the same button and no second title. Ruled 3, 14 Sep 2026. */
+     the same button and no second title. Ruled 3, 14 Sep 2026.
+     RULED 15 Sep 2026: the BUTTON no longer lives here. Only the occasion's
+     "one act for it" line does, because that is reading rather than doing. */
   const sa = $('sug-act');
   const act = sug.act || sug.idea || null;
-  sa.classList.toggle('hide', !act);
+  const named = !!(act && sug.act);
+  sa.classList.toggle('hide', !named);
   sa.innerHTML = '';
-  if(act){
-    if(sug.act){
-      const h = document.createElement('b');
-      h.textContent = 'One act for it: ' + act.t;
-      sa.appendChild(h);
-    }
-    const go = document.createElement('button');
-    go.className = 'btn mini';
-    go.textContent = 'Start it now';
-    go.setAttribute('aria-label', 'Start ' + act.t + ' now');
-    go.onclick = ()=>startFromIdea(act);
-    sa.appendChild(go);
+  if(named){
+    const h = document.createElement('b');
+    h.textContent = 'One act for it: ' + act.t;
+    sa.appendChild(h);
   }
+
+  /* BOTH BUTTONS, AT THE FOOT, THE SAME SIZE. G, 15 September 2026: "move all
+     the buttons to the bottom and align them." Built rather than written into
+     the markup because one of the two is conditional \u2014 there is no act to
+     start on a day the app could not confidently pair one with \u2014 and a row
+     with a gap in it is not aligned, it is broken. */
+  const sbt = $('sug-btns');
+  sbt.innerHTML = '';
+  if(act){
+    /* NOT `go` — that is the app's own navigation function, and a local const of
+       the same name in this scope would shadow it for everything below. It cost
+       nothing to notice and would have cost an evening to find. */
+    const start = document.createElement('button');
+    start.type = 'button';
+    start.className = 'btn mini';
+    start.textContent = 'Start it now';
+    start.setAttribute('aria-label', 'Start ' + act.t + ' now');
+    start.onclick = ()=>startFromIdea(act);
+    sbt.appendChild(start);
+  }
+  const all = document.createElement('button');
+  all.type = 'button';
+  all.className = 'btn mini ghost';
+  all.textContent = 'Browse all ideas';
+  all.onclick = ()=>go('browse');
+  sbt.appendChild(all);
 
   drawMonth();
   drawGrid();
@@ -11860,6 +11948,11 @@ function weekSeed(){
   return d.getFullYear()*100 + week + 1;
 }
 let IDEA_SEED = weekSeed();
+/* The suggestion card's own seed, SEPARATE from the one that orders the Ideas
+   screen. Drawn once per launch: "it needs to rotate everytime you open it."
+   Kept apart so shuffling the card does not reorder the library underneath
+   somebody who is halfway down it. */
+const SUG_SEED = Math.floor(Math.random() * 1000000) + 1;
 function ideaRank(i){
   /* a cheap deterministic hash of title × seed — same order all session */
   let h = IDEA_SEED;

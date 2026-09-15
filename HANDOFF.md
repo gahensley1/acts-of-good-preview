@@ -1,10 +1,10 @@
 # HANDOFF — read this first, updated 15 Sep 2026
 
-Build in G's hands: **5P**. `index.html`, **1,253,938 bytes**,
-md5 `a95f5fde3cc0c9a9aaf95d5feacc61e0`, on both folders, read back off his disk and checksummed.
+Build in G's hands: **5Q**. `index.html`, **1,259,378 bytes**,
+md5 `6a254fd05b232b904bd2c61879e00715`, on both folders, read back off his disk and checksummed.
 
-**5I THROUGH 5M ARE PUSHED** — `9bb6596..459a558`, 15 Sep. **5P IS NOT.** The command is at the
-foot of this page.
+**5I THROUGH 5P ARE PUSHED** — 5I–5M as `9bb6596..459a558`, then 5O–5P. **5Q IS NOT.** The command
+is at the foot of this page.
 
 **5N WAS NEVER PUSHED AND MUST NOT BE.** It passed 161 checks and a three-seat review found
 **twenty-one faults in it**, two of which could lose a year. 5O is 5N with all of them fixed.
@@ -14,10 +14,10 @@ The Worker is at 5F on `actsofgood.app`. **5G–5O are phone-side only; it does 
 redeploying.** Taking a sheet down needed no Worker change at all: the `closed` route has been
 there since the sheet shipped and the phone simply never called it.
 
-**205 checks across seven harnesses, 0 failing, no page or console errors.**
+**227 checks across seven harnesses, 0 failing, no page or console errors.**
 `tests/battery.mjs` (26) · `tests/snapshots.mjs` (14) · `tests/rulings-5j.mjs` (29) ·
 `tests/book.mjs` (12) · `tests/k-set.mjs` (14) · `tests/review-fixes.mjs` (25) ·
-`tests/landmines.mjs` (85).
+`tests/landmines.mjs` (107).
 **The harnesses read PAGE ERRORS, not only assertions.** That is what caught the 5J bug below.
 
 **AND THEY RUN ON HIS MACHINE NOW.** Every harness used to hardcode two paths that exist only
@@ -165,6 +165,44 @@ functions as well as CSS classes.**
 rendered by the app. What rendering settled: **the same-line date (K2C) has to shrink the act number
 to fit** — the line is already near its width limit — while the stacked version costs nothing and
 fills the part of the square both seats called empty.
+
+---
+
+## 5Q — THE SUGGESTION CARD ON THE YEAR SCREEN. G's rulings, 15 September.
+
+G, looking at the card: *"I do not like the words 'worth doing', it needs to say what it is … and
+don't have an explanation that's when you tap and it needs to rotate everytime you open it (don't
+show if they have borrowed it)"*, then *"move all the buttons to the bottom and align them."*
+
+- **THE LABEL SAYS WHAT THE THING IS.** Copy change:
+
+  | Where | Before | After | Why |
+  |---|---|---|---|
+  | The card's eyebrow | WORTH DOING | AN IDEA | It is one of Jessica's ideas. The old label told the person how to feel about it; the new one names it, and matches the tab and the button below. |
+  | Same card, library exhausted | WORTH KNOWING | THIS MONTH | The same fault in the same place. Changed with it so the card does not have two voices. |
+
+- **THE EXPLANATION WAITS FOR A TAP.** The card is the act's name, a chevron and the buttons. Tap
+  the name and the idea's own words open; tap again and they close. **The occasion branch is
+  deliberately NOT changed** — it names a DATE, and a date with no line under it says nothing.
+- **IT ROTATES ON EVERY OPEN.** It turned over once a *week* before, which on an app opened most
+  mornings is the same card six days running. `SUG_SEED` is drawn fresh at launch and held for the
+  session, so tabbing about does not shuffle it and closing the app does. **Deliberately separate
+  from `IDEA_SEED`**, which orders the Ideas screen: shuffling the card must not reorder the library
+  under somebody halfway down it.
+- **IT NEVER OFFERS ONE ALREADY TAKEN.** The `ideaUsed` filter was here and then `: IDEAS` handed
+  the whole library straight back the moment it came up empty — so a person who had worked through
+  all 89 was shown their own finished acts as suggestions. Nothing left to suggest now falls through
+  to the month note. **L85: a fallback that undoes the filter above it is not a fallback.**
+- **BOTH BUTTONS IN ONE ROW AT THE FOOT, EQUAL HALVES.** They used to sit in opposite corners, one
+  up on the label line and one down under a rule. One rule now, and it marks where reading stops and
+  doing starts. A day with no confident act shows one full-width button, because a row with a hole
+  in it is not aligned, it is broken.
+
+**Two faults caught before they shipped, both in the same twenty minutes.** A local `const go` in
+`drawHome` shadowing the app's own navigation function — the FOURTH name collision in this file.
+And a border rule on the button row that beat `.btn.ghost` and rubbed the outline off the button
+beside it, so "Browse all ideas" rendered as plain text. **The measurements were perfectly happy —
+152px and 152px. Only the picture showed it.** L86: equal numbers are not a correct picture.
 
 ---
 
@@ -434,8 +472,8 @@ in and delete them.**
 
 ---
 
-## THE PUSH FOR 5O AND 5P
+## THE PUSH FOR 5Q
 
 ```
-cd /d "C:\Users\tony\Documents\aog-push" && git add -A && git commit -m "5O-5P: a sign-up sheet can be ended and put back up, the backup carries no strangers, one writer raises the journal's version, the book measures its own pages, the year screen says what is next, and the end of the year is a milepost rather than an empty box" && git push
+cd /d "C:\Users\tony\Documents\aog-push" && git add -A && git commit -m "5Q: the card says what the thing is, keeps the reasoning behind a tap, turns over on every open, never offers back an act already taken, and puts both buttons in one aligned row at the foot" && git push
 ```
