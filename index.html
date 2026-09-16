@@ -50,7 +50,10 @@
   --gold:#E1BA52; --goldscript:#DDB44C; --coral:#EA634F; --ink:#000000; --skin:#F9C78D; --paper:#ffffff;
   --mist:#F6F4F1; --line:#E4E0DA; --muted:#665F57;
   /* --coral is the ARTWORK colour and does not change: the balloon, the card,
-     the progress bar and the tiles are all still exactly the coral they were.
+     the progress bar and act 0's bookend are all still exactly the coral they
+     were. The FINISHED SQUARES moved to --coralink on 16 September, ruled B:
+     a finished square is a solid coral block with white on it, which is what a
+     button is, so it takes the button's coral.
      --coralink is the same colour taken far enough down to be legible as TEXT,
      because white on #EA634F measures 3.28:1 and the readable floor is 4.5.
      It is used only where words sit on coral, or coral sits on white as small
@@ -1115,21 +1118,27 @@ select.pick::-ms-expand{display:none}
   color:#6E675E;font-weight:600;transition:.15s;overflow:hidden;position:relative;
   font-family:inherit;padding:0;cursor:pointer}
 .tile:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
-/* RULED S4B, G, 14 September 2026. The finished squares were the DARKER coral,
-   which exists only so that words sitting on coral stay legible. These squares
-   carry no words on the coral — the number sits on top with its own shadow — so
-   they had been darkened for a reason that did not apply to them, and the grid
-   then disagreed with the progress bar directly above it and with the card. One
-   coral for the artwork, the grid and the bar; the darker one means "button". */
-.tile.done{background:var(--coral);border-color:var(--coral);color:#fff;
-  /* S4B WAS ARGUED ON A FACT THAT IS NOT TRUE. The case for the lighter coral
-     was that these squares "carry no words on the coral — the number sits on top
-     with its own shadow". The number has no shadow: the shadowed `.tilenum`
-     belongs to PLANNED squares, which are a different thing. White measures
-     3.28:1 on the lighter coral against 5.27:1 on the darker one, on the one
-     mark that tells a person which act a square is.
-     G's colour ruling stands. The number gets the protection the argument
-     assumed it already had. */
+/* THIS REVERSES S4B. G, 16 September 2026, looking at the year screen:
+   "I think I want the tiles the same colour red as the Start it now. Seems a
+   little weird. Because that's the hard colour."
+
+   He is describing two reds sitting on one screen. S4B put the grid on the
+   ARTWORK coral so it would agree with the progress bar and the card; that left
+   it disagreeing with every button instead, and a button is the thing a finished
+   square most resembles — a solid coral block with white on it.
+
+   RULED B, not C. He was shown the squares alone and the squares with the
+   progress bar following them, and took the squares alone. So the SQUARES are
+   the button's coral and everything else is untouched: the bar, the card, the
+   balloon and act 0's bookend all keep the artwork coral they have always had.
+   The bar is a thin line rather than a field of colour, which is why it can sit
+   above the grid in a different red without reading as a mistake.
+
+   AND IT SETTLES THE CONTRAST FAULT the 5M review raised and S4B overrode.
+   White measures 3.28:1 on the artwork coral and 5.27:1 on this one, on the one
+   mark that tells a person which act a square is. The shadow below is kept
+   anyway: it costs nothing and the square can sit over a photograph. */
+.tile.done{background:var(--coralink);border-color:var(--coralink);color:#fff;
   text-shadow:0 1px 2px rgba(0,0,0,.45)}
 /* THE BOOKENDS ROW. One row, tile-sized, so it costs a fifth of what the
    headed block did and never comes between the count and the year. */
