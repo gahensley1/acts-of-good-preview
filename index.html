@@ -261,17 +261,6 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
   border-bottom:1px dashed #DED7CB;text-align:left}
 .freerow:active .fgtx,.freerow:hover .fgtx{color:var(--muted);border-bottom-color:var(--coral)}
 .freerow:focus-visible{outline:2px solid var(--coral);outline-offset:2px;border-radius:4px}
-/* RULED A, 12 Sep 2026. A quieter weight than the send button above it, but
-   the same size, because the point of it is that nobody has to hunt for a
-   small thing. The Instagram mark sits beside the words so it is recognised
-   before it is read. */
-#cm-open{margin-top:10px}
-.btn.openig{display:flex;align-items:center;justify-content:center;gap:9px;width:100%}
-/* the chip's glyph rule is scoped to .chip, so this button needs its own or the
-   drawing comes out sizeless and unstroked — which is what it did the first time */
-.btn.openig .glyph{flex:none;width:19px;height:19px;display:block}
-.btn.openig .glyph svg{width:100%;height:100%;display:block;fill:none;
-  stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
 /* last, quietest, and only for somebody who already knows what they are doing */
 .btn.quietcopy{margin-top:14px;font-size:13px;opacity:.72}
 .askhint{font-size:11px;color:#B9B2A9;margin:2px 0 0;padding-left:24px}
@@ -2121,21 +2110,16 @@ What you actually did. Why it mattered. Say the awkward parts."></textarea>
       <span class="tick" aria-hidden="true">&#10003;</span>
       <span><b>Your words are copied.</b> Hold down the caption box in Instagram and tap Paste.</span>
     </div>
-    <!-- REORDERED 16 September. The door used to sit between the send button
-         and the words, which was right when the two were peers. They are not:
-         one hands the card over, the other only opens the app. So the send
-         button's instructions now follow IT, and the door comes after them,
-         under the line that says what it is for.
-         THE RENDER IS WHY. With the door in between, "tap the button above"
-         pointed at the wrong button. -->
+    <!-- THE DOOR WAS HERE, and G had it deleted on 16 September after working
+         out what it was for. "Delete it and proceed."
+
+         It opened the app and carried nothing. The picture can only reach
+         Instagram, Facebook or Threads through the share panel, so a button
+         that opens the app without it is always the worse road — and sitting
+         under the good one, it read as a second way to post. What made it
+         defensible was "help me find the app in that panel", and the words
+         below say that in a sentence. One button, one road. -->
     <p class="note" style="margin-top:12px" id="cm-how"></p>
-    <div id="cm-open" class="hide">
-      <!-- RULED BY G, 16 September. This is not a second way to post and never
-           was: it opens the app and carries nothing. It reads as one until it
-           is labelled, which is exactly what confused him. -->
-      <p class="note" id="cm-openwhy" style="margin:16px 0 6px"></p>
-      <button class="btn ghost openig" type="button" onclick="openTheApp()"></button>
-    </div>
     <button class="btn ghost quietcopy" type="button" onclick="copyCaption()">
       Just copy the caption</button>
 
@@ -10719,24 +10703,30 @@ const HAND_HOW = {
      afterthought at the end. So the screen was teaching the long way round.
      One route now, and pasting is its own line rather than the tail of one. */
   instagram: '<b>Tap the button above and choose Instagram.</b> The card goes '+
-             'over with you and Instagram opens ready to post.'+
+             'over with you and Instagram opens on Reel, Post, Story or Message. '+
+             'Pick one.'+
              '<br><br><b>Then paste your words.</b> They are already copied. '+
              'Hold down the caption box in Instagram and tap <b>Paste</b>. '+
-             'Instagram will not let any app fill that box in for you.',
+             'Instagram will not let any app fill that box in for you.'+
+             '<br><br>No Instagram in that panel? Scroll the row of apps '+
+             'sideways, or tap <b>More</b> at the end of it.',
   /* Facebook and Threads take the words THROUGH the sheet, so there is no
      pasting to explain and no second step to walk anybody through. Saying
      "long press and paste" here was telling people to do work the phone had
      already done. The door below is for finding the app, not for the words. */
-  facebook:  '<b>1.</b> Tap the button above and choose <b>Facebook</b>. '+
+  /* The door these two pointed at was deleted on 16 September, so the sentence
+     that sent people to it had to go with it. L87: a comment or a line of copy
+     that outlives the thing it describes is a defect, not a leftover. */
+  facebook:  '<b>Tap the button above and choose Facebook.</b> '+
              'The card, your photos and your words all go over together &mdash; '+
              'nothing to paste.'+
-             '<br><br>Can\u2019t see Facebook in the grey panel? Use <b>Open Facebook</b> '+
-             'instead, and choose <b>Save Image</b> first so the card is in your photos.',
-  threads:   '<b>1.</b> Tap the button above and choose <b>Threads</b>. '+
+             '<br><br>No Facebook in that panel? Scroll the row of apps sideways, '+
+             'or tap <b>More</b> at the end of it.',
+  threads:   '<b>Tap the button above and choose Threads.</b> '+
              'The card, your photos and your words all go over together &mdash; '+
              'nothing to paste.'+
-             '<br><br>Can\u2019t see Threads in the grey panel? Use <b>Open Threads</b> '+
-             'instead, and choose <b>Save Image</b> first so the card is in your photos.',
+             '<br><br>No Threads in that panel? Scroll the row of apps sideways, '+
+             'or tap <b>More</b> at the end of it.',
   private:   'Your phone will ask whether to text it, mail it, or send it another '+
              'way. The card, the photos and the words travel together, and nothing '+
              'is posted anywhere.'
@@ -10876,28 +10866,6 @@ function drawGoState(){
   b.classList.toggle('waiting', waiting);
   b.textContent = GO_WAITING ? 'Getting the card ready…'
                 : (HAND_LABEL[CM_PLAT] || ('Open ' + platLabel(CM_PLAT)));
-  /* RULED A: the door shows for Instagram and nowhere else. Facebook, Threads
-     and a personal note all carry their words through the share sheet, so
-     nobody is left standing outside them. */
-  const d = $('cm-open');
-  if(d){
-    /* every destination with a door gets one — Instagram, Facebook, Threads.
-       A personal note has no app to open and never did. */
-    const has = !!APP_SCHEME[CM_PLAT];
-    d.classList.toggle('hide', !has);
-    const why = $('cm-openwhy');
-    if(why && has){
-      why.textContent = CM_PLAT==='instagram'
-        ? 'Can\u2019t find Instagram in that grey panel? Choose Save Image instead, then:'
-        : 'Can\u2019t find '+platLabel(CM_PLAT)+' in that grey panel? Choose Save Image instead, then:';
-    }
-    const ob = d.querySelector('.openig');
-    if(ob && has){
-      ob.innerHTML = '<span class="glyph"><svg viewBox="0 0 24 24">'+
-        (SEND_GLYPH[CM_PLAT]||'')+'</svg></span><span>Open '+
-        esc(platLabel(CM_PLAT))+'</span>';
-    }
-  }
 }
 
 /* Every destination that can take a picture now goes through the share sheet.
@@ -10928,17 +10896,11 @@ const SHARES_FILES = { instagram:1, facebook:1, threads:1, private:1 };
    case where there is no back button to rescue anybody. It was only ever
    reachable from inside a failure path, so nothing ever pressed it.
 
-   So this is a wrapper, not an implementation. Three things follow for free:
-   Facebook and Threads work too, "nothing happened" stops being possible
-   because the website opens instead, and the caption is copied on the way.
-
-   THE HONEST LIMIT, unchanged: a button can open an app or hand it the picture,
-   never both. Opening is a door; handing over is the share sheet. So the screen
-   is two plain steps, and the picture is waiting in the camera roll. */
-function openTheApp(){
-  const a = S.current || S.acts[S.acts.length-1];
-  openApp(a ? (()=>markLeaving(a)) : null);
-}
+   THE HONEST LIMIT that finished it off, 16 September: a button can open an app
+   or hand it the picture, never both. Opening is a door; handing over is the
+   share panel. So a door under the send button was always offering the worse
+   road, and G had it deleted. openApp() itself stays — handOff() still uses it
+   on the phone that cannot share files at all. */
 
 function handOff(){
   const a = S.current || S.acts[S.acts.length-1];
