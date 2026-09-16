@@ -75,8 +75,11 @@ head('the chip rows are gone');
   ck('no leadchips row survives', r.lead===false, r);
   ck('no catchips row survives',  r.cat===false,  r);
   ck('not one filter chip is left on the ideas screen', r.chipsOnScreen===0, r);
-  ck('neither id is referenced anywhere in the file',
-     !/\$\('(lead|cat)chips'\)/.test(SRC), {});
+  /* ask the SCREEN, not one spelling in the source. The check this replaces
+     grepped for a single form, and the seat put the chip row back wired up the
+     other way and it stayed green. */
+  ck('and no chip row can come back by another name',
+     r.chipsOnScreen===0 && r.lead===false && r.cat===false, r);
 }
 
 /* ── 2. two pull-downs, side by side ────────────────────────────────────
@@ -111,10 +114,19 @@ head('two pull-downs on one row');
    remembered-value checks go red.                                         */
 head('changing a pull-down changes the ideas');
 { const p = await ideas();
-  const before = await p.evaluate(()=>document.querySelectorAll('#ideas > *').length);
-  await p.selectOption('#leadpick select','Today'); await p.waitForTimeout(500);
+  const before = await p.evaluate(()=>({
+    n: document.querySelectorAll('#ideas > *').length, lead: S.lead }));
+  /* NOT 'Today'. The harness used to pick the value the app already held, so it
+     was changing nothing: the seat gutted the pull-down's change handler
+     entirely and this check stayed green. Pick something the app is not already
+     showing, and assert on the LIST rather than on the file. */
+  await p.selectOption('#leadpick select','Needs a month'); await p.waitForTimeout(600);
   const afterTime = await p.evaluate(()=>({n:document.querySelectorAll('#ideas > *').length, lead:S.lead}));
-  ck('picking a time is remembered in the file', afterTime.lead==='Today', afterTime);
+  ck('the box does not start on the one we are about to pick',
+     before.lead!=='Needs a month', before);
+  ck('picking a time is remembered in the file', afterTime.lead==='Needs a month', afterTime);
+  ck('and it changes which ideas are on the screen',
+     afterTime.n!==before.n && afterTime.n>0, {before:before.n, after:afterTime.n});
   await p.selectOption('#catpick select','Animals'); await p.waitForTimeout(500);
   const afterWho = await p.evaluate(()=>({cat:S.cat, n:document.querySelectorAll('#ideas > *').length}));
   ck('picking who it helps is remembered in the file', afterWho.cat==='Animals', afterWho);
@@ -135,12 +147,17 @@ head('a filter saved by an older build cannot leave the box blank');
     return { aIdx:a.selectedIndex, bIdx:b.selectedIndex,
              aText:(a.options[a.selectedIndex]||{}).text,
              bText:(b.options[b.selectedIndex]||{}).text,
-             sLead:S.lead, sCat:S.cat };
+             sLead:S.lead, sCat:S.cat,
+             /* read the everything option out of the lists rather than naming
+                it. It was hardcoded as 'Anything' and G renamed it to 'Anyone'
+                on 16 September; a check that spells the word out fails on a
+                rename that is not a fault. */
+             wantLead: LEADS[0], wantCat: CATS[0] };
   });
   ck('the time box still shows something', r.aIdx>=0 && !!r.aText, r);
   ck('the who box still shows something',  r.bIdx>=0 && !!r.bText, r);
   ck('the file is corrected to the everything option, not left stale',
-     r.sLead==='Any time' && r.sCat==='Anything', r);
+     r.sLead===r.wantLead && r.sCat===r.wantCat, r);
 }
 
 /* ── 5. the choice survives leaving and coming back ─────────────────────

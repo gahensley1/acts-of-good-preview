@@ -264,6 +264,7 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
 /* last, quietest, and only for somebody who already knows what they are doing */
 .btn.quietcopy{margin-top:14px;font-size:13px;opacity:.72}
 .askhint{font-size:11px;color:#B9B2A9;margin:2px 0 0;padding-left:24px}
+  .askhint.egnote{font-size:12.5px;color:var(--muted)}
 .askrow:has(> .atx:only-child) .atx{padding-left:0}
 /* The panel is a form, not a free page — each part says what it is, so nobody
    has to guess what the two lines at the top are for. */
@@ -809,10 +810,21 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
 #tellline svg{display:block;flex:none}
 #tellwrap .note{margin:0;font-size:11.5px;max-width:270px;
   margin-left:auto;margin-right:auto}
-#buildtag{margin:30px auto 0;width:max-content;
-  font-size:12px;font-weight:700;letter-spacing:.12em;color:#6B6259;
-  background:var(--mist);border:1px solid var(--line);border-radius:7px;
-  padding:6px 12px}
+/* G, 16 September 2026: "take that out of a frame and make it less visible."
+   It is a dev stamp, not a setting, and it was wearing the same box a real
+   control wears. Now it is a line of type: no ground, no border, the app's own
+   muted ink at under half strength rather than a new grey invented for it. It
+   still has to be READABLE \u2014 the feedback mail quotes it, and a build
+   number nobody can read is worse than no build number. */
+#buildtag{margin:26px auto 0;width:max-content;
+  font-size:11px;font-weight:600;letter-spacing:.14em;
+  /* THE OPACITY WAS DOING WORK THE LAYOUT HAD ALREADY DONE. At .45 this
+     measured 2.0:1 against white, under every floor in the standard including
+     the most lenient, and the note below says in as many words that a build
+     number nobody can read is worse than none. It is already the quietest
+     thing on the screen by size, weight, position and letter-spacing; it does
+     not also need to be faint. Full muted ink, no ground, no border. */
+  color:var(--muted)}
 /* the quietest thing on the screen, at the bottom of it, where somebody who
    wants it will look and nobody else has to step over it */
 .youfoot{margin:26px 0 0;text-align:center}
@@ -942,6 +954,12 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
   padding:5px;line-height:0;border-radius:9px;min-width:44px;min-height:44px;display:inline-flex;align-items:center;justify-content:center}
 .datewrap .calgo svg{display:block}
   .datewrap .calgo{pointer-events:none;padding:0}
+  /* the act number, said rather than asked for. It takes the app's own muted
+     grey rather than a new one \u2014 the same ink every secondary line on the
+     screen is written in \u2014 and earns its place above the note by size and
+     weight instead of by colour. */
+  .finact{font-size:17px;font-weight:600;color:var(--muted);margin:14px 0 14px;
+    letter-spacing:-.01em}
 .datebtn.empty{color:#B9B2A9;font-weight:400}
 /* The half act was removed entirely on G's instruction, 6 Sept 2026. See HANDOFF. */
 /* the year, finished — the one line on Your year that is not a measurement */
@@ -995,11 +1013,18 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
    radius and 16px type; this is the chevron and the height. `appearance:none`
    because the platform's own arrow sits in a different place on every browser
    and none of them is coral. */
-select.pick{-webkit-appearance:none;appearance:none;min-height:48px;
-  padding-right:42px;font-weight:600;cursor:pointer;
+/* THE CHEVRON WAS RESERVING 42px AND NEEDS 28. Six of the fifteen options were
+   being cut off mid-word at the app's own width \u2014 "Community helpers" read
+   as "Community h" \u2014 and a select has no ellipsis in any browser we ship
+   to, so a clip reads as a fault rather than as truncation. This recovers four
+   of the six. The two longest still do not fit in half a phone at 16px, and
+   16px is not negotiable: below it iOS zooms the page. That is G's ruling to
+   make, not a thing to solve by shrinking the type. */
+  select.pick{-webkit-appearance:none;appearance:none;min-height:48px;
+  padding-right:30px;font-weight:600;cursor:pointer;
   background-image:url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23E4695A' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
-  background-repeat:no-repeat;background-position:right 13px center;
-  background-size:19px 19px}
+  background-repeat:no-repeat;background-position:right 8px center;
+  background-size:17px 17px}
 select.pick::-ms-expand{display:none}
 /* THE CHOICE AND THE TRIGGER ON ONE LINE. Picking a lead time never did
    anything on its own \u2014 it only described what the alarm WOULD be if you
@@ -1603,7 +1628,9 @@ select.pick::-ms-expand{display:none}
       licences</button></p>
 
     <!-- BUILD MARK — dev only, delete this div when the app ships -->
-    <div id="buildtag">BUILD 5M</div>
+    <!-- IT HAD SAID 5M SINCE 15 SEPTEMBER, eight builds back, and every
+         feedback mail sent from the app quoted it. Move it with the build. -->
+    <div id="buildtag">BUILD 6L</div>
   </div>
 </section>
 
@@ -1969,21 +1996,20 @@ select.pick::-ms-expand{display:none}
 <div class="sheet hide" id="sheet-finish" role="dialog" aria-modal="true" aria-labelledby="fin-h3"><div class="panel">
   <button class="sheetback" onclick="sheet(null)">‹ Back</button>
   <h3 id="fin-h3">This becomes</h3>
-  <div style="display:flex;gap:10px;align-items:flex-end;margin-top:12px">
-    <!-- RULED by G, 16 September 2026: "even if I pick tile 14 I cannot post
-         out of turn it has to be consecutive. You can plan but not complete the
-         post so if you post it changes to the next consecutive number."
-         So this states the number rather than asking for it. It stays a field
-         rather than a line of text because it is the same shape as the date
-         beside it and the person is reading them as a pair. -->
-    <div class="field" style="flex:.7;margin:0"><label for="fin-no">Act</label>
-      <input id="fin-no" inputmode="numeric" style="max-width:90px" readonly
-             aria-readonly="true"></div>
-    <div class="field" style="flex:1.6;margin:0"><label for="fin-when-btn">On</label>
-      <input id="fin-when" type="hidden" aria-hidden="true">
-      <div class="datewrap"><button class="datebtn" id="fin-when-btn" onclick="openDate('fin-when')" data-lab="On" aria-label="On, pick a date" ></button></div></div>
+  <!-- RULED by G, 16 September 2026: "even if I pick tile 14 I cannot post out
+       of turn it has to be consecutive." The number stopped being a choice, so
+       it stopped being a field. It sat in a readonly box for one build, paired
+       with the date, and G: "take the [number] out of a box and make [it]
+       words. [Make it fifty percent] gray so it's less visible." A readonly box
+       that looks exactly like the editable one beside it invites a tap that
+       does nothing, which is the fault the old calendar trigger had. -->
+  <p class="finact" id="fin-act" role="status"></p>
+  <div class="field" style="margin:0">
+    <label for="fin-when-btn">On</label>
+    <input id="fin-when" type="hidden" aria-hidden="true">
+    <div class="datewrap"><button class="datebtn" id="fin-when-btn" onclick="openDate('fin-when')" data-lab="On" aria-label="On, pick a date" ></button></div>
   </div>
-  <p class="note" style="margin-top:10px">of <span id="fin-of"></span>. <span id="fin-why"></span></p>
+  <p class="note" id="fin-why" style="margin-top:10px"></p>
   <p class="note" id="fin-ripe" style="margin-top:6px;font-style:italic;color:#6B5E3A"></p>
   <button class="btn" onclick="finishGo()" id="fin-go">On to the post</button>
 </div></div>
@@ -3826,6 +3852,24 @@ const PHONE = {
   forget(/* id */){ return Promise.resolve(false); }
 };
 
+/* G, 16 September 2026: "under who it helps, instead of saying anything, say
+   everyone or anyone, whatever makes more sense, because it is a who."
+
+   RULED: ALL. I argued for "Anyone" on the grounds that the label asks a who,
+   so the answer should be a who, and G ruled "All" over it. His is the shorter
+   word and it sits beside "Any time" in the box next to it, which reads as one
+   pair of settings rather than two different kinds of answer.
+
+   It lives up here rather than beside CATS because S's default reads it, and S
+   is built before CATS is reached. */
+const CAT_ANY = 'All';
+/* LEAD_ANY lives up here beside CAT_ANY for the same reason and it is the same
+   mistake twice in one day: S's default reads both, and S is built long before
+   either was declared further down. The first one I moved; the second I did not,
+   and the whole app failed to start until the check caught it. If a third of
+   these appears, it belongs here too. */
+const LEAD_ANY = 'Any time';
+
 /* ── state ── */
 const S = {
   /* 'reason' was a leftover from an older shape and read 'in year fifty' —
@@ -3833,7 +3877,15 @@ const S = {
      and word stays blank until a birthday makes it theirs. */
   n: 25, weeks: 52, start: new Date(),
   acts: [], past: [], people: [], chosen: [], works: [],
-  outcome: 'Went to plan', lead: 'Today', cat: 'Anything', current: null,
+  /* RULED by the interface seat, 16 September 2026, and it repairs G's own
+     reason for the "All" ruling. The screen opened on Today, which is 32 of the
+     89 ideas, and the chips used to make that visible \u2014 Today was lit and
+     the four alternatives sat beside it unlit. A pull-down shows a chosen value
+     and an untouched default in exactly the same ink, so 57 ideas were hidden
+     with nothing on screen saying so. G's argument for "All" was that it pairs
+     with "Any time" beside it; opening on Today meant that pair never existed.
+     Now it does. */
+  outcome: 'Went to plan', lead: LEAD_ANY, cat: CAT_ANY, current: null,
   line: 'in year', word: '', lineTouched: false, wordTouched: false, tone: null, toneToured: false,
   name: '', bday: '', why: '',
   /* x was here too, switched off and unreachable, and it travelled in every
@@ -3863,7 +3915,6 @@ const WOPTS = [['A year',52],['Half a year',26],['A summer',13]];
    see past one of them, so a person could never look at the library. ANY TIME
    is first, for the same reason Anything is first beside it. It is not a
    length — anything that reasons about lengths has to skip it. */
-const LEAD_ANY = 'Any time';
 const LEADS = [LEAD_ANY,'Today','This weekend','A week or two','Needs a month'];
 
 /* Categories are by WHO IS HELPED — Jessica's own axis, not by what you do.
@@ -3874,7 +3925,7 @@ const LEADS = [LEAD_ANY,'Today','This weekend','A week or two','Needs a month'];
      LGBTQ + missions + democracy → Causes & voice
      mankind + supporting friends' endeavours + a night off → Friends & family
      Mother Earth → kept as she wrote it                                        */
-const CATS = ['Anything','Neighbors','Teachers & schools','Community helpers',
+const CATS = [CAT_ANY,'Neighbors','Teachers & schools','Community helpers',
   'Elders','Feed people','Animals','Mother Earth','Friends & family',
   'Causes & voice'];
 
@@ -6258,9 +6309,19 @@ function syncDateBtn(id){
   b.setAttribute('aria-label', lab + ', ' + (v ? longDate(v) : 'pick a date'));
   b.classList.toggle('empty', !v);
 }
+/* THE DATE PICKER IS A SHEET, AND A SHEET REPLACES THE SHEET IT OPENED FROM.
+   On the finish sheet that was fatal: the date was the only control on it, so
+   tapping it closed the finish, and picking a day left the person back on the
+   editor with the act unfinished, the day discarded and nothing said. Found by
+   a review seat, 16 September 2026.
+
+   The picker now remembers what it interrupted and puts it back. Coming from a
+   screen rather than a sheet it remembers nothing and closes as before. */
 function openDate(id){
   const v=$(id).value || todayISO();
-  DP={ id:id, y:+v.slice(0,4), m:+v.slice(5,7)-1 };
+  const from = ['finish','ask','write','person','spend','you']
+    .find(x=>{ const el=$('sheet-'+x); return el && !el.classList.contains('hide'); });
+  DP={ id:id, y:+v.slice(0,4), m:+v.slice(5,7)-1, from:from||null };
   sheet('date'); drawDate();
 }
 function dpStep(d){
@@ -6272,7 +6333,9 @@ function dpStep(d){
 function dpPick(iso){
   $(DP.id).value = iso;
   syncDateBtn(DP.id);
-  sheet(null);
+  /* back to whatever this interrupted, so choosing a day does not throw away
+     the thing the person was in the middle of */
+  sheet(DP.from || null);
   /* the write screen's date edits the act itself, and saves like everything
      else there does */
   if(DP.id==='w-when' && S.current){ S.current.d = iso; save(); }
@@ -7258,7 +7321,11 @@ function drawSheetPanel(){
       /* G, 16 Sept: "it should say see an example." One line, not a block —
          this is already the heaviest thing on the editor and most acts never
          use it. Somebody who knows what a sign-up sheet is never taps this. */
-      '<button type="button" class="linky" onclick="openExampleSheet()">'+
+      /* `morepay` restores the 44px that `linky` zeroes. This exact fault was
+         found and fixed on this exact screen for the splits link, and the class
+         written for it was sitting three rows away unused here. It measured 21px
+         \u2014 half the app's own floor and the smallest target on the screen. */
+      '<button type="button" class="linky morepay" onclick="openExampleSheet()">'+
       'See an example</button></p>';
     return;
   }
@@ -7476,6 +7543,12 @@ function drawPaperPreview(){
   const h3 = $('pv-h3');
   if(h3) h3.textContent = PV_EG ? 'An example' : 'What prints';
   const note = $('pv-note');
+  /* THIS SENTENCE IS NOT DECORATION. Without it a person looking at a finished
+     fire-station sheet reasonably concludes the app will produce that sheet, with
+     those lines, for them. It was inheriting the hint grey, which measured
+     2.1:1 \u2014 paler than placeholder text \u2014 making the one piece of copy
+     that prevents a false promise the least readable thing under the picture. */
+  if(note) note.classList.toggle('egnote', !!PV_EG);
   if(note && PV_EG) note.textContent =
     'Somebody else\u2019s sheet, so you can see the shape of one. '+
     'Yours starts written for you, and every line of it is editable.';
@@ -7528,8 +7601,28 @@ function fitPvScale(tries){
 /* G, 6 Sept: pre-write everything and let people edit it, rather than handing
    them three blank boxes. The words below are a starting point that already
    reads properly on a poster; every one of them is editable. */
+/* NOTHING HERE USED TO ASK. This replaces the act's sheet outright \u2014 new
+   identity, new key, claims gone \u2014 and if the old one was PUBLISHED the page
+   stays up on the internet while the phone loses the key to it: the owner can
+   never read who signed up, free a row, or take it down, and it clears at thirty
+   days and not before. That was safe only because the one door to it was drawn
+   only when there was no sheet. Today "See an example" gave it a second door,
+   and a guard that rests on where a link happens to be drawn is not a guard.
+   Found by a review seat, 16 September 2026. */
 function askStart(){
   if(!WK) return;
+  if(WK.sheet){
+    const live = !!WK.sheet.live;
+    checkFirst('Start a new sheet?',
+      live
+        ? 'The one you have is published, and people may have signed up to it. '+
+          'A new sheet cannot reach the old page, so it would stay up with no way '+
+          'to read it or take it down.'
+        : 'The sheet you have already started would be replaced, with everything '+
+          'written on it.',
+      'Replace it', ()=>{ WK.sheet = null; askStart(); });
+    return;
+  }
   WK.askShut = 0;
   const sd = WK.seed || {};
   const needs = (sd.needs||[]).filter(x=>String(x||'').trim());
@@ -9225,7 +9318,8 @@ function finishWork(anon){
      drops into that hole, which is still "the next one" and is why this fills
      gaps rather than counting from the highest. */
   const slot = nextSlot(false);
-  $('fin-no').value = String(slot);
+  const line = $('fin-act');
+  if(line) line.textContent = 'Act ' + slot + ' of ' + S.n;
   const why = $('fin-why');
   if(why){
     const planned = WK.exp ? Math.round(parseFloat(String(WK.exp).replace(',','.'))) : 0;
@@ -9240,7 +9334,8 @@ function finishWork(anon){
   }
   $('fin-when').value = (WK.d && !isFuture(WK.d)) ? WK.d : todayISO();
   syncDateBtn('fin-when');
-  $('fin-of').textContent = S.n;
+  /* fin-of went with the box it lived beside; the line below says the whole
+     thing in one breath */
   /* the harvest acknowledges the ripening, once, as it becomes real */
   const fr=$('fin-ripe'); if(fr){ const rw=ripenWords(WK); fr.textContent=rw; fr.style.display=rw?'':'none'; }
   sheet('finish');
@@ -10732,7 +10827,14 @@ function drawCompose(){
   /* the reminder is Instagram's alone — picking another chip must not leave it
      standing there telling her to paste into an app she is no longer using */
   if(CM_PLAT!=='instagram') dropPasteBar();
-  drawPaperPreview(); prepack();
+  /* drawPreview, NOT drawPaperPreview. The second one draws the SIGN-UP SHEET
+     poster into a hidden panel. These three calls had been pointing at it, so
+     the card preview never drew and the photo toggles under it never existed
+     \u2014 and those toggles are the only place in the app where somebody says
+     this photo rides along and that one stays home. Every photo went out, with
+     nothing on screen to show it going. Found by a review seat on
+     16 September 2026, confirmed present in every build back to 5U. */
+  drawPreview(); prepack();
 
   /* which platforms this act has already gone out on */
   /* An answer given by reflex used to be permanent. Each one can now be taken
@@ -10997,7 +11099,7 @@ async function prepack(){
   if(PACK.key === key && PACK.files) return;   // this exact picture is already drawn
   PACK = { key:key, files:null, busy:true };
   BAD_PHOTOS = 0; SMALL_PHOTOS = 0;
-  drawPaperPreview(); drawGoState();
+  drawPreview(); drawGoState();
   const files = [];
   /* captured BEFORE the awaits: the filename used to re-read the global after
      the render finished, so switching destination mid-render shipped a card
@@ -11026,7 +11128,7 @@ async function prepack(){
   }
   if(PACK.key !== key) return;                 // a later pack overtook us; it owns the state
   PACK.files = files; PACK.busy = false;
-  drawPaperPreview(); drawGoState();
+  drawPreview(); drawGoState();
   if(BAD_PHOTOS) say('One of your photos will not open',
     BAD_PHOTOS===1 ? 'It is left out of this one. Everything else goes as normal.'
                    : BAD_PHOTOS+' of them are left out. Everything else goes as normal.');
@@ -12007,12 +12109,12 @@ function reshuffle(){ IDEA_SEED = Math.floor(Math.random()*100000)+1; drawBrowse
 function drawBrowse(){
   filterPicker($('leadpick'),LEADS,()=>S.lead||LEAD_ANY,
                v=>{S.lead=v;drawBrowse();},'Filter ideas by how long they take');
-  filterPicker($('catpick'),CATS,()=>S.cat||'Anything',
+  filterPicker($('catpick'),CATS,()=>S.cat||CAT_ANY,
                v=>{S.cat=v;drawBrowse();},'Filter ideas by who they help');
   const box=$('ideas'); box.innerHTML='';
-  const cat=S.cat||'Anything';
+  const cat=S.cat||CAT_ANY;
   const anyLead = S.lead===LEAD_ANY;
-  const list=IDEAS.filter(i=>(anyLead||i.l===S.lead) && (cat==='Anything'||i.c===cat))
+  const list=IDEAS.filter(i=>(anyLead||i.l===S.lead) && (cat===CAT_ANY||i.c===cat))
     .map(i=>({i:i, used:ideaUsed(i), r:ideaRank(i)}))
     .sort((a,b)=> (a.used?1:0)-(b.used?1:0) || a.r-b.r)
     .map(x=>x.i);

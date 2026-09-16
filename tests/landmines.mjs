@@ -19,6 +19,40 @@ const FILE = process.env.AOG || pathToFileURL(path.resolve(process.cwd(),'index.
 
 const b = await chromium.launch(LAUNCH);
 let pass=0, fail=0; const errs=[];
+/* ── SEEN, NOT MEASURED ────────────────────────────────────────────────────
+   A review seat, 16 September 2026, made the calendar mark, the build stamp and
+   the proposed-act box invisible in one build and every check stayed green:
+   they measured rectangles and read style rules, and neither of those can see
+   paint. It then cut the handler off "On to the post" so an act could not be
+   finished at all, and all 485 checks passed.
+
+   This is the answer to the first half. Inject it, then ask `seen(el)` rather
+   than asking for a width. Anything display:none, visibility:hidden, faded out
+   or collapsed comes back false. */
+const SEEN = `(el)=>{
+  if(typeof el === 'string') el = document.querySelector(el);
+  if(!el) return false;
+  /* offsetParent is an HTMLElement property; an SVG has none, and asking for it
+     failed everything drawn as a picture. Walk the ancestors instead, which is
+     what catches display:none either way. */
+  if('offsetParent' in el && !el.offsetParent &&
+     getComputedStyle(el).position !== 'fixed') return false;
+  const r = el.getBoundingClientRect();
+  if(r.width < 1 || r.height < 1) return false;
+  let n = el;
+  while(n && n.nodeType === 1){
+    const cs = getComputedStyle(n);
+    if(cs.display === 'none' || cs.visibility === 'hidden') return false;
+    if(parseFloat(cs.opacity) < 0.15) return false;
+    n = n.parentElement;
+  }
+  return true;
+}`;
+const SRC = require_('node:fs').readFileSync(require_('node:path').resolve(process.cwd(),'index.html'),'utf8');
+const hexToRgb = h => { h=(h||'').replace('#','').trim();
+  if(h.length!==6) return h;
+  return 'rgb('+parseInt(h.slice(0,2),16)+', '+parseInt(h.slice(2,4),16)+
+         ', '+parseInt(h.slice(4,6),16)+')'; };
 const ck=(n,c,g)=>{ if(c){pass++;console.log('  ok   '+n);} else {fail++;console.log('  FAIL '+n+'   '+JSON.stringify(g));} };
 const head=t=>console.log('\n== '+t+' ==');
 let CTX=null, PAGE=null;
@@ -986,26 +1020,34 @@ head('see an example');
   await p.evaluate(()=>openWork(S.acts[0]));
   await p.waitForTimeout(800);
 
-  const door = await p.evaluate(()=>{
+  const door = await p.evaluate((S_)=>{
+    const seen=(0,eval)('('+S_+')');
     const b=[...document.querySelectorAll('#s-work button')]
       .find(x=>/see an example/i.test(x.textContent));
     if(!b) return {there:false};
     const r=b.getBoundingClientRect();
-    return { there:true, text:b.textContent.trim(),
+    /* SEEN, not found. A hidden button is still in the document, still matches a
+       text search, and still answers a click \u2014 so the check this replaces
+       stayed green with the link set to display:none. */
+    return { there:seen(b), text:b.textContent.trim(),
              inNote: !!b.closest('p.note'),
              h:Math.round(r.height) };
-  });
+  }, SEEN);
   ck('the editor offers an example before anything is made', door.there===true, door);
   ck('and it says what G asked it to say', door.text==='See an example', door);
-  /* it must stay a line inside the sentence, not become another block on the
-     heaviest part of this screen */
-  ck('it is a line in the sentence, not a block', door.inNote===true && door.h<32, door);
+  /* it must stay INSIDE the sentence rather than becoming another block on the
+     heaviest part of this screen \u2014 and it must still be big enough to hit.
+     This check used to demand it be under 32px tall, which is to say it was
+     holding the fault in place: the seat measured it at 21, half the app's own
+     floor and the smallest target on the screen. */
+  ck('it is a line in the sentence, not a block', door.inNote===true, door);
+  ck('and a thumb can still land on it', door.h>=44, door);
 
   await p.evaluate(()=>{ [...document.querySelectorAll('#s-work button')]
     .find(x=>/see an example/i.test(x.textContent)).click(); });
   await p.waitForTimeout(1300);
 
-  const eg = await p.evaluate(()=>{
+  const eg = await p.evaluate((S_)=>{
     const body=document.getElementById('pv-body');
     const rows=[...body.querySelectorAll('li')].map(l=>l.textContent);
     return { open: !document.getElementById('sheet-pv').classList.contains('hide'),
@@ -1017,6 +1059,7 @@ head('see an example');
          the same renderer given the example's id would draw a DIFFERENT
          picture, and that difference is the proof. */
       hasCode: body.querySelectorAll('.pq svg').length,
+      codeSeen: (0,eval)('('+S_+')')(body.querySelector('.pq svg')),
       /* BOTH sides have to come back through the DOM. Comparing a live
          element's outerHTML against the raw string askQR returns compares
          normalised markup with unnormalised, so they can never match and the
@@ -1042,8 +1085,15 @@ head('see an example');
         const s=d.querySelector('svg');
         return s ? s.getAttribute('viewBox') : ''; })(),
       address: (body.querySelector('.pu')||{}).textContent||'',
-      action: (document.getElementById('pv-act').textContent||'').trim() };
-  });
+      action: (document.getElementById('pv-act').textContent||'').trim(),
+      /* THE PAYLOAD ITSELF. The check this strengthens compared the drawing
+         against one specific address, so ANY other real address walked through
+         it \u2014 the seat swapped in a live sheet belonging to a stranger and
+         the suite stayed green. What must be true is simpler and total: the
+         thing the code carries is not a web address at all. */
+      says: typeof EG_QR_SAYS==='string' ? EG_QR_SAYS : null,
+      base: typeof AOG_BASE==='string' ? AOG_BASE : '' };
+  }, SEEN);
   ck('it opens the preview', eg.open===true, eg);
   /* the app speaks in the second person when it starts something; "Make mine"
      was first person and G reversed it on the day it was written */
@@ -1056,6 +1106,13 @@ head('see an example');
   ck('and the last one costs nothing but time', /hour and two hands/i.test(eg.lastRow), eg);
   ck('the example carries a code, so it looks like the real thing',
      eg.hasCode===1, {hasCode:eg.hasCode});
+  ck('and it is painted, not merely present', eg.codeSeen===true, {seen:eg.codeSeen});
+  /* not "differs from one particular address" \u2014 not an address at all */
+  ck('what the code carries is words, not a web address',
+     typeof eg.says==='string' && eg.says.length>0 &&
+     !/:\/\//.test(eg.says) && !/\./.test(eg.says.replace(/\.$/,'')) &&
+     eg.says.indexOf(eg.base)<0 && !/\/a\//.test(eg.says),
+     {says:eg.says});
   /* the heart in the middle is what makes it read as ours rather than as a
      generic square */
   ck('with the heart in the middle of it', eg.hasHeart===1, {hasHeart:eg.hasHeart});
@@ -1166,7 +1223,8 @@ head('the proposed number runs with the year');
     go('home'); openWork(S.works[0]);
     const proposed = document.getElementById('wk-exp').value;
     finishWork(false);
-    const given = document.getElementById('fin-no').value;
+    const given = (document.getElementById('fin-act').textContent
+                   .match(/Act (\d+)/)||[])[1] || '';
     sheet(null);
     return { proposed, given };
   });
@@ -1194,13 +1252,28 @@ head('acts are numbered in the order they are finished');
   }, exp);
 
   await set('14'); await p.waitForTimeout(500);
-  const planned = await p.evaluate(()=>({
-    shown: document.getElementById('fin-no').value,
-    readonly: document.getElementById('fin-no').readOnly,
-    why: document.getElementById('fin-why').textContent,
-    done: S.acts.length }));
-  ck('eight done, a plan in square 14 becomes act 9', planned.shown==='9', planned);
-  ck('and the number is stated, not asked for', planned.readonly===true, planned);
+  const planned = await p.evaluate(()=>{
+    const line=document.getElementById('fin-act');
+    const cs=line?getComputedStyle(line):null;
+    return {
+      line: line?line.textContent:'',
+      /* G, 16 Sept: out of the box, into words, and grey enough to read as a
+         statement rather than a control */
+      isField: !!document.getElementById('fin-no'),
+      inputsOnSheet: document.querySelectorAll('#sheet-finish input:not([type=hidden])').length,
+      colour: cs?cs.color:'',
+      why: document.getElementById('fin-why').textContent,
+      done: S.acts.length };
+  });
+  ck('eight done, a plan in square 14 becomes act 9',
+     planned.line==='Act 9 of 50', planned);
+  ck('and it is words, not a box', planned.isField===false, planned);
+  ck('with no box on the sheet that does nothing when tapped',
+     planned.inputsOnSheet===0, planned);
+  /* grey, so it is quieter than the date you CAN change \u2014 and the app's
+     own muted grey, not a new one invented for this line */
+  ck('and it is grey rather than full strength ink',
+     planned.colour==='rgb(102, 95, 87)', planned.colour);
   /* it must never silently renumber somebody's plan */
   ck('and it says why it moved, naming both numbers',
      /planned this as 14/.test(planned.why) && /act 9/.test(planned.why), planned.why);
@@ -1208,11 +1281,15 @@ head('acts are numbered in the order they are finished');
   ck('and it is one short sentence, not a lecture',
      planned.why.length < 70, {len:planned.why.length, why:planned.why});
 
-  /* THE ONE THAT MATTERS. A readonly box is a hint, not a lock. */
+  /* THE ONE THAT MATTERS. Plant the field back, filled with a number out of
+     turn, and prove the finish does not look at it. This is what stops anyone
+     re-wiring the old box in a later round without noticing. */
   const tamper = await p.evaluate(()=>{
-    const f=document.getElementById('fin-no');
-    f.removeAttribute('readonly'); f.value='14';
+    const f=document.createElement('input');
+    f.id='fin-no'; f.value='14';
+    document.querySelector('#sheet-finish .panel').appendChild(f);
     finishGo();
+    f.remove();
     const a=S.acts[S.acts.length-1];
     return { landed:a.no, numbers:S.acts.map(x=>+x.no).sort((a,b)=>a-b).join(',') };
   });
@@ -1223,14 +1300,16 @@ head('acts are numbered in the order they are finished');
   /* a plan sitting in a square must not push the act being finished past it */
   await p.evaluate(()=>{ S.plans={'10':{t:'something planned'}}; save(); });
   await set(''); await p.waitForTimeout(500);
-  const planBlock = await p.evaluate(()=>document.getElementById('fin-no').value);
-  ck('a plan in square 10 does not push the next act past it', planBlock==='10', planBlock);
+  const planBlock = await p.evaluate(()=>document.getElementById('fin-act').textContent);
+  ck('a plan in square 10 does not push the next act past it',
+     /^Act 10 of /.test(planBlock), planBlock);
 
   /* a deleted act leaves a hole, and the next act finished drops into it */
   await p.evaluate(()=>{ S.plans={}; S.acts=S.acts.filter(a=>+a.no!==4); save(); });
   await set(''); await p.waitForTimeout(500);
-  const hole = await p.evaluate(()=>document.getElementById('fin-no').value);
-  ck('and a hole left by a deletion is filled before the end', hole==='4', hole);
+  const hole = await p.evaluate(()=>document.getElementById('fin-act').textContent);
+  ck('and a hole left by a deletion is filled before the end',
+     /^Act 4 of /.test(hole), hole);
 
   /* when there is nowhere left to put it, it says so rather than going past */
   const full = await p.evaluate(()=>{
@@ -1245,6 +1324,204 @@ head('acts are numbered in the order they are finished');
   });
   ck('a full year does not quietly gain a fifty-first act',
      full.count===full.goal && full.titles===false, full);
+}
+
+/* ── THE BUILD STAMP AND THE FILTER'S FIRST WORD ───────────────────────────
+   G, 16 September 2026: "take that out of a frame and make it less visible",
+   and "under who it helps... say everyone or anyone... because it is a who".
+
+   The stamp is not decoration: the feedback mail quotes it, so it has to be
+   both quiet AND readable, and it has to be the build you are actually looking
+   at. It read BUILD 5M for eight builds while every mail sent from the app
+   carried that number.
+
+   MUTATIONS SEEN TO FAIL: putting the border and ground back (two go red);
+   leaving the stamp on an old build (one goes red); putting 'Anything' back in
+   CATS (two go red).                                                         */
+head('the build stamp and the filter word');
+{ const p=await app();
+  const stamp = await p.evaluate((SEEN_SRC)=>{
+    const seen = (0,eval)('('+SEEN_SRC+')');
+    const e=document.getElementById('buildtag');
+    if(!e) return {there:false, seen:false, contrast:0, inMail:''};
+    const cs=getComputedStyle(e);
+    const lum = rgb => { const [r,g,b]=rgb.map(v=>{ v/=255;
+        return v<=0.03928 ? v/12.92 : Math.pow((v+0.055)/1.055,2.4); });
+      return 0.2126*r+0.7152*g+0.0722*b; };
+    const nums = c => (c.match(/[\d.]+/g)||[0,0,0]).slice(0,3).map(Number);
+    const op = parseFloat(cs.opacity);
+    let n=e.parentElement, bg=[255,255,255];
+    while(n){ const b=getComputedStyle(n).backgroundColor;
+      if(b && !/rgba\(0, 0, 0, 0\)|transparent/.test(b)){ bg=nums(b); break; }
+      n=n.parentElement; }
+    const mixed = nums(cs.color).map((v,i)=>v*op + bg[i]*(1-op));
+    const L1=lum(mixed), L2=lum(bg);
+    /* what the FEEDBACK MAIL actually carries. The check this replaces compared
+       a constant against the very element that constant is read from, so it
+       could not fail, and it passed with the stamp deleted entirely. */
+    return { there:true, text:(e.textContent||'').trim(),
+      /* what the mail will carry. It is read once at load out of this element,
+         so an empty one means the mail says nothing and a stale one means the
+         mail misdirects. The check this replaces compared this value against
+         the element it is read from, which cannot fail, and which passed with
+         the element deleted because both sides came back undefined. */
+      quoted: typeof BUILD_TAG==='string' ? BUILD_TAG : null,
+      framed: cs.borderTopWidth!=='0px' || cs.borderRadius!=='0px' ||
+              !/rgba\(0, 0, 0, 0\)|transparent/.test(cs.backgroundColor),
+      seen: seen(e),
+      contrast: Math.round(((Math.max(L1,L2)+0.05)/(Math.min(L1,L2)+0.05))*100)/100,
+      colour: cs.color,
+      token: getComputedStyle(document.documentElement)
+               .getPropertyValue('--muted').trim(),
+    };
+  }, SEEN);
+  ck('the build stamp is still there', stamp.there===true, stamp);
+  ck('and it is out of its frame', stamp.framed===false, stamp);
+  /* SEEN, not measured. display:none leaves the rectangle and the style rule
+     intact, and the checks this replaces read exactly those two things. */
+  ck('a person can actually see it', stamp.seen===true, {seen:stamp.seen});
+  /* it is quoted into the feedback mail, so one nobody can read is worse than
+     none at all. 4.5 to 1 is the floor for text this size. */
+  ck('and can read it', stamp.contrast>=4.5, {contrast:stamp.contrast});
+  /* read the token, do not spell the colour: changing --muted is a ruling and
+     a check that spells the value out goes red on a decision, not a fault */
+  ck('in the app’s own grey, not a new one',
+     stamp.colour===hexToRgb(stamp.token), {colour:stamp.colour, token:stamp.token});
+  /* it goes out on every piece of feedback, so a stale one misdirects a bug */
+  ck('it names a build from this round, not an old one',
+     /^BUILD 6[A-Z]$/.test(stamp.text), stamp.text);
+  /* the mail carries whatever this holds, and it is read once at load. Empty
+     means the mail says nothing; stale means it sends somebody to the wrong
+     file. Both were green under the old check. */
+  ck('and the mail will carry a build, not nothing',
+     typeof stamp.quoted==='string' && /^BUILD 6[A-Z]$/.test(stamp.quoted),
+     {quoted:stamp.quoted});
+  ck('the one on the screen', stamp.quoted===stamp.text, stamp);
+  /* and it must be READ rather than typed: a build number written into the mail
+     by hand goes stale the moment the stamp moves, and nothing on screen says so */
+  ck('and the mail does not spell a build number out by hand',
+     !/["'`][^"'`]*BUILD [0-9A-Z]{1,3}[^"'`]*["'`]\s*\)?\s*;?\s*$/m
+        .test(SRC.slice(SRC.indexOf('function tellUs('),
+                        SRC.indexOf('function tellUs(')+600)), {});
+
+  const cat = await p.evaluate(()=>{
+    go('browse');
+    const sel=document.querySelector('#catpick select');
+    const first=sel?sel.options[0].textContent:'';
+    /* the everything option must still show every idea */
+    S.cat=first; drawBrowse();
+    const all=document.querySelectorAll('#ideas > *').length;
+    S.cat='Animals'; drawBrowse();
+    const some=document.querySelectorAll('#ideas > *').length;
+    return { first, all, some, label:
+      (document.querySelector('#catpick')||{}).previousElementSibling
+        ? document.querySelector('#catpick').previousElementSibling.textContent : '' };
+  });
+  /* RULED by G, 16 September 2026: "use All". What the check holds is the
+     ruling, not my argument for Anyone that lost it. */
+  ck('the everything option is the word G ruled', cat.first==='All', cat);
+  ck('and it still shows more than a narrowed filter does',
+     cat.all > cat.some && cat.some > 0, cat);
+  ck('under a label that asks who', /who/i.test(cat.label), cat.label);
+  /* this harness does not read the source, so ask the page instead: the old
+     word must not survive anywhere in the list the person picks from */
+  const gone = await p.evaluate(()=>{
+    const sel=document.querySelector('#catpick select');
+    return [...sel.options].some(o=>/anything/i.test(o.textContent));
+  });
+  ck('and the word "Anything" is gone from the list', gone===false, {gone});
+}
+
+/* ── A PERSON CAN ACTUALLY FINISH AN ACT ───────────────────────────────────
+   THE FINDING OF 16 SEPTEMBER. A review seat cut the handler off "On to the
+   post" so that tapping it did nothing and an act in the works could never
+   become a logged act. It then stopped the finish sheet opening at all. Both
+   times, ALL 485 CHECKS PASSED — because every check in the suite outside
+   tally.mjs reaches the app by calling its functions, and calling a function
+   proves nothing about the button that is supposed to call it.
+
+   This block touches nothing but the screen. Real clicks, and `seen` rather
+   than a rectangle, all the way from an act in the works to a number on the
+   grid. If any link in that chain breaks, this goes red and the rest of the
+   suite stays green, which is exactly the point.                             */
+head('a person can actually finish an act, by tapping things');
+{ const p=await app(4,50);
+  await p.evaluate(()=>{
+    S.works=[{pid:'w1',t:'Doughnuts for the vet clinic',d:'2026-09-22',exp:'14',
+      who:[],hon:'',cost:0,spends:[],story:'They opened early for us.',
+      startedAt:'',sheet:null,seed:null,photos:[],notes:[],njr:0}];
+    save(); go('works');
+  });
+  await p.waitForTimeout(600);
+
+  /* into the editor from the shelf, by tapping the card */
+  const card = await p.$('#works-list .workcard, #workslist .workcard, #s-works [class*=work]');
+  if(card) await card.click(); else await p.evaluate(()=>openWork(S.works[0]));
+  await p.waitForTimeout(700);
+  const onEditor = await p.evaluate((S_)=>{
+    const seen=(0,eval)('('+S_+')');
+    return { screen: typeof SCREEN!=='undefined'?SCREEN:'?',
+             titleSeen: seen('#wk-t'),
+             proposedSeen: seen('#wk-exp'),
+             markSeen: seen('.datewrap .calgo') };
+  }, SEEN);
+  ck('the editor is on screen and its fields can be seen',
+     onEditor.titleSeen===true && onEditor.proposedSeen===true, onEditor);
+  /* the calendar mark, proved by paint rather than by a rectangle */
+  ck('and the calendar mark is painted, not merely present',
+     onEditor.markSeen===true, onEditor);
+
+  /* THE TAP. Not finishWork(false) — the button. */
+  const go1 = await p.$$('#s-work button');
+  let hit=null;
+  for(const b of go1){ if(/it happened/i.test(await b.innerText())) { hit=b; break; } }
+  ck('the button that finishes an act is on the screen', !!hit, {found:!!hit});
+  if(hit){
+    await hit.click();
+    await p.waitForTimeout(900);
+    const sheetUp = await p.evaluate((S_)=>{
+      const seen=(0,eval)('('+S_+')');
+      return { panelSeen: seen('#sheet-finish .panel'),
+               lineSeen: seen('#fin-act'),
+               line: (document.getElementById('fin-act')||{}).textContent||'',
+               whySeen: seen('#fin-why'),
+               dateSeen: seen('#fin-when-btn'),
+               goSeen: seen('#fin-go') };
+    }, SEEN);
+    ck('tapping it brings the finish sheet up where it can be seen',
+       sheetUp.panelSeen===true, sheetUp);
+    ck('with the act number readable on it', sheetUp.lineSeen===true &&
+       /^Act \d+ of \d+$/.test(sheetUp.line.trim()), sheetUp);
+    ck('the sentence explaining the number is readable too',
+       sheetUp.whySeen===true, sheetUp);
+    ck('and both the date and the button can be seen',
+       sheetUp.dateSeen===true && sheetUp.goSeen===true, sheetUp);
+
+    /* THE SECOND TAP. This is the one the seat cut. */
+    const before = await p.evaluate(()=>S.acts.length);
+    await p.click('#fin-go');
+    await p.waitForTimeout(1100);
+    const done = await p.evaluate(()=>({
+      acts: S.acts.length,
+      last: S.acts.length ? S.acts[S.acts.length-1].t : '',
+      no: S.acts.length ? S.acts[S.acts.length-1].no : '',
+      works: (S.works||[]).length,
+      disk: (()=>{ try{ return JSON.parse(localStorage.getItem(LS_KEY)).acts.length; }
+                   catch(e){ return -1; } })() }));
+    ck('tapping it turns the act in the works into a logged act',
+       done.acts===before+1, {before, done});
+    ck('it is the act you were working on', done.last==='Doughnuts for the vet clinic', done);
+    ck('numbered next in line, not as it was planned', done.no==='5', done);
+    ck('it is off the shelf', done.works===0, done);
+    ck('and it survived to disk without anybody calling save by hand',
+       done.disk===done.acts, done);
+
+    /* and the grid a person looks at actually shows it */
+    await p.evaluate(()=>go('home')); await p.waitForTimeout(700);
+    const grid = await p.evaluate(()=>({
+      done: document.querySelectorAll('#grid .tile.done').length }));
+    ck('and the grid colours a fifth square', grid.done===5, grid);
+  }
 }
 
 ck('no page or console errors anywhere', errs.length===0, errs.slice(0,4));
