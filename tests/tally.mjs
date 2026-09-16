@@ -65,9 +65,17 @@ async function app(acts=11, goal=50){
 const typeCost = (p, amount) => p.evaluate(a=>{
   startInSquare(9);
   $('wk-t').value='Doughnuts for the vets'; wkEdited();
+  wkTallyToggle(true);                      // G folded it away, 16 Sept
   $('wk-cost').value=a; wkCostTyped();
   return { cost: WK.cost, lines:(WK.spends||[]).length };
 }, amount);
+/* THE TALLY OPENS SHUT NOW, so everything in the row is behind a tap. These
+   press the bar rather than reaching past it, because a control nobody can
+   reach is exactly the class of fault this suite exists to catch. */
+const unfold = async (pg) => {
+  const shut = await pg.evaluate(()=>!!($('wk-tallybody')||{}).hidden);
+  if(shut){ await pg.click('#wk-sum'); await pg.waitForTimeout(140); }
+};
 
 /* ─────────────────────────────────────────────────────────────────────────── */
 head('a figure typed in is carried into the tally');
@@ -79,7 +87,7 @@ head('a figure typed in is carried into the tally');
   const r = await p.evaluate(()=>{
     return { lines:(WK.spends||[]).length, first:(WK.spends||[])[0],
              cost:WK.cost, field:$('wk-cost').value,
-             total:($('wk-rollval')||{}).textContent||'',
+             total:($('wk-sumface')||{}).innerText.replace(/\n/g,' ')||'',
              note:($('wk-spendnote')||{}).textContent||'',
              shown:($('wk-roll')||{}).innerText||'' };
   });
@@ -100,7 +108,11 @@ head('a figure typed in is carried into the tally');
      beneath — not the box, which is now empty and waiting for the next thing. */
   ck('the box is clear and ready for the next thing', r.field==='', r);
   ck('the total is shown under the roll', /12\.50/.test(r.total||''), r);
-  ck('and the words under it say what it is made of', /thing on the tally/i.test(r.note), r);
+  /* The words moved ONTO the bar when G folded the tally away on 16 September;
+     the line underneath now only speaks when it has something the bar does not
+     say. Same intent, read from where a person actually reads it. */
+  ck('and the bar says what it is made of', /1 thing/.test(r.total), r);
+  ck('and the line beneath does not say it twice', r.note==='', r);
 
   /* typing into the box while a tally is live: it is a PENDING entry, so it
      must not touch the recorded figure until she adds it, and it must not
@@ -182,7 +194,7 @@ head('it survives the app being closed');
     const w=(S.works||[])[(S.works||[]).length-1]; openWork(w);
     return { lines:(w.spends||[]).length, cost:w.cost,
              field:$('wk-cost').value, roll:($('wk-roll')||{}).innerText||'',
-             total:($('wk-rollval')||{}).textContent||'',
+             total:($('wk-sumface')||{}).innerText.replace(/\n/g,' ')||'',
              note:($('wk-spendnote')||{}).textContent||'' };
   });
   ck('the carried line is still there after a reload', r.lines===1, r);
@@ -233,6 +245,7 @@ head('a number AND a note, on one line');
      line. All SEEN TO FAIL before the row was built. */
   const {p}=await app();
   await p.evaluate(()=>{ startInSquare(9); $('wk-t').value='Doughnuts'; wkEdited(); });
+  await p.waitForTimeout(200); await unfold(p);      // the row is behind the bar now
 
   const shape = await p.evaluate(()=>({
     amount: !!$('wk-cost'), note: !!$('wk-what'), plus: !!$('wk-plus'),
@@ -259,7 +272,7 @@ head('a number AND a note, on one line');
     const after1 = { box:$('wk-cost').value, what:$('wk-what').value, cost:WK.cost };
     $('wk-cost').value='56'; wkCostTyped(); $('wk-what').value='bread'; wkPushSpend();
     return { armed, after1, lines:(WK.spends||[]).length, cost:WK.cost,
-             roll:($('wk-roll')||{}).innerText||'', total:($('wk-rollval')||{}).textContent||'' };
+             roll:($('wk-roll')||{}).innerText||'', total:($('wk-sumface')||{}).innerText||'' };
   });
   ck('a typed amount arms the plus', two.armed===true, two);
   ck('adding one clears the row for the next', two.after1.box==='' && two.after1.what==='', two);
@@ -322,7 +335,8 @@ head('what the review seat found, with real taps');
      landed before the editor had drawn and the keystrokes went to the page,
      which read as an app fault and was a test fault. */
   const open = async (pg) => { await (pg||p).evaluate(()=>{
-    startInSquare(9); $('wk-t').value='Doughnuts'; wkEdited(); }); await (pg||p).waitForTimeout(260); };
+    startInSquare(9); $('wk-t').value='Doughnuts'; wkEdited(); });
+    await (pg||p).waitForTimeout(260); await unfold(pg||p); };
 
   /* ── the plus and Return are really wired ── */
   await open();
@@ -414,7 +428,7 @@ head('what the review seat found, with real taps');
     });
     await pp.waitForTimeout(120);
     const sp = await pp.evaluate(()=>({
-      roll:($('wk-roll')||{}).innerText||'', tot:($('wk-rollval')||{}).textContent||'', cost:WK.cost }));
+      roll:($('wk-roll')||{}).innerText||'', tot:($('wk-sumface')||{}).innerText||'', cost:WK.cost }));
     ck('a split line shows HER share, not the whole shop', /\$10\b/.test(sp.roll), sp);
     ck('and the whole is in the small print', /\$40 split 4 ways/.test(sp.roll), sp);
     ck('someone else paying costs her nothing', /\$0\b/.test(sp.roll), sp);
@@ -439,7 +453,7 @@ head('what the review seat found, with real taps');
       S.weeks=52; S.start=new Date(Date.now()-864e5*120); S.acts=[]; save(); });
     await sp.reload(); await sp.waitForTimeout(1300);
     const fit = await sp.evaluate(()=>{ try{endTabTour()}catch(e){}; try{sheet(null)}catch(e){};
-      startInSquare(9);
+      startInSquare(9); wkTallyToggle(true);
       const w=$('wk-what'), r=$('wk-costrow');
       return { noteW:Math.round(w.getBoundingClientRect().width),
                overflow: document.documentElement.scrollWidth > window.innerWidth,
@@ -465,9 +479,11 @@ head('nothing is invented out of nothing');
      screen of an act nobody had spent anything on, while the code believed it
      was put away. Ask the page what it is SHOWING, never what it was told. */
   const off = await p.evaluate(()=>({
-    tot: getComputedStyle($('wk-rolltot')).display,
+    bar: ($('wk-sumface')||{}).innerText.replace(/\n/g,' '),
+    zero: !!document.querySelector('#wk-sumface .sumamt.zero'),
     more: getComputedStyle($('wk-tabbtn')).display }));
-  ck('and no total is drawn over nothing', off.tot==='none', off);
+  ck('the bar reads nought, and says so in grey', /\$0\b/.test(off.bar) && off.zero, off);
+  ck('and invites her to add something', /add what it cost/i.test(off.bar), off);
   ck('nor a door to splitting it', off.more==='none', off);
   /* SEEN TO FAIL. Hiding it at rest hid it from the FIRST split of an act too:
      it was un-hidden only where a line already existed, so somebody whose very
@@ -487,12 +503,97 @@ head('nothing is invented out of nothing');
 }
 
 /* ─────────────────────────────────────────────────────────────────────────── */
+head('the tally folds away, and the bar is the tally');
+{ /* RULED BY G, 16 September, from a mark-up: the whole tally shuts behind one
+     row, the figure sits on the LEFT in the same place whether it is nought or
+     eighty-five, and "it keeps going up as you add things to it even when it's
+     folded up". All SEEN TO FAIL before the fold was built. */
+  const {p}=await app();
+  await p.evaluate(()=>{ startInSquare(9); $('wk-t').value='Doughnuts'; wkEdited(); });
+  await p.waitForTimeout(240);
+
+  const shut = await p.evaluate(()=>({
+    folded: !!$('wk-tallybody').hidden,
+    rowSeen: getComputedStyle($('wk-costrow')).display !== 'none'
+             && !!$('wk-costrow').closest('[hidden]') === false,
+    bar: ($('wk-sumface')||{}).innerText.replace(/\n/g,' '),
+    expanded: $('wk-sum').getAttribute('aria-expanded'),
+    controls: $('wk-sum').getAttribute('aria-controls'),
+    h: Math.round($('wk-sum').getBoundingClientRect().height)
+  }));
+  ck('an act opens with the tally folded away', shut.folded===true, shut);
+  ck('and the row is not on the screen', shut.rowSeen===false, shut);
+  ck('the bar shows the nought G kept', /\$0\b/.test(shut.bar), shut);
+  ck('with the words beside it, not under it', /\$0\s+Add what it cost/.test(shut.bar), shut);
+  ck('a thumb can hit the bar', shut.h>=44, shut);
+  ck('and it says it is shut, to a screen reader', shut.expanded==='false', shut);
+  ck('and names what it opens', shut.controls==='wk-tallybody', shut);
+
+  /* THE TAP */
+  await p.click('#wk-sum'); await p.waitForTimeout(180);
+  const open = await p.evaluate(()=>({
+    folded: !!$('wk-tallybody').hidden,
+    expanded: $('wk-sum').getAttribute('aria-expanded'),
+    focus: (document.activeElement||{}).id
+  }));
+  ck('tapping it opens the row', open.folded===false, open);
+  ck('and says so', open.expanded==='true', open);
+  ck('and puts the cursor where she will type', open.focus==='wk-cost', open);
+
+  /* THE RULING: it keeps going up */
+  const climb = [];
+  for(const [amt,what] of [['29','soup'],['56','bread'],['12.50','tea']]){
+    await p.click('#wk-cost'); await p.keyboard.type(amt);
+    await p.click('#wk-what'); await p.keyboard.type(what);
+    await p.click('#wk-plus'); await p.waitForTimeout(140);
+    climb.push(await p.evaluate(()=>($('wk-sumface')||{}).innerText.replace(/\n/g,' ')));
+  }
+  ck('the bar counts up as things go on', /\$29\s+1 thing/.test(climb[0]), climb);
+  ck('and keeps counting', /\$85\s+2 things/.test(climb[1]), climb);
+  ck('and again', /\$97\.50\s+3 things/.test(climb[2]), climb);
+
+  /* FOLDED UP, and still right */
+  await p.click('#wk-sum'); await p.waitForTimeout(180);
+  const back = await p.evaluate(()=>({
+    folded: !!$('wk-tallybody').hidden,
+    bar: ($('wk-sumface')||{}).innerText.replace(/\n/g,' '),
+    grey: !!document.querySelector('#wk-sumface .sumamt.zero')
+  }));
+  ck('folding it up again keeps the figure on the bar', /\$97\.50/.test(back.bar), back);
+  ck('and it is no longer grey, because it is real money', back.grey===false, back);
+  ck('and the row is away', back.folded===true, back);
+
+  /* added while folded — through the sheet, which is the same list */
+  const whileShut = await p.evaluate(()=>{
+    openSpends();
+    $('sp-amt').value='3'; $('sp-what').value='napkins'; SP_WHO='me';
+    addSpend(); sheet(null);
+    return { bar:($('wk-sumface')||{}).innerText.replace(/\n/g,' '),
+             folded:!!$('wk-tallybody').hidden, cost:WK.cost };
+  });
+  ck('a thing added while it is folded still lands on the bar', /\$100\.50/.test(whileShut.bar), whileShut);
+  ck('and it counts four now', /4 things/.test(whileShut.bar), whileShut);
+  ck('and it did not unfold itself to tell her', whileShut.folded===true, whileShut);
+
+  /* the fold belongs to the screen, not to the act */
+  const nextAct = await p.evaluate(()=>{
+    wkTallyToggle(true);                       // leave it open on this one
+    const wasOpen = !$('wk-tallybody').hidden;
+    startInSquare(21); $('wk-t').value='Another'; wkEdited();
+    return { wasOpen, folded:!!$('wk-tallybody').hidden,
+             bar:($('wk-sumface')||{}).innerText.replace(/\n/g,' ') };
+  });
+  ck('leaving it open on one act does not open it on the next', nextAct.wasOpen && nextAct.folded, nextAct);
+  ck('and the next act starts at nought', /\$0\b/.test(nextAct.bar), nextAct);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────── */
 head('a contribution is still not a purchase');
 { /* the tally's own arithmetic must not have moved: somebody handing you twenty
      dollars comes off YOUR share, it does not reduce what the act cost */
   const {p}=await app();
   const r = await p.evaluate(()=>{
-    startInSquare(16); $('wk-t').value='Soup run'; wkEdited();
+    startInSquare(16); $('wk-t').value='Soup run'; wkEdited(); wkTallyToggle(true);
     $('wk-cost').value='30'; wkCostTyped();
     openSpends();
     WK.spends.push({a:20,w:'',p:'gave',n:'Ruth'}); syncCost();

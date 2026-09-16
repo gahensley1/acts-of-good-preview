@@ -902,18 +902,42 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
 .roll .ln .a.gave{color:var(--coralink)}
 .roll .ln .x{background:none;border:0;color:var(--muted);font-size:19px;line-height:1;
   padding:10px 2px;min-width:44px;min-height:44px;cursor:pointer}
-.rolltot{display:flex;justify-content:space-between;align-items:baseline;padding:11px 0 0}
-.rolltot .lbl{color:var(--muted);font-weight:500;font-size:14.5px}
-.rolltot .val{font-size:19px;font-weight:700;font-variant-numeric:tabular-nums}
 /* THE BROWSER'S OWN hidden RULE IS display:none AT THE LOWEST SPECIFICITY, so
    any class that sets display beats it and the element stays on the screen
    while the code believes it is put away. Both of these set display. */
-.rolltot[hidden],.morepay[hidden]{display:none}
+.morepay[hidden]{display:none}
 /* It is the ONLY way to a split or to somebody else having paid, and as a bare
    text link it measured 209 by 16 — under the 44px every other control on this
    screen keeps. */
 .morepay{margin-top:4px;font-size:13px;display:inline-flex;align-items:center;
   min-height:44px;padding:11px 0}
+/* ── THE TALLY, FOLDED ───────────────────────────────────────────────────
+   RULED BY G, 15 September, from a mark-up he drew on the render: the whole
+   tally shuts behind one row, THE FIGURE GOES ON THE LEFT in the same place
+   whether it is nought or eighty-five, and the words scoot over beside it.
+   One shape in both states, and a line shorter than stacking them.
+   "Zero unless we add things ... it's the tally, it keeps going up as you add
+   things to it even when it's folded up." So the bar is a live readout, not a
+   label: it is redrawn by wkCostState() on every change, folded or open. */
+.tallysum{width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;
+  border:1px solid var(--line);border-radius:10px;background:var(--paper);
+  padding:10px 14px;min-height:52px;font-family:inherit;cursor:pointer;
+  color:var(--ink);text-align:left}
+.tallysum .sumface{display:flex;align-items:baseline;gap:12px;flex:1;min-width:0}
+.tallysum .sumamt{flex:none;font-size:18px;font-weight:700;
+  font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.tallysum .sumamt.zero{color:#B9B2A9;font-weight:600}
+.tallysum .sumwords{flex:1;min-width:0;font-size:14.5px;font-weight:600;
+  color:var(--coralink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tallysum .sumwords.has{color:var(--muted);font-weight:500}
+.tallysum .chev{transition:transform .16s ease;flex:none}
+.tallysum[aria-expanded="true"] .chev{transform:rotate(180deg)}
+@media (prefers-reduced-motion:reduce){.tallysum .chev{transition:none}}
+#wk-tallybody{margin-top:10px}
+/* L96 AGAIN, BEFORE IT BITES: the browser's own hidden rule is display:none at
+   the lowest specificity, so anything that sets display beats it. Neither of
+   these sets one today; this is here so neither ever can. */
+#wk-tallybody[hidden],.note[hidden]{display:none}
 /* G's 31 August rule for this row — amount grows, calculator keeps its width —
    went with the calculator button on 15 September. IT WAS STILL WINNING: it sat
    LATER in the file than the new rule above, so `flex:1` beat `flex:0 0 96px`
@@ -1875,6 +1899,13 @@ select.pick::-ms-expand{display:none}
            nothing. The sum has somewhere to go now. What the button opened —
            splits, someone else paying, someone chipping in — is still one tap
            away on the line below, because that sheet is the same list. -->
+      <button type="button" class="tallysum" id="wk-sum" onclick="wkTallyToggle()"
+        aria-expanded="false" aria-controls="wk-tallybody">
+        <span class="sumface" id="wk-sumface"><span class="sumamt zero">$0</span><span class="sumwords">Add what it cost</span></span>
+        <svg class="chev" width="22" height="22" viewBox="0 0 24 24" fill="none"
+          stroke="var(--coral)" stroke-width="2" aria-hidden="true"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <div id="wk-tallybody" hidden>
       <div class="costrow" id="wk-costrow">
         <input id="wk-cost" placeholder="$0" inputmode="decimal" enterkeyhint="next"
           autocomplete="off" oninput="wkCostTyped()">
@@ -1883,12 +1914,16 @@ select.pick::-ms-expand{display:none}
         <button type="button" class="plusbtn" id="wk-plus" onclick="wkPushSpend()"
           disabled aria-label="Add this to the tally">+</button>
       </div>
+      <!-- THE TOTAL ROW WAS HERE. The bar above is the total now, it is on the
+           screen whether the tally is folded or open, and it counts up as lines
+           are added — so a second copy under the roll said the same number
+           twice and the note under that said it a third time. -->
       <div class="roll" id="wk-roll"></div>
-      <div class="rolltot" id="wk-rolltot" hidden><span class="lbl" id="wk-rolllbl">Your share</span><span class="val" id="wk-rollval">$0</span></div>
       <!-- it is the only place "that is not an amount" is said, so it has to
            speak to somebody who cannot see it -->
       <p class="note" id="wk-spendnote" role="status" aria-live="polite" style="margin-top:6px">One number is fine. Or add them one at a time.</p>
-      <button type="button" class="linky morepay" onclick="openSpends()" id="wk-tabbtn">Split one, or someone else paid</button></div>
+      <button type="button" class="linky morepay" onclick="openSpends()" id="wk-tabbtn">Split one, or someone else paid</button>
+      </div></div>
 
     <div class="field"><label>Notes <span style="text-transform:none;font-weight:400">(private, never printed)</span></label>
       <div id="wk-notes"></div></div>
@@ -8562,12 +8597,17 @@ function openWork(w){
   $('wk-when').value = w.d || todayISO(); syncDateBtn('wk-when');
   $('wk-hon').value = w.hon||'';
   $('wk-story').value = w.story||'';
-  /* THE BOX IS AN ENTRY FIELD NOW, not the readout. Once there are lines the
-     total belongs under the roll and the box stands empty, ready for the next
-     thing she bought. It only carries a figure in the one-number case, where
-     there is no roll for it to live in. */
+  /* THE BOX IS AN ENTRY FIELD, not the readout. Once there are lines the total
+     belongs on the bar and the box stands empty, ready for the next thing she
+     bought. It only carries a figure in the one-number case, where there is no
+     roll for it to live in. */
   $('wk-cost').value = (w.spends||[]).length ? '' : (w.cost ? money(w.cost) : '');
   $('wk-what').value = '';
+  /* AND THE TALLY OPENS SHUT, every time. The fold is a property of the screen,
+     not of the act, so without this a person who opened it on one act would
+     find the next one already unfolded — and the whole point of the ruling is
+     that the resting state is one row with the figure on it. */
+  wkTallyToggle(false);
   wkCostState();
   drawWorkRemind();
   drawWorkWho();
@@ -8664,14 +8704,17 @@ function wkPushSpend(quiet){
    so shortening one in the HTML changes nothing anybody would ever see. */
 function wkRollNote(msg){
   const note=$('wk-spendnote'); if(!note) return;
-  if(msg){ note.textContent=msg; note.className='note warn'; return; }
-  note.className='note';
+  if(msg){ note.textContent=msg; note.className='note warn'; note.hidden=false; return; }
+  note.className='note'; note.hidden=false;
   const list=(WK&&WK.spends)||[], n=list.length;
   if(!n){ note.textContent='One number is fine. Or add them one at a time.'; return; }
   const t=tally(list);
-  note.textContent = Math.abs(t.all - t.mine) < 0.005
-    ? n + (n===1?' thing':' things') + ' on the tally.'
-    : 'Your share of ' + money(t.all) + ' spent in all.';
+  /* ONLY when it adds something the bar does not already say. "2 things on the
+     tally" under a bar reading "$85  2 things" is the same sentence twice. */
+  const words = Math.abs(t.all - t.mine) < 0.005
+    ? '' : 'Your share of ' + money(t.all) + ' spent in all.';
+  note.textContent = words;
+  note.hidden = !words;
 }
 /* The roll, under the row that makes it. The sheet behind "Split one, or
    someone else paid" draws the SAME list, so the two can never disagree —
@@ -8712,17 +8755,35 @@ function wkCostState(){
     x.onclick=()=>{ list.splice(i,1); syncCost(); };
     r.appendChild(w); r.appendChild(a); r.appendChild(x); box.appendChild(r);
   });
-  const tot=$('wk-rolltot');
-  if(tot){
-    tot.hidden = !list.length;
-    if(list.length){
-      const t=tally(list);
-      $('wk-rolllbl').textContent = Math.abs(t.all-t.mine)<0.005 ? 'The tally' : 'Your share';
-      $('wk-rollval').textContent = money(t.mine);
-    }
-  }
   wkPlusState();
   wkRollNote();
+  wkTallySummary();
+}
+/* THE BAR IS THE TALLY. G, 15 September: "Zero unless we add things ... it's the
+   tally, it keeps going up as you add things to it even when it's folded up."
+   So it is redrawn from the list on every change rather than being a label that
+   is set once — fold it away mid-shop, add three more things through the sheet,
+   and the figure on it is still right when you come back. */
+function wkTallySummary(){
+  const face=$('wk-sumface'); if(!face) return;
+  const list=(WK&&WK.spends)||[], has=list.length>0, t=has?tally(list):null;
+  face.textContent='';
+  const amt=document.createElement('span');
+  /* the nought stays, greyed. G kept it: the figure has one home, and an empty
+     home still shows where the number will appear. */
+  amt.className='sumamt'+(has?'':' zero');
+  amt.textContent = has ? money(t.mine) : money(0);
+  const words=document.createElement('span');
+  words.className='sumwords'+(has?' has':'');
+  words.textContent = has ? (list.length+(list.length===1?' thing':' things')) : 'Add what it cost';
+  face.appendChild(amt); face.appendChild(words);
+}
+function wkTallyToggle(force){
+  const body=$('wk-tallybody'), b=$('wk-sum'); if(!body||!b) return;
+  const open = (force===undefined) ? body.hidden : !!force;
+  body.hidden=!open;
+  b.setAttribute('aria-expanded',String(open));
+  if(open && force===undefined){ const f=$('wk-cost'); if(f) f.focus(); }
 }
 /* The lead time for an act in the works. Kept on the work itself rather than on
    S, because two acts in the works want different answers — and because a field

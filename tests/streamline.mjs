@@ -189,14 +189,20 @@ head('the tally, now it has one screen instead of two');
     const l=currentSpends(); l.push({a:5,w:'flour',p:'me',n:''}); l.push({a:3,w:'jam',p:'Ruth',n:''});
     syncCost();
     return { onWork:(WK.spends||[]).length, cost:WK.cost,
-             field:($('wk-cost')||{}).value, ro:($('wk-cost')||{}).readOnly,
+             total:($('wk-sumface')||{}).innerText.replace(/\n/g,' '),
+             roll:($('wk-roll')||{}).innerText||'',
              note:($('wk-spendnote')||{}).textContent };
   });
   ck('a tally line lands on the act in the works', r.onWork===2, r);
   ck('the cost follows it', r.cost===5, r);
-  ck('the field shows it', /5/.test(r.field||''), r);
-  ck('the field stops being typeable', r.ro===true, r);
-  ck('and the line under it says where the number came from', /tally/i.test(r.note||''), r);
+  /* THE SHAPE CHANGED, THE INTENT DID NOT. G ruled the roll onto the editor on
+     15 September, so the box is an entry field and the total lives under the
+     lines rather than inside the box. What these still hold: the money is on
+     the screen, and the screen says what it is made of. */
+  /* the total moved onto the bar when G folded the tally away, 16 September */
+  ck('the total is on the screen', /5/.test(r.total||''), r);
+  ck('and both lines are under it', /flour/.test(r.roll) && /jam/.test(r.roll), r);
+  ck('and the line beneath says what it is made of', /spent in all|things on the tally/i.test(r.note||''), r);
 }
 
 /* ─────────────────────────────────────────────────────────────────────────── */
