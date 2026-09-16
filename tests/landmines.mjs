@@ -970,6 +970,87 @@ head('the calendar mark in the Aiming for box');
   ck('a screen reader is not told about it twice', r.hidden===true, r);
 }
 
+/* ── "SEE AN EXAMPLE" ──────────────────────────────────────────────────────
+   G, 16 September 2026. The danger in this one is not the picture, it is the
+   FLAG: the preview sheet is shared with the real "What prints", so an example
+   left switched on would show somebody their own sheet's furniture over
+   somebody else's sheet, or worse, show the example where their own should be.
+
+   MUTATIONS SEEN TO FAIL: deleting the PV_EG reset in sheet() (the leak check
+   goes red); letting the example draw a real code (two go red); dropping the
+   fourth row (the free-row check goes red).                                 */
+head('see an example');
+{ const p=await app();
+  await p.evaluate(()=>{ try{endTabTour();}catch(e){}try{sheet(null);}catch(e){}
+    const n=document.getElementById('calnudge'); if(n) n.remove(); });
+  await p.evaluate(()=>openWork(S.acts[0]));
+  await p.waitForTimeout(800);
+
+  const door = await p.evaluate(()=>{
+    const b=[...document.querySelectorAll('#s-work button')]
+      .find(x=>/see an example/i.test(x.textContent));
+    if(!b) return {there:false};
+    const r=b.getBoundingClientRect();
+    return { there:true, text:b.textContent.trim(),
+             inNote: !!b.closest('p.note'),
+             h:Math.round(r.height) };
+  });
+  ck('the editor offers an example before anything is made', door.there===true, door);
+  ck('and it says what G asked it to say', door.text==='See an example', door);
+  /* it must stay a line inside the sentence, not become another block on the
+     heaviest part of this screen */
+  ck('it is a line in the sentence, not a block', door.inNote===true && door.h<32, door);
+
+  await p.evaluate(()=>{ [...document.querySelectorAll('#s-work button')]
+    .find(x=>/see an example/i.test(x.textContent)).click(); });
+  await p.waitForTimeout(1300);
+
+  const eg = await p.evaluate(()=>{
+    const body=document.getElementById('pv-body');
+    const rows=[...body.querySelectorAll('li')].map(l=>l.textContent);
+    return { open: !document.getElementById('sheet-pv').classList.contains('hide'),
+      title: document.getElementById('pv-h3').textContent,
+      rows: rows.length,
+      lastRow: rows[rows.length-1]||'',
+      realCode: body.querySelectorAll('.pq svg, .pq img, .pq canvas').length,
+      blank: body.querySelectorAll('.pqeg').length,
+      address: (body.querySelector('.pu')||{}).textContent||'',
+      action: (document.getElementById('pv-act').textContent||'').trim() };
+  });
+  ck('it opens the preview', eg.open===true, eg);
+  /* the app speaks in the second person when it starts something; "Make mine"
+     was first person and G reversed it on the day it was written */
+  ck('the way out of it is in the app\u2019s own voice',
+     eg.action==='Start yours', eg);
+  ck('and the preview says it is an example', eg.title==='An example', eg);
+  /* RULING 23A: the example teaches the shape of a need, and people copy what
+     they are shown. The last row must cost nothing. */
+  ck('the example lists four things', eg.rows===4, eg);
+  ck('and the last one costs nothing but time', /hour and two hands/i.test(eg.lastRow), eg);
+  /* a working code on an example points somewhere that is not a sheet */
+  ck('there is no scannable code on it', eg.realCode===0, eg);
+  ck('the square is drawn as a blank instead', eg.blank===1, eg);
+  ck('and it does not print an address anybody could type', !/\/a\/example/.test(eg.address), eg);
+
+  /* THE LEAK. Close it, make a real sheet, open the real preview: it must be
+     the person's own, not Jessica's. */
+  const leak = await p.evaluate(()=>{
+    sheet(null);
+    askStart();
+    WK.sheet.slots=['Something of my own'];
+    workKeep(); save();
+    openPaperPreview();
+    const body=document.getElementById('pv-body');
+    return { title: document.getElementById('pv-h3').textContent,
+             text: body.textContent,
+             rows: body.querySelectorAll('li').length };
+  });
+  ck('a real sheet after an example is the real sheet', leak.title==='What prints', leak);
+  ck('and it holds the person’s own words, not the example’s',
+     /Something of my own/.test(leak.text) && !/gallon of sweet tea/i.test(leak.text),
+     {title:leak.title, rows:leak.rows});
+}
+
 ck('no page or console errors anywhere', errs.length===0, errs.slice(0,4));
 console.log('\n'+pass+' passed, '+fail+' failed, console/page errors: '+errs.length);
 await b.close();

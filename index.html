@@ -942,6 +942,7 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
   padding:5px;line-height:0;border-radius:9px;min-width:44px;min-height:44px;display:inline-flex;align-items:center;justify-content:center}
 .datewrap .calgo svg{display:block}
   .datewrap .calgo{pointer-events:none;padding:0}
+  .pqeg{border:2px dashed #C9C0B2;border-radius:6px;display:inline-block}
 .datebtn.empty{color:#B9B2A9;font-weight:400}
 /* The half act was removed entirely on G's instruction, 6 Sept 2026. See HANDOFF. */
 /* the year, finished — the one line on Your year that is not a measurement */
@@ -7247,7 +7248,12 @@ function drawSheetPanel(){
     box.innerHTML='<button class="btn ghost" type="button" onclick="askStart()">'+
       'Make a sign-up sheet</button>'+
       '<p class="note" style="margin:10px 0 0">List what you need. The app makes '+
-      'the page to put up or hand out, and the list behind it.</p>';
+      'the page to put up or hand out, and the list behind it. '+
+      /* G, 16 Sept: "it should say see an example." One line, not a block —
+         this is already the heaviest thing on the editor and most acts never
+         use it. Somebody who knows what a sign-up sheet is never taps this. */
+      '<button type="button" class="linky" onclick="openExampleSheet()">'+
+      'See an example</button></p>';
     return;
   }
   const rows=sh.slots||[];
@@ -7395,8 +7401,48 @@ function openPaperPreview(){
   drawPaperPreview();
   sheet('pv');
 }
+/* ── "SEE AN EXAMPLE" ───────────────────────────────────────────────────────
+   G, 16 September 2026: "should we show an example of a sign up sheet?" then
+   "it should say see an example."
+
+   The sheet maker has always opened pre-written rather than blank, and its rows
+   have carried act 22's meal since ruling 23A. But ALL of that sits behind the
+   button. Somebody deciding whether to tap has seen nothing, and the one line
+   they get — "the page to put up or hand out" — does not make anybody picture a
+   poster. This is the picture, at the moment the question is asked.
+
+   It is drawn by posterPanel, the SAME function that draws the real thing, so
+   the example cannot drift away from what the app actually prints. That was the
+   argument against a picture and this is the answer to it.
+
+   THE SQUARE IS DRAWN AS A BLANK, NOT AS A REAL CODE. A working code on an
+   example points somewhere that is not a sheet, and the standing rule in this
+   project is that a live code never travels into an example. The blank teaches
+   the layout, which is the whole job.
+
+   The example is Jessica's meal for the eight on shift — the act that produced
+   this feature — and the last row costs nothing but an hour and two hands,
+   which is ruling 23A's point and must not be edited out. */
+const ASK_EG_SHEET = {
+  id:'example', key:'', live:0, claims:[], qty:[1,1,1,2],
+  reason:'A meal for the eight on shift at Station No. 1',
+  greet:'Dear neighbors,',
+  lede:'A few of us are putting something together. Any one of these would be '+
+       'a real help, and none of it is a big job.',
+  slots:['A pan of something hot','A gallon of sweet tea',
+         'Paper plates and napkins','An hour and two hands'],
+  when:'Tuesday, September 22', time:'6pm', where:'Station No. 1',
+  who:'', drop:'', sign:'Jessica', phone:'', tag:'', why:'', art:'',
+  on:{ greet:1, when:1, sign:1 }
+};
+let PV_EG = false;
+function openExampleSheet(){
+  PV_EG = true;
+  drawPaperPreview();
+  sheet('pv');
+}
 function drawPaperPreview(){
-  const sh = askOf(); if(!sh) return;
+  const sh = PV_EG ? ASK_EG_SHEET : askOf(); if(!sh) return;
   const half = ASK_PV === 'half';
   const chips = $('pv-shape');
   if(chips) chips.innerHTML =
@@ -7410,13 +7456,27 @@ function drawPaperPreview(){
       (half ? '<div class="psheet">'+posterPanel(sh,true)+posterPanel(sh,true)+'</div>'
             : posterPanel(sh,false))+
     '</div></div>';
+  const h3 = $('pv-h3');
+  if(h3) h3.textContent = PV_EG ? 'An example' : 'What prints';
   const note = $('pv-note');
-  if(note) note.textContent = sh.live
+  if(note && PV_EG) note.textContent =
+    'Somebody else\u2019s sheet, so you can see the shape of one. '+
+    'Yours starts written for you, and every line of it is editable.';
+  else if(note) note.textContent = sh.live
     ? (half ? 'One sheet, cut down the dashed line, and you have two to hand over.'
             : 'One page to hang up, or to leave where people will see it.')
     : 'Nothing is online yet. The square starts working the moment you publish.';
   const act = $('pv-act');
-  if(act) act.innerHTML = sh.live
+  if(act && PV_EG) act.innerHTML =
+    /* G, 16 Sept: "is make mine the correct term? or is it Start yours". The
+       app speaks in the second person everywhere it starts something — Start
+       your year, Start it now, Put it in the works — and uses the first person
+       exactly once, on act 0's "I'm doing this", which is a vow rather than a
+       button. It also pairs with the line above it: somebody else's sheet,
+       start yours. */
+    '<button class="btn mini" type="button" onclick="sheet(null);askStart()">'+
+    'Start yours</button>';
+  else if(act) act.innerHTML = sh.live
     ? '<button class="btn mini" type="button" onclick="askPoster(ASK_PV)">Print it</button>'
     : '<button class="btn mini" type="button" onclick="sheet(null);askPublish()">Publish it</button>';
   fitPvPlate();
@@ -8275,7 +8335,13 @@ function posterPanel(sh, half){
        scan anything — without it they had no way in at all. */
     (invite
       ? '<p class="ps">I hope you\u2019ll join us.</p>'
-      : '<div class="pq">'+askQR(sh.id, half?150:260)+'</div>'+
+      : '<div class="pq">'+(sh.id==='example'
+             /* a working code on an example points at something that is not a
+                sheet, and a live code never travels into an example in this
+                project. The blank teaches the layout, which is the job. */
+             ? '<div class="pqeg" style="width:'+(half?150:260)+'px;height:'+
+               (half?150:260)+'px"></div>'
+             : askQR(sh.id, half?150:260))+'</div>'+
         '<p class="pfh">Scan this to sign up</p>'+
         /* RULED 12 Sept. Two changes, and the first is a promise, not a
            rewording: "the one thing" became "whatever you can" on G's ruling,
@@ -8287,7 +8353,8 @@ function posterPanel(sh, half){
           'list. Put your name against whatever you can bring. '+
           'No account, nothing to install.<br>'+
           'Scan it again any time to edit.</p>'+
-        '<p class="pu">Or type <b>actsofgood.app/a/'+esc2(sh.id)+'</b> into any browser.</p>')+
+        '<p class="pu">Or type <b>actsofgood.app/a/'+(sh.id==='example'?'\u2026':esc2(sh.id))+
+           '</b> into any browser.</p>')+
     call+
     '<p class="pm">50 acts of good</p></div>';
 }
@@ -12281,6 +12348,8 @@ function checkFirst(title, note, okLabel, then, cancelLabel){
 
 let SHEET_FROM = null;
 function sheet(which){
+  /* an example must not leak into the next thing this sheet is asked to show */
+  if(!which || which!=='pv') PV_EG = false;
   dropUndo();      // an offer does not follow you into or out of a sheet
   ['you','social','spend','person','cal','date','ask','done','finish','eval','pv','bkup','past','restart'].forEach(x=>{ const el=$('sheet-'+x); if(el) el.classList.add('hide'); });
   if(which){ $('sheet-'+which).classList.remove('hide'); }
