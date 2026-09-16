@@ -2110,16 +2110,23 @@ What you actually did. Why it mattered. Say the awkward parts."></textarea>
     <button class="btn" id="cm-go" onclick="handOff()"></button>
     <div id="pastenote" class="hide" role="status" aria-live="polite">
       <span class="tick" aria-hidden="true">&#10003;</span>
-      <span>Caption copied. In Instagram, long-press the caption box and choose Paste.</span>
+      <span><b>Your words are copied.</b> Hold down the caption box in Instagram and tap Paste.</span>
     </div>
-    <!-- RULED A, 12 Sep 2026: the door, directly under the send button and
-         before any words, because the whole point of it is that it is the next
-         thing your thumb finds. The instructions follow BOTH buttons rather
-         than sitting between them. -->
+    <!-- REORDERED 16 September. The door used to sit between the send button
+         and the words, which was right when the two were peers. They are not:
+         one hands the card over, the other only opens the app. So the send
+         button's instructions now follow IT, and the door comes after them,
+         under the line that says what it is for.
+         THE RENDER IS WHY. With the door in between, "tap the button above"
+         pointed at the wrong button. -->
+    <p class="note" style="margin-top:12px" id="cm-how"></p>
     <div id="cm-open" class="hide">
+      <!-- RULED BY G, 16 September. This is not a second way to post and never
+           was: it opens the app and carries nothing. It reads as one until it
+           is labelled, which is exactly what confused him. -->
+      <p class="note" id="cm-openwhy" style="margin:16px 0 6px"></p>
       <button class="btn ghost openig" type="button" onclick="openTheApp()"></button>
     </div>
-    <p class="note" style="margin-top:12px" id="cm-how"></p>
     <button class="btn ghost quietcopy" type="button" onclick="copyCaption()">
       Just copy the caption</button>
 
@@ -10690,13 +10697,23 @@ const HAND_HOW = {
   /* RULED A, 12 Sep 2026. It used to be one long sentence carrying three
      instructions and an apology. Nobody reads that standing in a kitchen.
      Two steps now, numbered, in the order the thumb does them. */
-  instagram: '<b>1.</b> Tap the button above and choose <b>Save Image</b>. '+
-             'The card goes to your photos, and your words are already copied.'+
-             '<br><br><b>2.</b> Tap <b>Open Instagram</b>, then the <b>+</b>. '+
-             'The card is the first picture waiting. Hold down the caption box '+
-             'and tap <b>Paste</b>.'+
-             '<br><br>Instagram is in the grey panel too, if you spot it &mdash; '+
-             'that way is quicker and skips step two.',
+  /* RULED BY G, 16 September: "I'd rather just have send to Instagram and it
+     opens up Instagram ready to go and all you do is paste your text. Also we
+     need to make it clear that you have to paste your text."
+
+     HE WAS READING A FAULT IN THE WORDS, NOT THE CODE. The two buttons do
+     genuinely different things and always have: the send button hands the card
+     over through the share sheet, and Instagram opens holding it; the door only
+     opens the app, because a button can open an app or hand it the picture and
+     never both. The old text led with the SLOW route (save the card, open the
+     app, go and find it in the camera roll) and mentioned the quick one as an
+     afterthought at the end. So the screen was teaching the long way round.
+     One route now, and pasting is its own line rather than the tail of one. */
+  instagram: '<b>Tap the button above and choose Instagram.</b> The card goes '+
+             'over with you and Instagram opens ready to post.'+
+             '<br><br><b>Then paste your words.</b> They are already copied. '+
+             'Hold down the caption box in Instagram and tap <b>Paste</b>. '+
+             'Instagram will not let any app fill that box in for you.',
   /* Facebook and Threads take the words THROUGH the sheet, so there is no
      pasting to explain and no second step to walk anybody through. Saying
      "long press and paste" here was telling people to do work the phone had
@@ -10859,6 +10876,12 @@ function drawGoState(){
        A personal note has no app to open and never did. */
     const has = !!APP_SCHEME[CM_PLAT];
     d.classList.toggle('hide', !has);
+    const why = $('cm-openwhy');
+    if(why && has){
+      why.textContent = CM_PLAT==='instagram'
+        ? 'Can\u2019t find Instagram in that grey panel? Choose Save Image instead, then:'
+        : 'Can\u2019t find '+platLabel(CM_PLAT)+' in that grey panel? Choose Save Image instead, then:';
+    }
     const ob = d.querySelector('.openig');
     if(ob && has){
       ob.innerHTML = '<span class="glyph"><svg viewBox="0 0 24 24">'+
