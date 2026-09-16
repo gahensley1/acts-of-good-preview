@@ -941,6 +941,7 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
 .datewrap .calgo{position:absolute;right:8px;top:50%;transform:translateY(-50%);
   padding:5px;line-height:0;border-radius:9px;min-width:44px;min-height:44px;display:inline-flex;align-items:center;justify-content:center}
 .datewrap .calgo svg{display:block}
+  .datewrap .calgo{pointer-events:none;padding:0}
 .datebtn.empty{color:#B9B2A9;font-weight:400}
 /* The half act was removed entirely on G's instruction, 6 Sept 2026. See HANDOFF. */
 /* the year, finished — the one line on Your year that is not a measurement */
@@ -1854,14 +1855,24 @@ select.pick::-ms-expand{display:none}
         <input id="wk-exp" oninput="wkEdited()" inputmode="decimal"></div>
       <div class="field" style="flex:1.4"><label for="wk-when-btn">Aiming for</label>
         <input id="wk-when" type="hidden" aria-hidden="true">
-        <!-- THE CALENDAR ICON WAS THE TRIGGER AND IT LIVED HERE, three rows
-             above the control that decides what it sets. G, 15 September 2026:
-             "you need a trigger for the reminder. You select the time and hit a
-             button to set it up. It should be in line with the pull down." So
-             it moved down beside the pull-down and became a button with a word
-             on it. -->
+        <!-- THE CALENDAR MARK IS BACK IN THIS BOX, AND IT IS NOT A BUTTON.
+             It was the reminder's trigger once and lived here, three rows above
+             the control that decided what it set. G moved it on 15 September:
+             "you need a trigger for the reminder… it should be in line with the
+             pull down." That trigger is still down there and is still "Set it".
+
+             G, 16 September 2026: "can we add the calendar icon to the box under
+             aiming for… beside the date." This is the mark only — it says the
+             box opens a date picker. The whole box is already the tap target, so
+             the mark carries aria-hidden and takes no hit area of its own; two
+             overlapping targets in one box is how the old one got confusing.
+             The 60px of right padding on .datebtn was reserved for this and has
+             been paying for nothing since the trigger moved.
+
+             FIVE copies of this drawing now exist. Keep them in step. -->
         <div class="datewrap">
           <button class="datebtn" id="wk-when-btn" onclick="openDate('wk-when')" data-lab="Aiming for" aria-label="Aiming for, pick a date" ></button>
+          <span class="calgo" aria-hidden="true"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--coral)" stroke-width="1.6"><rect x="3" y="5" width="18" height="16" rx="2.5"/><path d="M3 10h18M8 3v4M16 3v4"/><path d="M9 10.4v10.6M15 10.4v10.6M3 13.7h18M3 17.3h18" stroke-width=".5"/></svg></span>
         </div>
         <p class="note" style="margin-top:6px">Today, unless you tap it.</p></div>
     </div>

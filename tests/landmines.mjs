@@ -806,12 +806,27 @@ head('the reminder');
              sameHeight: (sb&&sr) ? Math.abs(Math.round(sb.height)-Math.round(sr.height))<=1 : false,
              h: sb?Math.round(sb.height):0,
              word: btn?btn.textContent:'',
-             oldIcon: document.querySelectorAll('#s-work .calgo').length };
+             marks: document.querySelectorAll('#s-work .calgo').length,
+             markIsButton: [...document.querySelectorAll('#s-work .calgo')]
+               .some(m=>m.tagName==='BUTTON' || m.onclick ||
+                        getComputedStyle(m).pointerEvents!=='none') };
   });
   ck('there is a button to set it', trig.word==='Set it', trig);
   ck('and it is in line with the pull-down', trig.inRow && trig.sameLine, trig);
   ck('the same height as it', trig.sameHeight && trig.h>=44, trig);
-  ck('and the old calendar icon is not left behind it', trig.oldIcon===0, trig.oldIcon);
+  /* THIS CHECK WAS REVERSED ON 16 SEPTEMBER and is kept rather than deleted.
+     It used to read "the old calendar icon is not left behind it", guarding the
+     5T ruling by asserting the editor held NO calendar mark at all. G then asked
+     for one back: "can we add the calendar icon to the box under aiming for…
+     beside the date."
+
+     What the 5T ruling actually protects is that the reminder's TRIGGER is a
+     button with a word on it, not an icon three rows away. A mark that cannot be
+     tapped does not threaten that. So the check now holds the thing the ruling
+     was really about: the editor may carry the mark, and the mark must not be a
+     second trigger. */
+  ck('the editor carries exactly one calendar mark', trig.marks===1, trig);
+  ck('and it is a mark, not a second trigger', trig.markIsButton===false, trig);
 
   /* "None" is a real choice and it is not a reminder */
   const none=await p.evaluate(()=>{
@@ -912,7 +927,47 @@ head('the editor is tighter');
     return (document.getElementById('wk-spendnote')||{}).textContent||'';
   });
   ck('the tally line is the short one on screen, not just in the file',
-     tally==='One number is fine. Or keep a running tally.', tally);
+     /* the words changed when G ruled the roll in on 15 September; what this
+        holds is what it always held — ONE short line, written by the code */
+     tally.length<60 && /one number is fine/i.test(tally), tally);
+}
+
+/* ── THE CALENDAR MARK IN THE "AIMING FOR" BOX ─────────────────────────────
+   G, 16 September 2026: "can we add the calendar icon to the box under aiming
+   for… beside the date."
+
+   The danger in putting a mark inside a box that is already one big button is
+   two overlapping tap targets, which is what made the old calendar trigger
+   confusing enough to move. So the mark must be visible, must sit inside the
+   box, and a tap ON it must still open the date picker.
+
+   MUTATIONS SEEN TO FAIL: removing pointer-events:none from .calgo (the tap
+   check goes red); deleting the span (three go red).                        */
+head('the calendar mark in the Aiming for box');
+{ const p=await app();
+  await p.evaluate(()=>{ try{endTabTour();}catch(e){}try{sheet(null);}catch(e){}
+    const n=document.getElementById('calnudge'); if(n) n.remove(); });
+  await p.evaluate(()=>openWork(S.acts[0]));
+  await p.waitForTimeout(900);
+  const r = await p.evaluate(()=>{
+    const btn=document.getElementById('wk-when-btn');
+    const mk=btn.parentElement.querySelector('.calgo');
+    if(!btn||!mk) return {btn:!!btn, mark:!!mk};
+    const rb=btn.getBoundingClientRect(), rm=mk.getBoundingClientRect();
+    return { btn:true, mark:true,
+      drawn: rm.width>0 && rm.height>0,
+      inside: rm.right<=rb.right+1 && rm.top>=rb.top-1 && rm.bottom<=rb.bottom+1,
+      clearOfText: rm.left > rb.left + 60,
+      landsOnBox: (document.elementFromPoint(rm.left+rm.width/2, rm.top+rm.height/2)||{}).id,
+      hidden: mk.getAttribute('aria-hidden')==='true' };
+  });
+  ck('the mark is in the box', r.mark===true, r);
+  ck('it is actually drawn', r.drawn===true, r);
+  ck('it sits inside the box, not over its edge', r.inside===true, r);
+  ck('it stays clear of the date itself', r.clearOfText===true, r);
+  /* the whole box is the target; the mark must not carve a hole in it */
+  ck('tapping the mark still opens the date picker', r.landsOnBox==='wk-when-btn', r);
+  ck('a screen reader is not told about it twice', r.hidden===true, r);
 }
 
 ck('no page or console errors anywhere', errs.length===0, errs.slice(0,4));
