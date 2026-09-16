@@ -942,7 +942,6 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
   padding:5px;line-height:0;border-radius:9px;min-width:44px;min-height:44px;display:inline-flex;align-items:center;justify-content:center}
 .datewrap .calgo svg{display:block}
   .datewrap .calgo{pointer-events:none;padding:0}
-  .pqeg{border:2px dashed #C9C0B2;border-radius:6px;display:inline-block}
 .datebtn.empty{color:#B9B2A9;font-weight:400}
 /* The half act was removed entirely on G's instruction, 6 Sept 2026. See HANDOFF. */
 /* the year, finished — the one line on Your year that is not a measurement */
@@ -1852,7 +1851,7 @@ select.pick::-ms-expand{display:none}
       <input id="wk-t" oninput="wkEdited()" placeholder="Doughnuts for the vet clinic staff"></div>
 
     <div style="display:flex;gap:10px">
-      <div class="field" style="flex:1"><label for="wk-exp">Which act</label>
+      <div class="field" style="flex:1"><label for="wk-exp">Proposed act</label>
         <input id="wk-exp" oninput="wkEdited()" inputmode="decimal"></div>
       <div class="field" style="flex:1.4"><label for="wk-when-btn">Aiming for</label>
         <input id="wk-when" type="hidden" aria-hidden="true">
@@ -1971,13 +1970,20 @@ select.pick::-ms-expand{display:none}
   <button class="sheetback" onclick="sheet(null)">‹ Back</button>
   <h3 id="fin-h3">This becomes</h3>
   <div style="display:flex;gap:10px;align-items:flex-end;margin-top:12px">
+    <!-- RULED by G, 16 September 2026: "even if I pick tile 14 I cannot post
+         out of turn it has to be consecutive. You can plan but not complete the
+         post so if you post it changes to the next consecutive number."
+         So this states the number rather than asking for it. It stays a field
+         rather than a line of text because it is the same shape as the date
+         beside it and the person is reading them as a pair. -->
     <div class="field" style="flex:.7;margin:0"><label for="fin-no">Act</label>
-      <input id="fin-no" inputmode="numeric" style="max-width:90px"></div>
+      <input id="fin-no" inputmode="numeric" style="max-width:90px" readonly
+             aria-readonly="true"></div>
     <div class="field" style="flex:1.6;margin:0"><label for="fin-when-btn">On</label>
       <input id="fin-when" type="hidden" aria-hidden="true">
       <div class="datewrap"><button class="datebtn" id="fin-when-btn" onclick="openDate('fin-when')" data-lab="On" aria-label="On, pick a date" ></button></div></div>
   </div>
-  <p class="note" style="margin-top:10px">of <span id="fin-of"></span>. Editable.</p>
+  <p class="note" style="margin-top:10px">of <span id="fin-of"></span>. <span id="fin-why"></span></p>
   <p class="note" id="fin-ripe" style="margin-top:6px;font-style:italic;color:#6B5E3A"></p>
   <button class="btn" onclick="finishGo()" id="fin-go">On to the post</button>
 </div></div>
@@ -7423,6 +7429,17 @@ function openPaperPreview(){
    The example is Jessica's meal for the eight on shift — the act that produced
    this feature — and the last row costs nothing but an hour and two hands,
    which is ruling 23A's point and must not be edited out. */
+/* the payload of the example's code. Plain words, never a web address, so a
+   camera pointed at it opens nothing and explains itself. */
+/* MEASURED, 16 September 2026. A code's grain comes from how much it carries,
+   so the sentence has to be about as long as the address it stands in for or
+   the example teaches the wrong picture. A real sheet address is 35 characters
+   and draws 37 squares across; the first draft of this sentence was 115 and
+   drew 57, which is visibly finer than anything the app will ever print.
+
+   This one is 40 characters and draws 37 \u2014 the same grid as the real
+   thing. If it is ever reworded, measure again: the check below holds it. */
+const EG_QR_SAYS = 'An example sign-up sheet, not a real one';
 const ASK_EG_SHEET = {
   id:'example', key:'', live:0, claims:[], qty:[1,1,1,2],
   reason:'A meal for the eight on shift at Station No. 1',
@@ -8233,9 +8250,12 @@ async function askFree(pos){
    Level H, the letterhead heart in the middle, 17 of 37 modules cleared at 95%.
    MEASURED: 17x17 decodes, 19x19 does not. Do not make the heart bigger.
    Drawn offline — a poster can be made with no signal. */
-function askQR(id, px){
+/* `raw` exists for one caller: the example on the sign-up sheet block, which
+   needs a code that LOOKS right without pointing at a sheet that does not
+   exist. Every other caller passes an id and gets the real address. */
+function askQR(id, px, raw){
   px=px||150;
-  const q=qrcode(0,'H'); q.addData(AOG_BASE+'/a/'+id); q.make();
+  const q=qrcode(0,'H'); q.addData(raw || (AOG_BASE+'/a/'+id)); q.make();
   const n=q.getModuleCount(), side=Math.min(17,n-16), lo=Math.floor((n-side)/2), hi=lo+side;
   let d='';
   for(let y=0;y<n;y++) for(let x=0;x<n;x++)
@@ -8336,11 +8356,14 @@ function posterPanel(sh, half){
     (invite
       ? '<p class="ps">I hope you\u2019ll join us.</p>'
       : '<div class="pq">'+(sh.id==='example'
-             /* a working code on an example points at something that is not a
-                sheet, and a live code never travels into an example in this
-                project. The blank teaches the layout, which is the job. */
-             ? '<div class="pqeg" style="width:'+(half?150:260)+'px;height:'+
-               (half?150:260)+'px"></div>'
+             /* G, 16 Sept: "Add a fake QR code to the example." It is a real
+                code drawn by the real renderer, heart and all, so the example
+                looks like the thing it is teaching \u2014 but it carries a
+                sentence instead of an address. A live code never travels into
+                an example here, and a code pointing at /a/example would point
+                at a sheet that does not exist. Anybody who scans this gets
+                told, in words, that it is an example. */
+             ? askQR('example', half?150:260, EG_QR_SAYS)
              : askQR(sh.id, half?150:260))+'</div>'+
         '<p class="pfh">Scan this to sign up</p>'+
         /* RULED 12 Sept. Two changes, and the first is a promise, not a
@@ -8702,11 +8725,34 @@ function askPoster(kind){
 function openWork(w){
   WK = w;
   $('wk-t').value = w.t||'';
-  $('wk-exp').value = w.exp||'';
+  /* RULED by G, 16 September 2026: "you could say proposed act number and you
+     just auto fill this every time you post and if you fill one before it, it
+     will automatically update... it just needs to be almost like a running
+     number/tally."
+
+     So the box carries a number rather than a grey hint. NO NEW STATE, and that
+     is the whole trick (L89): an EMPTY w.exp means nobody has typed one, so the
+     box shows the live next square and re-reads it on every open. The moment
+     somebody types, wkEdited writes w.exp and the box is theirs from then on.
+     Clearing it hands it back to the running number.
+
+     It counts finished acts only. A plan sitting in a square is not a booking,
+     and the finish does not honour one either \u2014 the two have to agree or
+     the box is lying about what will happen. */
+  const live = nextSlot(false);
+  /* what the box was filled with when nobody had typed. wkEdited reads every
+     field on the editor, including from finishWork \u2014 so without this it
+     stamped the running number into the act the moment the finish sheet opened,
+     and a number nobody chose stopped running. Caught by a check, not by eye.
+     Deliberately NOT saved: it describes this visit to the screen. */
+  WK_EXP_AUTO = (w.exp || live > S.n) ? '' : String(live);
+  $('wk-exp').value = w.exp || WK_EXP_AUTO;
   /* G, 11 Sept: "remove auto, just say what is expected." The grey already says
      the number is provisional; "auto" spent five characters saying it a second
      time, and the brackets were being cut off inside the box. */
-  $('wk-exp').placeholder = String(nextSlot(true));
+  /* the box is filled now, so the hint only shows on a full year, where there
+     is no next square to propose */
+  $('wk-exp').placeholder = live <= S.n ? String(live) : '\u2014';
   /* G, 8 Sept: "the pick a date should be filled with the current date. If
      not, they'll have to pick the calendar to change it." Starting empty made
      every act in the works begin with no day at all, which meant a tap before
@@ -8733,11 +8779,15 @@ function openWork(w){
   drawPhotos('wk-photos','wk-file', w.photos, ()=>drawPhotos('wk-photos','wk-file', WK.photos, ()=>openWork(WK)));
   go('work');
 }
+let WK_EXP_AUTO = '';
 function wkEdited(){
   if(!WK) return;
   workKeep();
   WK.t = $('wk-t').value.trim();
-  WK.exp = $('wk-exp').value.trim();
+  /* a number the app proposed is not a number the person chose. Leaving it
+     empty is what keeps it running. */
+  const typed = $('wk-exp').value.trim();
+  WK.exp = (typed && typed === WK_EXP_AUTO) ? '' : typed;
   WK.d = $('wk-when').value;
   WK.hon = $('wk-hon').value.trim();
   WK.story = $('wk-story').value;
@@ -9169,8 +9219,25 @@ function finishWork(anon){
   if(!WK.t){ say('It needs a name','Everything else can wait. That bit can\u2019t.'); return; }
   FIN_ANON = !!anon;
   /* an expectation another act already fulfilled quietly steps aside */
-  const expTaken = WK.exp && S.acts.some(x=>slotOf(x)===Math.ceil(parseFloat(WK.exp)));
-  $('fin-no').value = (!WK.exp || expTaken) ? String(nextSlot(true)) : WK.exp;
+  /* THE NUMBER IS NOT A CHOICE. It is the next free square, counting finished
+     acts only \u2014 a plan sitting in a square must not push the act you are
+     finishing past it. Deleting an act leaves a hole, and the next act finished
+     drops into that hole, which is still "the next one" and is why this fills
+     gaps rather than counting from the highest. */
+  const slot = nextSlot(false);
+  $('fin-no').value = String(slot);
+  const why = $('fin-why');
+  if(why){
+    const planned = WK.exp ? Math.round(parseFloat(String(WK.exp).replace(',','.'))) : 0;
+    /* G, 16 Sept, in his own words: "a small note that says this was 14 in
+       planning, but you're posting this and will turn into X." The first draft
+       explained the rule. At the moment somebody is tapping the button, the
+       consequence is the thing, and the rule can wait for the line underneath. */
+    why.textContent = (planned && planned !== slot)
+      ? 'You planned this as ' + planned + '. Finishing it now makes it act ' +
+        slot + '.'
+      : 'Acts are numbered in the order you finish them.';
+  }
   $('fin-when').value = (WK.d && !isFuture(WK.d)) ? WK.d : todayISO();
   syncDateBtn('fin-when');
   $('fin-of').textContent = S.n;
@@ -9180,13 +9247,19 @@ function finishWork(anon){
 }
 function finishGo(){
   const w=WK; if(!w) return;
-  const noRaw = $('fin-no').value.trim() || String(nextSlot(true));
-  const no = String(Math.round(parseFloat(noRaw.replace(',','.'))));
-  const slot = parseInt(no,10);
-  if(!(slot>=1)){ say('That is not an act number','A whole number between 1 and '+S.n+'.'); return; }
-  if(slot > S.n){ say('That\u2019s past '+S.n,'Raise the goal on the You screen first, or pick a lower number.'); return; }
-  const clash = S.acts.filter(x=>slotOf(x)===slot)[0];
-  if(clash){ say('Act '+slot+' is already used','\u201C'+(clash.t||'')+'\u201D is in that square. Pick another number.'); return; }
+  /* read it from the same place the sheet drew it from, never from the box:
+     a readonly field is not a promise, and this is the number the act keeps. */
+  const slot = nextSlot(false);
+  const no = String(slot);
+  if(slot > S.n){
+    say('Your '+S.n+' are all done',
+        'There is no square left for this one. Raise the goal on the You screen '+
+        'and it will have somewhere to go.');
+    return;
+  }
+  /* nextSlot returns a square nothing is standing in, so the old "that number is
+     taken" branch could not be reached any more and was removed with the field
+     that made it possible. */
   const d = $('fin-when').value || todayISO();
   const t = tally(w.spends||[]);
   const a = { no:no, t:w.t, out:'', who:(w.who||[]).slice(), hon:w.hon||'',

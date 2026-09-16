@@ -1012,8 +1012,35 @@ head('see an example');
       title: document.getElementById('pv-h3').textContent,
       rows: rows.length,
       lastRow: rows[rows.length-1]||'',
-      realCode: body.querySelectorAll('.pq svg, .pq img, .pq canvas').length,
-      blank: body.querySelectorAll('.pqeg').length,
+      /* G, 16 Sept: "Add a fake QR code to the example." So there IS a code
+         now. What must stay true is that it does not carry a sheet address:
+         the same renderer given the example's id would draw a DIFFERENT
+         picture, and that difference is the proof. */
+      hasCode: body.querySelectorAll('.pq svg').length,
+      /* BOTH sides have to come back through the DOM. Comparing a live
+         element's outerHTML against the raw string askQR returns compares
+         normalised markup with unnormalised, so they can never match and the
+         check passes on anything. It did exactly that until a mutation showed
+         it \u2014 L75 again, on a check written the same hour. */
+      drawn: (()=>{ const s=body.querySelector('.pq svg');
+        return s ? s.querySelector('path').getAttribute('d') : ''; })(),
+      wouldBeReal: (()=>{ if(typeof askQR!=='function') return '';
+        const d=document.createElement('div');
+        d.innerHTML = askQR('example',260);
+        const p=d.querySelector('path');
+        return p ? p.getAttribute('d') : ''; })(),
+      hasHeart: body.querySelectorAll('.pq svg image').length,
+      /* a code's grain comes from how much it carries. If the example's
+         sentence is longer than the address it stands in for, the picture is
+         finer than anything the app will ever print and teaches the wrong
+         thing. The viewBox is the module count plus four. */
+      grain: ((body.querySelector('.pq svg')||{}).getAttribute
+        ? body.querySelector('.pq svg').getAttribute('viewBox') : ''),
+      realGrain: (()=>{ if(typeof askQR!=='function') return '';
+        const d=document.createElement('div');
+        d.innerHTML = askQR('k7m2p9x4qa',260);
+        const s=d.querySelector('svg');
+        return s ? s.getAttribute('viewBox') : ''; })(),
       address: (body.querySelector('.pu')||{}).textContent||'',
       action: (document.getElementById('pv-act').textContent||'').trim() };
   });
@@ -1027,9 +1054,18 @@ head('see an example');
      they are shown. The last row must cost nothing. */
   ck('the example lists four things', eg.rows===4, eg);
   ck('and the last one costs nothing but time', /hour and two hands/i.test(eg.lastRow), eg);
-  /* a working code on an example points somewhere that is not a sheet */
-  ck('there is no scannable code on it', eg.realCode===0, eg);
-  ck('the square is drawn as a blank instead', eg.blank===1, eg);
+  ck('the example carries a code, so it looks like the real thing',
+     eg.hasCode===1, {hasCode:eg.hasCode});
+  /* the heart in the middle is what makes it read as ours rather than as a
+     generic square */
+  ck('with the heart in the middle of it', eg.hasHeart===1, {hasHeart:eg.hasHeart});
+  /* THE ONE THAT MATTERS: it must not encode a sheet address. If it did, this
+     picture would be identical to the one askQR draws from the id alone. */
+  ck('and it is drawn at the same grain a real one would be',
+     eg.grain!=='' && eg.grain===eg.realGrain, {ours:eg.grain, real:eg.realGrain});
+  ck('but it does not encode an address to a sheet that does not exist',
+     eg.drawn.length>0 && eg.drawn!==eg.wouldBeReal,
+     {same: eg.drawn===eg.wouldBeReal});
   ck('and it does not print an address anybody could type', !/\/a\/example/.test(eg.address), eg);
 
   /* THE LEAK. Close it, make a real sheet, open the real preview: it must be
@@ -1049,6 +1085,166 @@ head('see an example');
   ck('and it holds the person’s own words, not the example’s',
      /Something of my own/.test(leak.text) && !/gallon of sweet tea/i.test(leak.text),
      {title:leak.title, rows:leak.rows});
+}
+
+/* ── ACTS ARE NUMBERED IN THE ORDER THEY ARE FINISHED ──────────────────────
+   G, 16 September 2026: "even if I pick tile 14 I cannot post out of turn it
+   has to be consecutive. You can plan but not complete the post so if you post
+   it changes to the next consecutive number."
+
+   The number used to be a box on the finish sheet with the planned number in
+   it, and whatever was in that box became the act. Now the box states the
+   number and finishGo works it out again for itself, so the box is a readout
+   and not a promise.
+
+   MUTATIONS SEEN TO FAIL: reading the box in finishGo instead of nextSlot (the
+   tamper check goes red); counting plans in nextSlot (the plan check goes red);
+   dropping the fin-why sentence (two go red).                                */
+/* ── THE PROPOSED NUMBER IS A RUNNING ONE ──────────────────────────────────
+   G, 16 September 2026: "you could say proposed act number and you just auto
+   fill this every time you post and if you fill one before it, it will
+   automatically update... almost like a running number/tally."
+
+   NO NEW STATE. An empty w.exp means nobody has typed one, so the box shows the
+   live next square; a value means somebody did, and it is theirs. Clearing it
+   hands it back. That is the whole mechanism, and these checks walk it.
+
+   MUTATIONS SEEN TO FAIL: filling the box from w.exp alone (the tracking checks
+   go red); counting plans in the live number (the agreement check goes red).  */
+head('the proposed number runs with the year');
+{ const p=await app(8,50);
+  const open = ()=>p.evaluate(()=>{
+    S.works=[{pid:'w1',t:'Doughnuts for the vet clinic',d:'2026-09-22',exp:'',
+      who:[],hon:'',cost:0,spends:[],story:'x',startedAt:'',sheet:null,seed:null,
+      photos:[],notes:[],njr:0}];
+    save(); openWork(S.works[0]);
+  });
+  await open(); await p.waitForTimeout(500);
+  const first = await p.evaluate(()=>({
+    box: document.getElementById('wk-exp').value,
+    stored: WK.exp,
+    label: document.querySelector('label[for="wk-exp"]').textContent }));
+  ck('it arrives filled in, not as a grey hint', first.box==='9', first);
+  ck('and the label says the number is only proposed',
+     /proposed/i.test(first.label), first.label);
+  /* the trick that keeps it free: nothing is stored until somebody types */
+  ck('nothing is written to the act until somebody types', first.stored==='', first);
+
+  const moved = await p.evaluate(()=>{
+    S.acts.push({no:'9',t:'Something else',d:'2026-05-02',story:'s',who:[],
+      posted:{},captions:{},spends:[],photos:[]});
+    save(); go('home'); openWork(S.works[0]);
+    return document.getElementById('wk-exp').value;
+  });
+  ck('another act landing on 9 moves this one to 10 by itself', moved==='10', moved);
+
+  const typed = await p.evaluate(()=>{
+    const f=document.getElementById('wk-exp');
+    f.value='14'; f.dispatchEvent(new Event('input'));
+    go('home'); openWork(S.works[0]);
+    return { box:document.getElementById('wk-exp').value, stored:WK.exp };
+  });
+  ck('a number you type is yours and stops moving', typed.box==='14' && typed.stored==='14', typed);
+
+  const cleared = await p.evaluate(()=>{
+    const f=document.getElementById('wk-exp');
+    f.value=''; f.dispatchEvent(new Event('input'));
+    go('home'); openWork(S.works[0]);
+    return { box:document.getElementById('wk-exp').value, stored:WK.exp };
+  });
+  ck('clearing it hands it back to the running number',
+     cleared.box==='10' && cleared.stored==='', cleared);
+
+  /* THE BOX MUST NOT LIE. What it proposes has to be what the finish gives,
+     so both count finished acts only and neither honours a plan. */
+  const agree = await p.evaluate(()=>{
+    /* the plan has to sit on the VERY square being contested, or counting
+       plans and not counting them give the same answer and the check proves
+       nothing. It sat on 11 for one round and the mutation walked straight
+       through it. */
+    S.plans={'10':{t:'something planned'}}; save();
+    go('home'); openWork(S.works[0]);
+    const proposed = document.getElementById('wk-exp').value;
+    finishWork(false);
+    const given = document.getElementById('fin-no').value;
+    sheet(null);
+    return { proposed, given };
+  });
+  ck('what the box proposes is what the finish actually gives',
+     agree.proposed===agree.given, agree);
+
+  /* a full year has no next square to propose */
+  const full = await p.evaluate(()=>{
+    S.plans={};
+    S.acts=[]; for(let i=1;i<=S.n;i++) S.acts.push({no:String(i),t:'Act '+i,
+      d:'2026-05-01',story:'s',who:[],posted:{},captions:{},spends:[],photos:[]});
+    save(); go('home'); openWork(S.works[0]);
+    return document.getElementById('wk-exp').value;
+  });
+  ck('a full year proposes nothing rather than a fifty-first', full==='', {full});
+}
+
+head('acts are numbered in the order they are finished');
+{ const p=await app(8,50);
+  const set = async (exp)=>p.evaluate((exp)=>{
+    S.works=[{pid:'w1',t:'Doughnuts for the vet clinic',d:'2026-09-22',exp:exp,
+      who:[],hon:'',cost:0,spends:[],story:'x',startedAt:'',sheet:null,seed:null,
+      photos:[],notes:[],njr:0}];
+    save(); openWork(S.works[0]); finishWork(false);
+  }, exp);
+
+  await set('14'); await p.waitForTimeout(500);
+  const planned = await p.evaluate(()=>({
+    shown: document.getElementById('fin-no').value,
+    readonly: document.getElementById('fin-no').readOnly,
+    why: document.getElementById('fin-why').textContent,
+    done: S.acts.length }));
+  ck('eight done, a plan in square 14 becomes act 9', planned.shown==='9', planned);
+  ck('and the number is stated, not asked for', planned.readonly===true, planned);
+  /* it must never silently renumber somebody's plan */
+  ck('and it says why it moved, naming both numbers',
+     /planned this as 14/.test(planned.why) && /act 9/.test(planned.why), planned.why);
+  /* it states the consequence rather than explaining the rule: G's own shape */
+  ck('and it is one short sentence, not a lecture',
+     planned.why.length < 70, {len:planned.why.length, why:planned.why});
+
+  /* THE ONE THAT MATTERS. A readonly box is a hint, not a lock. */
+  const tamper = await p.evaluate(()=>{
+    const f=document.getElementById('fin-no');
+    f.removeAttribute('readonly'); f.value='14';
+    finishGo();
+    const a=S.acts[S.acts.length-1];
+    return { landed:a.no, numbers:S.acts.map(x=>+x.no).sort((a,b)=>a-b).join(',') };
+  });
+  ck('forcing 14 into the box still lands it on 9', tamper.landed==='9', tamper);
+  ck('and the year is consecutive with no hole in it',
+     tamper.numbers==='1,2,3,4,5,6,7,8,9', tamper);
+
+  /* a plan sitting in a square must not push the act being finished past it */
+  await p.evaluate(()=>{ S.plans={'10':{t:'something planned'}}; save(); });
+  await set(''); await p.waitForTimeout(500);
+  const planBlock = await p.evaluate(()=>document.getElementById('fin-no').value);
+  ck('a plan in square 10 does not push the next act past it', planBlock==='10', planBlock);
+
+  /* a deleted act leaves a hole, and the next act finished drops into it */
+  await p.evaluate(()=>{ S.plans={}; S.acts=S.acts.filter(a=>+a.no!==4); save(); });
+  await set(''); await p.waitForTimeout(500);
+  const hole = await p.evaluate(()=>document.getElementById('fin-no').value);
+  ck('and a hole left by a deletion is filled before the end', hole==='4', hole);
+
+  /* when there is nowhere left to put it, it says so rather than going past */
+  const full = await p.evaluate(()=>{
+    S.acts=[]; for(let i=1;i<=S.n;i++) S.acts.push({no:String(i),t:'Act '+i,
+      d:'2026-05-01',story:'s',who:[],posted:{},captions:{},spends:[],photos:[]});
+    save();
+    S.works=[{pid:'w2',t:'One too many',d:'2026-09-22',exp:'',who:[],hon:'',cost:0,
+      spends:[],story:'x',startedAt:'',sheet:null,seed:null,photos:[],notes:[],njr:0}];
+    openWork(S.works[0]); finishWork(false); finishGo();
+    return { count:S.acts.length, goal:S.n,
+             titles:S.acts.some(a=>a.t==='One too many') };
+  });
+  ck('a full year does not quietly gain a fifty-first act',
+     full.count===full.goal && full.titles===false, full);
 }
 
 ck('no page or console errors anywhere', errs.length===0, errs.slice(0,4));
