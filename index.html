@@ -847,7 +847,10 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
   font-size:14.5px}
 
 /* chips */
-.chips{display:flex;flex-wrap:wrap;gap:8px}
+.filtrow{display:flex;gap:10px;margin:0 0 18px}
+  .filtrow .filt{flex:1 1 0;min-width:0}
+  .filtrow .sub{margin:0 0 6px}
+  .chips{display:flex;flex-wrap:wrap;gap:8px}
 /* one swipeable line — nine categories would otherwise push the ideas off-screen */
 .chips.scrollrow{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;
   scrollbar-width:none;padding-bottom:2px;
@@ -2190,10 +2193,10 @@ What you actually did. Why it mattered. Say the awkward parts."></textarea>
   <div class="top"><button class="back" aria-label="Back to your year" onclick="go('home')">‹</button>
     <h2>Ideas</h2></div>
   <div class="wrap">
-    <div class="sub" style="margin:0 0 8px">filter by time</div>
-    <div class="chips" id="leadchips" style="margin-bottom:18px"></div>
-    <div class="sub" style="margin:0 0 8px">filter by who it helps</div>
-    <div class="chips scrollrow" id="catchips" style="margin-bottom:20px"></div>
+    <div class="filtrow">
+      <div class="filt"><div class="sub">When</div><div id="leadpick"></div></div>
+      <div class="filt"><div class="sub">Who it helps</div><div id="catpick"></div></div>
+    </div>
     <div id="ideas"></div>
   </div>
 </section>
@@ -4284,6 +4287,42 @@ function remindPicker(el, get, set){
   if(sel.selectedIndex < 0){ sel.value = '1'; }
   sel.setAttribute('aria-label', 'When to be reminded');
   sel.onchange = ()=>set(sel.value);
+  el.appendChild(sel);
+}
+/* ── THE IDEA FILTERS ARE TWO PULL-DOWNS ────────────────────────────────────
+   RULED by G, 16 September 2026: "i want to put the filters behind a pull down
+   so 2 pull downs side by side."
+
+   This reverses the aside in the reminder note above, which argued the idea
+   filters were the one place chips should stay because the choices want to be
+   compared. Fifteen chips across two rows were taking roughly 230px before a
+   single idea appeared. Two pull-downs take one row of 48px, and on a phone
+   they open the system's own wheel.
+
+   What is lost, and it is real: you can no longer see the ten categories
+   without opening one. What is gained is that the ideas themselves are on
+   screen the moment you arrive, which is what the screen is for.
+
+   16px type, same reason as the reminder: below it iOS zooms the page. */
+function filterPicker(el, items, get, set, aria){
+  if(!el) return;
+  el.innerHTML='';
+  const sel=document.createElement('select');
+  sel.className='pick';
+  sel.id=el.id+'-sel';
+  items.forEach(it=>{
+    const [label,val] = Array.isArray(it) ? [it[0],it[1]] : [it,it];
+    const o=document.createElement('option');
+    o.value=val; o.textContent=label;
+    sel.appendChild(o);
+  });
+  sel.value=get();
+  /* a stored value the list no longer holds would leave the box blank and the
+     filter unreadable; fall back to the first option, which is always the
+     everything one */
+  if(sel.selectedIndex<0){ sel.selectedIndex=0; set(sel.value); }
+  if(aria) sel.setAttribute('aria-label',aria);
+  sel.onchange=()=>set(sel.value);
   el.appendChild(sel);
 }
 function chips(el, items, get, set){
@@ -11815,8 +11854,10 @@ function ideaUsed(i){
 function reshuffle(){ IDEA_SEED = Math.floor(Math.random()*100000)+1; drawBrowse(); }
 
 function drawBrowse(){
-  chips($('leadchips'),LEADS,()=>S.lead,v=>{S.lead=v;drawBrowse();});
-  chips($('catchips'),CATS,()=>S.cat||'Anything',v=>{S.cat=v;drawBrowse();});
+  filterPicker($('leadpick'),LEADS,()=>S.lead||LEAD_ANY,
+               v=>{S.lead=v;drawBrowse();},'Filter ideas by how long they take');
+  filterPicker($('catpick'),CATS,()=>S.cat||'Anything',
+               v=>{S.cat=v;drawBrowse();},'Filter ideas by who they help');
   const box=$('ideas'); box.innerHTML='';
   const cat=S.cat||'Anything';
   const anyLead = S.lead===LEAD_ANY;
@@ -11824,9 +11865,6 @@ function drawBrowse(){
     .map(i=>({i:i, used:ideaUsed(i), r:ideaRank(i)}))
     .sort((a,b)=> (a.used?1:0)-(b.used?1:0) || a.r-b.r)
     .map(x=>x.i);
-  /* keep the chosen category visible in the scroll row */
-  const sel=[...$('catchips').children].find(c=>c.classList.contains('on'));
-  if(sel && sel.scrollIntoView) sel.scrollIntoView({block:'nearest',inline:'center'});
   if(!list.length){
     /* never a dead end — say where that category does have something */
     /* LEAD_ANY is not a length, so it can never be offered as "try this length
