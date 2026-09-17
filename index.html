@@ -2003,12 +2003,15 @@ select.pick::-ms-expand{display:none}
        words. [Make it fifty percent] gray so it's less visible." A readonly box
        that looks exactly like the editable one beside it invites a tap that
        does nothing, which is the fault the old calendar trigger had. -->
+  <!-- AND THE DATE LEFT WITH IT, ruled by G the same day. It read as a posting
+       date on a screen headed "This becomes", and nothing in this app is ever
+       scheduled, so the field invited an idea the product does not have. It was
+       carrying almost nothing besides: the day is taken from the day the act
+       was aimed at, and it is still changeable afterwards on the act's own
+       screen, where every other correction lives.
+
+       What is left does one job. -->
   <p class="finact" id="fin-act" role="status"></p>
-  <div class="field" style="margin:0">
-    <label for="fin-when-btn">On</label>
-    <input id="fin-when" type="hidden" aria-hidden="true">
-    <div class="datewrap"><button class="datebtn" id="fin-when-btn" onclick="openDate('fin-when')" data-lab="On" aria-label="On, pick a date" ></button></div>
-  </div>
   <p class="note" id="fin-why" style="margin-top:10px"></p>
   <p class="note" id="fin-ripe" style="margin-top:6px;font-style:italic;color:#6B5E3A"></p>
   <button class="btn" onclick="finishGo()" id="fin-go">On to the post</button>
@@ -6310,18 +6313,22 @@ function syncDateBtn(id){
   b.classList.toggle('empty', !v);
 }
 /* THE DATE PICKER IS A SHEET, AND A SHEET REPLACES THE SHEET IT OPENED FROM.
-   On the finish sheet that was fatal: the date was the only control on it, so
-   tapping it closed the finish, and picking a day left the person back on the
-   editor with the act unfinished, the day discarded and nothing said. Found by
-   a review seat, 16 September 2026.
+   For one morning that was fatal, because the finish sheet had a date on it and
+   the date was the only control there: tapping it closed the finish, and picking
+   a day left the person back on the editor with the act unfinished and nothing
+   said. That was fixed by having the picker remember what it interrupted.
 
-   The picker now remembers what it interrupted and puts it back. Coming from a
-   screen rather than a sheet it remembers nothing and closes as before. */
+   Then G took the date off the finish sheet entirely, and every remaining date
+   in the app lives on a SCREEN rather than inside a sheet \u2014 the act editor
+   and the act's own page. So there is nothing left for the picker to restore,
+   and the machinery that restored it was a defensive branch claiming a
+   reachability that no longer exists. Removed on that ground.
+
+   IF A DATE EVER GOES INSIDE A SHEET AGAIN, this is the fault that comes with
+   it, and it will be silent. */
 function openDate(id){
   const v=$(id).value || todayISO();
-  const from = ['finish','ask','write','person','spend','you']
-    .find(x=>{ const el=$('sheet-'+x); return el && !el.classList.contains('hide'); });
-  DP={ id:id, y:+v.slice(0,4), m:+v.slice(5,7)-1, from:from||null };
+  DP={ id:id, y:+v.slice(0,4), m:+v.slice(5,7)-1 };
   sheet('date'); drawDate();
 }
 function dpStep(d){
@@ -6333,9 +6340,7 @@ function dpStep(d){
 function dpPick(iso){
   $(DP.id).value = iso;
   syncDateBtn(DP.id);
-  /* back to whatever this interrupted, so choosing a day does not throw away
-     the thing the person was in the middle of */
-  sheet(DP.from || null);
+  sheet(null);
   /* the write screen's date edits the act itself, and saves like everything
      else there does */
   if(DP.id==='w-when' && S.current){ S.current.d = iso; save(); }
@@ -9332,8 +9337,7 @@ function finishWork(anon){
         slot + '.'
       : 'Acts are numbered in the order you finish them.';
   }
-  $('fin-when').value = (WK.d && !isFuture(WK.d)) ? WK.d : todayISO();
-  syncDateBtn('fin-when');
+
   /* fin-of went with the box it lived beside; the line below says the whole
      thing in one breath */
   /* the harvest acknowledges the ripening, once, as it becomes real */
@@ -9355,7 +9359,9 @@ function finishGo(){
   /* nextSlot returns a square nothing is standing in, so the old "that number is
      taken" branch could not be reached any more and was removed with the field
      that made it possible. */
-  const d = $('fin-when').value || todayISO();
+  /* the same day the sheet used to offer: the day it was aimed at, unless that
+     is still in the future, in which case today. Correctable afterwards. */
+  const d = (WK.d && !isFuture(WK.d)) ? WK.d : todayISO();
   const t = tally(w.spends||[]);
   const a = { no:no, t:w.t, out:'', who:(w.who||[]).slice(), hon:w.hon||'',
               cost: (w.spends||[]).length ? t.mine : (+w.cost||0), spends:(w.spends||[]).slice(),

@@ -1447,7 +1447,11 @@ head('the build stamp and the filter word');
 head('a person can actually finish an act, by tapping things');
 { const p=await app(4,50);
   await p.evaluate(()=>{
-    S.works=[{pid:'w1',t:'Doughnuts for the vet clinic',d:'2026-09-22',exp:'14',
+    /* aimed at a day in the PAST, and deliberately not today: the date left the
+       finish sheet on G's ruling, so the day the act keeps now comes from one
+       place only, and nothing was holding it. A mutation that dated every act
+       today went green until this line changed. */
+    S.works=[{pid:'w1',t:'Doughnuts for the vet clinic',d:'2026-09-12',exp:'14',
       who:[],hon:'',cost:0,spends:[],story:'They opened early for us.',
       startedAt:'',sheet:null,seed:null,photos:[],notes:[],njr:0}];
     save(); go('works');
@@ -1485,7 +1489,15 @@ head('a person can actually finish an act, by tapping things');
                lineSeen: seen('#fin-act'),
                line: (document.getElementById('fin-act')||{}).textContent||'',
                whySeen: seen('#fin-why'),
-               dateSeen: seen('#fin-when-btn'),
+               /* RULED by G, 16 September 2026: the date came off this sheet.
+                  It read as a posting date on a screen headed "This becomes",
+                  and this app never schedules anything. The check holds the
+                  absence, because a date quietly coming back is exactly how a
+                  removed thing returns. */
+               noDate: !document.getElementById('fin-when-btn') &&
+                       !document.getElementById('fin-when'),
+               controls: document.querySelectorAll(
+                 '#sheet-finish .panel button:not(.sheetback), #sheet-finish .panel input').length,
                goSeen: seen('#fin-go') };
     }, SEEN);
     ck('tapping it brings the finish sheet up where it can be seen',
@@ -1494,8 +1506,12 @@ head('a person can actually finish an act, by tapping things');
        /^Act \d+ of \d+$/.test(sheetUp.line.trim()), sheetUp);
     ck('the sentence explaining the number is readable too',
        sheetUp.whySeen===true, sheetUp);
-    ck('and both the date and the button can be seen',
-       sheetUp.dateSeen===true && sheetUp.goSeen===true, sheetUp);
+    ck('the button that carries you on can be seen', sheetUp.goSeen===true, sheetUp);
+    ck('and there is no date on it any more', sheetUp.noDate===true, sheetUp);
+    /* one thing to read, one thing to press. If a second control appears here,
+       somebody has put a decision back onto a screen that is a confirmation. */
+    ck('one button on it and nothing else to operate',
+       sheetUp.controls===1, sheetUp);
 
     /* THE SECOND TAP. This is the one the seat cut. */
     const before = await p.evaluate(()=>S.acts.length);
@@ -1505,6 +1521,8 @@ head('a person can actually finish an act, by tapping things');
       acts: S.acts.length,
       last: S.acts.length ? S.acts[S.acts.length-1].t : '',
       no: S.acts.length ? S.acts[S.acts.length-1].no : '',
+      d: S.acts.length ? S.acts[S.acts.length-1].d : '',
+      today: todayISO(),
       works: (S.works||[]).length,
       disk: (()=>{ try{ return JSON.parse(localStorage.getItem(LS_KEY)).acts.length; }
                    catch(e){ return -1; } })() }));
@@ -1512,6 +1530,10 @@ head('a person can actually finish an act, by tapping things');
        done.acts===before+1, {before, done});
     ck('it is the act you were working on', done.last==='Doughnuts for the vet clinic', done);
     ck('numbered next in line, not as it was planned', done.no==='5', done);
+    /* the day it was aimed at, not the day it was written up. With no date on
+       the sheet this is the only thing deciding what goes on the card. */
+    ck('dated the day it was aimed at, not today',
+       done.d==='2026-09-12' && done.d!==done.today, done);
     ck('it is off the shelf', done.works===0, done);
     ck('and it survived to disk without anybody calling save by hand',
        done.disk===done.acts, done);
