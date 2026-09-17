@@ -673,6 +673,10 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
 .photos .ph-tile{aspect-ratio:1;border-radius:9px;overflow:hidden;position:relative;
   background:var(--mist);border:1px solid var(--line)}
 .photos .ph-tile img{width:100%;height:100%;object-fit:cover;display:block}
+/* a photo tile you can drag. touch-action:none so the page does not scroll out
+   from under a finger that is moving the picture instead. */
+.photos .ph-tile.phdrag{touch-action:none;cursor:grab}
+.photos .ph-tile.phdrag:active{cursor:grabbing}
 .photos .ph-tile .x{position:absolute;top:0;right:0;width:34px;height:34px;
   color:#fff;font-size:13px;display:flex;align-items:flex-start;
   justify-content:flex-end;padding:4px;line-height:1;cursor:pointer}
@@ -1630,7 +1634,7 @@ select.pick::-ms-expand{display:none}
     <!-- BUILD MARK — dev only, delete this div when the app ships -->
     <!-- IT HAD SAID 5M SINCE 15 SEPTEMBER, eight builds back, and every
          feedback mail sent from the app quoted it. Move it with the build. -->
-    <div id="buildtag">BUILD 6O</div>
+    <div id="buildtag">BUILD 6P</div>
   </div>
 </section>
 
@@ -2736,7 +2740,7 @@ function newPhotoId(){
    opening — a smaller number is fine, it is only a bigger one we cannot honour.
 
    BUMP THIS whenever a field is added to or removed from serialise(). */
-const FILE_V = 2;
+const FILE_V = 3;
 function serialise(){
   return {
     v:FILE_V, n:S.n, weeks:S.weeks, line:S.line, word:S.word,
@@ -2796,7 +2800,11 @@ function serialise(){
                           sheet:a.sheet||null,
                           story:a.story, note:a.note||'', d:a.d||'', hon:a.hon||'', anon:!!a.anon, pipelined:!!a.pipelined, evalAsked:!!a.evalAsked, captions:a.captions||{},
                           posted:a.posted||{},
-                          photos:(a.photos||[]).map(p=>p.id), offs:(a.photos||[]).map(p=>p&&p.off?1:0) }))
+                          photos:(a.photos||[]).map(p=>p.id), offs:(a.photos||[]).map(p=>p&&p.off?1:0),
+                          /* where they moved each picture to inside the frame.
+                             Written here AND read in load(), which is the half
+                             this file has forgotten three times. */
+                          poss:(a.photos||[]).map(p=>(p&&p.pos)?[+p.pos.x||0,+p.pos.y||0]:0) }))
   };
 }
 /* ── THE LAST FEW SAVES, NOT ONLY THE CURRENT ONE ──────────────────────────
@@ -3268,6 +3276,8 @@ async function load(){
                   sheet:(a.sheet && typeof a.sheet==='object') ? a.sheet : null,
                   story:a.story||'', photos });
     (Array.isArray(a.offs)?a.offs:[]).forEach((v,i)=>{ if(v && photos[i]) photos[i].off=true; });
+    (Array.isArray(a.poss)?a.poss:[]).forEach((v,i)=>{
+      if(Array.isArray(v) && photos[i]) photos[i].pos = { x:+v[0]||0, y:+v[1]||0 }; });
     /* ghost acts with no name, no number and no square are noise, not journal */
     if(!S.acts[S.acts.length-1].t && !slotOf(S.acts[S.acts.length-1]))
       S.acts.pop();
@@ -11151,7 +11161,11 @@ function smallNote(n){
 function packKey(a){
   /* by id: thumbnail lengths collide far more often than ids do, and two photos
      with equal-length previews used to leave the card undrawn */
-  const shot = (a.photos||[]).map(p=>(p&&p.id)+(p&&p.off?'!':'')||'').join(',');
+  /* WHERE A PHOTO HAS BEEN MOVED TO IS PART OF THE PICTURE. Left out, dragging
+     a photograph redrew nothing: the key was unchanged, the cache answered, and
+     the old framing shipped. Same family as the three that were missing before. */
+  const shot = (a.photos||[]).map(p=>(p&&p.id)+(p&&p.off?'!':'')+
+                 (p&&p.pos?('@'+(+p.pos.x||0).toFixed(3)+','+(+p.pos.y||0).toFixed(3)):'')||'').join(',');
   /* EVERYTHING THE CARD DRAWS FROM, and it has to mean everything.
      The goal was here; the hand and the words on the mark were not. So
      changing your skin tone, or editing "in year fifty", redrew every card in
@@ -11161,7 +11175,7 @@ function packKey(a){
   const cw = cardWords(a);
   return [a.no, cw.n, cw.line, cw.word, (S.tone||DEFAULT_TONE),
           (a.zero?'zero':''), (a.fin?'fin':''),
-          (a.anon?'anon':''), (CM_PLAT==='private'?'note':'card'), a.t||'', a.d||'', a.when||'',
+          (a.anon?'anon':''), CM_PLAT, a.t||'', a.d||'', a.when||'',
           /* INVARIANT 15. A card can be drawn two sizes, so the key has to say
              WHICH — or the wrong one ships, which is the exact failure this list
              exists to prevent.
@@ -11170,7 +11184,7 @@ function packKey(a){
              entry (L64). It now comes from the thing that varies, so the day the
              native build asks for a story card it cannot be handed the feed one
              out of the cache. */
-          (CARD_FOR_STORY ? 'story' : 'feed'),
+          CARD_SHAPE,
           (a.story||''), (a.who||[]).join('~'), a.out||'', shot].join('|');
 }
 async function prepack(){
@@ -11186,8 +11200,12 @@ async function prepack(){
      the render finished, so switching destination mid-render shipped a card
      called act-5-note.png to Facebook. Nothing global is read after an await. */
   const plat = CM_PLAT;
+  /* captured with plat and for the same reason: the shape this pack was started
+     for, and the line that belongs under it. Read after an await, a destination
+     switched mid-render frames the card for somewhere it is no longer going. */
+  const shape = postShape();
   try {
-    const blob = (plat==='private') ? await noteBlob(a) : await cardBlob(a, 1080);
+    const blob = (plat==='private') ? await noteBlob(a) : await cardBlob(a, 1080, shape);
     const name = 'act-'+a.no+(plat==='private'?'-note':'')+'.png';
     if(blob) files.push(new File([blob], name, {type:'image/png'}));
   } catch(e){}
@@ -11203,7 +11221,15 @@ async function prepack(){
     if(!p) continue;
     try {
       const got = await fullPhoto(p);
-      if(got.url) files.push(dataToFile(got.url, 'act-'+a.no+'-'+(i+1)+'.jpg'));
+      /* INSTAGRAM MAKES EVERY PICTURE IN A POST SHARE THE SHAPE OF THE FIRST,
+         so a snapshot travelling beside the square card is cropped by Instagram
+         — a second cut nobody asked for, and the half of the fault that is easy
+         to miss. Ruling A: the photograph whole on white, standing back by the
+         margin the card's own ink keeps. Facebook does not do it, so a
+         photograph going there is left exactly as it is and stays a JPEG. */
+      if(got.url) files.push(FRAME_PHOTOS[plat]
+        ? await framedPhotoFile(got.url, 'act-'+a.no+'-'+(i+1)+'.png', shape, p.pos)
+        : dataToFile(got.url, 'act-'+a.no+'-'+(i+1)+'.jpg'));
       if(got.url && !got.full) SMALL_PHOTOS++;
     } catch(e){ BAD_PHOTOS++; }
   }
@@ -11411,15 +11437,62 @@ function drawPreview(){
     const strip=document.createElement('div'); strip.className='photos';
     ph.forEach((p,i)=>{
       const t=document.createElement('button');
-      t.type='button'; t.className='ph-tile';
+      t.type='button'; t.className='ph-tile phdrag';
       t.style.cssText='padding:0;border:0;background:none;position:relative;opacity:'+(p.off?'.35':'1');
       t.innerHTML='<img src="'+esc(p.url)+'" alt="" style="outline:'+(p.off?'none':'2px solid var(--coralink)')+';outline-offset:1px;border-radius:6px">';
+      /* THE TILE IS ALREADY THE FRAME. It is square and the picture inside it is
+         cropped to fill, which is exactly what now goes out. So moving the
+         picture here is moving the picture that posts — the trap the 14
+         September round recorded, where the preview had no equivalent of what
+         shipped, cannot happen through this control. */
+      const im = t.querySelector('img');
+      const put = ()=>{ const q = p.pos || {x:0,y:0};
+        im.style.objectPosition = (50 - (+q.x||0)*100) + '% ' + (50 - (+q.y||0)*100) + '%'; };
+      put();
       t.setAttribute('aria-pressed', p.off?'false':'true');
-      t.setAttribute('aria-label','Photo '+(i+1)+(p.off?', left out. Include it.':', riding along. Leave it out.'));
-      t.onclick=()=>{ p.off=!p.off; save(); drawPreview(); prepack(); };
+      t.setAttribute('aria-label','Photo '+(i+1)+(p.off?', left out. Include it.':', riding along. Leave it out.')+
+        ' Drag it to move the picture inside the frame.');
+      /* L102, THE OTHER WAY ROUND. The tile now has two jobs and the drag must
+         not eat the tap: leaving a photo out is the only way to stop it being
+         posted, and it must survive a finger that wobbles. A press that travels
+         less than a few pixels is a tap and still toggles; anything further is a
+         move and the tap never fires. */
+      let dragging=false, moved=0, lx=0, ly=0;
+      t.addEventListener('pointerdown', e=>{
+        dragging=true; moved=0; lx=e.clientX; ly=e.clientY;
+        try{ t.setPointerCapture(e.pointerId); }catch(err){}
+      });
+      t.addEventListener('pointermove', e=>{
+        if(!dragging) return;
+        const dx=e.clientX-lx, dy=e.clientY-ly; lx=e.clientX; ly=e.clientY;
+        moved += Math.abs(dx)+Math.abs(dy);
+        if(moved < 4) return;
+        const w=t.clientWidth||1, h=t.clientHeight||1;
+        const q = p.pos || (p.pos = {x:0,y:0});
+        q.x = clampPos((+q.x||0) + dx/w);
+        q.y = clampPos((+q.y||0) + dy/h);
+        put();
+      });
+      const endDrag = ()=>{ if(!dragging) return; dragging=false;
+        /* only a real move is worth writing to disk and redrawing the card */
+        if(moved >= 4){ save(); prepack(); } };
+      t.addEventListener('pointerup', endDrag);
+      t.addEventListener('pointercancel', endDrag);
+      t.onclick = e=>{
+        if(moved >= 4){ e.preventDefault(); return; }
+        p.off=!p.off; save(); drawPreview(); prepack(); };
       strip.appendChild(t);
     });
     box.appendChild(strip);
+    /* RULED A, 17 September 2026, and the wording is G's own with his spelling:
+       "You can do A, but you need to spell it American." A line that stays — he
+       was offered a version that fades once a photo has been moved and did not
+       take it, and the reasoning stands: this app is opened weekly at most, and
+       a line that has removed itself is no help in March. */
+    const mv=document.createElement('p');
+    mv.className='note'; mv.style.cssText='margin:8px 0 0';
+    mv.textContent='Move the photo around to center it.';
+    box.appendChild(mv);
   }
 }
 
@@ -11916,20 +11989,59 @@ const CARD = {
 };
 const CREED = ['PUT A LITTLE','MORE GOOD INTO','THE WORLD.'];
 
-/* A square dropped into an Instagram story or reel is scaled up and cropped
-   about 11% off each side. This is the inset that survives that, and it is used
-   ONLY for a story. Reaching a story at all needs the native build — a web page
-   cannot write the pasteboard types Instagram's story door requires — so today
-   nothing asks for it, and it is here so that when something does, the number is
-   already measured rather than guessed. */
-const CARD_CROP = 0.82;
-/* Which size the NEXT card is being packed for. It is a module-level flag rather
-   than an argument because packKey() is called from the pack path and renderCard
-   from the draw path, and the two have to agree about the same card. Nothing sets
-   it to true yet — reaching an Instagram story at all needs the native build —
-   and it is here so the key is right the day something does. */
-let CARD_FOR_STORY = false;
-async function renderCard(a, W, forStory){
+/* ── THE SHAPE A POST GOES OUT IN ───────────────────────────────
+   RULED BY G, 17 SEPTEMBER 2026.
+
+   The fault he caught on his own posts: the app drew ONE square picture and
+   handed it to every destination. A feed takes a square whole. A story or a
+   reel scales it to fill a tall frame and eats about a tenth off each side —
+   the t off "thirty-seven" on the left, the outside of the balloon on the right.
+
+   THE FIX IS A FRAME, NOT A SMALLER DRAWING. For each destination the app makes
+   a blank white picture of exactly the right shape and drops the card into it
+   AT FULL WIDTH, the white falling above and below. Nothing inside the card
+   ever moves: the square stays the master for the book, the journal, the screen
+   and print. His words — "keep the square as what we have in our book, in our
+   journal, etc., and on the screen", and "scales to the width and then the
+   field is filled in at the top and the bottom".
+
+   WHAT THIS REPLACED, AND WHY IT IS GONE (L110). The earlier defence was
+   CARD_CROP, which drew the whole composition at 0.82 of its size so the crop
+   would have white to eat. That is the rejected approach: a picture already the
+   frame's shape cannot be cropped at all, so the inset defended against nothing
+   and nothing ever called it. The guard goes with the control it guarded.
+
+   THE FEED IS SQUARE — RULED S, 17 September, CLOSED. Both Instagram and
+   Facebook now recommend the tall 1080x1350 for the feed. G was shown that
+   before he ruled and ruled square anyway: "If square works, keep it square.
+   That's the way it needs to look. It's the perfect proportion. We only need to
+   change it if it doesn't work." Tall is a recommendation about reach, not
+   about fitting, and the square is the one shape that carries the book, the
+   journal, the screen, print and the feed together. DO NOT RE-OPEN IT.
+
+   The story shape is written and measured here and NOTHING SELECTS IT YET. The
+   buttons say Send to Instagram and Send to Facebook; neither says feed or
+   story, and one picture cannot serve both. That control is an aesthetic
+   decision of G's and has still to be drawn. */
+const POST_SHAPE = {
+  feed:  { w:1080, h:1080, line:false },
+  story: { w:1080, h:1920, line:true  }
+};
+/* Which shape the NEXT card is being packed for. Module-level rather than an
+   argument because packKey() is called from the pack path and the renderer from
+   the draw path, and the two have to agree about the same card — invariant 15:
+   a cache key that cannot say WHICH shape was drawn ships the wrong picture. */
+let CARD_SHAPE = 'feed';
+function postShape(){ return POST_SHAPE[CARD_SHAPE] || POST_SHAPE.feed; }
+
+/* Instagram makes every picture in one post share the shape of the first, so a
+   phone snapshot beside the square card is cropped BY INSTAGRAM — a second cut
+   nobody asked for. Facebook does no such thing and leaves each picture alone.
+   G, 17 September: "there needs to be a Facebook slash Instagram post
+   difference … you will know how to build it based on the button." The button
+   is CM_PLAT and he is never asked. */
+const FRAME_PHOTOS = { instagram:1 };
+async function renderCard(a, W){
   W = W || 1080;
   const k = W/100;                                   // one unit = 1% of width
   const c = document.createElement('canvas');
@@ -11937,40 +12049,16 @@ async function renderCard(a, W, forStory){
   const g = c.getContext('2d');
   g.fillStyle = '#FFFFFF'; g.fillRect(0,0,W,W);
 
-  /* THE INSTAGRAM MARGIN — patch 04, 11 September.
-     The card was never drawn wrong: measured at 1080 the ink cleared the left
-     edge by 4.7% and the right by 4.4%. What cut "thirty-seven" in half was
-     INSTAGRAM — a square dropped into a story or a reel is scaled up and
-     cropped about 11% off each side. Crop a correct card by 11% a side and you
-     get G's screenshot exactly: the t gone on the left, the outside of the
-     balloon gone on the right.
+  /* NO INSET. The card is drawn at its own full size, always, and the
+     destination's frame is built around it afterwards by frameOnto(). This
+     block used to scale the whole composition to CARD_SAFE so an Instagram
+     story crop would have white to eat; that was reversed on 17 September in
+     favour of the frame, and the scaling went with it (L110).
 
-     So the fix is the margin, not the drawing. The whole composition is drawn
-     at CARD_SAFE of its size, centred, on the same white square. EVERY
-     PROPORTION INSIDE THE CARD IS UNTOUCHED — it is Jessica's composition,
-     unchanged, standing further back from the edge — and the band Instagram
-     eats is white.
-
-     RULED S1C AND S2A BY G, 14 SEPTEMBER 2026. Both design seats found this
-     independently and it was the strongest finding of the round: a square posted
-     to the FEED is never cropped, so every feed post was paying for a crop that
-     was not happening, beside photographs that were not paying it. And the
-     on-screen preview has no equivalent inset, so what G approved was never what
-     posted.
-
-     Two versions now. The feed — which is everything the web app can reach, and
-     the ordinary case for ever — gets the composition as drawn, which is also
-     exactly what the preview shows. The inset is kept, named, and reserved for a
-     story, where the crop is real. Nothing inside the card moves in either: it
-     is Jessica's composition, unchanged, standing either at its own size or
-     further back from the edge.
-
-     The drawing already clears the edges by about 4.5% a side on its own, so
-     "full strength" is the design's own margin and not a bleed. */
-  const CARD_SAFE = forStory ? CARD_CROP : 1;
+     The drawing already clears the edges by about 4.5% a side on its own. That
+     margin is the design's own and is what the framed photographs are measured
+     against, so do not treat it as slack. */
   g.save();
-  g.translate(W*(1-CARD_SAFE)/2, W*(1-CARD_SAFE)/2);
-  g.scale(CARD_SAFE, CARD_SAFE);
 
   /* canvas won't fall back to a face the page happens to be using — each
      weight has to be explicitly loaded before it can be drawn with */
@@ -12109,8 +12197,95 @@ async function renderCard(a, W, forStory){
   return c;
 }
 
-function cardBlob(a, W, forStory){
-  return renderCard(a, W, forStory).then(c => new Promise(res => c.toBlob(res, 'image/png', 0.95)));
+/* ── THE FRAME ─────────────────────────────────────────────
+   Drop a drawing onto the blank white picture this destination wants, AT FULL
+   WIDTH, centred, the bands falling above and below. Nothing inside the drawing
+   moves. A square frame around a square card is the ordinary case and costs one
+   blit and no visible change, which is the point of ruling S.
+
+   RULING D, 17 September: where the band is deep enough to carry it — the story
+   and the reel — the act line and the date go in the lower band, set as the card
+   sets them, in the card's coral. On a square the band is thin and a line would
+   crowd the picture, so shape.line is false there. */
+function frameOnto(src, shape){
+  const W = shape.w, H = shape.h;
+  const c = document.createElement('canvas');
+  c.width = W; c.height = H;
+  const g = c.getContext('2d');
+  g.fillStyle = '#FFFFFF'; g.fillRect(0, 0, W, H);
+  const dh  = Math.round(src.height * (W / src.width));
+  const top = Math.round((H - dh) / 2);
+  g.drawImage(src, 0, top, W, dh);
+  /* NO LINE UNDER THE CARD, and this was caught by looking at the picture
+     rather than by any check. RULING D IS ABOUT THE PHOTOGRAPHS. The card
+     already carries "act 3 of 25" and the date, in the card's own coral, as
+     part of Jessica's composition — printing it again in the band below said
+     the same thing twice on every story. The band under a card stays empty. */
+  return c;
+}
+
+/* ── THE PHOTOGRAPH FILLS THE FRAME, AND THE PERSON MOVES IT ─────────────
+   RULED BY G, 17 SEPTEMBER 2026, AND IT REVERSES RULING A ON THE PHOTOGRAPHS.
+
+   Ruling A had the photograph sitting whole on white. Drawn and put in front of
+   him, it was wrong and he said so: "we don't need to add white space, that just
+   hurts it" and "you don't want to give them that much white on the photos that
+   you can't read that". A wide snapshot in a tall frame became a stripe adrift
+   in a page of white. HE IS RIGHT AND THE RENDER PROVED IT.
+
+   So: the photograph FILLS the frame, and nothing is white. What that costs is
+   that something falls outside the frame, and his answer to that is the second
+   half of the ruling — "we just need to give them the opportunity to move their
+   picture around." THE PERSON CHOOSES WHAT IS KEPT. The app never crops
+   silently; it only ever starts from the middle.
+
+   pos is where they have moved it to, as a share of what hangs over the edge:
+   0 is the middle, -0.5 and +0.5 are hard against one side or the other. It is
+   held per photograph and it has to survive a reload (BOTH HALVES — it is named
+   in serialise() and read in load(), and the parallel list is `poss`).
+
+   WHAT WENT WITH THIS RULING: ruling D, the act line in the lower band. A filled
+   frame has no band to put it in. Say so rather than letting it rot here. */
+function photoOnto(img, shape, pos){
+  const W = shape.w, H = shape.h;
+  const c = document.createElement('canvas');
+  c.width = W; c.height = H;
+  const g = c.getContext('2d');
+  g.fillStyle = '#FFFFFF'; g.fillRect(0, 0, W, H);   // only ever seen if a photo fails
+  const s  = Math.max(W / img.width, H / img.height);
+  const dw = img.width * s, dh = img.height * s;
+  const ox = clampPos(pos && pos.x), oy = clampPos(pos && pos.y);
+  const x  = Math.round((W - dw)/2 + ox * (dw - W));
+  const y  = Math.round((H - dh)/2 + oy * (dh - H));
+  g.drawImage(img, x, y, Math.round(dw), Math.round(dh));
+  return c;
+}
+function clampPos(v){ v = +v; if(!isFinite(v)) return 0;
+  return v < -0.5 ? -0.5 : v > 0.5 ? 0.5 : v; }
+
+function loadImg(url){
+  return new Promise((res, rej) => {
+    const im = new Image();
+    im.onload = () => res(im);
+    im.onerror = () => rej(new Error('photo will not decode'));
+    im.src = url;
+  });
+}
+
+async function framedPhotoFile(dataUrl, name, shape, pos){
+  const im = await loadImg(dataUrl);
+  const c  = photoOnto(im, shape, pos);
+  const blob = await new Promise(res => c.toBlob(res, 'image/png', 0.95));
+  return new File([blob], name, { type:'image/png' });
+}
+
+/* The shape and the line are passed in rather than read here: renderCard awaits
+   its fonts, and a destination switched during that await would otherwise frame
+   this card for the destination it is no longer going to. */
+function cardBlob(a, W, shape){
+  const sh = shape || postShape();
+  return renderCard(a, W).then(c => new Promise(res =>
+    frameOnto(c, sh).toBlob(res, 'image/png', 0.95)));
 }
 
 /* ── do it again ────────────────────────────────────────────────────────────

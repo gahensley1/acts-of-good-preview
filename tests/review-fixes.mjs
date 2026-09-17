@@ -200,11 +200,112 @@ head('the small ones');
     const n=document.getElementById('dlg-note');
     return { shadow: sh && sh!=='none', ws:n?n.style.whiteSpace:null,
              breaks: (n?n.textContent:'').indexOf('\n\n')>-1,
-             key: typeof CARD_FOR_STORY };
+             /* L103. This used to read `typeof CARD_FOR_STORY` and assert it
+                was a boolean, which proved only that a name existed. That flag
+                is gone with the inset it served (L110), and the rule it stood
+                for did not go with it: INVARIANT 15 — the cache key must say
+                WHICH shape was drawn, or a card drawn for one destination is
+                handed out of the cache to another. So the check now contests
+                the thing itself (L109) by drawing the key both ways. */
+             key: (()=>{ const a = S.current || S.acts[S.acts.length-1];
+                         if(!a) return 'no act';
+                         const was = CARD_SHAPE;
+                         CARD_SHAPE = 'feed';  const f = packKey(a);
+                         CARD_SHAPE = 'story'; const s = packKey(a);
+                         CARD_SHAPE = was;
+                         return f !== s ? 'varies' : 'same'; })(),
+             /* the same rule for the destination: the photographs are framed on
+                Instagram and left alone on Facebook, so the two packs are not
+                the same pack and must not share a key. */
+             dest: (()=>{ const a = S.current || S.acts[S.acts.length-1];
+                          if(!a) return 'no act';
+                          const was = CM_PLAT;
+                          CM_PLAT = 'instagram'; const i = packKey(a);
+                          CM_PLAT = 'facebook';  const f = packKey(a);
+                          CM_PLAT = was;
+                          return i !== f ? 'varies' : 'same'; })(),
+             /* RULING S: the feed frame is square and must not move the card. */
+             feedSq: (()=>{ const sh = POST_SHAPE.feed;
+                            if(sh.w !== sh.h || sh.line) return 'not square';
+                            const c = document.createElement('canvas');
+                            c.width = 1080; c.height = 1080;
+                            const out = frameOnto(c, sh);
+                            return (out.width === 1080 && out.height === 1080)
+                                   ? 'square' : out.width + 'x' + out.height; })() };
   });
   ck('the number on a finished square has a shadow', r.shadow===true, r);
   ck('the credits keep their paragraph breaks', r.ws==='pre-line' && r.breaks===true, r);
-  ck('the card cache key can vary', r.key==='boolean', r);
+  ck('the card cache key says which shape was drawn', r.key==='varies', r);
+  ck('the card cache key says which destination it was packed for', r.dest==='varies', r);
+  ck('the feed frame is square and leaves the card alone', r.feedSq==='square', r);
+  }
+
+
+head('the photograph moves inside the frame — G, 17 September');
+{ const {ctx,p}=await app();
+  await p.evaluate(()=>{
+    const mk=(w,h)=>{ const c=document.createElement('canvas'); c.width=w;c.height=h;
+      const g=c.getContext('2d'); g.fillStyle='#22303c'; g.fillRect(0,0,w,h);
+      g.fillStyle='#d8a93a'; g.fillRect(0,0,w/3,h); return c.toDataURL('image/jpeg',0.7); };
+    const a=S.acts[S.acts.length-1];
+    a.photos=[{id:'zz1',url:mk(1600,900)}];
+    S.current=a; save();
+    try{ endTabTour(); }catch(e){}
+    go('home'); openCompose(); try{ sheet(null); }catch(e){}
+    const n=document.getElementById('calnudge'); if(n) n.remove();
+    drawPreview();
+  });
+  await p.waitForTimeout(700);
+  await p.evaluate(()=>{ document.querySelectorAll('button').forEach(b=>{
+    if(b.textContent.trim()==='Got it') b.click(); }); });
+  const tile = await p.$('#cm-prev .photos > *');
+  const box  = tile ? await tile.boundingBox() : null;
+  ck('the photo tile is on the screen to be dragged', !!box, !!tile);
+  if(box){
+    const before = await p.evaluate(()=>{ const a=S.acts[S.acts.length-1];
+      return { x:((a.photos[0]||{}).pos||{}).x||0, off:!!(a.photos[0]||{}).off }; });
+    const cx = box.x+box.width/2, cy = box.y+box.height/2;
+    await p.mouse.move(cx, cy); await p.mouse.down();
+    await p.mouse.move(cx+36, cy, { steps:10 });
+    await p.mouse.up();
+    await p.waitForTimeout(500);
+    const after = await p.evaluate(()=>{ const a=S.acts[S.acts.length-1];
+      const im=document.querySelector('#cm-prev .photos > * img');
+      return { x:((a.photos[0]||{}).pos||{}).x||0, off:!!(a.photos[0]||{}).off,
+               objPos: im?im.style.objectPosition:'' }; });
+    /* L109 — contest the exact thing: the position moved, in the direction the
+       finger went, and the drag did NOT fire the tap that leaves a photo out. */
+    ck('dragging a photo moves the picture inside the frame', after.x > before.x + 0.02, {before,after});
+    ck('and the tile shows where it was moved to', /%/.test(after.objPos), after);
+    ck('and a drag does not leave the photo out by accident', after.off===false, after);
+    await p.mouse.click(cx, cy);
+    await p.waitForTimeout(400);
+    const tapped = await p.evaluate(()=>!!(S.acts[S.acts.length-1].photos[0]||{}).off);
+    ck('a tap still leaves the photo out', tapped===true, tapped);
+    await p.reload(); await p.waitForTimeout(1400);
+    const back = await p.evaluate(()=>{ const a=S.acts[S.acts.length-1];
+      return (a.photos[0]&&a.photos[0].pos)?a.photos[0].pos.x:null; });
+    ck('and where it was moved to survives a reload (BOTH HALVES)', back!==null && back>0.02, back);
+  }
+  }
+
+head('the screen says you can move it — ruled A, spelled American');
+{ const {ctx,p}=await app();
+  await p.evaluate(()=>{
+    const mk=()=>{ const c=document.createElement('canvas'); c.width=400;c.height=300;
+      c.getContext('2d').fillRect(0,0,400,300); return c.toDataURL('image/jpeg',0.6); };
+    const a=S.acts[S.acts.length-1];
+    a.photos=[{id:'zz2',url:mk()}]; S.current=a;
+    try{ endTabTour(); }catch(e){}
+    go('home'); openCompose(); try{ sheet(null); }catch(e){}
+    drawPreview();
+  });
+  await p.waitForTimeout(600);
+  const t = await p.evaluate(()=>[...document.querySelectorAll('#cm-prev p')]
+      .map(n=>n.textContent.trim()).join(' | '));
+  ck('the line is there, in his words', t.indexOf('Move the photo around to center it.')>-1, t);
+  /* his instruction: "you need to spell it American" */
+  ck('and it is not spelled the English way', t.indexOf('centre')===-1, t);
   }
 
 console.log('\n'+pass+' passed, '+fail+' failed, console/page errors: '+errs.length);
