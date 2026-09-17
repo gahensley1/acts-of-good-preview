@@ -1630,7 +1630,7 @@ select.pick::-ms-expand{display:none}
     <!-- BUILD MARK — dev only, delete this div when the app ships -->
     <!-- IT HAD SAID 5M SINCE 15 SEPTEMBER, eight builds back, and every
          feedback mail sent from the app quoted it. Move it with the build. -->
-    <div id="buildtag">BUILD 6L</div>
+    <div id="buildtag">BUILD 6O</div>
   </div>
 </section>
 
@@ -2080,6 +2080,11 @@ What you actually did. Why it mattered. Say the awkward parts."></textarea>
       <input type="file" id="w-file" accept="image/*" multiple hidden>
       <p class="note" style="margin-top:8px">Add any that arrived later. Someone
         sending you a picture weeks afterwards is part of the act too.</p></div>
+
+    <!-- The sign-up sheet, if this act had one. Empty and invisible otherwise:
+         an act that has already happened is no place to start asking for help,
+         so this box never offers to make one. -->
+    <div id="w-ask" style="margin:0 0 22px"></div>
 
     <div style="display:flex;gap:10px">
       <button class="btn ghost" style="flex:1;margin:0" onclick="go('card')">See the card</button>
@@ -7241,16 +7246,24 @@ function sheetId(){
    on working for anyone holding the poster. Remembered per act, so it is still
    rolled up when you come back to it. */
 function askFold(){
-  if(!WK) return;
-  WK.askShut = 1; workKeep(); save(); drawSheetPanel();
+  const a = askAct(); if(!a) return;
+  a.askShut = 1; workKeep(); save(); drawSheetPanel();
 }
 function askUnfold(){
-  if(!WK) return;
-  WK.askShut = 0; workKeep(); save(); drawSheetPanel();
-  const box = $('wk-ask'); if(box) box.scrollIntoView({block:'nearest'});
+  const a = askAct(); if(!a) return;
+  a.askShut = 0; workKeep(); save(); drawSheetPanel();
+  const box = askBox(); if(box) box.scrollIntoView({block:'nearest'});
 }
+/* WHOSE SHEET THE PANEL IS LOOKING AT.
+   The act in the editor while that screen is up; a FINISHED act while its own
+   page is up. The sheet outlives the act \u2014 the paper is still on the door
+   the morning after \u2014 so the panel had to stop assuming its owner was
+   still in the works. Not saved anywhere: it describes which screen is open. */
+let SH_OWN = null;
+function askAct(){ return SH_OWN || WK || null; }
 function askOf(){
-  const sh = WK ? (WK.sheet||null) : null;
+  const own = askAct();
+  const sh = own ? (own.sheet||null) : null;
   if(sh && sh.anon !== undefined){
     if(sh.anon){ sh.on = sh.on||{}; sh.on.greet=0; sh.on.sign=0; sh.on.phone=0; }
     delete sh.anon; save();
@@ -7304,13 +7317,18 @@ function askTick(e,k){
   return false;
 }
 
+/* Two screens can show this panel and only one of them at a time. The other
+   box is emptied on every draw, so the claims list below is never in the
+   document twice under one id. */
+function askBox(){ return $(SH_OWN ? 'w-ask' : 'wk-ask'); }
 function drawSheetPanel(){
-  const box=$('wk-ask'); if(!box) return;
+  const off = $(SH_OWN ? 'wk-ask' : 'w-ask'); if(off) off.innerHTML='';
+  const box=askBox(); if(!box) return;
   const sh=askOf();
   /* Rolled up. Everything typed is still here and a live sheet is still live;
      it is only out of the way. The line underneath says where it got to, so a
      half-made sheet is never silently hiding behind a plain button. */
-  if(sh && WK && WK.askShut){
+  if(sh && askAct() && askAct().askShut){
     const slots = (sh.slots||[]).length;
     const took  = (sh.claims||[]).filter(c=>c && c.name).length;
     const where = sh.live
@@ -7415,7 +7433,17 @@ function drawSheetPanel(){
     (sh.done?'<p class="askhint" style="padding-left:0;text-align:center;margin:12px 0 2px">'+
       'This sheet has been up for thirty days, so it has come down and everything '+
       'on it is deleted. What you wrote is still here.</p>':'')+
-    (sh.live?'<div class="askbar" style="margin-top:8px">'+
+    /* G, 17 September 2026: "how do they know how to edit the sheet that is
+       live?" Nothing said so. The publish button quietly relabels itself to
+       Update the sheet at the bottom of a form you have to already be looking
+       at, and that was the whole of it. This line is here from the moment the
+       page goes up, which is the moment a person decides what kind of thing
+       they have just made. */
+    (sh.live?'<p class="askhint" style="padding-left:0;text-align:center;margin:12px 0 2px">'+
+      'The page is up, and it is still yours. Change anything above, press '+
+      '<b>Update the sheet</b>, and the page changes with it. A row somebody '+
+      'has already taken stays exactly as they read it.</p>'+
+      '<div class="askbar" style="margin-top:8px">'+
       '<button class="btn mini ghost" type="button" onclick="askRefresh()">Who signed up</button>'+
       '<button class="btn mini ghost" type="button" onclick="askPoster(ASK_PV)">Print it</button>'+
       '</div>'+
@@ -7618,45 +7646,42 @@ function fitPvScale(tries){
 /* G, 6 Sept: pre-write everything and let people edit it, rather than handing
    them three blank boxes. The words below are a starting point that already
    reads properly on a poster; every one of them is editable. */
-/* NOTHING HERE USED TO ASK. This replaces the act's sheet outright \u2014 new
-   identity, new key, claims gone \u2014 and if the old one was PUBLISHED the page
-   stays up on the internet while the phone loses the key to it: the owner can
-   never read who signed up, free a row, or take it down, and it clears at thirty
-   days and not before. That was safe only because the one door to it was drawn
-   only when there was no sheet. Today "See an example" gave it a second door,
-   and a guard that rests on where a link happens to be drawn is not a guard.
-   Found by a review seat, 16 September 2026. */
+/* ONE SHEET TO AN ACT, AND THE APP CANNOT DESTROY IT.
+   RULED BY G, 17 September 2026: "would we ever want them to have two sign-up
+   sheets? It seems like there should just be one sign-up sheet... and not
+   letting them start a new sheet."
+
+   A review seat found on the 16th that this replaced the act's sheet outright
+   \u2014 new identity, new key, claims gone \u2014 and that if the old one was
+   PUBLISHED the page stayed up on the internet while the phone lost the key to
+   it: the owner could never read who signed up, free a row, or take it down,
+   and it cleared at thirty days and not before. The guard written that day
+   asked first and then offered to do it anyway. G ruled the offer out. It was
+   the only route in this app that could destroy a sheet and it should never
+   have existed; a sheet is now made once and edited for ever after.
+
+   So the button that starts one OPENS the one you have. Opening is harmless,
+   which is why it does not ask. */
 function askStart(){
-  if(!WK) return;
-  if(WK.sheet){
-    const live = !!WK.sheet.live;
-    checkFirst('Start a new sheet?',
-      live
-        ? 'The one you have is published, and people may have signed up to it. '+
-          'A new sheet cannot reach the old page, so it would stay up with no way '+
-          'to read it or take it down.'
-        : 'The sheet you have already started would be replaced, with everything '+
-          'written on it.',
-      'Replace it', ()=>{ WK.sheet = null; askStart(); });
-    return;
-  }
-  WK.askShut = 0;
-  const sd = WK.seed || {};
+  const a = askAct(); if(!a) return;
+  if(a.sheet){ askUnfold(); return; }
+  a.askShut = 0;
+  const sd = a.seed || {};
   const needs = (sd.needs||[]).filter(x=>String(x||'').trim());
-  WK.sheet={ id:sheetId(), key:sheetToken(),
-    reason:(WK.t||'').trim() || 'For a neighbor who could use a hand',
+  a.sheet={ id:sheetId(), key:sheetToken(),
+    reason:(a.t||'').trim() || 'For a neighbor who could use a hand',
     greet:'Dear neighbors,',
     tag:sd.tag||'',
     why:sd.why||'',
     lede:'A few of us are putting something together. Any one of these would be '+
          'a real help, and none of it is a big job.',
     slots:needs.length ? needs.slice() : [''],
-    when:(WK.d ? fmtLong(WK.d) : ''), time:'', where:'', who:'', drop:'',
+    when:(a.d ? fmtLong(a.d) : ''), time:'', where:'', who:'', drop:'',
     sign:(S.name||''), phone:'',
     art:sd.art||'',
     /* on by default: the date, who is asking, and anything the idea brought.
        Everything else is a tick. */
-    on:{ greet:1, when:!!WK.d?1:0, sign:(S.name?1:0),
+    on:{ greet:1, when:!!a.d?1:0, sign:(S.name?1:0),
          tag:sd.tag?1:0, why:sd.why?1:0 },
     live:0, claims:[] };
   workKeep(); save(); drawSheetPanel();
@@ -7921,7 +7946,7 @@ async function askPublish(){
        promised it could be put back. */
     const r=await fetch(AOG_BASE+'/a/'+sh.id,{method:'PUT',
       headers:{'content-type':'application/json','authorization':'Bearer '+key},
-      body:JSON.stringify({reason:sh.reason||'',lede:sh.lede||'',when:(WK&&WK.d)||'',
+      body:JSON.stringify({reason:sh.reason||'',lede:sh.lede||'',when:(askAct()&&askAct().d)||'',
                            facts:facts,slots:slots,closed:0})});
     if(!r.ok){ await sheetTrouble(r, 'It did not go up.'); return; }
     /* WHEN it went up, written by the app on the first publish and never
@@ -8015,7 +8040,7 @@ function askTakeDown(){
   const sh = askOf(); if(!sh) return;
   /* the day the sheet is for lives on the work, not on the sheet; it is carried
      so the server's upsert does not write an empty one over it */
-  const day = (WK && WK.d) || '';
+  const day = (askAct() && askAct().d) || '';
   checkFirst('Take the page down?',
     'Anyone who scans the square or follows the link sees a thank you instead '+
     'of a list. Nobody new can sign up. Everyone already on it stays on it, and '+
@@ -8031,7 +8056,11 @@ function askTakeDown(){
     }, 'Leave it up');
 }
 
-async function askRefresh(){
+/* `quiet` is for the reads the app does on its own, opening a screen. A phone
+   on a train must not answer "here are your names" with a dialog about the
+   signal for a question nobody asked. The button stays loud: somebody who
+   pressed Who signed up is owed an answer either way. */
+async function askRefresh(quiet){
   const sh=askOf(); if(!sh||!sh.live) return;
   const key=askKeyGet(); if(!key) return;
   try{
@@ -8039,7 +8068,7 @@ async function askRefresh(){
     if(!r.ok){
       /* a sheet the server has deleted answers 404, and the app used to tell
          the person to check the key */
-      await sheetTrouble(r, 'The names could not be read back.');
+      if(!quiet) await sheetTrouble(r, 'The names could not be read back.');
       /* it is gone at the other end: stop calling it live */
       if(r.status===404){ sh.live=0; sh.done=1; workKeep(); save(); drawSheetPanel(); }
       return;
@@ -8051,7 +8080,7 @@ async function askRefresh(){
        app could go on calling a shut page live for ever. */
     if(j && j.closed){ sh.live = 0; sh.done = 1; }
     save(); drawClaims(); drawSheetPanel();
-  }catch(_){ await sheetTrouble(null, 'The names could not be read back.'); }
+  }catch(_){ if(!quiet) await sheetTrouble(null, 'The names could not be read back.'); }
 }
 
 /* ── WHAT COMES BACK FROM THE SERVER IS NOT TRUSTED ────────────────────────
@@ -8236,8 +8265,10 @@ function goClaims(){
   dropClaimBar();
   const w = (S.works||[]).find(x=>x && x.sheet && x.sheet.live);
   if(w){ openWork(w); return; }
+  /* was go('card'), which shows no sheet at all — the bar said somebody had
+     signed up and then took you to a screen that could not tell you who */
   const a = (S.acts||[]).find(x=>x && x.sheet && x.sheet.live);
-  if(a){ S.current = a; go('card'); }
+  if(a){ openAct(a); askUnfold(); }
 }
 
 /* small numbers as words, the same as the sheet page uses */
@@ -8884,7 +8915,14 @@ function openWork(w){
   wkCostState();
   drawWorkRemind();
   drawWorkWho();
+  SH_OWN = null;               /* this screen owns the panel while it is up */
   drawSheetPanel();
+  /* THE NAMES WERE AS OLD AS THE LAST TIME SOMEBODY PRESSED A BUTTON. The sweep
+     on Your year keeps a live sheet fresh for anyone who walks past that screen;
+     the act's own page is the other place a person looks, and it was the stale
+     one: it could sit there saying "nothing on it yet" while the bar on Your
+     year had already said somebody signed up. */
+  if(w.sheet && w.sheet.live) askRefresh(true);
   drawNotes();
   drawPhotos('wk-photos','wk-file', w.photos, ()=>drawPhotos('wk-photos','wk-file', WK.photos, ()=>openWork(WK)));
   go('work');
@@ -10541,7 +10579,32 @@ function openWrite(a){
   $('w-when').value=a.d||''; syncDateBtn('w-when');
   drawWriteFacts(a);
   drawWritePhotos(a);
+  drawWriteSheet(a);
   count(); go('write');
+}
+/* THE PAGE OUTLIVES THE ACT.
+   A sheet rides onto the act at the finish (L62) and until today no screen
+   showed one afterwards. The sweep on Your year read a finished act's live
+   sheet and raised the bar — "Someone signed up" — and the bar's own
+   button took you to the card, which says nothing about a sheet. So the app
+   told you somebody had put their name down and then gave you no way to see
+   who, free a row, or take the page down. It stayed up for thirty days.
+   G, 17 September 2026: "put the sheet back within reach on a finished act."
+
+   It is the same panel, on the same sheet, with the same buttons. The act is
+   written up and the sheet is a footnote to it, so it arrives rolled away
+   — like the tally, and for the same reason: the resting state is one
+   line that says where it got to. Rolled is screen state, not the act's, which
+   is why it is set here on every open and is not written to the file. */
+function drawWriteSheet(a){
+  SH_OWN = null;
+  const box = $('w-ask'); if(!box) return;
+  box.innerHTML = '';
+  if(!a || !a.sheet) return;
+  SH_OWN = a;
+  a.askShut = 1;
+  drawSheetPanel();
+  if(a.sheet.live) askRefresh(true);
 }
 function drawWriteFacts(a){
   const pc=$('w-who'); pc.innerHTML='';
@@ -12683,6 +12746,8 @@ function go(v){
   if(v !== SCREEN) dropUndo();
   if(v !== 'home') strayStop();   // it belongs to Your year and nowhere else
   if(v !== 'work') killDisarm();   // a primed delete never survives the screen
+  /* the finished act owns the sheet panel only while its own page is up */
+  if(v !== 'write') SH_OWN = null;
   if(SCREEN==='compose' && v!=='compose') leaveCompose();
   SCREEN = v;
   /* THE BADGE IS ON EVERY SCREEN AND WAS DRAWN BY ONE OF THEM. drawNext() was
