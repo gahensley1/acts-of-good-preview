@@ -1634,7 +1634,7 @@ select.pick::-ms-expand{display:none}
     <!-- BUILD MARK — dev only, delete this div when the app ships -->
     <!-- IT HAD SAID 5M SINCE 15 SEPTEMBER, eight builds back, and every
          feedback mail sent from the app quoted it. Move it with the build. -->
-    <div id="buildtag">BUILD 6P</div>
+    <div id="buildtag">BUILD 6Q</div>
   </div>
 </section>
 
@@ -11184,7 +11184,6 @@ function packKey(a){
              entry (L64). It now comes from the thing that varies, so the day the
              native build asks for a story card it cannot be handed the feed one
              out of the cache. */
-          CARD_SHAPE,
           (a.story||''), (a.who||[]).join('~'), a.out||'', shot].join('|');
 }
 async function prepack(){
@@ -11203,7 +11202,7 @@ async function prepack(){
   /* captured with plat and for the same reason: the shape this pack was started
      for, and the line that belongs under it. Read after an await, a destination
      switched mid-render frames the card for somewhere it is no longer going. */
-  const shape = postShape();
+  const shape = POST_FRAME;
   try {
     const blob = (plat==='private') ? await noteBlob(a) : await cardBlob(a, 1080, shape);
     const name = 'act-'+a.no+(plat==='private'?'-note':'')+'.png';
@@ -11989,50 +11988,40 @@ const CARD = {
 };
 const CREED = ['PUT A LITTLE','MORE GOOD INTO','THE WORLD.'];
 
-/* ── THE SHAPE A POST GOES OUT IN ───────────────────────────────
-   RULED BY G, 17 SEPTEMBER 2026.
+/* ── ONE PICTURE, EVERY DESTINATION ──────────────────────────────
+   RULED BY G, 17 SEPTEMBER 2026, EVENING. This replaced a feed shape and a story
+   shape with one, and it removed a control before it was ever built.
 
-   The fault he caught on his own posts: the app drew ONE square picture and
-   handed it to every destination. A feed takes a square whole. A story or a
-   reel scales it to fill a tall frame and eats about a tenth off each side —
-   the t off "thirty-seven" on the left, the outside of the balloon on the right.
+   THE FAULT HE KEPT SEEING. The app made one SQUARE picture and handed it to
+   everything. A story scales a square to fill 9:16 and eats the sides — and the
+   note that used to sit here said that crop was "about 11% each side". IT IS
+   21.88%, measured off the live build on the 17th. The card's own ink stands
+   about 10.9% back from the edge, so the crop goes straight through it: the t
+   off "thirty-seven", the outside of the balloon, every time. THE OLD NUMBER WAS
+   WRONG BY HALF, which is why every defence built against it failed — including
+   the CARD_CROP inset, which at 0.82 was never deep enough either.
 
-   THE FIX IS A FRAME, NOT A SMALLER DRAWING. For each destination the app makes
-   a blank white picture of exactly the right shape and drops the card into it
-   AT FULL WIDTH, the white falling above and below. Nothing inside the card
-   ever moves: the square stays the master for the book, the journal, the screen
-   and print. His words — "keep the square as what we have in our book, in our
-   journal, etc., and on the screen", and "scales to the width and then the
-   field is filled in at the top and the bottom".
+   THE ANSWER, AND IT IS BETTER THAN THE BUTTON WE WERE ABOUT TO BUILD. The app
+   makes ONE picture, 1080x1920, with the card dropped in AT FULL WIDTH and white
+   above and below. Then:
 
-   WHAT THIS REPLACED, AND WHY IT IS GONE (L110). The earlier defence was
-   CARD_CROP, which drew the whole composition at 0.82 of its size so the crop
-   would have white to eat. That is the rejected approach: a picture already the
-   frame's shape cannot be cropped at all, so the inset defended against nothing
-   and nothing ever called it. The guard goes with the control it guarded.
+     - a story or a reel shows the whole thing, and nothing is cut;
+     - a feed post cropped to 4:5 keeps the card with a band to spare;
+     - a feed post cropped to 1:1 gives back EXACTLY THE CARD, because the card
+       is 1080 wide inside a 1080-wide frame, so the square crop lands on its own
+       edges.
 
-   THE FEED IS SQUARE — RULED S, 17 September, CLOSED. Both Instagram and
-   Facebook now recommend the tall 1080x1350 for the feed. G was shown that
-   before he ruled and ruled square anyway: "If square works, keep it square.
-   That's the way it needs to look. It's the perfect proportion. We only need to
-   change it if it doesn't work." Tall is a recommendation about reach, not
-   about fitting, and the square is the one shape that carries the book, the
-   journal, the screen, print and the feed together. DO NOT RE-OPEN IT.
+   Measured, not assumed: in the tightest of those the card's ink still clears
+   the top by 69px and the bottom by 106px. What the platforms eat is white.
 
-   The story shape is written and measured here and NOTHING SELECTS IT YET. The
-   buttons say Send to Instagram and Send to Facebook; neither says feed or
-   story, and one picture cannot serve both. That control is an aesthetic
-   decision of G's and has still to be drawn. */
-const POST_SHAPE = {
-  feed:  { w:1080, h:1080, line:false },
-  story: { w:1080, h:1920, line:true  }
-};
-/* Which shape the NEXT card is being packed for. Module-level rather than an
-   argument because packKey() is called from the pack path and the renderer from
-   the draw path, and the two have to agree about the same card — invariant 15:
-   a cache key that cannot say WHICH shape was drawn ships the wrong picture. */
-let CARD_SHAPE = 'feed';
-function postShape(){ return POST_SHAPE[CARD_SHAPE] || POST_SHAPE.feed; }
+   SO THERE IS NO FEED-OR-STORY CHOICE AND THERE NEVER NEEDS TO BE. G is never
+   asked, because one picture is right wherever it lands. RULING S SURVIVES
+   UNTOUCHED — his feed post is still square; the app simply does not have to be
+   told so.
+
+   Nothing inside the card moves, ever. The square remains the master for the
+   book, the journal, the screen and print. */
+const POST_FRAME = { w:1080, h:1920 };
 
 /* Instagram makes every picture in one post share the shape of the first, so a
    phone snapshot beside the square card is cropped BY INSTAGRAM — a second cut
@@ -12283,7 +12272,7 @@ async function framedPhotoFile(dataUrl, name, shape, pos){
    its fonts, and a destination switched during that await would otherwise frame
    this card for the destination it is no longer going to. */
 function cardBlob(a, W, shape){
-  const sh = shape || postShape();
+  const sh = shape || POST_FRAME;
   return renderCard(a, W).then(c => new Promise(res =>
     frameOnto(c, sh).toBlob(res, 'image/png', 0.95)));
 }

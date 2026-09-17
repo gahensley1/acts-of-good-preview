@@ -207,13 +207,50 @@ head('the small ones');
                 WHICH shape was drawn, or a card drawn for one destination is
                 handed out of the cache to another. So the check now contests
                 the thing itself (L109) by drawing the key both ways. */
-             key: (()=>{ const a = S.current || S.acts[S.acts.length-1];
-                         if(!a) return 'no act';
-                         const was = CARD_SHAPE;
-                         CARD_SHAPE = 'feed';  const f = packKey(a);
-                         CARD_SHAPE = 'story'; const s = packKey(a);
-                         CARD_SHAPE = was;
-                         return f !== s ? 'varies' : 'same'; })(),
+             /* L103 again. This asserted that the key varied by SHAPE, back when
+                there were two. There is now one picture for every destination
+                and a shape entry would be a constant in a cache key, which is
+                not a cache key entry (L64). The rule worth holding moved: the
+                ONE frame must give the card back untouched wherever a platform
+                crops it. That is what this contests now. */
+             frame: (()=>{
+               if(POST_FRAME.w!==1080 || POST_FRAME.h!==1920) return 'frame is '+POST_FRAME.w+'x'+POST_FRAME.h;
+               const src=document.createElement('canvas'); src.width=1080; src.height=1080;
+               const g=src.getContext('2d');
+               g.fillStyle='#fff'; g.fillRect(0,0,1080,1080);
+               g.fillStyle='#000';
+               g.fillRect(0,0,1080,4); g.fillRect(0,1076,1080,4);
+               g.fillRect(0,0,4,1080); g.fillRect(1076,0,4,1080);
+               g.fillStyle='#E4572E'; g.fillRect(500,500,80,80);
+               const framed = frameOnto(src, POST_FRAME);
+               if(framed.width!==1080 || framed.height!==1920)
+                 return 'framed '+framed.width+'x'+framed.height;
+               const cut=document.createElement('canvas'); cut.width=1080; cut.height=1080;
+               cut.getContext('2d').drawImage(framed, 0, -(1920-1080)/2);
+               const A=src.getContext('2d').getImageData(0,0,1080,1080).data;
+               const B=cut.getContext('2d').getImageData(0,0,1080,1080).data;
+               let diff=0;
+               for(let i=0;i<A.length;i+=4)
+                 if(A[i]!==B[i]||A[i+1]!==B[i+1]||A[i+2]!==B[i+2]) diff++;
+               return diff===0 ? 'identical' : diff+' pixels differ';
+             })(),
+             /* and the 4:5 crop a feed post may take must not reach the card */
+             tallCrop: (()=>{
+               const src=document.createElement('canvas'); src.width=1080; src.height=1080;
+               const g=src.getContext('2d');
+               g.fillStyle='#fff'; g.fillRect(0,0,1080,1080);
+               g.fillStyle='#000'; g.fillRect(0,0,1080,4); g.fillRect(0,1076,1080,4);
+               const framed = frameOnto(src, POST_FRAME);
+               const h=1350, top=Math.round((1920-h)/2);
+               const cut=document.createElement('canvas'); cut.width=1080; cut.height=h;
+               cut.getContext('2d').drawImage(framed, 0, -top);
+               const d=cut.getContext('2d').getImageData(0,0,1080,h).data;
+               let minY=1e9,maxY=-1;
+               for(let y=0;y<h;y++) for(let x=0;x<1080;x++){
+                 const i=(y*1080+x)*4;
+                 if(d[i]<245||d[i+1]<245||d[i+2]<245){ if(y<minY)minY=y; if(y>maxY)maxY=y; } }
+               return (minY>0 && maxY<h-1) ? 'clear:'+minY+'/'+(h-1-maxY) : 'touches the edge';
+             })(),
              /* the same rule for the destination: the photographs are framed on
                 Instagram and left alone on Facebook, so the two packs are not
                 the same pack and must not share a key. */
@@ -224,20 +261,13 @@ head('the small ones');
                           CM_PLAT = 'facebook';  const f = packKey(a);
                           CM_PLAT = was;
                           return i !== f ? 'varies' : 'same'; })(),
-             /* RULING S: the feed frame is square and must not move the card. */
-             feedSq: (()=>{ const sh = POST_SHAPE.feed;
-                            if(sh.w !== sh.h || sh.line) return 'not square';
-                            const c = document.createElement('canvas');
-                            c.width = 1080; c.height = 1080;
-                            const out = frameOnto(c, sh);
-                            return (out.width === 1080 && out.height === 1080)
-                                   ? 'square' : out.width + 'x' + out.height; })() };
+             };
   });
   ck('the number on a finished square has a shadow', r.shadow===true, r);
   ck('the credits keep their paragraph breaks', r.ws==='pre-line' && r.breaks===true, r);
-  ck('the card cache key says which shape was drawn', r.key==='varies', r);
+  ck('the square crop of the one picture gives the card back exactly', r.frame==='identical', r);
+  ck('and a tall feed crop never reaches the card', /^clear:/.test(r.tallCrop), r);
   ck('the card cache key says which destination it was packed for', r.dest==='varies', r);
-  ck('the feed frame is square and leaves the card alone', r.feedSq==='square', r);
   }
 
 
@@ -248,7 +278,11 @@ head('the photograph moves inside the frame — G, 17 September');
       const g=c.getContext('2d'); g.fillStyle='#22303c'; g.fillRect(0,0,w,h);
       g.fillStyle='#d8a93a'; g.fillRect(0,0,w/3,h); return c.toDataURL('image/jpeg',0.7); };
     const a=S.acts[S.acts.length-1];
-    a.photos=[{id:'zz1',url:mk(1600,900)}];
+    const u=mk(1600,900);
+    a.photos=[{id:'zz1',url:u}];
+    /* the photo has to be REALLY stored, or the loader quite rightly drops it on
+       the next boot and the reload check below proves nothing. */
+    window.__stored = Promise.all([idbPut('zz1',u), idbPut(THUMB('zz1'),u)]);
     S.current=a; save();
     try{ endTabTour(); }catch(e){}
     go('home'); openCompose(); try{ sheet(null); }catch(e){}
@@ -258,7 +292,18 @@ head('the photograph moves inside the frame — G, 17 September');
   await p.waitForTimeout(700);
   await p.evaluate(()=>{ document.querySelectorAll('button').forEach(b=>{
     if(b.textContent.trim()==='Got it') b.click(); }); });
+  /* WAIT FOR THE PICTURE TO FINISH DRAWING FIRST. The card is 1080x1920, so the
+     preview above the strip grows a long way when the pack lands, and the strip
+     moves under the pointer between measuring it and touching it. */
+  await p.waitForFunction(()=>typeof PACK!=='undefined' && PACK.busy===false && !!PACK.files,
+                          null, {timeout:20000}).catch(()=>{});
+  await p.waitForTimeout(600);
   const tile = await p.$('#cm-prev .photos > *');
+  /* and the strip sits well down a long screen: without this the pointer lands
+     outside the viewport and every check below passes or fails for the wrong
+     reason. */
+  if(tile) await tile.scrollIntoViewIfNeeded();
+  await p.waitForTimeout(400);
   const box  = tile ? await tile.boundingBox() : null;
   ck('the photo tile is on the screen to be dragged', !!box, !!tile);
   if(box){
@@ -278,11 +323,19 @@ head('the photograph moves inside the frame — G, 17 September');
     ck('dragging a photo moves the picture inside the frame', after.x > before.x + 0.02, {before,after});
     ck('and the tile shows where it was moved to', /%/.test(after.objPos), after);
     ck('and a drag does not leave the photo out by accident', after.off===false, after);
-    await p.mouse.click(cx, cy);
+    /* the drag redraws the strip, so the node under the pointer is a new one.
+       Find it again before tapping, or the tap lands on nothing. */
+    await p.waitForFunction(()=>!!document.querySelector('#cm-prev .photos > *'), null, {timeout:8000}).catch(()=>{});
+    const tile2 = await p.$('#cm-prev .photos > *');
+    if(tile2) await tile2.scrollIntoViewIfNeeded();
+    await p.waitForTimeout(300);
+    const box2 = tile2 ? await tile2.boundingBox() : {x:cx,y:cy,width:1,height:1};
+    await p.mouse.click(box2.x+box2.width/2, box2.y+box2.height/2);
     await p.waitForTimeout(400);
     const tapped = await p.evaluate(()=>!!(S.acts[S.acts.length-1].photos[0]||{}).off);
     ck('a tap still leaves the photo out', tapped===true, tapped);
-    await p.reload(); await p.waitForTimeout(1400);
+    await p.evaluate(()=>window.__stored);
+    await p.reload(); await p.waitForTimeout(1600);
     const back = await p.evaluate(()=>{ const a=S.acts[S.acts.length-1];
       return (a.photos[0]&&a.photos[0].pos)?a.photos[0].pos.x:null; });
     ck('and where it was moved to survives a reload (BOTH HALVES)', back!==null && back>0.02, back);
