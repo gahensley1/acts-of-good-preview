@@ -860,6 +860,23 @@ head('the reminder');
      was really about: the editor may carry the mark, and the mark must not be a
      second trigger. */
   ck('the editor carries exactly one calendar mark', trig.marks===1, trig);
+  /* RULED by G, 17 September 2026: "i want them on your year and plan/log."
+     The mark belongs to the screens where a date is CHOSEN. The act's own page
+     has a date box too, but that one corrects a day after the fact rather than
+     choosing one, and it stays bare. Both halves are held, because a ruling
+     that only forbids drifts back, and one that only requires spreads. */
+  const marks = await p.evaluate(()=>{
+    const onScreen = id => {
+      const el=document.getElementById(id); if(!el) return null;
+      return el.querySelectorAll('.calgo').length;
+    };
+    go('home');
+    const year = !!document.getElementById('calbtn');
+    return { work: onScreen('s-work'), write: onScreen('s-write'), year };
+  });
+  ck('Plan & Log has it', marks.work===1, marks);
+  ck('Your year has its own calendar to open', marks.year===true, marks);
+  ck('and the act\u2019s own page stays bare', marks.write===0, marks);
   ck('and it is a mark, not a second trigger', trig.markIsButton===false, trig);
 
   /* "None" is a real choice and it is not a reminder */
