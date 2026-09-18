@@ -806,8 +806,24 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
   border-radius:12px;padding:11px 14px;display:flex;align-items:center;gap:14px;
   width:max-content;max-width:min(92vw,420px);box-shadow:0 8px 24px rgba(0,0,0,.28);
   transition:transform .22s cubic-bezier(.2,.8,.3,1);pointer-events:none;visibility:hidden}
-#undobar.up,#gapbar.up,#bkupbar.up,#claimbar.up{transform:translate(-50%,0);pointer-events:auto;visibility:visible}
-#undobar .msg,#gapbar .msg,#bkupbar .msg,#claimbar .msg{font-size:13.5px}
+#undobar.up,#gapbar.up,#bkupbar.up,#claimbar.up,#toastbar.up{transform:translate(-50%,0);pointer-events:auto;visibility:visible}
+#undobar .msg,#gapbar .msg,#bkupbar .msg,#claimbar .msg,#toastbar .msg{font-size:13.5px}
+/* the same bar as the others, so the app speaks in one voice (1J). */
+#toastbar{position:fixed;left:50%;bottom:calc(104px + env(safe-area-inset-bottom));
+  transform:translate(-50%,180%);z-index:81;background:var(--ink);color:#fff;
+  border-radius:12px;padding:11px 14px;display:flex;align-items:center;gap:14px;
+  width:max-content;max-width:min(92vw,420px);box-shadow:0 8px 24px rgba(0,0,0,.28);
+  transition:transform .22s cubic-bezier(.2,.8,.3,1);pointer-events:none;visibility:hidden}
+/* CORAL, ASKED FOR BY G ON 17 SEPTEMBER, and worth flagging rather than doing
+   quietly: a coral bar was tried and RULED BACK TO BLACK in 1J because black
+   read better. This one is coral on purpose — its job is to point at something
+   rather than to speak — and it is the only one. */
+#toastbar.coral{background:var(--coralink)}
+/* what it is pointing at, lit for as long as it is up */
+.photos.lit{outline:2px solid var(--coralink);outline-offset:6px;border-radius:12px;
+  animation:litpulse 1.3s ease-in-out 2}
+@keyframes litpulse{0%,100%{outline-color:var(--coralink)}50%{outline-color:transparent}}
+@media (prefers-reduced-motion: reduce){.photos.lit{animation:none}}
 /* the same bar, so the same action colour Undo uses */
 #gapbar button,#bkupbar button,#claimbar button{background:none;border:0;color:#F6C65B;font-weight:700;
   font-size:13.5px;padding:6px 4px;min-height:36px;cursor:pointer;flex-shrink:0}
@@ -1660,7 +1676,7 @@ select.pick::-ms-expand{display:none}
     <!-- BUILD MARK — dev only, delete this div when the app ships -->
     <!-- IT HAD SAID 5M SINCE 15 SEPTEMBER, eight builds back, and every
          feedback mail sent from the app quoted it. Move it with the build. -->
-    <div id="buildtag">BUILD 6S</div>
+    <div id="buildtag">BUILD 6T</div>
   </div>
 </section>
 
@@ -1787,6 +1803,8 @@ select.pick::-ms-expand{display:none}
      tap, and a reinstalled app has nothing to identify itself with. So it
      remembers, and every few weeks it says so. Tapping it lands on the
      instructions rather than on a shrug. -->
+<div id="toastbar" role="status" aria-live="polite"><span class="msg"></span></div>
+
 <div id="bkupbar" role="status" aria-live="polite">
   <span class="msg"></span><button type="button" onclick="goBackup()">Back it up</button></div>
 
@@ -2178,7 +2196,8 @@ What you actually did. Why it mattered. Say the awkward parts."></textarea>
   <div class="top"><button class="back" aria-label="Back" onclick="go(CM_BACK||'card')">‹</button>
     <h2>Post it</h2><div class="sub" id="cm-no"></div></div>
   <div class="wrap">
-    <div class="chips" id="cm-plats" style="margin-bottom:16px"></div>
+    <div class="chips" id="cm-plats" style="margin-bottom:10px"></div>
+    <div class="chips" id="cm-shape" style="margin-bottom:16px"></div>
 
     <div class="pace" id="cm-fit" style="margin-bottom:16px"></div>
 
@@ -2839,6 +2858,8 @@ function serialise(){
                           /* the watermark colour he picked. Named here AND read
                              in load() — invariant 1. */
                           mark:a.mark||'',
+                          /* post or story. Named here AND read in load() — invariant 1. */
+                          shape:a.shape||'',
                           photos:(a.photos||[]).map(p=>p.id), offs:(a.photos||[]).map(p=>p&&p.off?1:0),
                           /* where they moved each picture to inside the frame.
                              Written here AND read in load(), which is the half
@@ -2846,7 +2867,10 @@ function serialise(){
                           poss:(a.photos||[]).map(p=>(p&&p.pos)?[+p.pos.x||0,+p.pos.y||0]:0),
                           /* whole-on-white rather than filled. Named here AND
                              read in load() — invariant 1. */
-                          whls:(a.photos||[]).map(p=>p&&p.whole?1:0) }))
+                          whls:(a.photos||[]).map(p=>p&&p.whole?1:0),
+                          /* how far in they pinched. Named here AND read in
+                             load() — invariant 1. */
+                          zms:(a.photos||[]).map(p=>(p&&p.zoom>1)?+(+p.zoom).toFixed(3):0) }))
   };
 }
 /* ── THE LAST FEW SAVES, NOT ONLY THE CURRENT ONE ──────────────────────────
@@ -3317,12 +3341,15 @@ async function load(){
                   /* named in serialise() too — invariant 1 */
                   mark:(MARK_CHOICES.indexOf(a.mark)>-1 ? a.mark : ''),
                   /* named in serialise() too — invariant 1 */
+                  shape:(a.shape==='story' ? 'story' : ''),
+                  /* named in serialise() too — invariant 1 */
                   sheet:(a.sheet && typeof a.sheet==='object') ? a.sheet : null,
                   story:a.story||'', photos });
     (Array.isArray(a.offs)?a.offs:[]).forEach((v,i)=>{ if(v && photos[i]) photos[i].off=true; });
     (Array.isArray(a.poss)?a.poss:[]).forEach((v,i)=>{
       if(Array.isArray(v) && photos[i]) photos[i].pos = { x:+v[0]||0, y:+v[1]||0 }; });
     (Array.isArray(a.whls)?a.whls:[]).forEach((v,i)=>{ if(v && photos[i]) photos[i].whole=true; });
+    (Array.isArray(a.zms)?a.zms:[]).forEach((v,i)=>{ if(v>1 && photos[i]) photos[i].zoom=+v; });
     /* ghost acts with no name, no number and no square are noise, not journal */
     if(!S.acts[S.acts.length-1].t && !slotOf(S.acts[S.acts.length-1]))
       S.acts.pop();
@@ -4820,6 +4847,8 @@ function acStop(){
   if(AC_RAF) cancelAnimationFrame(AC_RAF);
   AC_RAF = null; AC_PARTS = []; AC_JETS = []; AC_RINGS = []; AC_QUEUE = [];
   const wrap = $('actcf'); if(wrap) wrap.classList.remove('up');
+  /* the last piece of confetti has gone: let the page go, and pay what is owed */
+  if(CEL_RUNNING) celFinish();
 }
 function acSpawn(o){ o.hist = o.hist || []; AC_PARTS.push(o); }
 
@@ -5184,21 +5213,24 @@ function acPick(){
    filled is usually under the fold. Bring it into view first: a moment that
    erupts out of a tile nobody can see is no moment at all. */
 function actMoment(slot){
-  const wrap = $('actcf'); if(!wrap){ sashStrap(0); return; }
+  const wrap = $('actcf'); if(!wrap){ sashStrap(0); celFinish(); return; }
   if(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches){
-    sashStrap(0); return; }
+    sashStrap(0); celFinish(); return; }
   const t = document.getElementById('tile-'+slot);
-  if(!t){ sashStrap(0); return; }
+  if(!t){ sashStrap(0); celFinish(); return; }
   const onScreen = () => {
     const r = t.getBoundingClientRect();
     return r.width > 2 && r.top > 40 && r.bottom < window.innerHeight - 40;
   };
   const play = () => {
     const r = t.getBoundingClientRect();
-    if(r.width < 2){ sashStrap(0); return; }
+    if(r.width < 2){ sashStrap(0); celFinish(); return; }
     acStop();
     wrap.classList.add('up');
-    if(!acSize()){ sashStrap(0); return; }
+    if(!acSize()){ sashStrap(0); celFinish(); return; }
+    /* the square is where it should be and has stopped moving: hold the page
+       still now, not before, or scrolling it into view could not have happened */
+    celStart();
     AC_F = 0;
     acPlay(acPick(), r.left + r.width/2, r.top + r.height/2);
     AC_RAF = requestAnimationFrame(acFrame);
@@ -5415,7 +5447,8 @@ function finPost(){
    behind the follow-up sheet. So it waits until Your year actually has the
    screen, and it gives way to halfway and the finish, which outrank it. */
 function celTick(){
-  if(!CEL_DUE) return;
+  /* nothing owed a moment still owes the question */
+  if(!CEL_DUE){ celFinish(); return; }
   if(SCREEN !== 'home') return;
   /* the moment overlay SHOWS with .up, it is not hidden with .hide. Guarding
      on the wrong class is how bkupBar stayed invisible for a whole build. */
@@ -9797,6 +9830,48 @@ function drawNext(){
 /* Which square the sash was on last time the grid was drawn, and which act is
    still owed its moment. Session only: a moment is for the act you just did. */
 let SASH_SEEN = null, CEL_DUE = 0, SASH_STRAP = 0;
+/* ── THE MOMENT IS NOT INTERRUPTIBLE ───────────────────────────────
+   G, 17 September: "I would like it to be locked until the celebration is done.
+   So it opens exactly where it should so the celebration can take place. And you
+   can't scroll."
+
+   WHAT WAS WRONG. Saying yes to "did it go up" left you standing on the Post it
+   screen and opened the follow-up question on top of it. The moment you had just
+   earned was owed from the finish and was waiting for Your year to have the
+   screen — so it sat behind that question and, often, was never seen at all.
+
+   WHAT HAPPENS NOW. Yes closes the post page, lands on Your year, scrolls the
+   new square to the middle, LOCKS THE PAGE so nothing can slide out from under
+   it, plays the moment, and only when the last piece of confetti is gone does it
+   let go and ask its question. The question waits for the moment; the moment
+   never waits for the question.
+
+   CEL_AFTER is what is owed once the moment is over. It fires whether or not a
+   moment actually played — reduced motion, a square off the grid, a screen that
+   never settles — because a question that only appears on a good day is worse
+   than no question. */
+let CEL_AFTER = null, CEL_RUNNING = false, CEL_LOCKED = false, CEL_GUARD = 0;
+function celLock(on){
+  if(on === CEL_LOCKED) return;
+  CEL_LOCKED = on;
+  document.body.style.overflow = on ? 'hidden' : '';
+}
+function celFinish(){
+  if(CEL_GUARD){ clearTimeout(CEL_GUARD); CEL_GUARD = 0; }
+  CEL_RUNNING = false;
+  celLock(false);
+  const fn = CEL_AFTER; CEL_AFTER = null;
+  /* a breath after the confetti rather than on top of the last of it */
+  if(fn) setTimeout(fn, 420);
+}
+function celStart(){
+  CEL_RUNNING = true;
+  celLock(true);
+  /* nothing may hold the page locked for ever. If the moment somehow never
+     ends, this does. */
+  if(CEL_GUARD) clearTimeout(CEL_GUARD);
+  CEL_GUARD = setTimeout(()=>{ CEL_GUARD = 0; if(CEL_RUNNING) celFinish(); }, 7000);
+}
 /* RULED S7, G, 14 September 2026: "keep A journal page and On a finished
    square, standardize rest."
 
@@ -10942,6 +11017,19 @@ function drawCompose(){
   chips($('cm-plats'), choices, ()=>CM_PLAT, v=>{
     CM_PLAT=v; buildCaption(false);
   });
+  /* POST OR STORY. G's correction, 17 September: the square is the default and
+     tall is chosen. It sits here, under the destination, because it describes
+     the whole post rather than one photograph — and a personal note has no
+     shape to choose, so it does not appear there. */
+  const shrow = $('cm-shape');
+  if(shrow){
+    shrow.classList.toggle('hide', CM_PLAT==='private');
+    if(CM_PLAT!=='private'){
+      chips(shrow, [['Post','post'],['Story','story']],
+        ()=>(a.shape||SHAPE_DEFAULT),
+        v=>{ a.shape = (v==='story') ? 'story' : ''; save(); drawCompose(); prepack(); });
+    }
+  }
   /* Ask for a caption only if one has never been built. Testing for truthiness
      here is what let an empty caption bounce between the two functions until the
      stack gave out; buildCaption now always returns something, and this asks the
@@ -11211,7 +11299,7 @@ function packKey(a){
      the old framing shipped. Same family as the three that were missing before. */
   const shot = (a.photos||[]).map(p=>(p&&p.id)+(p&&p.off?'!':'')+
                  (p&&p.pos?('@'+(+p.pos.x||0).toFixed(3)+','+(+p.pos.y||0).toFixed(3)):'')+
-                 (p&&p.whole?'~w':'')||'').join(',');
+                 (p&&p.whole?'~w':'')+(p&&p.zoom>1?('~z'+(+p.zoom).toFixed(2)):'')||'').join(',');
   /* EVERYTHING THE CARD DRAWS FROM, and it has to mean everything.
      The goal was here; the hand and the words on the mark were not. So
      changing your skin tone, or editing "in year fifty", redrew every card in
@@ -11220,8 +11308,8 @@ function packKey(a){
      most likely to be changed after the first card is made. */
   const cw = cardWords(a);
   return [a.no, cw.n, cw.line, cw.word, (S.tone||DEFAULT_TONE),
-          /* the watermark colour is part of the picture (G, 17 Sept) */
-          (a.mark || MARK_DEFAULT),
+          /* the watermark colour and the shape are both part of the picture */
+          (a.mark || MARK_DEFAULT), (a.shape || SHAPE_DEFAULT),
           (a.zero?'zero':''), (a.fin?'fin':''),
           (a.anon?'anon':''), CM_PLAT, a.t||'', a.d||'', a.when||'',
           /* INVARIANT 15. A card can be drawn two sizes, so the key has to say
@@ -11250,7 +11338,7 @@ async function prepack(){
   /* captured with plat and for the same reason: the shape this pack was started
      for, and the line that belongs under it. Read after an await, a destination
      switched mid-render frames the card for somewhere it is no longer going. */
-  const shape = POST_FRAME;
+  const shape = postFrame(a);
   /* captured with plat and the shape, for the same reason: read after an await,
      a colour changed mid-render would mark this picture with the next one's. */
   const mk = markFor(a);
@@ -11278,7 +11366,7 @@ async function prepack(){
          margin the card's own ink keeps. Facebook does not do it, so a
          photograph going there is left exactly as it is and stays a JPEG. */
       if(got.url) files.push(FRAME_PHOTOS[plat]
-        ? await framedPhotoFile(got.url, 'act-'+a.no+'-'+(i+1)+'.png', shape, p.pos, mk, !!p.whole)
+        ? await framedPhotoFile(got.url, 'act-'+a.no+'-'+(i+1)+'.png', shape, p, mk)
         : dataToFile(got.url, 'act-'+a.no+'-'+(i+1)+'.jpg'));
       if(got.url && !got.full) SMALL_PHOTOS++;
     } catch(e){ BAD_PHOTOS++; }
@@ -11373,6 +11461,11 @@ function handOff(){
      Nothing may be inserted above it that waits for anything. */
   const text = $('cm-text').value;
   copyToClip(text);                            // on the press, always
+
+  /* G, 17 September: the reminder goes up on the press, not after. It is on
+     screen while the share sheet is opening, which is the last moment anybody
+     is looking at this app before they are looking at Instagram. */
+  pasteToast(CM_PLAT);
 
   /* The card is still drawing. Rather than quietly send without it, remember
      that they asked and go the moment it is ready. The button says so. */
@@ -11499,9 +11592,7 @@ function drawPreview(){
          September round recorded, where the preview had no equivalent of what
          shipped, cannot happen through this control. */
       const im = t.querySelector('img');
-      const put = ()=>{ const q = p.pos || {x:0,y:0};
-        im.style.objectPosition = (50 - (+q.x||0)*100) + '% ' + (50 - (+q.y||0)*100) + '%'; };
-      put();
+      const put = layoutWhenReady(im, t, p);
       /* THE MARK, SHOWN WHERE IT WILL ACTUALLY BE. The tile is the frame, so the
          mark sits in the tile exactly where it sits in the picture, at the same
          share of the width. It is small, because it IS small — showing it any
@@ -11553,6 +11644,22 @@ function drawPreview(){
       strip.appendChild(t);
     });
     box.appendChild(strip);
+    /* G, 17 September: "we need a coral toast that pops up around your photo and
+       highlights it somehow. It's kind of like a tour to show you that you
+       should tap photo to edit crop."
+
+       Once per act, and only while there is a photograph to point at. It lights
+       the strip for as long as it is up, so the words and the thing the words
+       are about are on screen together — which is the difference between a tour
+       beat and a notice. */
+    if(!PHO_TOURED[a.no]){
+      PHO_TOURED[a.no] = 1;
+      setTimeout(()=>{
+        if(SCREEN !== 'compose') return;
+        if(!document.querySelector('#cm-prev .photos')) return;
+        toast('Tap a photo to set its crop.', { coral:true, lit:'#cm-prev .photos', ms:6500 });
+      }, 700);
+    }
     /* RULED A, 17 September 2026, and the wording is G's own with his spelling:
        "You can do A, but you need to spell it American." A line that stays — he
        was offered a version that fades once a photo has been moved and did not
@@ -11581,6 +11688,9 @@ function drawPreview(){
    which was the wrong call — a control you cannot see the effect of is not a
    control. Everything to do with one photograph now lives here, at a size where
    the answer is obvious: the crop, the colour, and whether it goes at all. */
+/* which acts have had the pointing-out. Not saved: it is a tour beat, and a
+   new session is a new chance to be told. */
+const PHO_TOURED = {};
 let PHO_I = -1;                                  // which photograph is open
 function phoAct(){ return S.current || S.acts[S.acts.length-1] || null; }
 function phoOf(){
@@ -11598,48 +11708,64 @@ function drawPhotoSheet(){
   fr.classList.toggle('out', !!p.off);
   fr.innerHTML = '<img src="'+esc(p.url)+'" alt="">';
   const im = fr.querySelector('img');
-  const put = ()=>{ const q = p.pos || {x:0,y:0};
-    /* the box shows exactly what the picture will be: filled and cropped, or
-       whole on white with room to slide it */
-    im.style.objectFit = p.whole ? 'contain' : 'cover';
-    im.style.padding   = p.whole ? '4.5%' : '0';
-    im.style.objectPosition = p.whole
-      ? ((50 + (+q.x||0)*100) + '% ' + (50 + (+q.y||0)*100) + '%')
-      : ((50 - (+q.x||0)*100) + '% ' + (50 - (+q.y||0)*100) + '%'); };
-  put();
+  const put = layoutWhenReady(im, fr, p);
   if(mk){
     const m = document.createElement('span');
     m.className='mk'; m.style.color = mk.ink;
     m.innerHTML = '<b>'+esc(mk.line)+'</b>' + (mk.date ? '<i>'+esc(mk.date)+'</i>' : '');
     fr.appendChild(m);
   }
-  /* the same drag as the strip, with room to use it. No tap to fight with here:
-     inside this box a press can only ever mean "move the picture". */
-  let dragging=false, lx=0, ly=0, moved=0;
+  /* ONE FINGER MOVES IT, TWO FINGERS ZOOM IT. G, 17 September: "should be able
+     to pinch the photo to make it zoom in and out." No tap to fight with in
+     here — inside this box a press can only ever mean move or zoom. */
+  const PTR = new Map();
+  let moved = 0, pinch0 = 0, zoom0 = 1;
+  const spread = ()=>{
+    const v = [...PTR.values()];
+    if(v.length < 2) return 0;
+    return Math.hypot(v[0].x - v[1].x, v[0].y - v[1].y);
+  };
   fr.addEventListener('pointerdown', e=>{
-    dragging=true; moved=0; lx=e.clientX; ly=e.clientY;
+    PTR.set(e.pointerId, { x:e.clientX, y:e.clientY });
+    moved = 0;
     try{ fr.setPointerCapture(e.pointerId); }catch(err){}
+    if(PTR.size === 2){ pinch0 = spread(); zoom0 = clampZoom(p.zoom); }
   });
   fr.addEventListener('pointermove', e=>{
-    if(!dragging) return;
-    const dx=e.clientX-lx, dy=e.clientY-ly; lx=e.clientX; ly=e.clientY;
-    moved += Math.abs(dx)+Math.abs(dy);
-    const w=fr.clientWidth||1, h=fr.clientHeight||1;
-    const q = p.pos || (p.pos={x:0,y:0});
+    const was = PTR.get(e.pointerId); if(!was) return;
+    const dx = e.clientX - was.x, dy = e.clientY - was.y;
+    PTR.set(e.pointerId, { x:e.clientX, y:e.clientY });
+    if(PTR.size >= 2){
+      const now = spread();
+      if(pinch0 > 8 && now > 8){
+        p.zoom = clampZoom(zoom0 * (now / pinch0));
+        moved += 8;
+        put();
+      }
+      return;
+    }
+    moved += Math.abs(dx) + Math.abs(dy);
+    const w = fr.clientWidth||1, h = fr.clientHeight||1;
+    const q = p.pos || (p.pos = {x:0,y:0});
     q.x = clampPos((+q.x||0) + dx/w);
     q.y = clampPos((+q.y||0) + dy/h);
     put();
   });
-  const endDrag = ()=>{ if(!dragging) return; dragging=false;
-    if(moved>=4){ save(); drawPreview(); prepack(); } };
-  fr.addEventListener('pointerup', endDrag);
-  fr.addEventListener('pointercancel', endDrag);
+  const endPtr = e=>{
+    PTR.delete(e.pointerId);
+    if(PTR.size < 2) pinch0 = 0;
+    if(PTR.size === 0 && moved >= 4){
+      moved = 0; save(); drawPhotoSheet(); drawPreview(); prepack();
+    }
+  };
+  fr.addEventListener('pointerup', endPtr);
+  fr.addEventListener('pointercancel', endPtr);
 
   const hint=$('pho-hint');
   if(hint) hint.textContent = p.off
     ? 'This one stays home. Your journal keeps it either way.'
-    : (p.whole ? 'The whole photo, on white. Move it where you want it.'
-               : 'Move the photo around to center it. Nothing outside the edge goes.');
+    : (p.whole ? 'The whole photo, on white. Move it, or pinch to zoom.'
+               : 'Move the photo around to center it, or pinch to zoom.');
 
   const lab=$('pho-lab'); if(lab) lab.classList.toggle('hide', !!p.off || !markFor(a));
   const pick=$('pho-pick');
@@ -11670,7 +11796,7 @@ function drawPhotoSheet(){
       const f=document.createElement('button');
       f.type='button'; f.className='ghost';
       f.textContent = p.whole ? 'Fill the frame' : 'Show the whole photo';
-      f.onclick=()=>{ p.whole=!p.whole; p.pos={x:0,y:0};
+      f.onclick=()=>{ p.whole=!p.whole; p.pos={x:0,y:0}; p.zoom=1;
         save(); drawPhotoSheet(); drawPreview(); prepack(); };
       act.appendChild(f);
     }
@@ -11699,7 +11825,78 @@ function dataToFile(dataUrl, name){
    you answer can be changed afterwards on that same screen. It used to do none
    of those four things.                                                      */
 let LEFT_FOR = null;
+let TOAST_T = 0;
+function toast(msg, opts){
+  const bar = $('toastbar'); if(!bar) return;
+  const o = opts || {};
+  bar.querySelector('.msg').textContent = msg;
+  bar.classList.toggle('coral', !!o.coral);
+  const lit = o.lit ? document.querySelector(o.lit) : null;
+  bar.style.bottom = '';
+  clearTimeout(TOAST_T);
+
+  /* POINTING AT SOMETHING HAS TWO HALVES AND THE FIRST RENDER GOT BOTH WRONG.
+     The bar sat in its usual place above the tab bar, which is exactly where the
+     photographs are, so it covered what it was pointing at. And when the strip
+     was below the fold — which it was, 150px past the bottom — the arithmetic
+     went negative and posted the bar off the bottom of the screen entirely,
+     while the highlight lit up something nobody could see.
+
+     So: bring the thing into view FIRST, let the scrolling settle, and only then
+     measure and stand the bar just above it. If there is still no room, it goes
+     back to its usual place rather than somewhere impossible. */
+  const place = ()=>{
+    if(lit){
+      const r = lit.getBoundingClientRect();
+      const above = window.innerHeight - r.top + 14;
+      if(r.top > 110 && above > 0 && above < window.innerHeight - 60){
+        bar.style.bottom = Math.round(above) + 'px';
+      }
+      lit.classList.add('lit');
+    }
+    bar.classList.add('up');
+    TOAST_T = setTimeout(()=>{
+      bar.classList.remove('up');
+      bar.style.bottom = '';
+      if(lit) lit.classList.remove('lit');
+    }, o.ms || 6000);
+  };
+
+  if(lit){
+    const r = lit.getBoundingClientRect();
+    const onScreen = r.top > 110 && r.bottom < window.innerHeight - 20;
+    if(!onScreen){
+      try{ lit.scrollIntoView({ block:'center', behavior:'smooth' }); }
+      catch(e){ lit.scrollIntoView(); }
+      setTimeout(place, 480);
+      return;
+    }
+  }
+  place();
+}
+function dropToast(){ const b=$('toastbar'); if(b){ b.classList.remove('up'); b.style.bottom=''; }
+  clearTimeout(TOAST_T);
+  document.querySelectorAll('.photos.lit').forEach(el=>el.classList.remove('lit')); }
+
 function markLeaving(a){ LEFT_FOR = { act:a, plat:CM_PLAT, at:Date.now() }; }
+/* ── THE REMINDER ON THE WAY OUT ─────────────────────────────────
+   G, 17 September, ruled B: "Your words are copied. Paste them into your
+   caption." His sentence, with the noun the rest of that screen already uses.
+
+   IT IS NOT THE SAME ON BOTH, and that is the honest part. To Instagram the app
+   sends the picture alone, because Instagram will not let any app fill its
+   caption box. To FACEBOOK the app already hands the words over with the
+   picture — it always has — so telling somebody to paste what is already there
+   would be teaching them a chore they do not have. Facebook is told what
+   happened instead. If Facebook turns out to drop them, this line changes and
+   nothing else does. */
+function pasteToast(plat){
+  if(plat === 'private') return;
+  const line = (plat === 'facebook')
+    ? 'Your words went over with it. If the box comes up empty, they are copied — paste them in.'
+    : 'Your words are copied. Paste them into your caption.';
+  toast(line);
+}
 function askIfPosted(){
   if(!LEFT_FOR) return;
   const { act, plat } = LEFT_FOR; LEFT_FOR = null;
@@ -11710,9 +11907,14 @@ function askIfPosted(){
   dlg({ title: sent ? 'Did you send it?' : 'Did it go up?',
         note: 'Act '+act.no+(sent ? ', as a message.' : ' on '+platLabel(plat)+'.'),
         ok: sent ? 'Yes, sent' : 'Yes, it is up', cancel:'Not yet',
+        /* HIS SEQUENCE, 17 September. Yes is the key that closes this window:
+           off the post page, onto Your year, the moment plays with nothing on
+           top of it and nothing to scroll, and the question comes after. */
         then:()=>{ act.posted = act.posted||{}; act.posted[plat]=true;
                    dropPasteBar(); save(); drawCompose();
-                   setTimeout(()=>askEval(act), 350); } });
+                   CEL_AFTER = ()=>askEval(act);
+                   go('home');
+                   setTimeout(celTick, 280); } });
 }
 document.addEventListener('visibilitychange', ()=>{
   if(document.hidden || !LEFT_FOR) return;
@@ -12208,7 +12410,28 @@ const CREED = ['PUT A LITTLE','MORE GOOD INTO','THE WORLD.'];
 
    Nothing inside the card moves, ever. The square remains the master for the
    book, the journal, the screen and print. */
-const POST_FRAME = { w:1080, h:1920 };
+/* ── CORRECTION, 17 September, and it is G's ───────────────────────────
+   "What happened to the square post? It should only be tall for the posts that
+   require to be tall. That's not default tall."
+
+   HE IS RIGHT AND THE PREVIOUS NOTE HERE WAS WRONG. It argued that one tall
+   picture satisfied ruling S because a square crop hands the card back. It does
+   hand the card back — that part was measured and is still true — but it made
+   EVERY post tall by default, and S said the feed stays square. Satisfying a
+   ruling by outcome is not the same as obeying it. A square post stopped
+   existing as a thing in its own right, and he noticed within the hour.
+
+   So the square is the default again and tall is chosen, not assumed:
+     post  — 1080x1080, the master, and what almost everything gets;
+     story — 1080x1920, only when he says this one is a story.
+   Chosen per act on the Post it page, because it describes the whole post
+   rather than one photograph. */
+const POST_SHAPES = { post:{ w:1080, h:1080 }, story:{ w:1080, h:1920 } };
+const SHAPE_DEFAULT = 'post';
+function postFrame(a){
+  const k = (a && a.shape) || SHAPE_DEFAULT;
+  return POST_SHAPES[k] || POST_SHAPES.post;
+}
 
 /* Instagram makes every picture in one post share the shape of the first, so a
    phone snapshot beside the square card is cropped BY INSTAGRAM — a second cut
@@ -12497,27 +12720,60 @@ function drawMark(g, shape, mk){
      whole — the entire photograph on white, and he slides it where he wants it.
    The white here is not the acre of it he rejected; it is the margin a wide
    picture needs to survive a tall frame at all. */
-function photoOnto(img, shape, pos, mk, whole){
+function photoOnto(img, shape, p, mk){
   const W = shape.w, H = shape.h;
   const c = document.createElement('canvas');
   c.width = W; c.height = H;
   const g = c.getContext('2d');
   g.fillStyle = '#FFFFFF'; g.fillRect(0, 0, W, H);
-  const m  = whole ? W * 0.045 : 0;                // the card's own margin, when it shows
-  const s  = whole ? Math.min((W - m*2) / img.width, (H - m*2) / img.height)
-                   : Math.max(W / img.width, H / img.height);
-  const dw = img.width * s, dh = img.height * s;
-  const ox = clampPos(pos && pos.x), oy = clampPos(pos && pos.y);
-  /* the same gesture either way: dragging moves the picture. Filling, it travels
-     across what is cropped; whole, it travels through the white beside it. */
-  const x  = Math.round((W - dw)/2 + ox * Math.abs(dw - W));
-  const y  = Math.round((H - dh)/2 + oy * Math.abs(dh - H));
-  g.drawImage(img, x, y, Math.round(dw), Math.round(dh));
+  const b = photoBox(img.width, img.height, W, H, p || {});
+  g.drawImage(img, Math.round(b.x), Math.round(b.y), Math.round(b.dw), Math.round(b.dh));
   drawMark(g, shape, mk);
   return c;
 }
 function clampPos(v){ v = +v; if(!isFinite(v)) return 0;
   return v < -0.5 ? -0.5 : v > 0.5 ? 0.5 : v; }
+function clampZoom(v){ v = +v; if(!isFinite(v) || v < 1) return 1;
+  return v > 4 ? 4 : v; }
+/* lay a photograph into a box on screen using the SAME arithmetic the canvas
+   uses, in pixels rather than object-position, so the two cannot disagree */
+function layoutPhoto(im, box, p){
+  const W = box.clientWidth, H = box.clientHeight;
+  const iw = im.naturalWidth || 0, ih = im.naturalHeight || 0;
+  if(!W || !H || !iw || !ih) return false;
+  const b = photoBox(iw, ih, W, H, p || {});
+  im.style.position = 'absolute';
+  im.style.objectFit = 'fill';
+  im.style.maxWidth = 'none';
+  im.style.width  = b.dw + 'px';
+  im.style.height = b.dh + 'px';
+  im.style.left   = Math.round(b.x) + 'px';
+  im.style.top    = Math.round(b.y) + 'px';
+  return true;
+}
+function layoutWhenReady(im, box, p){
+  const go = ()=>layoutPhoto(im, box, p);
+  if(im.complete && im.naturalWidth) go();
+  else im.addEventListener('load', go, { once:true });
+  requestAnimationFrame(go);
+  return go;
+}
+/* WHERE A PHOTOGRAPH SITS IN ITS FRAME. One function, used by the canvas that
+   makes the real picture AND by both previews on screen, so what is shown and
+   what is sent cannot drift apart — which is precisely the trap the 14
+   September round recorded and this file has fallen into once already. */
+function photoBox(iw, ih, W, H, p){
+  const whole = !!(p && p.whole);
+  const m = whole ? W * 0.045 : 0;               // the card's own margin, when it shows
+  const base = whole ? Math.min((W - m*2)/iw, (H - m*2)/ih)
+                     : Math.max(W/iw, H/ih);
+  const s = base * clampZoom(p && p.zoom);
+  const dw = iw * s, dh = ih * s;
+  const ox = clampPos(p && p.pos && p.pos.x), oy = clampPos(p && p.pos && p.pos.y);
+  return { dw, dh,
+           x: (W - dw)/2 + ox * Math.abs(dw - W),
+           y: (H - dh)/2 + oy * Math.abs(dh - H) };
+}
 
 function loadImg(url){
   return new Promise((res, rej) => {
@@ -12528,9 +12784,9 @@ function loadImg(url){
   });
 }
 
-async function framedPhotoFile(dataUrl, name, shape, pos, mk, whole){
+async function framedPhotoFile(dataUrl, name, shape, p, mk){
   const im = await loadImg(dataUrl);
-  const c  = photoOnto(im, shape, pos, mk, whole);
+  const c  = photoOnto(im, shape, p, mk);
   const blob = await new Promise(res => c.toBlob(res, 'image/png', 0.95));
   return new File([blob], name, { type:'image/png' });
 }
@@ -12539,7 +12795,7 @@ async function framedPhotoFile(dataUrl, name, shape, pos, mk, whole){
    its fonts, and a destination switched during that await would otherwise frame
    this card for the destination it is no longer going to. */
 function cardBlob(a, W, shape){
-  const sh = shape || POST_FRAME;
+  const sh = shape || postFrame(a);
   return renderCard(a, W).then(c => new Promise(res =>
     frameOnto(c, sh).toBlob(res, 'image/png', 0.95)));
 }
@@ -12854,6 +13110,12 @@ function bkupBar(){
      anywhere stopped it. The offer also landed across a row of finished squares
      at the moment somebody was looking at them. So it waits: if the nudge is up,
      come back when it has gone. */
+  /* AND THE SAME FOR THE NEW ONE. S9B is about two bars on screen at once, and
+     the toast added on 17 September is a third bar it had never heard of — it
+     landed across the backup offer on the first render. The ruling governs the
+     family, not the two members it happened to have when it was made. */
+  const tst = $('toastbar');
+  if(tst && tst.classList.contains('up')){ setTimeout(bkupBar, 4000); return; }
   const nudge = $('calnudge');
   if(nudge && nudge.classList.contains('on')){
     /* THE FUNCTION IS bkupBar. It was written here as showBkupBar in 5J and

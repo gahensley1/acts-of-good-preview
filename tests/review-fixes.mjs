@@ -213,8 +213,19 @@ head('the small ones');
                 not a cache key entry (L64). The rule worth holding moved: the
                 ONE frame must give the card back untouched wherever a platform
                 crops it. That is what this contests now. */
+             /* G'S CORRECTION, 17 Sept: the square is the default and tall is
+                chosen. This block used to assert the frame WAS tall. */
+             shapes: (()=>{
+               if(SHAPE_DEFAULT !== 'post') return 'default is '+SHAPE_DEFAULT;
+               const q = POST_SHAPES.post, t = POST_SHAPES.story;
+               if(q.w!==1080 || q.h!==1080) return 'post is '+q.w+'x'+q.h;
+               if(t.w!==1080 || t.h!==1920) return 'story is '+t.w+'x'+t.h;
+               const d = postFrame({}), st = postFrame({shape:'story'});
+               if(d.h!==1080) return 'an act with no choice is not square';
+               if(st.h!==1920) return 'an act told story is not tall';
+               return 'square by default, tall when told';
+             })(),
              frame: (()=>{
-               if(POST_FRAME.w!==1080 || POST_FRAME.h!==1920) return 'frame is '+POST_FRAME.w+'x'+POST_FRAME.h;
                const src=document.createElement('canvas'); src.width=1080; src.height=1080;
                const g=src.getContext('2d');
                g.fillStyle='#fff'; g.fillRect(0,0,1080,1080);
@@ -222,7 +233,14 @@ head('the small ones');
                g.fillRect(0,0,1080,4); g.fillRect(0,1076,1080,4);
                g.fillRect(0,0,4,1080); g.fillRect(1076,0,4,1080);
                g.fillStyle='#E4572E'; g.fillRect(500,500,80,80);
-               const framed = frameOnto(src, POST_FRAME);
+               /* a SQUARE post must not move the card at all */
+               const sq = frameOnto(src, POST_SHAPES.post);
+               const S1=src.getContext('2d').getImageData(0,0,1080,1080).data;
+               const S2=sq.getContext('2d').getImageData(0,0,1080,1080).data;
+               for(let i=0;i<S1.length;i+=4)
+                 if(S1[i]!==S2[i]||S1[i+1]!==S2[i+1]||S1[i+2]!==S2[i+2]) return 'the square frame moved the card';
+               /* and a STORY still gives the card back when a feed crops it square */
+               const framed = frameOnto(src, POST_SHAPES.story);
                if(framed.width!==1080 || framed.height!==1920)
                  return 'framed '+framed.width+'x'+framed.height;
                const cut=document.createElement('canvas'); cut.width=1080; cut.height=1080;
@@ -240,7 +258,7 @@ head('the small ones');
                const g=src.getContext('2d');
                g.fillStyle='#fff'; g.fillRect(0,0,1080,1080);
                g.fillStyle='#000'; g.fillRect(0,0,1080,4); g.fillRect(0,1076,1080,4);
-               const framed = frameOnto(src, POST_FRAME);
+               const framed = frameOnto(src, POST_SHAPES.story);
                const h=1350, top=Math.round((1920-h)/2);
                const cut=document.createElement('canvas'); cut.width=1080; cut.height=h;
                cut.getContext('2d').drawImage(framed, 0, -top);
@@ -265,7 +283,10 @@ head('the small ones');
   });
   ck('the number on a finished square has a shadow', r.shadow===true, r);
   ck('the credits keep their paragraph breaks', r.ws==='pre-line' && r.breaks===true, r);
-  ck('the square crop of the one picture gives the card back exactly', r.frame==='identical', r);
+  ck('the square is the default and tall is chosen, not assumed',
+     r.shapes==='square by default, tall when told', r);
+  ck('the square frame leaves the card alone, and a story crops back to it',
+     r.frame==='identical', r);
   ck('and a tall feed crop never reaches the card', /^clear:/.test(r.tallCrop), r);
   ck('the card cache key says which destination it was packed for', r.dest==='varies', r);
   }
@@ -317,11 +338,16 @@ head('the photograph moves inside the frame — G, 17 September');
     const after = await p.evaluate(()=>{ const a=S.acts[S.acts.length-1];
       const im=document.querySelector('#cm-prev .photos > * img');
       return { x:((a.photos[0]||{}).pos||{}).x||0, off:!!(a.photos[0]||{}).off,
-               objPos: im?im.style.objectPosition:'' }; });
+               /* L103. This read objectPosition, which the tile no longer uses:
+                  both previews are laid out in pixels now, with the same
+                  arithmetic the canvas uses, so they cannot drift. The rule
+                  being held is unchanged — the tile shows where it was moved
+                  to — so it is now read where the answer actually lives. */
+               placed: im ? (im.style.left||'') : '' }; });
     /* L109 — contest the exact thing: the position moved, in the direction the
        finger went, and the drag did NOT fire the tap that leaves a photo out. */
     ck('dragging a photo moves the picture inside the frame', after.x > before.x + 0.02, {before,after});
-    ck('and the tile shows where it was moved to', /%/.test(after.objPos), after);
+    ck('and the tile shows where it was moved to', /px$/.test(after.placed), after);
     ck('and a drag does not leave the photo out by accident', after.off===false, after);
     /* the drag redraws the strip, so the node under the pointer is a new one.
        Find it again before tapping, or the tap lands on nothing. */
@@ -391,10 +417,10 @@ head('the watermark, and his picker — G, 17 September');
     /* it is burned into the picture that LEAVES, not drawn on the preview */
     const img = document.createElement('canvas'); img.width=1600; img.height=900;
     const ig = img.getContext('2d'); ig.fillStyle='#101010'; ig.fillRect(0,0,1600,900);
-    const bare   = photoOnto(img, POST_FRAME, null, null);
-    const marked = photoOnto(img, POST_FRAME, null, markFor(a));
-    const A = bare.getContext('2d').getImageData(0,0,1080,1920).data;
-    const B = marked.getContext('2d').getImageData(0,0,1080,1920).data;
+    const bare   = photoOnto(img, POST_SHAPES.post, {}, null);
+    const marked = photoOnto(img, POST_SHAPES.post, {}, markFor(a));
+    const A = bare.getContext('2d').getImageData(0,0,1080,1080).data;
+    const B = marked.getContext('2d').getImageData(0,0,1080,1080).data;
     let diff=0; for(let i=0;i<A.length;i+=4) if(A[i]!==B[i]||A[i+1]!==B[i+1]||A[i+2]!==B[i+2]) diff++;
     out.burned = diff;
 
@@ -459,10 +485,10 @@ head('the watermark, and his picker — G, 17 September');
     a.mark='none'; save();
     const img=document.createElement('canvas'); img.width=1600; img.height=900;
     const g=img.getContext('2d'); g.fillStyle='#101010'; g.fillRect(0,0,1600,900);
-    const bare = photoOnto(img, POST_FRAME, null, null);
-    const asked= photoOnto(img, POST_FRAME, null, markFor(a));
-    const A=bare.getContext('2d').getImageData(0,0,1080,1920).data;
-    const B=asked.getContext('2d').getImageData(0,0,1080,1920).data;
+    const bare = photoOnto(img, POST_SHAPES.post, {}, null);
+    const asked= photoOnto(img, POST_SHAPES.post, {}, markFor(a));
+    const A=bare.getContext('2d').getImageData(0,0,1080,1080).data;
+    const B=asked.getContext('2d').getImageData(0,0,1080,1080).data;
     let diff=0; for(let i=0;i<A.length;i+=4) if(A[i]!==B[i]||A[i+1]!==B[i+1]||A[i+2]!==B[i+2]) diff++;
     drawPreview();
     return { markFor: markFor(a), diff, onTile: !!document.querySelector('#cm-prev .photos .mk') };
@@ -489,8 +515,9 @@ head('the watermark, and his picker — G, 17 September');
         if(Math.abs(d[i]-rgb[0])<40 && Math.abs(d[i+1]-rgb[1])<40 && Math.abs(d[i+2]-rgb[2])<40) return true;
       return false;
     }
-    const filled = photoOnto(img, POST_FRAME, null, null, false);
-    const whole  = photoOnto(img, POST_FRAME, null, null, true);
+    /* a TALL frame is where a wide photograph really suffers, so test it there */
+    const filled = photoOnto(img, POST_SHAPES.story, { whole:false }, null);
+    const whole  = photoOnto(img, POST_SHAPES.story, { whole:true  }, null);
     return { fillKeepsEnds: has(filled,[255,0,0]) && has(filled,[0,255,0]),
              wholeKeepsEnds: has(whole,[255,0,0]) && has(whole,[0,255,0]) };
   });
@@ -505,6 +532,120 @@ head('the watermark, and his picker — G, 17 September');
   await p.reload(); await p.waitForTimeout(1600);
   const keptWhole = await p.evaluate(()=>!!(S.acts[S.acts.length-1].photos[0]||{}).whole);
   ck('and that survives a reload too (BOTH HALVES)', keptWhole===true, keptWhole);
+  }
+
+
+head('yes closes the window, the moment plays locked, the question comes after — G, 17 Sept');
+{ const {ctx,p}=await app();
+
+  /* the lock itself: held while the moment runs, let go when the confetti ends,
+     and what is owed is paid once and only once (L109 — contest each half) */
+  const lock = await p.evaluate(async ()=>{
+    let paid = 0;
+    CEL_AFTER = ()=>{ paid++; };
+    celStart();
+    const during = { overflow: document.body.style.overflow, paid };
+    acStop();                                  // the last piece of confetti has gone
+    await new Promise(r=>setTimeout(r, 700));
+    return { during, after: { overflow: document.body.style.overflow, paid } };
+  });
+  ck('the page is held still while the moment runs', lock.during.overflow==='hidden', lock);
+  ck('and the question does not arrive during it', lock.during.paid===0, lock);
+  ck('the page is let go when the confetti ends', lock.after.overflow==='', lock);
+  ck('and the question arrives exactly once, after it', lock.after.paid===1, lock);
+
+  /* a moment that cannot play still owes the question */
+  const owed = await p.evaluate(async ()=>{
+    let paid = 0;
+    CEL_AFTER = ()=>{ paid++; };
+    CEL_DUE = 0;                               // nothing owed a moment
+    celTick();
+    await new Promise(r=>setTimeout(r, 700));
+    return { paid, overflow: document.body.style.overflow };
+  });
+  ck('a moment that never plays still lets the question through', owed.paid===1, owed);
+  ck('and never leaves the page locked', owed.overflow==='', owed);
+
+  /* and the real thing, by tapping (L106): yes must take you off the post page */
+  await p.evaluate(()=>{
+    const a = S.acts[S.acts.length-1];
+    a.posted = {}; S.current = a; CM_PLAT = 'instagram';
+    try{ endTabTour(); }catch(e){}
+    go('home'); openCompose(); try{ sheet(null); }catch(e){}
+    markLeaving(a);
+    LEFT_FOR.at = Date.now() - 9000;           // long enough that it counts as having gone
+    askIfPosted();
+  });
+  await p.waitForTimeout(500);
+  const asked = await p.evaluate(()=>
+    [...document.querySelectorAll('button')].some(b=>/yes, it is up/i.test(b.textContent)));
+  ck('it asks whether it went up', asked===true, asked);
+  await p.evaluate(()=>{
+    const b=[...document.querySelectorAll('button')].find(x=>/yes, it is up/i.test(x.textContent));
+    if(b) b.click(); });
+  /* the instant it is pressed: off the post page, and the question NOT yet up */
+  await p.waitForTimeout(140);
+  const straightAway = await p.evaluate(()=>({
+    screen: SCREEN,
+    evalUp: !document.getElementById('sheet-eval').classList.contains('hide')
+  }));
+  ck('yes takes you off the post page and onto your year', straightAway.screen==='home', straightAway);
+  ck('and the question is not up while the moment has the screen', straightAway.evalUp===false, straightAway);
+  /* and then, a beat later, it arrives */
+  await p.waitForTimeout(1200);
+  const after = await p.evaluate(()=>({
+    evalUp: !document.getElementById('sheet-eval').classList.contains('hide'),
+    overflow: document.body.style.overflow
+  }));
+  ck('the question arrives once the moment is done', after.evalUp===true, after);
+  ck('and the page is not left locked', after.overflow==='', after);
+  }
+
+
+head('the toast, the light it casts, and the one-bar rule — G, 17 Sept');
+{ const {ctx,p}=await app();
+  const t = await p.evaluate(async ()=>{
+    dropToast();
+    /* S9B: two bars must never be on screen together. The toast is the third
+       member of that family and the rule has to reach it. */
+    toast('a test', { coral:true, ms:4000 });
+    await new Promise(r=>setTimeout(r, 200));
+    const barUp = document.getElementById('toastbar').classList.contains('up');
+    BKUPBAR_SHOWN = false; S.bkupToldAt = 0; S.bkupAt = 0;
+    bkupBar();
+    await new Promise(r=>setTimeout(r, 200));
+    const both = document.getElementById('bkupbar').classList.contains('up') && barUp;
+    dropToast();
+    return { barUp, both,
+             coral: document.getElementById('toastbar').classList.contains('coral') };
+  });
+  ck('the toast comes up', t.barUp===true, t);
+  ck('and the backup bar does not land on top of it', t.both===false, t);
+
+  const lightsUp = await p.evaluate(async ()=>{
+    dropToast();
+    /* the probe has to be somewhere REALLY ON THE SCREEN. Appended to a screen
+       that happened to be hidden it measured zero, and the check failed for a
+       reason that had nothing to do with the rule. */
+    const box = document.createElement('div');
+    box.className = 'photos';
+    box.id = 'litprobe';
+    box.style.cssText = 'position:fixed;left:20px;top:520px;width:200px;height:60px;z-index:5';
+    document.body.appendChild(box);
+    toast('pointing', { coral:true, lit:'#litprobe', ms:3000 });
+    await new Promise(r=>setTimeout(r, 900));
+    const bar = document.getElementById('toastbar').getBoundingClientRect();
+    const tgt = box.getBoundingClientRect();
+    const out = { lit: box.classList.contains('lit'),
+                  /* it must not be sitting on top of what it points at */
+                  clear: bar.bottom <= tgt.top + 2,
+                  onScreen: bar.top > 0 && bar.bottom < window.innerHeight };
+    dropToast(); box.remove();
+    return out;
+  });
+  ck('it lights up the thing it is talking about', lightsUp.lit===true, lightsUp);
+  ck('and stands clear of it rather than covering it', lightsUp.clear===true, lightsUp);
+  ck('and never posts itself off the screen', lightsUp.onScreen===true, lightsUp);
   }
 
 console.log('\n'+pass+' passed, '+fail+' failed, console/page errors: '+errs.length);
