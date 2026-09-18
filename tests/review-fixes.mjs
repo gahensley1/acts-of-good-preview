@@ -332,8 +332,26 @@ head('the photograph moves inside the frame — G, 17 September');
     const box2 = tile2 ? await tile2.boundingBox() : {x:cx,y:cy,width:1,height:1};
     await p.mouse.click(box2.x+box2.width/2, box2.y+box2.height/2);
     await p.waitForTimeout(400);
+    /* L103. This asserted that a tap left the photo out. A tap now OPENS the
+       photograph's own box (G, 17 Sept) and leaving it out is a labelled button
+       in there. The rule worth holding did not change — a drag must not fire the
+       tap, and there must still be a way to stop a photo being posted — so both
+       halves are contested here instead. */
+    const opened = await p.evaluate(()=>!document.getElementById('sheet-photo').classList.contains('hide'));
+    ck('a tap opens the photograph\u2019s own box', opened===true, opened);
+    const big = await p.evaluate(()=>{
+      const f=document.getElementById('pho-frame');
+      const r=f?f.getBoundingClientRect():null;
+      return r ? Math.round(r.width) : 0; });
+    ck('and it is big enough to judge, not a thumbnail', big > 150, big);
+    await p.evaluate(()=>{
+      const b=[...document.querySelectorAll('#pho-act button')]
+        .find(x=>/leave it out/i.test(x.textContent)); if(b) b.click(); });
+    await p.waitForTimeout(350);
     const tapped = await p.evaluate(()=>!!(S.acts[S.acts.length-1].photos[0]||{}).off);
-    ck('a tap still leaves the photo out', tapped===true, tapped);
+    ck('and the box can still stop a photo being posted', tapped===true, tapped);
+    await p.evaluate(()=>sheet(null));
+    await p.waitForTimeout(200);
     await p.evaluate(()=>window.__stored);
     await p.reload(); await p.waitForTimeout(1600);
     const back = await p.evaluate(()=>{ const a=S.acts[S.acts.length-1];
@@ -420,11 +438,16 @@ head('the watermark, and his picker — G, 17 September');
     drawPreview();
   });
   await p.waitForTimeout(700);
-  const squares = await p.evaluate(()=>document.querySelectorAll('.mkpick button').length);
+  /* the picker lives in the photograph's box now, so open one to reach it */
+  await p.evaluate(()=>openPhoto(0));
+  await p.waitForTimeout(350);
+  const squares = await p.evaluate(()=>document.querySelectorAll('#pho-pick button').length);
   ck('the picker shows four squares - three colours and none', squares===4, squares);
+  const onlyOne = await p.evaluate(()=>document.querySelectorAll('.mkpick').length);
+  ck('and there is only one picker in the app, not two', onlyOne===1, onlyOne);
   const shown = await p.evaluate(()=>!!document.querySelector('#cm-prev .photos .mk'));
   ck('and the mark is shown on the photo tile, where it will be', shown===true, shown);
-  await p.evaluate(()=>document.querySelectorAll('.mkpick button')[2].click());
+  await p.evaluate(()=>document.querySelectorAll('#pho-pick button')[2].click());
   await p.waitForTimeout(400);
   await p.evaluate(()=>window.__stored2);
   await p.reload(); await p.waitForTimeout(1600);
@@ -450,6 +473,38 @@ head('the watermark, and his picker — G, 17 September');
   await p.reload(); await p.waitForTimeout(1600);
   const keptNone = await p.evaluate(()=>S.acts[S.acts.length-1].mark);
   ck('and none survives a reload too', keptNone==='none', keptNone);
+
+  /* FILL OR WHOLE — his ruling, and the one that rescues a wide photograph */
+  await p.evaluate(()=>{ const a=S.acts[S.acts.length-1]; a.mark='coral'; save(); openPhoto(0); });
+  await p.waitForTimeout(350);
+  const wide = await p.evaluate(()=>{
+    const img=document.createElement('canvas'); img.width=1600; img.height=900;
+    const g=img.getContext('2d'); g.fillStyle='#2b6cb0'; g.fillRect(0,0,1600,900);
+    /* a landmark at each end: filling a tall frame must lose them, whole must keep them */
+    g.fillStyle='#ff0000'; g.fillRect(0,400,60,100);
+    g.fillStyle='#00ff00'; g.fillRect(1540,400,60,100);
+    function has(cv,rgb){
+      const d=cv.getContext('2d').getImageData(0,0,cv.width,cv.height).data;
+      for(let i=0;i<d.length;i+=4)
+        if(Math.abs(d[i]-rgb[0])<40 && Math.abs(d[i+1]-rgb[1])<40 && Math.abs(d[i+2]-rgb[2])<40) return true;
+      return false;
+    }
+    const filled = photoOnto(img, POST_FRAME, null, null, false);
+    const whole  = photoOnto(img, POST_FRAME, null, null, true);
+    return { fillKeepsEnds: has(filled,[255,0,0]) && has(filled,[0,255,0]),
+             wholeKeepsEnds: has(whole,[255,0,0]) && has(whole,[0,255,0]) };
+  });
+  ck('filling a tall frame does cut the ends off a wide photo', wide.fillKeepsEnds===false, wide);
+  ck('and showing it whole keeps both ends', wide.wholeKeepsEnds===true, wide);
+  const btn = await p.evaluate(()=>{
+    const b=[...document.querySelectorAll('#pho-act button')].find(x=>/whole photo/i.test(x.textContent));
+    if(!b) return 'no button'; b.click(); return 'clicked'; });
+  await p.waitForTimeout(350);
+  const setWhole = await p.evaluate(()=>!!(S.acts[S.acts.length-1].photos[0]||{}).whole);
+  ck('the box can switch a photo to whole-on-white', btn==='clicked' && setWhole===true, {btn,setWhole});
+  await p.reload(); await p.waitForTimeout(1600);
+  const keptWhole = await p.evaluate(()=>!!(S.acts[S.acts.length-1].photos[0]||{}).whole);
+  ck('and that survives a reload too (BOTH HALVES)', keptWhole===true, keptWhole);
   }
 
 console.log('\n'+pass+' passed, '+fail+' failed, console/page errors: '+errs.length);

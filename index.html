@@ -684,7 +684,18 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
   text-shadow:none;white-space:nowrap}
 .photos .ph-tile .mk b{display:block;font-weight:700}
 .photos .ph-tile .mk i{display:block;font-weight:600;font-style:normal;font-size:.75em}
-/* the picker: three squares, his design */
+/* the photo, big enough to judge — the real frame, the real crop, the real mark */
+.phbig{position:relative;width:100%;max-width:236px;margin:0 auto;aspect-ratio:9/16;
+  border-radius:12px;overflow:hidden;border:1px solid var(--line);background:#fff;
+  container-type:inline-size;touch-action:none;cursor:grab}
+.phbig:active{cursor:grabbing}
+.phbig img{width:100%;height:100%;object-fit:cover;display:block}
+.phbig .mk{position:absolute;left:4.5%;bottom:4.5%;text-align:left;line-height:1.15;
+  pointer-events:none;font-weight:700;font-size:3.6cqw;white-space:nowrap}
+.phbig .mk b{display:block;font-weight:700}
+.phbig .mk i{display:block;font-weight:600;font-style:normal;font-size:.75em}
+.phbig.out{opacity:.4}
+/* the picker: squares, his design */
 .mkpick{display:flex;gap:9px;align-items:center;margin:0}
 .mkpick button{width:30px;height:30px;border-radius:9px;padding:0;
   border:1px solid var(--line);background:none;cursor:pointer}
@@ -1649,7 +1660,7 @@ select.pick::-ms-expand{display:none}
     <!-- BUILD MARK — dev only, delete this div when the app ships -->
     <!-- IT HAD SAID 5M SINCE 15 SEPTEMBER, eight builds back, and every
          feedback mail sent from the app quoted it. Move it with the build. -->
-    <div id="buildtag">BUILD 6R</div>
+    <div id="buildtag">BUILD 6S</div>
   </div>
 </section>
 
@@ -2376,6 +2387,16 @@ What you actually did. Why it mattered. Say the awkward parts."></textarea>
   <div class="askbar" id="pv-act" style="justify-content:center;margin-top:14px"></div>
 </div></div>
 
+<div class="sheet hide" id="sheet-photo" role="dialog" aria-modal="true" aria-labelledby="pho-h3"><div class="panel">
+  <button class="sheetback" onclick="sheet(null)">&lsaquo; Done</button>
+  <h3 id="pho-h3">This photo</h3>
+  <div class="phbig" id="pho-frame"></div>
+  <p class="askhint" id="pho-hint" style="padding-left:0;text-align:center;margin:10px 0 0"></p>
+  <p class="note" id="pho-lab" style="margin:14px 0 7px">The mark on this photo.</p>
+  <div class="mkpick" id="pho-pick" role="group" aria-label="The colour of the mark on your photos"></div>
+  <div class="askbar" id="pho-act" style="justify-content:center;margin-top:16px"></div>
+</div></div>
+
 <div class="sheet hide" id="sheet-spend" role="dialog" aria-modal="true" aria-labelledby="spend-h3"><div class="panel">
   <button class="sheetback" onclick="sheet(null)">‹ Done</button>
   <h3 id="spend-h3">The act tally</h3>
@@ -2822,7 +2843,10 @@ function serialise(){
                           /* where they moved each picture to inside the frame.
                              Written here AND read in load(), which is the half
                              this file has forgotten three times. */
-                          poss:(a.photos||[]).map(p=>(p&&p.pos)?[+p.pos.x||0,+p.pos.y||0]:0) }))
+                          poss:(a.photos||[]).map(p=>(p&&p.pos)?[+p.pos.x||0,+p.pos.y||0]:0),
+                          /* whole-on-white rather than filled. Named here AND
+                             read in load() — invariant 1. */
+                          whls:(a.photos||[]).map(p=>p&&p.whole?1:0) }))
   };
 }
 /* ── THE LAST FEW SAVES, NOT ONLY THE CURRENT ONE ──────────────────────────
@@ -3298,6 +3322,7 @@ async function load(){
     (Array.isArray(a.offs)?a.offs:[]).forEach((v,i)=>{ if(v && photos[i]) photos[i].off=true; });
     (Array.isArray(a.poss)?a.poss:[]).forEach((v,i)=>{
       if(Array.isArray(v) && photos[i]) photos[i].pos = { x:+v[0]||0, y:+v[1]||0 }; });
+    (Array.isArray(a.whls)?a.whls:[]).forEach((v,i)=>{ if(v && photos[i]) photos[i].whole=true; });
     /* ghost acts with no name, no number and no square are noise, not journal */
     if(!S.acts[S.acts.length-1].t && !slotOf(S.acts[S.acts.length-1]))
       S.acts.pop();
@@ -11185,7 +11210,8 @@ function packKey(a){
      a photograph redrew nothing: the key was unchanged, the cache answered, and
      the old framing shipped. Same family as the three that were missing before. */
   const shot = (a.photos||[]).map(p=>(p&&p.id)+(p&&p.off?'!':'')+
-                 (p&&p.pos?('@'+(+p.pos.x||0).toFixed(3)+','+(+p.pos.y||0).toFixed(3)):'')||'').join(',');
+                 (p&&p.pos?('@'+(+p.pos.x||0).toFixed(3)+','+(+p.pos.y||0).toFixed(3)):'')+
+                 (p&&p.whole?'~w':'')||'').join(',');
   /* EVERYTHING THE CARD DRAWS FROM, and it has to mean everything.
      The goal was here; the hand and the words on the mark were not. So
      changing your skin tone, or editing "in year fifty", redrew every card in
@@ -11252,7 +11278,7 @@ async function prepack(){
          margin the card's own ink keeps. Facebook does not do it, so a
          photograph going there is left exactly as it is and stays a JPEG. */
       if(got.url) files.push(FRAME_PHOTOS[plat]
-        ? await framedPhotoFile(got.url, 'act-'+a.no+'-'+(i+1)+'.png', shape, p.pos, mk)
+        ? await framedPhotoFile(got.url, 'act-'+a.no+'-'+(i+1)+'.png', shape, p.pos, mk, !!p.whole)
         : dataToFile(got.url, 'act-'+a.no+'-'+(i+1)+'.jpg'));
       if(got.url && !got.full) SMALL_PHOTOS++;
     } catch(e){ BAD_PHOTOS++; }
@@ -11456,8 +11482,11 @@ function drawPreview(){
   const ph=(a.photos||[]).filter(p=>p&&p.url);
   if(ph.length && CM_PLAT!=='private'){
     const off = ph.filter(p=>p.off).length;
-    box.innerHTML += '<p class="note" style="margin:10px 0 6px">Riding along. Tap to '+
-      'include or leave out. The journal keeps them all.</p>';
+    /* §2. This read "Tap to include or leave out", which stopped being true the
+       moment a tap started opening the photograph instead. A line that describes
+       a gesture the app no longer has is worse than no line. */
+    box.innerHTML += '<p class="note" style="margin:10px 0 6px">Riding along. Tap one to '+
+      'move it, colour its mark, or leave it out. The journal keeps them all.</p>';
     const strip=document.createElement('div'); strip.className='photos';
     ph.forEach((p,i)=>{
       const t=document.createElement('button');
@@ -11486,8 +11515,8 @@ function drawPreview(){
         t.appendChild(m);
       }
       t.setAttribute('aria-pressed', p.off?'false':'true');
-      t.setAttribute('aria-label','Photo '+(i+1)+(p.off?', left out. Include it.':', riding along. Leave it out.')+
-        ' Drag it to move the picture inside the frame.');
+      t.setAttribute('aria-label','Photo '+(i+1)+(p.off?', left out.':', riding along.')+
+        ' Open it to move it, colour the mark, or leave it out.');
       /* L102, THE OTHER WAY ROUND. The tile now has two jobs and the drag must
          not eat the tap: leaving a photo out is the only way to stop it being
          posted, and it must survive a finger that wobbles. A press that travels
@@ -11514,9 +11543,13 @@ function drawPreview(){
         if(moved >= 4){ save(); prepack(); } };
       t.addEventListener('pointerup', endDrag);
       t.addEventListener('pointercancel', endDrag);
+      /* A TAP NOW OPENS THE PHOTOGRAPH RATHER THAN SILENTLY DROPPING IT.
+         Leaving one out moved inside the box, where it is a labelled button
+         instead of a tap you have to already know about — and where you can see
+         what you are leaving out. The drag stays here as the quick way. */
       t.onclick = e=>{
         if(moved >= 4){ e.preventDefault(); return; }
-        p.off=!p.off; save(); drawPreview(); prepack(); };
+        openPhoto(i); };
       strip.appendChild(t);
     });
     box.appendChild(strip);
@@ -11530,41 +11563,122 @@ function drawPreview(){
     mv.textContent='Move the photo around to center it.';
     box.appendChild(mv);
 
-    /* HIS PICKER, 17 September: "a little picker that says white, coral, or gold.
-       Like little squares, you pick the watermark color." Three squares, no
-       menu, no wording to read — and the tiles above redraw as he taps, with the
-       photograph right there, which is the whole reason a choice beats a guess. */
-    if(markFor(a)){
-      const lab=document.createElement('p');
-      lab.className='note'; lab.style.cssText='margin:12px 0 7px';
-      lab.textContent='The mark on your photos.';
-      box.appendChild(lab);
-      const pick=document.createElement('div');
-      pick.className='mkpick';
-      pick.setAttribute('role','group');
-      pick.setAttribute('aria-label','The colour of the mark on your photos');
-      const NAMES={coral:'Coral',white:'White',gold:'Gold',none:'No mark'};
-      MARK_CHOICES.forEach(name=>{
-        const s=document.createElement('button');
-        s.type='button';
-        if(name === 'none'){
-          /* the empty square, struck through — the way a paint box says none */
-          s.style.background =
-            'linear-gradient(to top right, transparent calc(50% - 1px),'+
-            ' var(--muted) calc(50% - 1px), var(--muted) calc(50% + 1px),'+
-            ' transparent calc(50% + 1px))';
-        } else {
-          s.style.background = markInk(name);
-        }
-        const on = (a.mark||MARK_DEFAULT)===name;
-        s.className = on ? 'on' : '';
-        s.setAttribute('aria-pressed', on?'true':'false');
-        s.setAttribute('aria-label', NAMES[name]);
-        s.onclick=()=>{ a.mark=name; save(); drawPreview(); prepack(); };
-        pick.appendChild(s);
-      });
-      box.appendChild(pick);
+    /* THE PICKER LIVES IN THE PHOTOGRAPH'S OWN BOX NOW, not here. It set the
+       same thing in both places, and here it sat beside tiles too small to show
+       what it had done — which is the whole reason he asked for the box. */
+  }
+}
+
+/* ── ONE PHOTOGRAPH, BIG ENOUGH TO JUDGE ───────────────────────────
+   G, 17 September: "can we not tap, have a little thing to tap a photo and you
+   bring up a little box that has the watermark with the different colour choices
+   and then you can move around your picture to make sure it's cropped correctly?
+   That would be the easier thing, because right now it's not working that way."
+
+   HE IS RIGHT AND I HAD ALREADY SEEN IT. The strip tile is a quarter of the
+   screen wide; the mark inside it is a few pixels tall, which is honest about
+   the proportion and useless for making a decision. I flagged that and left it,
+   which was the wrong call — a control you cannot see the effect of is not a
+   control. Everything to do with one photograph now lives here, at a size where
+   the answer is obvious: the crop, the colour, and whether it goes at all. */
+let PHO_I = -1;                                  // which photograph is open
+function phoAct(){ return S.current || S.acts[S.acts.length-1] || null; }
+function phoOf(){
+  const a = phoAct(); if(!a) return null;
+  const ph = (a.photos||[]).filter(p=>p&&p.url);
+  return ph[PHO_I] || null;
+}
+function openPhoto(i){ PHO_I = i; drawPhotoSheet(); sheet('photo'); }
+
+function drawPhotoSheet(){
+  const a = phoAct(), p = phoOf();
+  const fr = $('pho-frame'); if(!fr) return;
+  if(!p){ sheet(null); return; }
+  const mk = p.off ? null : markFor(a);
+  fr.classList.toggle('out', !!p.off);
+  fr.innerHTML = '<img src="'+esc(p.url)+'" alt="">';
+  const im = fr.querySelector('img');
+  const put = ()=>{ const q = p.pos || {x:0,y:0};
+    /* the box shows exactly what the picture will be: filled and cropped, or
+       whole on white with room to slide it */
+    im.style.objectFit = p.whole ? 'contain' : 'cover';
+    im.style.padding   = p.whole ? '4.5%' : '0';
+    im.style.objectPosition = p.whole
+      ? ((50 + (+q.x||0)*100) + '% ' + (50 + (+q.y||0)*100) + '%')
+      : ((50 - (+q.x||0)*100) + '% ' + (50 - (+q.y||0)*100) + '%'); };
+  put();
+  if(mk){
+    const m = document.createElement('span');
+    m.className='mk'; m.style.color = mk.ink;
+    m.innerHTML = '<b>'+esc(mk.line)+'</b>' + (mk.date ? '<i>'+esc(mk.date)+'</i>' : '');
+    fr.appendChild(m);
+  }
+  /* the same drag as the strip, with room to use it. No tap to fight with here:
+     inside this box a press can only ever mean "move the picture". */
+  let dragging=false, lx=0, ly=0, moved=0;
+  fr.addEventListener('pointerdown', e=>{
+    dragging=true; moved=0; lx=e.clientX; ly=e.clientY;
+    try{ fr.setPointerCapture(e.pointerId); }catch(err){}
+  });
+  fr.addEventListener('pointermove', e=>{
+    if(!dragging) return;
+    const dx=e.clientX-lx, dy=e.clientY-ly; lx=e.clientX; ly=e.clientY;
+    moved += Math.abs(dx)+Math.abs(dy);
+    const w=fr.clientWidth||1, h=fr.clientHeight||1;
+    const q = p.pos || (p.pos={x:0,y:0});
+    q.x = clampPos((+q.x||0) + dx/w);
+    q.y = clampPos((+q.y||0) + dy/h);
+    put();
+  });
+  const endDrag = ()=>{ if(!dragging) return; dragging=false;
+    if(moved>=4){ save(); drawPreview(); prepack(); } };
+  fr.addEventListener('pointerup', endDrag);
+  fr.addEventListener('pointercancel', endDrag);
+
+  const hint=$('pho-hint');
+  if(hint) hint.textContent = p.off
+    ? 'This one stays home. Your journal keeps it either way.'
+    : (p.whole ? 'The whole photo, on white. Move it where you want it.'
+               : 'Move the photo around to center it. Nothing outside the edge goes.');
+
+  const lab=$('pho-lab'); if(lab) lab.classList.toggle('hide', !!p.off || !markFor(a));
+  const pick=$('pho-pick');
+  if(pick){
+    pick.classList.toggle('hide', !!p.off || !markFor(a));
+    pick.innerHTML='';
+    const NAMES={coral:'Coral',white:'White',gold:'Gold',none:'No mark'};
+    MARK_CHOICES.forEach(name=>{
+      const s=document.createElement('button');
+      s.type='button';
+      if(name==='none'){
+        s.style.background='linear-gradient(to top right, transparent calc(50% - 1px),'+
+          ' var(--muted) calc(50% - 1px), var(--muted) calc(50% + 1px),'+
+          ' transparent calc(50% + 1px))';
+      } else { s.style.background = markInk(name); }
+      const on = (a.mark||MARK_DEFAULT)===name;
+      s.className = on ? 'on' : '';
+      s.setAttribute('aria-pressed', on?'true':'false');
+      s.setAttribute('aria-label', NAMES[name]);
+      s.onclick=()=>{ a.mark=name; save(); drawPhotoSheet(); drawPreview(); prepack(); };
+      pick.appendChild(s);
+    });
+  }
+  const act=$('pho-act');
+  if(act){
+    act.innerHTML='';
+    if(!p.off){
+      const f=document.createElement('button');
+      f.type='button'; f.className='ghost';
+      f.textContent = p.whole ? 'Fill the frame' : 'Show the whole photo';
+      f.onclick=()=>{ p.whole=!p.whole; p.pos={x:0,y:0};
+        save(); drawPhotoSheet(); drawPreview(); prepack(); };
+      act.appendChild(f);
     }
+    const b=document.createElement('button');
+    b.type='button'; b.className='ghost';
+    b.textContent = p.off ? 'Put it back in the post' : 'Leave it out of the post';
+    b.onclick=()=>{ p.off=!p.off; save(); drawPhotoSheet(); drawPreview(); prepack(); };
+    act.appendChild(b);
   }
 }
 
@@ -12366,17 +12480,38 @@ function drawMark(g, shape, mk){
   g.restore();
 }
 
-function photoOnto(img, shape, pos, mk){
+/* FILL, OR SHOW IT WHOLE. G, 17 September: "you need to be able to have white
+   space so you can pull it if it's a horizontal so you can get it in the correct
+   position … when you post it in there, it cuts off the original part of the
+   photo, which is a problem. You can edit in Instagram, but you can't, because
+   you've already cut it when it goes over from the app."
+
+   THAT LAST SENTENCE IS THE WHOLE ARGUMENT. Once the app has cropped a
+   photograph on its way out, nothing downstream can put it back — Instagram is
+   editing our crop, not his picture. A wide photograph in a tall frame loses two
+   thirds of itself, and there was no way to say no.
+
+   So it is now HIS choice, per photograph, and both ways stay movable:
+     fill  — no white, and something falls outside the edge (the default, and
+             what he ruled when the white was a card's worth of it);
+     whole — the entire photograph on white, and he slides it where he wants it.
+   The white here is not the acre of it he rejected; it is the margin a wide
+   picture needs to survive a tall frame at all. */
+function photoOnto(img, shape, pos, mk, whole){
   const W = shape.w, H = shape.h;
   const c = document.createElement('canvas');
   c.width = W; c.height = H;
   const g = c.getContext('2d');
-  g.fillStyle = '#FFFFFF'; g.fillRect(0, 0, W, H);   // only ever seen if a photo fails
-  const s  = Math.max(W / img.width, H / img.height);
+  g.fillStyle = '#FFFFFF'; g.fillRect(0, 0, W, H);
+  const m  = whole ? W * 0.045 : 0;                // the card's own margin, when it shows
+  const s  = whole ? Math.min((W - m*2) / img.width, (H - m*2) / img.height)
+                   : Math.max(W / img.width, H / img.height);
   const dw = img.width * s, dh = img.height * s;
   const ox = clampPos(pos && pos.x), oy = clampPos(pos && pos.y);
-  const x  = Math.round((W - dw)/2 + ox * (dw - W));
-  const y  = Math.round((H - dh)/2 + oy * (dh - H));
+  /* the same gesture either way: dragging moves the picture. Filling, it travels
+     across what is cropped; whole, it travels through the white beside it. */
+  const x  = Math.round((W - dw)/2 + ox * Math.abs(dw - W));
+  const y  = Math.round((H - dh)/2 + oy * Math.abs(dh - H));
   g.drawImage(img, x, y, Math.round(dw), Math.round(dh));
   drawMark(g, shape, mk);
   return c;
@@ -12393,9 +12528,9 @@ function loadImg(url){
   });
 }
 
-async function framedPhotoFile(dataUrl, name, shape, pos, mk){
+async function framedPhotoFile(dataUrl, name, shape, pos, mk, whole){
   const im = await loadImg(dataUrl);
-  const c  = photoOnto(im, shape, pos, mk);
+  const c  = photoOnto(im, shape, pos, mk, whole);
   const blob = await new Promise(res => c.toBlob(res, 'image/png', 0.95));
   return new File([blob], name, { type:'image/png' });
 }
@@ -12903,7 +13038,7 @@ function sheet(which){
   /* an example must not leak into the next thing this sheet is asked to show */
   if(!which || which!=='pv') PV_EG = false;
   dropUndo();      // an offer does not follow you into or out of a sheet
-  ['you','social','spend','person','cal','date','ask','done','finish','eval','pv','bkup','past','restart'].forEach(x=>{ const el=$('sheet-'+x); if(el) el.classList.add('hide'); });
+  ['you','social','spend','person','cal','date','ask','done','finish','eval','pv','bkup','past','restart','photo'].forEach(x=>{ const el=$('sheet-'+x); if(el) el.classList.add('hide'); });
   if(which){ $('sheet-'+which).classList.remove('hide'); }
   if(which==='you'){ const r=$('you-restore'); if(r) r.classList.toggle('hide', !!S.started); }
   if(which==='social') drawPlats();
@@ -12937,7 +13072,7 @@ document.addEventListener('keydown', e=>{
   /* 'restart' is deliberately absent from both this list and the backdrop one:
      it is a step in the rollover, not a panel, and escaping it would leave
      somebody with an empty year and no way back to the declaration. */
-  const open = ['you','social','spend','person','cal','date','ask','done','past']
+  const open = ['you','social','spend','person','cal','date','ask','done','past','photo']
     .filter(x=>!$('sheet-'+x).classList.contains('hide'))[0];
   if(!open) return;
   if(!S.started && (open==='you' || open==='social')) return;
@@ -12949,7 +13084,7 @@ document.addEventListener('keydown', e=>{
 /* Tapping the dimmed area is the gesture everybody tries first, and nothing was
    listening for it — which left the 28px 'Done' as the only way out. The plan
    sheet saves on the way, exactly as its own Done button does. */
-['you','social','spend','person','cal','date','ask','done','past'].forEach(x=>{
+['you','social','spend','person','cal','date','ask','done','past','photo'].forEach(x=>{
   const el = $('sheet-'+x); if(!el) return;
   el.addEventListener('click', e=>{
     if(e.target !== el) return;             // a tap on the panel is not a tap outside it
