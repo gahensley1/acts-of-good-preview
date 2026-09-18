@@ -361,6 +361,97 @@ head('the screen says you can move it — ruled A, spelled American');
   ck('and it is not spelled the English way', t.indexOf('centre')===-1, t);
   }
 
+
+head('the watermark, and his picker — G, 17 September');
+{ const {ctx,p}=await app();
+  const r = await p.evaluate(()=>{
+    const a = S.acts[S.acts.length-1];
+    const out = {};
+    out.inks = MARK_INKS.join(',');
+    out.dflt = MARK_DEFAULT;
+
+    /* it is burned into the picture that LEAVES, not drawn on the preview */
+    const img = document.createElement('canvas'); img.width=1600; img.height=900;
+    const ig = img.getContext('2d'); ig.fillStyle='#101010'; ig.fillRect(0,0,1600,900);
+    const bare   = photoOnto(img, POST_FRAME, null, null);
+    const marked = photoOnto(img, POST_FRAME, null, markFor(a));
+    const A = bare.getContext('2d').getImageData(0,0,1080,1920).data;
+    const B = marked.getContext('2d').getImageData(0,0,1080,1920).data;
+    let diff=0; for(let i=0;i<A.length;i+=4) if(A[i]!==B[i]||A[i+1]!==B[i+1]||A[i+2]!==B[i+2]) diff++;
+    out.burned = diff;
+
+    /* and the ink he picked is the ink that is used */
+    a.mark='gold';  const gold  = markFor(a).ink;
+    a.mark='white'; const white = markFor(a).ink;
+    a.mark='coral'; const coral = markFor(a).ink;
+    out.distinct = (gold!==white && white!==coral && coral!==gold);
+    out.whiteIsWhite = (white.toUpperCase()==='#FFFFFF');
+
+    /* L109 — the key must contest the colour, or picking one redraws nothing */
+    a.mark='coral'; const k1 = packKey(a);
+    a.mark='gold';  const k2 = packKey(a);
+    out.keyVaries = (k1 !== k2);
+
+    /* act 0 carries no act line on the card, so it carries none here */
+    out.zeroBare = (markFor({zero:true, no:0}) === null);
+    out.finBare  = (markFor({fin:true,  no:9}) === null);
+    return out;
+  });
+  ck('there are three inks and coral is the one it starts on',
+     r.inks==='coral,white,gold' && r.dflt==='coral', r);
+  ck('the mark is burned into the picture that leaves', r.burned > 2000, r);
+  ck('the three inks are actually different, and white is white',
+     r.distinct===true && r.whiteIsWhite===true, r);
+  ck('picking a colour redraws the picture', r.keyVaries===true, r);
+  ck('act 0 and the closing card carry no mark', r.zeroBare===true && r.finBare===true, r);
+
+  /* the picker is on the screen, and tapping it sticks through a reload */
+  await p.evaluate(()=>{
+    const mk=()=>{ const c=document.createElement('canvas'); c.width=800;c.height=600;
+      const g=c.getContext('2d'); g.fillStyle='#123'; g.fillRect(0,0,800,600);
+      return c.toDataURL('image/jpeg',0.6); };
+    const a=S.acts[S.acts.length-1];
+    const u=mk();
+    a.photos=[{id:'mk1',url:u}];
+    window.__stored2 = Promise.all([idbPut('mk1',u), idbPut(THUMB('mk1'),u)]);
+    S.current=a; save();
+    try{ endTabTour(); }catch(e){}
+    go('home'); openCompose(); try{ sheet(null); }catch(e){}
+    drawPreview();
+  });
+  await p.waitForTimeout(700);
+  const squares = await p.evaluate(()=>document.querySelectorAll('.mkpick button').length);
+  ck('the picker shows four squares - three colours and none', squares===4, squares);
+  const shown = await p.evaluate(()=>!!document.querySelector('#cm-prev .photos .mk'));
+  ck('and the mark is shown on the photo tile, where it will be', shown===true, shown);
+  await p.evaluate(()=>document.querySelectorAll('.mkpick button')[2].click());
+  await p.waitForTimeout(400);
+  await p.evaluate(()=>window.__stored2);
+  await p.reload(); await p.waitForTimeout(1600);
+  const kept = await p.evaluate(()=>S.acts[S.acts.length-1].mark);
+  ck('the colour he picked survives a reload (BOTH HALVES)', kept==='gold', kept);
+  /* AND HE CAN HAVE NONE AT ALL — his ruling, and it has to reach the picture */
+  const none = await p.evaluate(()=>{
+    const a=S.acts[S.acts.length-1];
+    a.mark='none'; save();
+    const img=document.createElement('canvas'); img.width=1600; img.height=900;
+    const g=img.getContext('2d'); g.fillStyle='#101010'; g.fillRect(0,0,1600,900);
+    const bare = photoOnto(img, POST_FRAME, null, null);
+    const asked= photoOnto(img, POST_FRAME, null, markFor(a));
+    const A=bare.getContext('2d').getImageData(0,0,1080,1920).data;
+    const B=asked.getContext('2d').getImageData(0,0,1080,1920).data;
+    let diff=0; for(let i=0;i<A.length;i+=4) if(A[i]!==B[i]||A[i+1]!==B[i+1]||A[i+2]!==B[i+2]) diff++;
+    drawPreview();
+    return { markFor: markFor(a), diff, onTile: !!document.querySelector('#cm-prev .photos .mk') };
+  });
+  ck('choosing none really leaves the picture unmarked',
+     none.markFor===null && none.diff===0, none);
+  ck('and nothing is drawn on the tile either', none.onTile===false, none);
+  await p.reload(); await p.waitForTimeout(1600);
+  const keptNone = await p.evaluate(()=>S.acts[S.acts.length-1].mark);
+  ck('and none survives a reload too', keptNone==='none', keptNone);
+  }
+
 console.log('\n'+pass+' passed, '+fail+' failed, console/page errors: '+errs.length);
 if(errs.length) console.log(JSON.stringify(errs.slice(0,6),null,1));
 await b.close();
