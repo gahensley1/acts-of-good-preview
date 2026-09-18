@@ -820,6 +820,75 @@ head('the X on a photograph — G, 17 Sept, said three times');
   await p.evaluate(()=>{ const h=document.getElementById('xtest'); if(h) h.remove(); dropUndo&&dropUndo(); });
   }
 
+
+head('"Not yet" must never fire the moment — G, 18 Sept');
+{ const {ctx,p}=await app();
+  const r = await p.evaluate(async ()=>{
+    const a=S.acts[S.acts.length-1];
+    a.posted={}; a.evalAsked=false; S.current=a; CM_PLAT='instagram';
+    CEL_DUE = Math.min(2, S.n||2); CEL_AFTER = null;
+    try{ endTabTour(); }catch(e){}
+    go('home'); openCompose(); try{ sheet(null); }catch(e){}
+    markLeaving(a); LEFT_FOR.at = Date.now()-9000;
+    askIfPosted();
+    await new Promise(r=>setTimeout(r,200));
+    const no=[...document.querySelectorAll('button')].find(x=>/not yet/i.test(x.textContent));
+    if(!no) return { noButton:true };
+    no.click();
+    await new Promise(r=>setTimeout(r,1400));
+    return {
+      screen: SCREEN,
+      posted: !!(a.posted||{}).instagram,
+      cf: document.getElementById('actcf').classList.contains('up'),
+      evalUp: !document.getElementById('sheet-eval').classList.contains('hide'),
+      lock: document.body.style.overflow,
+      stillDue: CEL_DUE
+    };
+  });
+  ck('it offers "Not yet"', !r.noButton, r);
+  ck('saying not yet leaves you on the post page', r.screen==='compose', r);
+  ck('and does not mark it posted', r.posted===false, r);
+  ck('and does not fire the moment', r.cf===false, r);
+  ck('and does not ask the question', r.evalUp===false, r);
+  ck('and does not lock the page', r.lock==='', r);
+  ck('and the moment is still owed for later', r.stillDue>0, r);
+  }
+
+head('the shape pair points itself out, and the reminder waits — G, 18 Sept');
+{ const {ctx,p}=await app();
+  const t = await p.evaluate(async ()=>{
+    const a=S.acts[S.acts.length-1];
+    a.shape=''; S.current=a; CM_PLAT='instagram';
+    try{ endTabTour(); }catch(e){}
+    dropToast();
+    go('home'); openCompose();
+    try{ sheet(null); }catch(e){}
+    await new Promise(r=>setTimeout(r,1400));
+    const bar=document.getElementById('toastbar');
+    const ringed = !!document.querySelector('#cm-shape.lit');
+    const said = bar.querySelector('.msg').textContent;
+    dropToast();
+    /* and the paste reminder must NOT time itself out */
+    a.shape=''; pasteToast('instagram');
+    await new Promise(r=>setTimeout(r,300));
+    const postLine = bar.querySelector('.msg').textContent;
+    const stays = bar.style.pointerEvents === 'auto';
+    dropToast();
+    a.shape='story'; pasteToast('instagram');
+    await new Promise(r=>setTimeout(r,200));
+    const storyLine = bar.querySelector('.msg').textContent;
+    dropToast(); a.shape='';
+    return { ringed, said, postLine, storyLine, stays };
+  });
+  ck('the Post/Story pair is ringed when you arrive', t.ringed===true, t);
+  ck('and it says you have a choice', /post or a story/i.test(t.said), t);
+  ck('a post is told to paste into its caption', /into your caption/i.test(t.postLine), t);
+  /* a story has no caption box; saying "paste into your caption" would be a lie */
+  ck('a story is not told to paste into a caption it does not have',
+     !/into your caption/i.test(t.storyLine) && /copied/i.test(t.storyLine), t);
+  ck('and the reminder stays up rather than timing out', t.stays===true, t);
+  }
+
 console.log('\n'+pass+' passed, '+fail+' failed, console/page errors: '+errs.length);
 if(errs.length) console.log(JSON.stringify(errs.slice(0,6),null,1));
 await b.close();

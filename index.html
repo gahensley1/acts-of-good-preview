@@ -1715,7 +1715,7 @@ select.pick::-ms-expand{display:none}
     <!-- BUILD MARK — dev only, delete this div when the app ships -->
     <!-- IT HAD SAID 5M SINCE 15 SEPTEMBER, eight builds back, and every
          feedback mail sent from the app quoted it. Move it with the build. -->
-    <div id="buildtag">BUILD 6V</div>
+    <div id="buildtag">BUILD 6W</div>
   </div>
 </section>
 
@@ -11092,6 +11092,20 @@ function drawCompose(){
       chips(shrow, [['Post','post'],['Story','story']],
         ()=>(a.shape||SHAPE_DEFAULT),
         v=>{ a.shape = (v==='story') ? 'story' : ''; save(); drawCompose(); prepack(); });
+      /* G, 18 September: "you need to highlight a sort of post or story when you
+         get to the screen, to make you realise you have a choice." Once per act,
+         and it RINGS the pair rather than only talking about them — the same beat
+         the photographs get. It goes first, because the shape decides what every
+         photograph below it is cropped to. */
+      if(!SHP_TOURED[a.no]){
+        SHP_TOURED[a.no] = 1;
+        setTimeout(()=>{
+          if(SCREEN !== 'compose') return;
+          if(!document.getElementById('cm-shape')) return;
+          toast('A post or a story — pick before you send.',
+                { coral:true, lit:'#cm-shape', ms:5200 });
+        }, 520);
+      }
     }
   }
   /* Ask for a caption only if one has never been built. Testing for truthiness
@@ -11747,7 +11761,7 @@ function drawPreview(){
         if(SCREEN !== 'compose') return;
         if(!document.querySelector('#cm-prev .photos')) return;
         toast('Tap a photo to set its crop.', { coral:true, lit:'#cm-prev .photos', ms:6500 });
-      }, 700);
+      }, 2600);           // after the shape beat has had its turn
     }
     /* RULED A, 17 September 2026, and the wording is G's own with his spelling:
        "You can do A, but you need to spell it American." A line that stays — he
@@ -11780,6 +11794,8 @@ function drawPreview(){
 /* which acts have had the pointing-out. Not saved: it is a tour beat, and a
    new session is a new chance to be told. */
 const PHO_TOURED = {};
+/* and which have had the shape pointed out. Not saved, for the same reason. */
+const SHP_TOURED = {};
 let PHO_I = -1;                                  // which photograph is open
 function phoAct(){ return S.current || S.acts[S.acts.length-1] || null; }
 function phoOf(){
@@ -11970,11 +11986,21 @@ function toast(msg, opts){
       lit.classList.add('lit');
     }
     bar.classList.add('up');
+    /* SOME OF THEM MUST NOT TIME OUT. G, 18 September: the reminder to paste "is
+       mostly skipped over" — and it is, because iOS only lets an app open the
+       share sheet ON THE TAP ITSELF. Hold the sheet back for a second so the
+       words can be read and the hand-off breaks. So the words wait instead: this
+       one stays up, and is still there when he comes back from Instagram.
+       A tap puts it away, and a long stop keeps it from living for ever. */
+    const stay = (o.ms === 0);
     TOAST_T = setTimeout(()=>{
       bar.classList.remove('up');
       bar.style.bottom = '';
       if(lit) lit.classList.remove('lit');
-    }, o.ms || 6000);
+    }, stay ? 45000 : (o.ms || 6000));
+    bar.onclick = stay ? (()=>dropToast()) : null;
+    bar.style.pointerEvents = stay ? 'auto' : '';
+    bar.style.cursor = stay ? 'pointer' : '';
   };
 
   if(lit){
@@ -11990,7 +12016,8 @@ function toast(msg, opts){
   place();
 }
 function dropToast(){ TOAST_SEQ++;      // cancels anything still on its way
-  const b=$('toastbar'); if(b){ b.classList.remove('up'); b.style.bottom=''; }
+  const b=$('toastbar'); if(b){ b.classList.remove('up'); b.style.bottom='';
+    b.onclick=null; b.style.pointerEvents=''; b.style.cursor=''; }
   clearTimeout(TOAST_T);
   document.querySelectorAll('.photos.lit').forEach(el=>el.classList.remove('lit')); }
 
@@ -12008,10 +12035,16 @@ function markLeaving(a){ LEFT_FOR = { act:a, plat:CM_PLAT, at:Date.now() }; }
    nothing else does. */
 function pasteToast(plat){
   if(plat === 'private') return;
+  const a = S.current || S.acts[S.acts.length-1];
+  const story = !!(a && a.shape === 'story');
+  /* A STORY HAS NO CAPTION BOX. Telling somebody to paste into a caption that is
+     not there is worse than saying nothing, so a story is told what is true. */
   const line = (plat === 'facebook')
     ? 'Your words went over with it. If the box comes up empty, they are copied — paste them in.'
-    : 'Your words are copied. Paste them into your caption.';
-  toast(line);
+    : (story ? 'Your words are copied, ready to paste wherever you want them.'
+             : 'Your words are copied. Paste them into your caption.');
+  /* it stays until it is tapped, because the share sheet covers it instantly */
+  toast(line, { ms:0 });
 }
 function askIfPosted(){
   if(!LEFT_FOR) return;
