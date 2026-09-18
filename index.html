@@ -728,20 +728,40 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
   margin:-22px 0 0 -22px;z-index:5;pointer-events:none;opacity:0;
   background:rgba(20,20,20,.42);border-radius:50%;
   box-shadow:0 0 0 2.5px rgba(255,255,255,.92), 0 2px 8px rgba(0,0,0,.30);
-  animation:fingswipe 2.7s ease-in-out both}
+  animation:fingswipe 5.1s ease-in-out both}
+/* THE MOVE, THEN THE PINCH. The first finger swings the picture across and
+   back, then stays for the pinch as the lower hand; the second finger only
+   appears for the pinch. Everything ends where it began. */
 @keyframes fingswipe{
-  0%{opacity:0;transform:translateX(0) scale(.8)}
-  10%{opacity:1;transform:translateX(0) scale(1)}
-  38%{transform:translateX(-38px) scale(1)}
-  72%{transform:translateX(38px) scale(1)}
-  93%{transform:translateX(0) scale(1);opacity:1}
-  100%{transform:translateX(0) scale(.8);opacity:0}}
-.phbig.demo img{animation:fingdrag 2.7s ease-in-out both}
+  0%{opacity:0;transform:translate(0,0) scale(.8)}
+  5%{opacity:1;transform:translate(0,0) scale(1)}
+  20%{transform:translate(-38px,0) scale(1)}
+  38%{transform:translate(38px,0) scale(1)}
+  49%{transform:translate(0,0) scale(1)}
+  /* the pinch: this finger draws down and out, then comes back */
+  62%{transform:translate(-13px,15px) scale(1)}
+  78%{transform:translate(-30px,34px) scale(1)}
+  90%{transform:translate(-13px,15px) scale(1)}
+  96%{transform:translate(0,0) scale(1);opacity:1}
+  100%{transform:translate(0,0) scale(.8);opacity:0}}
+/* the second finger is only there for the pinch */
+.phbig .fing.two{animation-name:fingpinch2}
+@keyframes fingpinch2{
+  0%,52%{opacity:0;transform:translate(13px,-15px) scale(.8)}
+  62%{opacity:1;transform:translate(13px,-15px) scale(1)}
+  78%{opacity:1;transform:translate(30px,-34px) scale(1)}
+  90%{opacity:1;transform:translate(13px,-15px) scale(1)}
+  96%{opacity:1;transform:translate(0,0) scale(1)}
+  100%{opacity:0;transform:translate(0,0) scale(.8)}}
+.phbig.demo img{animation:fingdrag 5.1s ease-in-out both}
 @keyframes fingdrag{
-  0%{transform:translateX(0)}
-  38%{transform:translateX(-15px)}
-  72%{transform:translateX(15px)}
-  93%,100%{transform:translateX(0)}}
+  0%{transform:translateX(0) scale(1)}
+  20%{transform:translateX(-15px) scale(1)}
+  38%{transform:translateX(15px) scale(1)}
+  49%{transform:translateX(0) scale(1)}
+  78%{transform:translateX(0) scale(1.16)}
+  90%{transform:translateX(0) scale(.94)}
+  96%,100%{transform:translateX(0) scale(1)}}
 @media (prefers-reduced-motion: reduce){
   .phbig .fing{animation:none;opacity:0}
   .phbig.demo img{animation:none}}
@@ -1743,7 +1763,7 @@ select.pick::-ms-expand{display:none}
     <!-- BUILD MARK — dev only, delete this div when the app ships -->
     <!-- IT HAD SAID 5M SINCE 15 SEPTEMBER, eight builds back, and every
          feedback mail sent from the app quoted it. Move it with the build. -->
-    <div id="buildtag">BUILD 6Y</div>
+    <div id="buildtag">BUILD 6Z</div>
   </div>
 </section>
 
@@ -2871,7 +2891,7 @@ function newPhotoId(){
    opening — a smaller number is fine, it is only a bigger one we cannot honour.
 
    BUMP THIS whenever a field is added to or removed from serialise(). */
-const FILE_V = 4;
+const FILE_V = 5;
 function serialise(){
   return {
     v:FILE_V, n:S.n, weeks:S.weeks, line:S.line, word:S.word,
@@ -2947,6 +2967,14 @@ function serialise(){
                           /* whole-on-white rather than filled. Named here AND
                              read in load() — invariant 1. */
                           whls:(a.photos||[]).map(p=>p&&p.whole?1:0),
+                          /* WHICH SHAPE EACH POSITION WAS CHOSEN FOR. Without
+                             this the app cannot tell a position chosen for a
+                             square from one chosen for a tall story, so after a
+                             reload every carefully placed photograph either
+                             comes back off-centre or gets reset. Named here AND
+                             read in load() — invariant 1. */
+                          frms:(a.photos||[]).map(p=>(p&&p.frame==='story')?1:
+                                                     (p&&p.frame==='post')?2:0),
                           /* how far in they pinched. Named here AND read in
                              load() — invariant 1. */
                           /* ANY zoom that is not 1, in or out. This wrote only
@@ -3435,6 +3463,10 @@ async function load(){
     (Array.isArray(a.poss)?a.poss:[]).forEach((v,i)=>{
       if(Array.isArray(v) && photos[i]) photos[i].pos = { x:+v[0]||0, y:+v[1]||0 }; });
     (Array.isArray(a.whls)?a.whls:[]).forEach((v,i)=>{ if(v && photos[i]) photos[i].whole=true; });
+    /* named in serialise() too — invariant 1 */
+    (Array.isArray(a.frms)?a.frms:[]).forEach((v,i)=>{
+      if(!photos[i]) return;
+      if(v===1) photos[i].frame='story'; else if(v===2) photos[i].frame='post'; });
     (Array.isArray(a.zms)?a.zms:[]).forEach((v,i)=>{ if(v>0 && v!==1 && photos[i]) photos[i].zoom=+v; });
     /* ghost acts with no name, no number and no square are noise, not journal */
     if(!S.acts[S.acts.length-1].t && !slotOf(S.acts[S.acts.length-1]))
@@ -11943,25 +11975,53 @@ function drawPhotoSheet(){
   const h3 = $('pho-h3');
   if(h3) h3.textContent = (a.shape === 'story') ? 'This photo \u2014 for a story'
                                                 : 'This photo \u2014 for a square post';
+  /* IT COMES IN CENTRED, WHATEVER SHAPE IT IS AND WHATEVER FRAME IT LANDS IN.
+     G, 18 September: "it comes in asymmetrical. It should come in centered no
+     matter what. Especially if it's squared, it goes onto a tall card."
+     A photograph nobody has moved has no offset at all, which draws it dead
+     centre — so this only has to make sure nothing is left lying there from a
+     frame it is no longer in. A square picture moved about inside a square post
+     and then shown in a tall story is being cropped on a different axis
+     entirely, and carrying the old offset across is what put it off to one
+     side. Move it again and the new position sticks, for that shape. */
+  const shapeNow = (a.shape === 'story') ? 'story' : 'post';
+  /* only a photograph that was positioned for the OTHER shape is recentred. One
+     that has never been opened has nothing to lose, and one saved by a build
+     that did not record the shape keeps what it has rather than being reset for
+     a reason nobody would understand. */
+  if(p.frame && p.frame !== shapeNow) p.pos = { x:0, y:0 };
+  p.frame = shapeNow;
   const mk = p.off ? null : markFor(a);
   fr.classList.toggle('out', !!p.off);
   fr.innerHTML = '<img draggable="false" src="'+esc(p.url)+'" alt="">';
   const im = fr.querySelector('img');
-  const put = layoutWhenReady(im, fr, p);
+  layoutWhenReady(im, fr, p);
 
   /* the demonstration, once per act, and only when there is something to move */
   if(!PHO_DEMOED[a.no] && !p.off){
     PHO_DEMOED[a.no] = 1;
+    /* AND IT PINCHES. G, 18 September: "when the finger moves, it needs to pinch
+       and it needs to shrink and get bigger … so it moves left to right, the
+       finger there should pinch, and then it should go from big to small back to
+       its regular size."
+       So the demonstration is one continuous thing in two halves: one finger
+       swings the picture left and right, then a second finger joins it and the
+       two spread apart and come back together while the picture grows and
+       shrinks — and everything returns to exactly where it started. */
     const fing = document.createElement('span');
     fing.className = 'fing';
     fing.setAttribute('aria-hidden', 'true');
-    fr.appendChild(fing);
+    const fing2 = document.createElement('span');
+    fing2.className = 'fing two';
+    fing2.setAttribute('aria-hidden', 'true');
+    fr.appendChild(fing); fr.appendChild(fing2);
     fr.classList.add('demo');
     const stopDemo = ()=>{
       fr.classList.remove('demo');
       if(fing.parentNode) fing.remove();
+      if(fing2.parentNode) fing2.remove();
     };
-    setTimeout(stopDemo, 2800);
+    setTimeout(stopDemo, 5200);
     /* a real finger always wins */
     fr.addEventListener('pointerdown', stopDemo, { once:true });
   }
@@ -11973,57 +12033,87 @@ function drawPhotoSheet(){
   }
   /* ONE FINGER MOVES IT, TWO FINGERS ZOOM IT. G, 17 September: "should be able
      to pinch the photo to make it zoom in and out." No tap to fight with in
-     here — inside this box a press can only ever mean move or zoom. */
-  const PTR = new Map();
-  let moved = 0, pinch0 = 0, zoom0 = 1;
-  const spread = ()=>{
-    const v = [...PTR.values()];
-    if(v.length < 2) return 0;
-    return Math.hypot(v[0].x - v[1].x, v[0].y - v[1].y);
-  };
-  fr.addEventListener('pointerdown', e=>{
-    PTR.set(e.pointerId, { x:e.clientX, y:e.clientY });
-    moved = 0;
-    try{ fr.setPointerCapture(e.pointerId); }catch(err){}
-    if(PTR.size === 2){ pinch0 = spread(); zoom0 = clampZoom(p.zoom); }
-  });
-  fr.addEventListener('pointermove', e=>{
-    const was = PTR.get(e.pointerId); if(!was) return;
-    const dx = e.clientX - was.x, dy = e.clientY - was.y;
-    PTR.set(e.pointerId, { x:e.clientX, y:e.clientY });
-    if(PTR.size >= 2){
-      const now = spread();
-      if(pinch0 > 8 && now > 8){
-        p.zoom = clampZoom(zoom0 * (now / pinch0));
-        /* the offset is a share of the picture, so zooming no longer flings it —
-           it only has to be brought back inside the frame */
-        settlePos(p, im.naturalWidth||1, im.naturalHeight||1,
-                  fr.clientWidth||1, fr.clientHeight||1);
-        moved += 8;
-        put();
+     here — inside this box a press can only ever mean move or zoom.
+
+     WIRED ONCE, TO THE FRAME, AND NEVER AGAIN. G, 18 September: a second
+     photograph "comes in asymmetrical … and when I tried to move it, it locked
+     up."
+
+     This used to hang a fresh set of hands on the frame every time the box was
+     drawn — and the box is drawn again at the end of every single drag, and
+     again for every photograph. The frame itself survives all of that, so the
+     old hands stayed on it. Two drags meant two sets, and each one applied the
+     same finger to the picture, so it ran at twice the speed and then three
+     times. Worse, every old set was still holding the PREVIOUS photograph and
+     the PREVIOUS image element — an element thrown away on the redraw. So
+     opening the second photograph and dragging it moved the first one's numbers
+     and laid out a picture that was no longer on the screen: nothing appeared to
+     happen, which is what locked up, and the numbers it left behind are what
+     brought the next one in off-centre.
+
+     So: one set of hands, attached the first time and never replaced, and they
+     look up the live photograph and the live image at the moment a finger
+     actually moves rather than remembering one from when they were attached. */
+  if(!fr.dataset.wired){
+    fr.dataset.wired = '1';
+    const PTR = new Map();
+    let moved = 0, pinch0 = 0, zoom0 = 1;
+    const spread = ()=>{
+      const v = [...PTR.values()];
+      if(v.length < 2) return 0;
+      return Math.hypot(v[0].x - v[1].x, v[0].y - v[1].y);
+    };
+    /* the photograph and the picture as they are RIGHT NOW, never as they were */
+    const live = ()=>{
+      const q = phoOf(), el = fr.querySelector('img');
+      return (q && el && !q.off) ? { p:q, im:el } : null;
+    };
+    fr.addEventListener('pointerdown', e=>{
+      PTR.set(e.pointerId, { x:e.clientX, y:e.clientY });
+      moved = 0;
+      try{ fr.setPointerCapture(e.pointerId); }catch(err){}
+      const L = live();
+      if(PTR.size === 2 && L){ pinch0 = spread(); zoom0 = clampZoom(L.p.zoom); }
+    });
+    fr.addEventListener('pointermove', e=>{
+      const was = PTR.get(e.pointerId); if(!was) return;
+      const dx = e.clientX - was.x, dy = e.clientY - was.y;
+      PTR.set(e.pointerId, { x:e.clientX, y:e.clientY });
+      const L = live(); if(!L) return;
+      const p = L.p, im = L.im;
+      const w = fr.clientWidth||1, h = fr.clientHeight||1;
+      const iw = im.naturalWidth||1, ih = im.naturalHeight||1;
+      if(PTR.size >= 2){
+        const now = spread();
+        if(pinch0 > 8 && now > 8){
+          p.zoom = clampZoom(zoom0 * (now / pinch0));
+          /* the offset is a share of the picture, so zooming no longer flings it —
+             it only has to be brought back inside the frame */
+          settlePos(p, iw, ih, w, h);
+          moved += 8;
+          layoutPhoto(im, fr, p);
+        }
+        return;
       }
-      return;
-    }
-    moved += Math.abs(dx) + Math.abs(dy);
-    const w = fr.clientWidth||1, h = fr.clientHeight||1;
-    const iw = im.naturalWidth||1, ih = im.naturalHeight||1;
-    const b = photoBox(iw, ih, w, h, p);
-    const q = p.pos || (p.pos = {x:0,y:0});
-    q.x = (+q.x||0) + dx/(b.dw||1);
-    q.y = (+q.y||0) + dy/(b.dh||1);
-    settlePos(p, iw, ih, w, h);
-    put();
-    /* nothing is held back in here: inside the box a press can only mean move */
-  });
-  const endPtr = e=>{
-    PTR.delete(e.pointerId);
-    if(PTR.size < 2) pinch0 = 0;
-    if(PTR.size === 0 && moved >= 4){
-      moved = 0; save(); drawPhotoSheet(); drawPreview(); prepack();
-    }
-  };
-  fr.addEventListener('pointerup', endPtr);
-  fr.addEventListener('pointercancel', endPtr);
+      moved += Math.abs(dx) + Math.abs(dy);
+      const b = photoBox(iw, ih, w, h, p);
+      const q = p.pos || (p.pos = {x:0,y:0});
+      q.x = (+q.x||0) + dx/(b.dw||1);
+      q.y = (+q.y||0) + dy/(b.dh||1);
+      settlePos(p, iw, ih, w, h);
+      layoutPhoto(im, fr, p);
+      /* nothing is held back in here: inside the box a press can only mean move */
+    });
+    const endPtr = e=>{
+      PTR.delete(e.pointerId);
+      if(PTR.size < 2) pinch0 = 0;
+      if(PTR.size === 0 && moved >= 4){
+        moved = 0; save(); drawPhotoSheet(); drawPreview(); prepack();
+      }
+    };
+    fr.addEventListener('pointerup', endPtr);
+    fr.addEventListener('pointercancel', endPtr);
+  }
 
   const hint=$('pho-hint');
   if(hint) hint.textContent = p.off

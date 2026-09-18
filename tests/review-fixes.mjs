@@ -988,7 +988,7 @@ head('the finger that shows you it moves — G, 18 Sept');
     const fr = document.getElementById('pho-frame');
     const shown = !!fr.querySelector('.fing') && fr.classList.contains('demo');
     const posBefore = JSON.stringify(a.photos[0].pos || null);
-    await new Promise(r=>setTimeout(r,3000));
+    await new Promise(r=>setTimeout(r,5400));
     const gone = !fr.querySelector('.fing') && !fr.classList.contains('demo');
     const posAfter = JSON.stringify(a.photos[0].pos || null);
     /* and it never runs twice for the same act */
@@ -1097,9 +1097,11 @@ head('the ending is written down and read back — invariant 1');
        before anything can read it — which is right, and useless as proof. */
     const a=S.acts[0]; a.end=2; save();
     const wire = serialise();
-    return { v: wire.v, onWire: wire.acts[0].end };
+    return { v: wire.v, FILE_V: FILE_V, onWire: wire.acts[0].end };
   });
-  ck('the file version moved with the field', r.v===4, r);
+  /* L114, and this one was mine. The rule is that the stamp matches the
+     constant and the number only ever goes up. */
+  ck('the file version moved with the field', r.v===r.FILE_V && r.v>=4, r);
   ck('how far through its ending an act is goes out with it', r.onWire===2, r);
   /* BOTH HALVES, across a real reload. Naming a field in serialise() and never
      reading it back is the fault this file has shipped four times. */
@@ -1108,6 +1110,138 @@ head('the ending is written down and read back — invariant 1');
     return { end:+S.acts[0].end, no:S.acts[0].no };
   });
   ck('and comes back after a real reload', back.end===2, back);
+  }
+
+head('a second photograph, and the hands that were doubling up — G, 18 Sept');
+{ const {ctx,p}=await app();
+  const r = await p.evaluate(async ()=>{
+    const mk=(w,h)=>{ const c=document.createElement('canvas'); c.width=w;c.height=h;
+      const g=c.getContext('2d'); g.fillStyle='#333'; g.fillRect(0,0,w,h);
+      return c.toDataURL('image/jpeg',0.6); };
+    const a=S.acts[S.acts.length-1];
+    /* both wide, so both have room to move. A square picture in a square frame
+       has nowhere to go, which is right and proves nothing. */
+    a.shape=''; a.photos=[{id:'p1',url:mk(1600,900)},{id:'p2',url:mk(2000,900)}];
+    S.current=a; try{ endTabTour(); }catch(e){}
+    go('home'); openCompose(); try{ sheet(null); }catch(e){}
+    await new Promise(r=>setTimeout(r,250));
+
+    const fr=()=>document.getElementById('pho-frame');
+    const drag=async(dx)=>{
+      const b=fr().getBoundingClientRect();
+      const x=b.left+b.width/2, y=b.top+b.height/2;
+      fr().dispatchEvent(new PointerEvent('pointerdown',{pointerId:1,clientX:x,clientY:y,bubbles:true}));
+      for(let k=1;k<=6;k++)
+        window.dispatchEvent(new PointerEvent('pointermove',{pointerId:1,clientX:x+dx*k/6,clientY:y,bubbles:true})),
+        fr().dispatchEvent(new PointerEvent('pointermove',{pointerId:1,clientX:x+dx*k/6,clientY:y,bubbles:true}));
+      fr().dispatchEvent(new PointerEvent('pointerup',{pointerId:1,clientX:x+dx,clientY:y,bubbles:true}));
+      await new Promise(r=>setTimeout(r,180));
+    };
+
+    /* open the FIRST photo and drag it twice. The second drag used to run
+       through two sets of hands and move at double speed. */
+    openPhoto(0); await new Promise(r=>setTimeout(r,300));
+    await drag(-40);
+    const afterOne = a.photos[0].pos ? a.photos[0].pos.x : 0;
+    await drag(-40);
+    const afterTwo = a.photos[0].pos ? a.photos[0].pos.x : 0;
+    const secondStep = Math.abs(afterTwo - afterOne);
+    const firstStep  = Math.abs(afterOne);
+    sheet(null); await new Promise(r=>setTimeout(r,150));
+
+    /* now the SECOND photograph. It must arrive dead centre and it must be the
+       one that moves. */
+    openPhoto(1); await new Promise(r=>setTimeout(r,350));
+    const camePos = JSON.stringify(a.photos[1].pos || {x:0,y:0});
+    const firstBefore = JSON.stringify(a.photos[0].pos || null);
+    await drag(-40);
+    const movedTwo = !!(a.photos[1].pos && Math.abs(a.photos[1].pos.x) > 0.001);
+    const firstAfter = JSON.stringify(a.photos[0].pos || null);
+    /* and the picture on screen actually moved with it */
+    const im=fr().querySelector('img');
+    const onScreen = parseFloat(im.style.left||'0');
+    const boxNow = photoBox(im.naturalWidth, im.naturalHeight,
+                            fr().clientWidth, fr().clientHeight, a.photos[1]);
+    sheet(null);
+    return { firstStep, secondStep, camePos, movedTwo,
+             firstUntouched: firstBefore === firstAfter,
+             drawnRight: Math.abs(onScreen - Math.round(boxNow.x)) <= 1 };
+  });
+  ck('a second drag moves the picture by the same amount as the first',
+     r.firstStep>0 && Math.abs(r.secondStep - r.firstStep) < r.firstStep*0.4, r);
+  ck('the next photograph comes in dead centre', r.camePos==='{"x":0,"y":0}', r);
+  ck('and it is the one that moves', r.movedTwo===true, r);
+  ck('the photograph before it is left alone', r.firstUntouched===true, r);
+  ck('and what is on screen is the photograph being moved', r.drawnRight===true, r);
+  }
+
+head('a square photograph on a tall card comes in centred');
+{ const {ctx,p}=await app();
+  const r = await p.evaluate(async ()=>{
+    const mk=(w,h)=>{ const c=document.createElement('canvas'); c.width=w;c.height=h;
+      c.getContext('2d').fillRect(0,0,w,h); return c.toDataURL('image/jpeg',0.6); };
+    const a=S.acts[S.acts.length-1];
+    a.shape=''; a.photos=[{id:'sq',url:mk(1200,1200)}]; S.current=a;
+    try{ endTabTour(); }catch(e){}
+    go('home'); openCompose(); try{ sheet(null); }catch(e){}
+    await new Promise(r=>setTimeout(r,250));
+    /* place it well off centre while it is a square post */
+    openPhoto(0); await new Promise(r=>setTimeout(r,300));
+    a.photos[0].pos = { x:0.18, y:0.11 }; save();
+    sheet(null);
+    /* now make it a story and open it again */
+    a.shape='story'; save();
+    openPhoto(0); await new Promise(r=>setTimeout(r,350));
+    const pos = JSON.stringify(a.photos[0].pos||{});
+    const frame = a.photos[0].frame;
+    const im=document.getElementById('pho-frame').querySelector('img');
+    const fr=document.getElementById('pho-frame');
+    const b=photoBox(im.naturalWidth,im.naturalHeight,fr.clientWidth,fr.clientHeight,a.photos[0]);
+    /* centred means the overhang is the same top and bottom */
+    const evenly = Math.abs(b.y - (fr.clientHeight - b.dh - b.y)) <= 1;
+    sheet(null);
+    return { pos, frame, evenly, dh:b.dh, H:fr.clientHeight };
+  });
+  ck('a position chosen for a square does not follow it onto a tall card', r.pos==='{"x":0,"y":0}', r);
+  ck('and the shape it was placed for is remembered', r.frame==='story', r);
+  ck('it sits with the same amount over each edge', r.evenly===true, r);
+  }
+
+head('the finger pinches as well as swipes — G, 18 Sept');
+{ const {ctx,p}=await app();
+  const r = await p.evaluate(async ()=>{
+    const mk=()=>{ const c=document.createElement('canvas'); c.width=1600;c.height=900;
+      c.getContext('2d').fillRect(0,0,1600,900); return c.toDataURL('image/jpeg',0.6); };
+    const a=S.acts[S.acts.length-1];
+    a.photos=[{id:'fg1',url:mk()}]; S.current=a;
+    try{ endTabTour(); }catch(e){}
+    go('home'); openCompose(); try{ sheet(null); }catch(e){}
+    await new Promise(r=>setTimeout(r,250));
+    openPhoto(0); await new Promise(r=>setTimeout(r,250));
+    const fr=document.getElementById('pho-frame');
+    const fingers = fr.querySelectorAll('.fing').length;
+    const second = !!fr.querySelector('.fing.two');
+    /* the picture is asked to grow and shrink, not only to slide */
+    const kf = [...document.styleSheets].flatMap(sh=>{ try{ return [...sh.cssRules]; }
+                                                       catch(e){ return []; } })
+      .filter(r=>r.type===7 && r.name==='fingdrag')
+      .map(r=>[...r.cssRules].map(k=>k.style.transform).join(' '))[0] || '';
+    const grows = /scale\(1\.[1-9]/.test(kf), shrinks = /scale\(\.9|scale\(0?\.9/.test(kf);
+    const ends  = /scale\(1\)/.test(kf);
+    const posBefore = JSON.stringify(a.photos[0].pos || null);
+    await new Promise(r=>setTimeout(r,5400));
+    const gone = !fr.querySelector('.fing') && !fr.classList.contains('demo');
+    const posAfter = JSON.stringify(a.photos[0].pos || null);
+    sheet(null);
+    return { fingers, second, grows, shrinks, ends, gone,
+             sameSpot: posBefore === posAfter };
+  });
+  ck('two fingers are shown, so the pinch reads as a pinch', r.fingers===2 && r.second===true, r);
+  ck('the photo gets bigger', r.grows===true, r);
+  ck('then smaller', r.shrinks===true, r);
+  ck('and comes back to its regular size', r.ends===true, r);
+  ck('the whole demonstration takes itself away', r.gone===true, r);
+  ck('and leaves the photograph exactly where it was', r.sameSpot===true, r);
   }
 
 console.log('\n'+pass+' passed, '+fail+' failed, console/page errors: '+errs.length);
