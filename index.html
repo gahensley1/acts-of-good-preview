@@ -717,6 +717,34 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
 .phbig .mk b{display:block;font-weight:700}
 .phbig .mk i{display:block;font-weight:600;font-style:normal;font-size:.75em}
 .phbig.out{opacity:.4}
+/* ── THE FINGER THAT SHOWS YOU IT MOVES ────────────────────────────
+   G, 18 September: "I'd like to do a little finger that swipes back and forth to
+   show that it moves. It would be nice if the photo moves with it, and it comes
+   back to zero."
+   It is a demonstration and nothing more: the photograph leans with the finger
+   and returns to exactly where it was. Nothing is saved, nothing is changed, and
+   the first touch stops it dead so it never fights a real finger. */
+.phbig .fing{position:absolute;left:50%;top:58%;width:44px;height:44px;
+  margin:-22px 0 0 -22px;z-index:5;pointer-events:none;opacity:0;
+  background:rgba(20,20,20,.42);border-radius:50%;
+  box-shadow:0 0 0 2.5px rgba(255,255,255,.92), 0 2px 8px rgba(0,0,0,.30);
+  animation:fingswipe 2.7s ease-in-out both}
+@keyframes fingswipe{
+  0%{opacity:0;transform:translateX(0) scale(.8)}
+  10%{opacity:1;transform:translateX(0) scale(1)}
+  38%{transform:translateX(-38px) scale(1)}
+  72%{transform:translateX(38px) scale(1)}
+  93%{transform:translateX(0) scale(1);opacity:1}
+  100%{transform:translateX(0) scale(.8);opacity:0}}
+.phbig.demo img{animation:fingdrag 2.7s ease-in-out both}
+@keyframes fingdrag{
+  0%{transform:translateX(0)}
+  38%{transform:translateX(-15px)}
+  72%{transform:translateX(15px)}
+  93%,100%{transform:translateX(0)}}
+@media (prefers-reduced-motion: reduce){
+  .phbig .fing{animation:none;opacity:0}
+  .phbig.demo img{animation:none}}
 /* the picker: squares, his design */
 .mkpick{display:flex;gap:9px;align-items:center;margin:0}
 .mkpick button{width:30px;height:30px;border-radius:9px;padding:0;
@@ -1715,7 +1743,7 @@ select.pick::-ms-expand{display:none}
     <!-- BUILD MARK — dev only, delete this div when the app ships -->
     <!-- IT HAD SAID 5M SINCE 15 SEPTEMBER, eight builds back, and every
          feedback mail sent from the app quoted it. Move it with the build. -->
-    <div id="buildtag">BUILD 6W</div>
+    <div id="buildtag">BUILD 6Y</div>
   </div>
 </section>
 
@@ -2233,7 +2261,7 @@ What you actually did. Why it mattered. Say the awkward parts."></textarea>
 <!-- ══════════ COMPOSE ══════════ -->
 <section id="s-compose" class="hide" role="main" aria-label="Post an act">
   <div class="top"><button class="back" aria-label="Back" onclick="go(CM_BACK||'card')">‹</button>
-    <h2>Post it</h2><div class="sub" id="cm-no"></div></div>
+    <h2 id="cm-h2">Post it</h2><div class="sub" id="cm-no"></div></div>
   <div class="wrap">
     <div class="chips" id="cm-plats" style="margin-bottom:10px"></div>
     <div class="chips" id="cm-shape" style="margin-bottom:16px"></div>
@@ -2285,6 +2313,15 @@ What you actually did. Why it mattered. Say the awkward parts."></textarea>
       <span style="opacity:.8">It awaits in your journal page. A text or an email to one
       person. No act number, no hashtag, nothing posted.</span></span>
     </button>
+
+    <!-- THE QUIET DOOR. G, 18 September 2026. The page is the last step of the
+         act, not a bonus round after it, so somebody who never wants to post
+         needs a way to finish that is visibly a way to FINISH — and it has to
+         sit well clear of the two buttons that send, because a mistaken press
+         on one of those costs them the post they came here to make. Quiet, and
+         last. It only appears while the act is still open. -->
+    <button class="btn ghost quietcopy hide" type="button" id="cm-done"
+      style="margin-top:30px" onclick="finishNoPost()">Finish without posting</button>
   </div>
 </section>
 
@@ -2834,7 +2871,7 @@ function newPhotoId(){
    opening — a smaller number is fine, it is only a bigger one we cannot honour.
 
    BUMP THIS whenever a field is added to or removed from serialise(). */
-const FILE_V = 3;
+const FILE_V = 4;
 function serialise(){
   return {
     v:FILE_V, n:S.n, weeks:S.weeks, line:S.line, word:S.word,
@@ -2899,6 +2936,9 @@ function serialise(){
                           mark:a.mark||'',
                           /* post or story. Named here AND read in load() — invariant 1. */
                           shape:a.shape||'',
+                          /* how far through its ending this act is. Named
+                             here AND read in load() — invariant 1. */
+                          end:+a.end||0,
                           photos:(a.photos||[]).map(p=>p.id), offs:(a.photos||[]).map(p=>p&&p.off?1:0),
                           /* where they moved each picture to inside the frame.
                              Written here AND read in load(), which is the half
@@ -3384,6 +3424,10 @@ async function load(){
                   mark:(MARK_CHOICES.indexOf(a.mark)>-1 ? a.mark : ''),
                   /* named in serialise() too — invariant 1 */
                   shape:(a.shape==='story' ? 'story' : ''),
+                  /* named in serialise() too — invariant 1. Absent means
+                     nothing is pending, which is exactly right for every act
+                     written before this field existed. */
+                  end:(+a.end||0),
                   /* named in serialise() too — invariant 1 */
                   sheet:(a.sheet && typeof a.sheet==='object') ? a.sheet : null,
                   story:a.story||'', photos });
@@ -5485,6 +5529,26 @@ function finPost(){
   go('compose'); drawCompose();
 }
 
+/* HOW AN ACT ENDS. G, 18 September 2026. The moment used to be paid the
+   instant the square filled, which put it BEFORE the finish page — so the
+   celebration landed, and then you were shown another screen, and leaving it
+   felt like walking out on something. His ruling moved the finish line past
+   that page: an act ends when you leave it, by whichever door.
+
+   0  nothing pending. Every act written before this build, and every act
+      whose moment has been and gone.
+   1  open. On the finish page, not yet closed out.
+   2  closed, and the moment is owed. It is owed across a restart: shut the
+      app on the finish page and it plays the next time Your year is opened.
+
+   Act 0 and the closing post are not acts of the year and never carry it. */
+function actOpen(a){ return !!(a && +a.end === 1 && !a.zero && !a.fin); }
+function closeOut(a){
+  if(!actOpen(a)) return;
+  a.end = 2;
+  save();
+}
+
 /* Called wherever an act joins the year. Fires at most once each. */
 /* The moment is owed the instant the act lands, but the act usually lands
    behind the follow-up sheet. So it waits until Your year actually has the
@@ -5502,6 +5566,11 @@ function celTick(){
     const el = $('sheet-'+x); return el && !el.classList.contains('hide'); });
   if(anySheet) return;
   const slot = CEL_DUE; CEL_DUE = 0;
+  /* SPENT. Once only, and it does not come round again on the next redraw or
+     the next launch. */
+  for(let i=0;i<S.acts.length;i++){
+    if(slotOf(S.acts[i])===slot && +S.acts[i].end){ S.acts[i].end = 0; save(); break; }
+  }
   actMoment(slot);
 }
 /* The sash is the last beat, not the first. It goes on once the moment has had
@@ -9549,7 +9618,12 @@ function finishGo(){
               cost: (w.spends||[]).length ? t.mine : (+w.cost||0), spends:(w.spends||[]).slice(),
               story:w.story||'', d:d,
               anon: FIN_ANON, pipelined:true, captions:{}, posted:{}, note:'',
-              photos:(w.photos||[]).slice() };
+              photos:(w.photos||[]).slice(),
+              /* AN ACT ENDS WHEN YOU LEAVE THE FINISH PAGE. G, 18 September
+                 2026: "an act ends when you leave the finish page. Posting is
+                 one way to finish, not the price of finishing." So it lands
+                 OPEN: the square fills, the moment waits. */
+              end:1 };
   /* L62 — THE SHEET USED TO DIE HERE, IN SILENCE.
      The work object is deleted two lines down and everything hung off it goes
      with it, including the sign-up sheet: its id, its key, and the only record
@@ -9687,9 +9761,21 @@ function drawGrid(){
      replays every time anything repaints the grid. SASH_SEEN is null on the
      very first draw of a session, so a reload never replays a moment for an
      act that was logged days ago. */
-  if(SASH_SEEN === null){ SASH_SEEN = SASH_LAST; }
+  if(SASH_SEEN === null){
+    SASH_SEEN = SASH_LAST;
+    /* A MOMENT SURVIVES THE APP BEING SHUT. Nothing is left half-finished by
+       walking away from the finish page: the act is complete either way, and
+       what waits is the moment, which plays on the next arrival here. An act
+       still standing open counts too — the app closed under it. */
+    if(SASH_LAST && +((map[SASH_LAST]||{}).end) >= 1){
+      CEL_DUE = SASH_LAST; SASH_STRAP = SASH_LAST;
+    }
+  }
   else if(SASH_LAST && SASH_LAST !== SASH_SEEN){
-    SASH_SEEN = SASH_LAST; CEL_DUE = SASH_LAST; SASH_STRAP = SASH_LAST;
+    SASH_SEEN = SASH_LAST;
+    /* the square fills now; the sash and the moment wait for the end of the
+       act, which is on the far side of the finish page */
+    if(!actOpen(map[SASH_LAST])){ CEL_DUE = SASH_LAST; SASH_STRAP = SASH_LAST; }
   }
 
   /* Act 0 is the first tile, drawn like any other finished act. */
@@ -9914,6 +10000,16 @@ function celFinish(){
   if(CEL_GUARD){ clearTimeout(CEL_GUARD); CEL_GUARD = 0; }
   CEL_RUNNING = false; CEL_PENDING = false;
   celLock(false);
+  /* THE QUESTION BELONGS TO YOUR YEAR, AND ONLY THERE. G, 18 September: editing
+     a photograph "crashed out of that screen and went straight into … anything
+     to add". It did: closing any sheet schedules a celTick, and a celTick with
+     nothing owed paid the question out wherever you happened to be standing —
+     which, if you had posted earlier and the moment had already been and gone,
+     was the middle of the Post it screen with the photograph's box just shut.
+     So it waits. If this is not Your year, what is owed stays owed and the next
+     arrival there pays it. A question that turns up late is a small thing; one
+     that throws you out of what you were doing is not. */
+  if(SCREEN !== 'home') return;
   const fn = CEL_AFTER; CEL_AFTER = null;
   /* a breath after the confetti rather than on top of the last of it */
   if(fn) setTimeout(fn, 420);
@@ -11067,8 +11163,21 @@ function sendChip(label, key){
   return (g ? '<span class="glyph"><svg viewBox="0 0 24 24">'+g+'</svg></span>' : '') + label;
 }
 
+function finishNoPost(){ go('home'); }   // go() is what closes the act out
 function drawCompose(){
   const a = S.current || S.acts[S.acts.length-1];
+  /* WHERE AM I. An act on its way to being finished is told so: this is the
+     last step, not an extra one. An act re-opened from the journal months
+     later is over already, and the page is what it always was. */
+  const open = actOpen(a);
+  const h2 = $('cm-h2');
+  if(h2) h2.textContent = open ? ('Finish act ' + (a.no||'')) : 'Post it';
+  /* the number is in the heading now, so the line under it stops repeating it
+     and keeps only the part the heading does not say */
+  const sub = $('cm-no');
+  if(sub && open && a.no) sub.textContent = 'of ' + cardWords(a).n;
+  const dn = $('cm-done');
+  if(dn) dn.classList.toggle('hide', !open);
   const on = PLATS.filter(([k])=>S.platforms[k].on);
   const list = on.length ? on : PLATS;
   /* Private sits with the platforms because it is the same decision: where is
@@ -11622,6 +11731,11 @@ function shareFailed(){
    an image in a web view and iOS and Android both offer to save it. */
 let PREV_URL = null;
 function leaveCompose(){
+  /* THE DOOR. Posted and said yes, said not yet and then left, tapped Finish
+     without posting, or simply pressed back — they are all one thing, and
+     this is the one place that catches all of them. Re-opening an act that is
+     already over passes straight through: closeOut only acts on an open one. */
+  closeOut(S.current);
   /* the last object URL outlived the screen */
   if(PREV_URL){ URL.revokeObjectURL(PREV_URL); PREV_URL = null; }
   GO_WAITING = null;
@@ -11716,9 +11830,12 @@ function drawPreview(){
         pendX += dx; pendY += dy;
         if(moved < 4) return;                 // still a tap; hold what it has done
         const w=t.clientWidth||1, h=t.clientHeight||1;
+        const iw=im.naturalWidth||1, ih=im.naturalHeight||1;
+        const b = photoBox(iw, ih, w, h, p);
         const q = p.pos || (p.pos = {x:0,y:0});
-        q.x = clampPos((+q.x||0) + pendX/w);
-        q.y = clampPos((+q.y||0) + pendY/h);
+        q.x = (+q.x||0) + pendX/(b.dw||1);
+        q.y = (+q.y||0) + pendY/(b.dh||1);
+        settlePos(p, iw, ih, w, h);
         pendX = 0; pendY = 0;
         put();
       };
@@ -11796,6 +11913,8 @@ function drawPreview(){
 const PHO_TOURED = {};
 /* and which have had the shape pointed out. Not saved, for the same reason. */
 const SHP_TOURED = {};
+/* and which have been shown the swipe. Not saved: it is a demonstration. */
+const PHO_DEMOED = {};
 let PHO_I = -1;                                  // which photograph is open
 function phoAct(){ return S.current || S.acts[S.acts.length-1] || null; }
 function phoOf(){
@@ -11829,6 +11948,23 @@ function drawPhotoSheet(){
   fr.innerHTML = '<img draggable="false" src="'+esc(p.url)+'" alt="">';
   const im = fr.querySelector('img');
   const put = layoutWhenReady(im, fr, p);
+
+  /* the demonstration, once per act, and only when there is something to move */
+  if(!PHO_DEMOED[a.no] && !p.off){
+    PHO_DEMOED[a.no] = 1;
+    const fing = document.createElement('span');
+    fing.className = 'fing';
+    fing.setAttribute('aria-hidden', 'true');
+    fr.appendChild(fing);
+    fr.classList.add('demo');
+    const stopDemo = ()=>{
+      fr.classList.remove('demo');
+      if(fing.parentNode) fing.remove();
+    };
+    setTimeout(stopDemo, 2800);
+    /* a real finger always wins */
+    fr.addEventListener('pointerdown', stopDemo, { once:true });
+  }
   if(mk){
     const m = document.createElement('span');
     m.className='mk'; m.style.color = mk.ink;
@@ -11859,6 +11995,10 @@ function drawPhotoSheet(){
       const now = spread();
       if(pinch0 > 8 && now > 8){
         p.zoom = clampZoom(zoom0 * (now / pinch0));
+        /* the offset is a share of the picture, so zooming no longer flings it —
+           it only has to be brought back inside the frame */
+        settlePos(p, im.naturalWidth||1, im.naturalHeight||1,
+                  fr.clientWidth||1, fr.clientHeight||1);
         moved += 8;
         put();
       }
@@ -11866,9 +12006,12 @@ function drawPhotoSheet(){
     }
     moved += Math.abs(dx) + Math.abs(dy);
     const w = fr.clientWidth||1, h = fr.clientHeight||1;
+    const iw = im.naturalWidth||1, ih = im.naturalHeight||1;
+    const b = photoBox(iw, ih, w, h, p);
     const q = p.pos || (p.pos = {x:0,y:0});
-    q.x = clampPos((+q.x||0) + dx/w);
-    q.y = clampPos((+q.y||0) + dy/h);
+    q.x = (+q.x||0) + dx/(b.dw||1);
+    q.y = (+q.y||0) + dy/(b.dh||1);
+    settlePos(p, iw, ih, w, h);
     put();
     /* nothing is held back in here: inside the box a press can only mean move */
   });
@@ -12061,8 +12204,12 @@ function askIfPosted(){
            top of it and nothing to scroll, and the question comes after. */
         then:()=>{ act.posted = act.posted||{}; act.posted[plat]=true;
                    dropPasteBar(); save(); drawCompose();
+                   /* "Anything to add?" is a question about the thing that has
+                      just gone out into the world — did seeing it there jog
+                      something loose. An act finished without posting has
+                      nothing to add TO, and is asked nothing at all. */
                    CEL_AFTER = ()=>askEval(act);
-                   go('home');
+                   go('home');          // go() closes the act out on the way
                    setTimeout(celTick, 280); } });
 }
 document.addEventListener('visibilitychange', ()=>{
@@ -12920,6 +13067,19 @@ function layoutWhenReady(im, box, p){
    makes the real picture AND by both previews on screen, so what is shown and
    what is sent cannot drift apart — which is precisely the trap the 14
    September round recorded and this file has fallen into once already. */
+/* WHERE IT SITS IS AN OFFSET OF THE PICTURE, NOT OF WHAT HANGS OVER THE EDGE.
+   G, 18 September: in the tall frame it "kept snapping, wanting to snap to the
+   edge, and eventually it just wouldn't". That is exactly what the old
+   arithmetic did. The offset was held as a share of the OVERFLOW — and the
+   overflow changes the instant you pinch, and falls to nothing when the picture
+   is about the size of the frame. So a pinch flung the picture, and near a fit
+   there was no room to move at all: every drag snapped to an edge.
+
+   Held as a share of the picture itself, a pinch no longer moves it and there is
+   always somewhere to go. The limits are applied here, in pixels, at the moment
+   of drawing: a picture bigger than the frame may not show a gap, and one
+   smaller than the frame may not wander outside it. Smooth, and the same
+   arithmetic for the canvas and both previews. */
 function photoBox(iw, ih, W, H, p){
   const whole = !!(p && p.whole);
   const m = whole ? W * 0.045 : 0;               // the card's own margin, when it shows
@@ -12927,10 +13087,21 @@ function photoBox(iw, ih, W, H, p){
                      : Math.max(W/iw, H/ih);
   const s = base * clampZoom(p && p.zoom);
   const dw = iw * s, dh = ih * s;
-  const ox = clampPos(p && p.pos && p.pos.x), oy = clampPos(p && p.pos && p.pos.y);
-  return { dw, dh,
-           x: (W - dw)/2 + ox * Math.abs(dw - W),
-           y: (H - dh)/2 + oy * Math.abs(dh - H) };
+  const ox = (p && p.pos && +p.pos.x) || 0, oy = (p && p.pos && +p.pos.y) || 0;
+  let x = (W - dw)/2 + ox * dw;
+  let y = (H - dh)/2 + oy * dh;
+  x = (dw >= W) ? Math.max(W - dw, Math.min(0, x)) : Math.min(W - dw, Math.max(0, x));
+  y = (dh >= H) ? Math.max(H - dh, Math.min(0, y)) : Math.min(H - dh, Math.max(0, y));
+  return { dw, dh, x, y };
+}
+/* put the offset back where the drawing actually ended up, so a finger that has
+   run out of room is not quietly building up a debt it has to drag back */
+function settlePos(p, iw, ih, W, H){
+  const b = photoBox(iw, ih, W, H, p);
+  const q = p.pos || (p.pos = {x:0,y:0});
+  q.x = (b.x - (W - b.dw)/2) / (b.dw || 1);
+  q.y = (b.y - (H - b.dh)/2) / (b.dh || 1);
+  return b;
 }
 
 function loadImg(url){

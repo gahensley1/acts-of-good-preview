@@ -889,6 +889,227 @@ head('the shape pair points itself out, and the reminder waits — G, 18 Sept');
   ck('and the reminder stays up rather than timing out', t.stays===true, t);
   }
 
+
+head('the question cannot throw you out of what you are doing — G, 18 Sept');
+{ const {ctx,p}=await app();
+  const r = await p.evaluate(async ()=>{
+    const a=S.acts[S.acts.length-1];
+    S.current=a; CM_PLAT='instagram'; a.evalAsked=false;
+    try{ endTabTour(); }catch(e){}
+    go('home'); openCompose(); try{ sheet(null); }catch(e){}
+    await new Promise(r=>setTimeout(r,300));
+    /* the exact shape of his fault: something is owed, the moment has already
+       been and gone, and a sheet closes on the Post it screen */
+    CEL_DUE = 0; CEL_PENDING = false; CEL_RUNNING = false;
+    CEL_AFTER = ()=>askEval(a);
+    sheet('photo'); await new Promise(r=>setTimeout(r,150));
+    sheet(null);
+    await new Promise(r=>setTimeout(r,1400));
+    const out = { screen: SCREEN,
+                  evalUp: !document.getElementById('sheet-eval').classList.contains('hide'),
+                  stillOwed: typeof CEL_AFTER === 'function' };
+    /* and it is paid the moment you are back where the moment lives */
+    go('home');
+    celTick();
+    await new Promise(r=>setTimeout(r,1000));
+    out.paidAtHome = !document.getElementById('sheet-eval').classList.contains('hide');
+    sheet(null);
+    return out;
+  });
+  ck('closing a sheet on the post page does not spring the question', r.evalUp===false, r);
+  ck('and does not throw you off the screen you were on', r.screen==='compose', r);
+  ck('what is owed stays owed', r.stillOwed===true, r);
+  ck('and is paid once you are back on your year', r.paidAtHome===true, r);
+  }
+
+head('the drag does not snap or fling — G, 18 Sept');
+{ const {ctx,p}=await app();
+  const r = await p.evaluate(()=>{
+    const F = POST_SHAPES.story;                 // the tall frame, where he saw it
+    const iw = 1600, ih = 1200;                  // a wide photo in a tall frame
+    const pho = { pos:{x:0,y:0}, zoom:1 };
+    /* HIS FAULT ONE: near a fit there was no room to move at all. */
+    const fit = { pos:{x:0,y:0}, zoom:1, whole:true };
+    const a0 = photoBox(iw, ih, F.w, F.h, fit);
+    fit.pos.x = 0.1;
+    const a1 = photoBox(iw, ih, F.w, F.h, fit);
+    const movesWhenFitted = Math.abs(a1.x - a0.x) > 1;
+
+    /* HIS FAULT TWO: a pinch flung the picture across the frame.
+       The right thing to measure is not where the picture's middle lands in
+       pixels — that moves on any honest zoom — but WHICH PART OF THE PHOTOGRAPH
+       is under the middle of the frame. Pinch should magnify what you are
+       looking at, not slide something else under your finger. */
+    const under = (box) => (F.w/2 - box.x) / box.dw;
+    pho.pos = { x:0.08, y:0 };
+    const z1 = photoBox(iw, ih, F.w, F.h, pho);
+    pho.zoom = 2;
+    const z2 = photoBox(iw, ih, F.w, F.h, pho);
+    const flung = Math.abs(under(z2) - under(z1)) > 0.02;
+
+    /* and it may never show a gap when the picture is bigger than the frame */
+    const far = { pos:{x:9, y:9}, zoom:2 };
+    const b = photoBox(iw, ih, F.w, F.h, far);
+    const noGap = b.x <= 0.5 && (b.x + b.dw) >= F.w - 0.5;
+
+    /* nor wander outside it when smaller */
+    const small = { pos:{x:-9, y:-9}, zoom:0.4 };
+    const c = photoBox(iw, ih, F.w, F.h, small);
+    const inside = c.x >= -0.5 && (c.x + c.dw) <= F.w + 0.5;
+
+    /* and a finger that runs out of room must not build up a debt */
+    const debt = { pos:{x:0,y:0}, zoom:2 };
+    settlePos(debt, iw, ih, F.w, F.h);
+    debt.pos.x += 5;                              // shoved far past the edge
+    settlePos(debt, iw, ih, F.w, F.h);
+    const settled = Math.abs(debt.pos.x) < 1;
+    return { movesWhenFitted, flung, noGap, inside, settled };
+  });
+  ck('a photo sized near its frame can still be moved', r.movesWhenFitted===true, r);
+  ck('and pinching no longer flings it across the frame', r.flung===false, r);
+  ck('a photo bigger than the frame never shows a gap', r.noGap===true, r);
+  ck('and one smaller than the frame stays inside it', r.inside===true, r);
+  ck('a finger that runs out of room builds up no debt to drag back', r.settled===true, r);
+  }
+
+head('the finger that shows you it moves — G, 18 Sept');
+{ const {ctx,p}=await app();
+  const r = await p.evaluate(async ()=>{
+    const mk=()=>{ const c=document.createElement('canvas'); c.width=1600;c.height=900;
+      c.getContext('2d').fillRect(0,0,1600,900); return c.toDataURL('image/jpeg',0.6); };
+    const a=S.acts[S.acts.length-1];
+    a.photos=[{id:'fg1',url:mk()}]; S.current=a;
+    try{ endTabTour(); }catch(e){}
+    go('home'); openCompose(); try{ sheet(null); }catch(e){}
+    drawPreview();
+    await new Promise(r=>setTimeout(r,250));
+    openPhoto(0);
+    await new Promise(r=>setTimeout(r,250));
+    const fr = document.getElementById('pho-frame');
+    const shown = !!fr.querySelector('.fing') && fr.classList.contains('demo');
+    const posBefore = JSON.stringify(a.photos[0].pos || null);
+    await new Promise(r=>setTimeout(r,3000));
+    const gone = !fr.querySelector('.fing') && !fr.classList.contains('demo');
+    const posAfter = JSON.stringify(a.photos[0].pos || null);
+    /* and it never runs twice for the same act */
+    sheet(null); openPhoto(0);
+    await new Promise(r=>setTimeout(r,250));
+    const again = !!document.getElementById('pho-frame').querySelector('.fing');
+    sheet(null);
+    return { shown, gone, sameSpot: posBefore === posAfter, again };
+  });
+  ck('the finger shows itself when the box opens', r.shown===true, r);
+  ck('and takes itself away', r.gone===true, r);
+  ck('the photo comes back to exactly where it was', r.sameSpot===true, r);
+  ck('and it is shown once, not every time', r.again===false, r);
+  }
+
+head('an act ends when you leave the finish page — G, 18 Sept');
+{ const {ctx,p}=await app();
+  const r = await p.evaluate(async ()=>{
+    const a=S.acts[S.acts.length-1];
+    a.end=1; S.current=a; save();
+    go('home'); openCompose();
+    await new Promise(r=>setTimeout(r,200));
+    const heading = document.getElementById('cm-h2').textContent;
+    const doorShown = !document.getElementById('cm-done').classList.contains('hide');
+    /* leave it without posting */
+    finishNoPost();
+    await new Promise(r=>setTimeout(r,200));
+    const closed = +a.end;
+    /* and the heading is ordinary again once the act is over */
+    a.end=0; S.current=a; openCompose();
+    await new Promise(r=>setTimeout(r,200));
+    const later = document.getElementById('cm-h2').textContent;
+    const doorGone = document.getElementById('cm-done').classList.contains('hide');
+    go('home');
+    return { heading, doorShown, closed, later, doorGone };
+  });
+  ck('the page says it is the last step of the act', /^Finish act /.test(r.heading), r);
+  ck('and offers a way to finish without posting', r.doorShown===true, r);
+  ck('taking it closes the act out and leaves the moment owed', r.closed===2, r);
+  ck('an act re-opened long afterwards is just Post it again', r.later==='Post it', r);
+  ck('and is offered no second ending', r.doorGone===true, r);
+  }
+
+head('every door off the finish page is the same door');
+{ const {ctx,p}=await app();
+  const r = await p.evaluate(async ()=>{
+    const out = {};
+    const fresh = ()=>{ const a=S.acts[S.acts.length-1]; a.end=1; S.current=a; save(); return a; };
+    /* the back button */
+    let a=fresh(); go('home'); openCompose();
+    await new Promise(r=>setTimeout(r,150));
+    go(CM_BACK||'card');
+    await new Promise(r=>setTimeout(r,150));
+    out.back = +a.end;
+    /* posted, and said yes */
+    a=fresh(); a.posted={}; go('home'); openCompose();
+    await new Promise(r=>setTimeout(r,150));
+    LEFT_FOR = { act:a, plat:'instagram', at:0 };
+    askIfPosted();
+    await new Promise(r=>setTimeout(r,150));
+    document.getElementById('dlg-yes').click();
+    await new Promise(r=>setTimeout(r,400));
+    out.yes = +a.end; out.posted = !!(a.posted||{}).instagram;
+    return out;
+  });
+  ck('pressing back ends the act', r.back===2 || r.back===0, r);
+  ck('posting and saying yes ends the act', r.yes===2 || r.yes===0, r);
+  ck('and still records that it went up', r.posted===true, r);
+  }
+
+head('the moment waits for the end of the act, and survives being shut');
+{ const {ctx,p}=await app();
+  const r = await p.evaluate(async ()=>{
+    const a=S.acts[S.acts.length-1];
+    /* an act still standing open on the finish page owes nothing yet */
+    a.end=1; save(); SASH_SEEN=null; CEL_DUE=0;
+    drawHome();
+    /* an act the app closed under counts as owed on the next launch — that is
+       the cold-start rule, tested below. Clear it and take the OTHER branch:
+       a square arriving while the act is still standing open. */
+    const onOpenStart = CEL_DUE;
+    CEL_DUE = 0; SASH_SEEN = 0;
+    drawHome();
+    const whileOpen = CEL_DUE;
+    /* closed: now it is owed */
+    a.end=2; SASH_SEEN=0; CEL_DUE=0;
+    drawHome();
+    const whenClosed = CEL_DUE;
+    /* and owed on a cold start too */
+    a.end=2; SASH_SEEN=null; CEL_DUE=0;
+    drawHome();
+    const onOpening = CEL_DUE;
+    return { whileOpen, whenClosed, onOpening, onOpenStart };
+  });
+  ck('nothing is owed while the act is still open', r.whileOpen===0, r);
+  ck('an act the app closed under is owed its moment on the next launch', r.onOpenStart>0, r);
+  ck('the moment is owed the instant it closes', r.whenClosed>0, r);
+  ck('and is still owed after the app has been shut and reopened', r.onOpening>0, r);
+  }
+
+head('the ending is written down and read back — invariant 1');
+{ const {ctx,p}=await app();
+  const r = await p.evaluate(()=>{
+    /* NOT the newest act. The newest one's square is the one that has just
+       arrived, so opening the app pays its moment out and spends the field
+       before anything can read it — which is right, and useless as proof. */
+    const a=S.acts[0]; a.end=2; save();
+    const wire = serialise();
+    return { v: wire.v, onWire: wire.acts[0].end };
+  });
+  ck('the file version moved with the field', r.v===4, r);
+  ck('how far through its ending an act is goes out with it', r.onWire===2, r);
+  /* BOTH HALVES, across a real reload. Naming a field in serialise() and never
+     reading it back is the fault this file has shipped four times. */
+  await p.reload(); await p.waitForTimeout(1200);
+  const back = await p.evaluate(()=>{
+    return { end:+S.acts[0].end, no:S.acts[0].no };
+  });
+  ck('and comes back after a real reload', back.end===2, back);
+  }
+
 console.log('\n'+pass+' passed, '+fail+' failed, console/page errors: '+errs.length);
 if(errs.length) console.log(JSON.stringify(errs.slice(0,6),null,1));
 await b.close();

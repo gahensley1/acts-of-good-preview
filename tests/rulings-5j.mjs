@@ -105,7 +105,12 @@ head('C1 — the reminder has a door');
 head('C2A — the format version');
 { const {ctx,p}=await seeded();
   const r=await p.evaluate(()=>({ v:serialise().v, FILE_V:FILE_V }));
-  ck('a new file is stamped with the real version', r.v===2 && r.FILE_V===2, r);
+  /* L114 — A CHECK FROZEN TO A LITERAL HOLDS THE OLD WORLD IN PLACE. This
+     read `=== 2` and failed the first time the number honestly moved, which is
+     the opposite of what it is for. The rule is that what a file SAYS it is
+     matches what the build thinks it writes — and that the number only ever
+     goes up. Second time this has been fixed here; it stays rule-shaped. */
+  ck('a new file is stamped with the real version', r.v===r.FILE_V && r.FILE_V>=2, r);
   const ref=await p.evaluate(()=>{
     let said=null; const old=window.say; window.say=(t,b)=>{ said=t; };
     importJournal({ files:[] });          // no file: should not claim anything
