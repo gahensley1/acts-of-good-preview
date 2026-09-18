@@ -669,10 +669,28 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
      the top margin, the last on the bottom margin, and the space in between is
      shared out evenly. Top margin and bottom margin are the same number. */
 }
-.photos{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
-.photos .ph-tile{border-radius:9px;overflow:hidden;position:relative;
+/* the gap is wider than it was (7px) because the remove button now straddles
+   the corner of a tile and must never touch its neighbour */
+.photos{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+/* SQUARE UNLESS TOLD OTHERWISE. I took this default out in 6U when the post
+   page started setting its own shape, and forgot that the EDITOR's strip has
+   no shape of its own — so every photo there went whatever shape it happened
+   to be. Put back, and the post page still overrides it. */
+.photos .ph-tile{aspect-ratio:1;border-radius:9px;overflow:hidden;position:relative;
   background:var(--mist);border:1px solid var(--line)}
+/* the wrapper does NOT clip, so the remove button can hang over the corner */
+.photos .ph-wrap{position:relative}
 .photos .ph-tile img{width:100%;height:100%;object-fit:cover;display:block}
+/* A PHOTOGRAPH YOU CAN DRAG IS A PHOTOGRAPH THE BROWSER TRIES TO DRAG. Measured
+   with a probe: one move into every drag the browser fired pointercancel and the
+   picture stopped following the finger. The cause was the browser's own
+   image-dragging, which begins the moment a press moves on an <img> and cancels
+   the pointer out from under us. Turning that off is the fix, and it is the
+   right thing on a desktop anyway — nobody wants a ghost thumbnail sailing
+   across the screen. The pointer belongs to the tile, not the picture. */
+.photos .ph-tile img, .phbig img{
+  -webkit-user-drag:none; user-select:none; -webkit-user-select:none;
+  pointer-events:none}
 /* a photo tile you can drag. touch-action:none so the page does not scroll out
    from under a finger that is moving the picture instead. */
 /* the tile is a container so the mark inside it can be sized as a share of the
@@ -707,12 +725,29 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
 .mkpick button:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 .photos .ph-tile.phdrag{touch-action:none;cursor:grab}
 .photos .ph-tile.phdrag:active{cursor:grabbing}
-.photos .ph-tile .x{position:absolute;top:0;right:0;width:34px;height:34px;
-  color:#fff;font-size:13px;display:flex;align-items:flex-start;
-  justify-content:flex-end;padding:4px;line-height:1;cursor:pointer}
-/* the visible dot stays small; the thing your thumb has to hit does not */
-.photos .ph-tile .x::before{content:"";position:absolute;top:3px;right:3px;
-  width:22px;height:22px;border-radius:50%;background:rgba(20,20,20,.62);z-index:-1}
+/* ── THE REMOVE BUTTON ────────────────────────────────────────
+   G, 17 September, said three times and then "fix the X now": "we need to make
+   the X more visible when add photos to a post and change your mind — maybe in
+   a circle, larger, and intersecting the corner … right now it's unrecognizable."
+
+   IT WAS a 22px dot at 62% black sitting INSIDE the picture. On a dark
+   photograph it disappeared entirely, and it is the only way to take a
+   photograph back off an act.
+
+   Now: a 30px coral disc straddling the corner, half on the picture and half
+   off it, carrying a white ring so it clears the photograph's edge on BOTH
+   sides of the corner — which is the part that makes it survive any photograph,
+   dark or bright. Coral because that is what an action looks like in this app.
+   The thumb target stays 44px and is centred on the disc (L102): a tap on it can
+   only mean remove, and it cannot steal a tap meant for the picture. */
+.photos .ph-wrap .x{position:absolute;top:-17px;right:-17px;width:44px;height:44px;
+  background:none;border:0;padding:0;z-index:4;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  font:700 20px/1 Montserrat,system-ui,sans-serif;color:#fff}
+.photos .ph-wrap .x::before{content:"";position:absolute;left:7px;top:7px;
+  width:30px;height:30px;border-radius:50%;background:var(--coral);
+  box-shadow:0 0 0 2.5px #fff, 0 1px 5px rgba(0,0,0,.30);z-index:-1}
+.photos .ph-wrap .x:focus-visible{outline:2px solid var(--ink);outline-offset:2px;border-radius:50%}
 .photos .ph-add{aspect-ratio:1;border-radius:9px;border:1.5px dashed var(--line);
   display:flex;align-items:center;justify-content:center;flex-direction:column;gap:2px;
   color:var(--muted);font-size:22px;background:var(--paper)}
@@ -1680,7 +1715,7 @@ select.pick::-ms-expand{display:none}
     <!-- BUILD MARK — dev only, delete this div when the app ships -->
     <!-- IT HAD SAID 5M SINCE 15 SEPTEMBER, eight builds back, and every
          feedback mail sent from the app quoted it. Move it with the build. -->
-    <div id="buildtag">BUILD 6U</div>
+    <div id="buildtag">BUILD 6V</div>
   </div>
 </section>
 
@@ -10256,13 +10291,23 @@ function drawWritePhotos(a){
 function drawPhotos(boxId, fileId, list, onChange){
   const box=$(boxId); box.innerHTML='';
   list.forEach((p,i)=>{
+    /* the tile clips its photograph to a rounded square, so the remove button
+       cannot live inside it and still hang over the corner. It sits on a wrapper
+       that does not clip. */
+    const w=document.createElement('div');
+    w.className='ph-wrap';
     const t=document.createElement('div');
     t.className='ph-tile';
+    t.innerHTML='<img src="'+esc(p.url)+'" alt="Photo '+(i+1)+'">';
+    w.appendChild(t);
     /* it was a bare div: a keyboard user could add photos and never remove one,
        and the only destructive control on the screen had no name */
-    t.innerHTML='<img src="'+esc(p.url)+'" alt="Photo '+(i+1)+'">'+
-      '<button type="button" class="x" aria-label="Remove photo '+(i+1)+'">×</button>';
-    t.querySelector('.x').onclick=e=>{
+    const xb=document.createElement('button');
+    xb.type='button'; xb.className='x';
+    xb.setAttribute('aria-label','Remove photo '+(i+1));
+    xb.textContent='\u00d7';
+    w.appendChild(xb);
+    xb.onclick=e=>{
       e.stopPropagation();
       /* A photo is the part of a journal you cannot write again, and this was the
          one destructive control in the app with neither a confirmation nor an
@@ -10278,7 +10323,7 @@ function drawPhotos(boxId, fileId, list, onChange){
            plan carries copies of the plan's photo ids */
         ()=>{ if(list.indexOf(was)<0) releaseIds([was.id]); });
     };
-    box.appendChild(t);
+    box.appendChild(w);
   });
   if(list.length < 9){
     const add=document.createElement('button');
@@ -11606,7 +11651,7 @@ function drawPreview(){
       const shp = postFrame(a);
       t.style.cssText='padding:0;border:0;background:none;position:relative;'+
         'aspect-ratio:'+shp.w+' / '+shp.h+';opacity:'+(p.off?'.35':'1');
-      t.innerHTML='<img src="'+esc(p.url)+'" alt="" style="outline:'+(p.off?'none':'2px solid var(--coralink)')+';outline-offset:1px;border-radius:6px">';
+      t.innerHTML='<img draggable="false" src="'+esc(p.url)+'" alt="" style="outline:'+(p.off?'none':'2px solid var(--coralink)')+';outline-offset:1px;border-radius:6px">';
       /* THE TILE IS ALREADY THE FRAME. It is square and the picture inside it is
          cropped to fill, which is exactly what now goes out. So moving the
          picture here is moving the picture that posts — the trap the 14
@@ -11634,27 +11679,50 @@ function drawPreview(){
          posted, and it must survive a finger that wobbles. A press that travels
          less than a few pixels is a tap and still toggles; anything further is a
          move and the tap never fires. */
-      let dragging=false, moved=0, lx=0, ly=0;
-      t.addEventListener('pointerdown', e=>{
-        dragging=true; moved=0; lx=e.clientX; ly=e.clientY;
-        try{ t.setPointerCapture(e.pointerId); }catch(err){}
-      });
-      t.addEventListener('pointermove', e=>{
+      /* THE FIRST FEW PIXELS ARE NOT THROWN AWAY. This used to return early
+         while the press had travelled less than the tap threshold, which quietly
+         discarded the start of every drag — and when the browser COALESCES a
+         quick swipe into a single move, that start is the whole drag and nothing
+         happened at all. The travel is held instead, and spent the moment the
+         press stops being a tap. */
+      /* THE DRAG IS FOLLOWED ON THE WINDOW, NOT ON THE TILE. Pointer capture was
+         not enough: measured with a probe, the browser fired pointerout, then
+         pointerleave, then POINTERCANCEL one move into every drag, and the
+         photograph stopped following the finger after a few pixels. Whatever
+         provokes the cancel — the tile relaying out underneath the pointer — the
+         cure is not to depend on the tile keeping the pointer: once a press has
+         started, the window reports the movement until the finger lifts.
+         The first pixels are held rather than discarded, too, so a quick swipe
+         that the browser delivers as a single coalesced move still counts. */
+      let dragging=false, moved=0, lx=0, ly=0, pendX=0, pendY=0;
+      const onMove = e=>{
         if(!dragging) return;
         const dx=e.clientX-lx, dy=e.clientY-ly; lx=e.clientX; ly=e.clientY;
         moved += Math.abs(dx)+Math.abs(dy);
-        if(moved < 4) return;
+        pendX += dx; pendY += dy;
+        if(moved < 4) return;                 // still a tap; hold what it has done
         const w=t.clientWidth||1, h=t.clientHeight||1;
         const q = p.pos || (p.pos = {x:0,y:0});
-        q.x = clampPos((+q.x||0) + dx/w);
-        q.y = clampPos((+q.y||0) + dy/h);
+        q.x = clampPos((+q.x||0) + pendX/w);
+        q.y = clampPos((+q.y||0) + pendY/h);
+        pendX = 0; pendY = 0;
         put();
-      });
-      const endDrag = ()=>{ if(!dragging) return; dragging=false;
+      };
+      const endDrag = ()=>{
+        if(!dragging) return;
+        dragging=false;
+        window.removeEventListener('pointermove', onMove, true);
+        window.removeEventListener('pointerup', endDrag, true);
+        window.removeEventListener('pointercancel', endDrag, true);
         /* only a real move is worth writing to disk and redrawing the card */
-        if(moved >= 4){ save(); prepack(); } };
-      t.addEventListener('pointerup', endDrag);
-      t.addEventListener('pointercancel', endDrag);
+        if(moved >= 4){ save(); prepack(); }
+      };
+      t.addEventListener('pointerdown', e=>{
+        dragging=true; moved=0; pendX=0; pendY=0; lx=e.clientX; ly=e.clientY;
+        window.addEventListener('pointermove', onMove, true);
+        window.addEventListener('pointerup', endDrag, true);
+        window.addEventListener('pointercancel', endDrag, true);
+      });
       /* A TAP NOW OPENS THE PHOTOGRAPH RATHER THAN SILENTLY DROPPING IT.
          Leaving one out moved inside the box, where it is a labelled button
          instead of a tap you have to already know about — and where you can see
@@ -11742,7 +11810,7 @@ function drawPhotoSheet(){
                                                 : 'This photo \u2014 for a square post';
   const mk = p.off ? null : markFor(a);
   fr.classList.toggle('out', !!p.off);
-  fr.innerHTML = '<img src="'+esc(p.url)+'" alt="">';
+  fr.innerHTML = '<img draggable="false" src="'+esc(p.url)+'" alt="">';
   const im = fr.querySelector('img');
   const put = layoutWhenReady(im, fr, p);
   if(mk){
@@ -11786,6 +11854,7 @@ function drawPhotoSheet(){
     q.x = clampPos((+q.x||0) + dx/w);
     q.y = clampPos((+q.y||0) + dy/h);
     put();
+    /* nothing is held back in here: inside the box a press can only mean move */
   });
   const endPtr = e=>{
     PTR.delete(e.pointerId);

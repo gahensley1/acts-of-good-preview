@@ -313,12 +313,21 @@ head('the photograph moves inside the frame — G, 17 September');
   await p.waitForTimeout(700);
   await p.evaluate(()=>{ document.querySelectorAll('button').forEach(b=>{
     if(b.textContent.trim()==='Got it') b.click(); }); });
-  /* WAIT FOR THE PICTURE TO FINISH DRAWING FIRST. The card is 1080x1920, so the
-     preview above the strip grows a long way when the pack lands, and the strip
-     moves under the pointer between measuring it and touching it. */
+  /* WAIT FOR THE PICTURE TO FINISH DRAWING FIRST. The preview above the strip
+     grows when the pack lands, and the strip moves under the pointer between
+     measuring it and touching it. */
   await p.waitForFunction(()=>typeof PACK!=='undefined' && PACK.busy===false && !!PACK.files,
                           null, {timeout:20000}).catch(()=>{});
   await p.waitForTimeout(600);
+  /* AND CLEAR THE DIALOG AFTERWARDS, NOT BEFORE. The harness photographs are
+     thumbnails, so the app quite rightly says it is sending a smaller picture —
+     but it says it when the PACK lands, which is after the earlier dismissal.
+     It was then sitting over the tile, and every drag below landed on its
+     paragraph instead of the photograph. Found with elementFromPoint, not by
+     staring at the code. */
+  await p.evaluate(()=>{ document.querySelectorAll('button').forEach(b=>{
+    if(b.textContent.trim()==='Got it') b.click(); }); dropToast(); });
+  await p.waitForTimeout(300);
   const tile = await p.$('#cm-prev .photos > *');
   /* and the strip sits well down a long screen: without this the pointer lands
      outside the viewport and every check below passes or fails for the wrong
@@ -756,6 +765,59 @@ head('pinch works both ways — G, 17 Sept');
   ck('pinching out makes it smaller', z.smaller===true, z);
   ck('and out far enough leaves white around it', z.leavesWhite===true, z);
   ck('with a floor and a ceiling', z.floor===0.35 && z.ceiling===4, z);
+  }
+
+
+head('the X on a photograph — G, 17 Sept, said three times');
+{ const {ctx,p}=await app();
+  const r = await p.evaluate(()=>{
+    const mk=(dark)=>{ const c=document.createElement('canvas'); c.width=600;c.height=600;
+      const g=c.getContext('2d'); g.fillStyle=dark?'#0b0d10':'#fbfaf6'; g.fillRect(0,0,600,600);
+      return c.toDataURL('image/jpeg',0.8); };
+    const host=document.createElement('div');
+    host.id='xtest'; host.className='photos';
+    host.style.cssText='position:fixed;left:16px;top:120px;width:340px;z-index:9';
+    document.body.appendChild(host);
+    window.__list=[{id:'xa',url:mk(true)},{id:'xb',url:mk(false)}];
+    window.__changed=0;
+    drawPhotos('xtest','', window.__list, ()=>{ window.__changed++; });
+    const w = host.querySelector('.ph-wrap');
+    const t = w.querySelector('.ph-tile'), x = w.querySelector('.x');
+    const tr = t.getBoundingClientRect(), xr = x.getBoundingClientRect();
+    const disc = getComputedStyle(x, '::before');
+    /* nothing above it may clip it, or it is invisible again in a new way */
+    let el = host.parentElement, clippers = 0;
+    while(el && el !== document.documentElement){
+      const c = getComputedStyle(el);
+      if(/hidden|scroll/.test(c.overflow + c.overflowX + c.overflowY)) clippers++;
+      el = el.parentElement;
+    }
+    return {
+      tileSquare: Math.abs(tr.width - tr.height) < 2,
+      hitW: Math.round(xr.width), hitH: Math.round(xr.height),
+      disc: parseInt(disc.width, 10),
+      ring: /2\.5px|3px/.test(disc.boxShadow||''),
+      /* HIS SHAPE: it must cross the corner, not sit inside it */
+      crossesRight: xr.left < tr.right && xr.right > tr.right,
+      crossesTop:   xr.top  < tr.top   && xr.bottom > tr.top,
+      clippers,
+      centre: [Math.round(xr.left + xr.width/2), Math.round(xr.top + xr.height/2)]
+    };
+  });
+  ck('the editor’s photos are square again', r.tileSquare===true, r);
+  ck('the X is a circle about half as wide again as the old dot', r.disc>=28 && r.disc<=34, r);
+  ck('and it carries a ring, so it clears the photo on both sides', r.ring===true, r);
+  ck('it crosses the corner rather than sitting inside it',
+     r.crossesRight===true && r.crossesTop===true, r);
+  ck('the thumb target is still a full 44px', r.hitW>=44 && r.hitH>=44, r);
+  ck('and nothing above it clips it away', r.clippers===0, r);
+
+  /* L102 — a tap on it resolves to REMOVE, and not to the picture underneath */
+  await p.mouse.click(r.centre[0], r.centre[1]);
+  await p.waitForTimeout(300);
+  const after = await p.evaluate(()=>({ left: window.__list.length, changed: window.__changed }));
+  ck('a tap on it takes the photo off', after.left===1 && after.changed>0, after);
+  await p.evaluate(()=>{ const h=document.getElementById('xtest'); if(h) h.remove(); dropUndo&&dropUndo(); });
   }
 
 console.log('\n'+pass+' passed, '+fail+' failed, console/page errors: '+errs.length);
