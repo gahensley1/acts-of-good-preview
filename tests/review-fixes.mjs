@@ -644,8 +644,118 @@ head('the toast, the light it casts, and the one-bar rule — G, 17 Sept');
     return out;
   });
   ck('it lights up the thing it is talking about', lightsUp.lit===true, lightsUp);
+  /* and it must not arrive over a panel that opened while it was scrolling */
+  const overPanel = await p.evaluate(async ()=>{
+    dropToast();
+    const box=document.createElement('div');
+    box.className='photos'; box.id='litprobe2';
+    box.style.cssText='position:fixed;left:20px;top:2200px;width:200px;height:60px';
+    document.body.appendChild(box);
+    toast('late', { coral:true, lit:'#litprobe2', ms:3000 });   // off screen: it will scroll first
+    sheet('photo');                                            // a panel opens meanwhile
+    await new Promise(r=>setTimeout(r, 900));
+    const up = document.getElementById('toastbar').classList.contains('up');
+    sheet(null); dropToast(); box.remove();
+    return up;
+  });
+  ck('and never lands on top of a panel that opened meanwhile', overPanel===false, overPanel);
   ck('and stands clear of it rather than covering it', lightsUp.clear===true, lightsUp);
   ck('and never posts itself off the screen', lightsUp.onScreen===true, lightsUp);
+  }
+
+
+head('the question never lands on the moment — the fault G saw, 17 Sept');
+{ const {ctx,p}=await app();
+  const seen = await p.evaluate(async ()=>{
+    const a=S.acts[S.acts.length-1];
+    a.posted={}; a.evalAsked=false; S.current=a; CM_PLAT='instagram';
+    /* a moment really owed on a real square */
+    const slot = Math.min(2, S.n||2);
+    CEL_DUE = slot; SASH_STRAP = 0;
+    try{ endTabTour(); }catch(e){}
+    go('home'); openCompose(); try{ sheet(null); }catch(e){}
+    markLeaving(a); LEFT_FOR.at = Date.now() - 9000;
+    askIfPosted();
+    await new Promise(r=>setTimeout(r, 200));
+    const btn=[...document.querySelectorAll('button')].find(x=>/yes, it is up/i.test(x.textContent));
+    if(!btn) return { noButton:true };
+    btn.click();
+    /* watch the whole thing, the way a person does */
+    let played=false, overlapped=false, lockedWhilePlaying=false;
+    for(let i=0;i<18;i++){
+      await new Promise(r=>setTimeout(r,200));
+      const cf = document.getElementById('actcf').classList.contains('up');
+      const ev = !document.getElementById('sheet-eval').classList.contains('hide');
+      if(cf){ played=true;
+        if(ev) overlapped=true;
+        if(document.body.style.overflow==='hidden') lockedWhilePlaying=true; }
+    }
+    return { played, overlapped, lockedWhilePlaying };
+  });
+  ck('the moment actually plays after yes', seen.played===true, seen);
+  /* L109 — this is the exact thing that went wrong: the confetti ran and the
+     question sat on top of it. */
+  ck('and the question never sits on top of it', seen.overlapped===false, seen);
+  ck('and the page is held still while it runs', seen.lockedWhilePlaying===true, seen);
+  /* the confetti runs about seven seconds, so the watching loop above ends while
+     it is still going — which is correct, and made this check flaky when it read
+     the lock at that moment. Wait for the end rather than assuming it. */
+  const released = await p.waitForFunction(
+    ()=>document.body.style.overflow === '' && !CEL_RUNNING,
+    null, { timeout: 12000 }).then(()=>true).catch(()=>false);
+  ck('and the page is let go once it is over', released===true, released);
+  const asked = await p.waitForFunction(
+    ()=>!document.getElementById('sheet-eval').classList.contains('hide'),
+    null, { timeout: 4000 }).then(()=>true).catch(()=>false);
+  ck('and only then does the question arrive', asked===true, asked);
+  await p.evaluate(()=>sheet(null));
+  }
+
+head('the box is the shape the post really is — G, 17 Sept');
+{ const {ctx,p}=await app();
+  const r = await p.evaluate(async ()=>{
+    const mk=()=>{ const c=document.createElement('canvas'); c.width=1600;c.height=900;
+      c.getContext('2d').fillRect(0,0,1600,900); return c.toDataURL('image/jpeg',0.6); };
+    const a=S.acts[S.acts.length-1];
+    a.photos=[{id:'sh1',url:mk()}]; a.shape=''; S.current=a;
+    try{ endTabTour(); }catch(e){}
+    go('home'); openCompose(); try{ sheet(null); }catch(e){}
+    drawPreview();
+    await new Promise(r=>setTimeout(r,300));
+    openPhoto(0);
+    await new Promise(r=>setTimeout(r,300));
+    const sq = getComputedStyle(document.getElementById('pho-frame')).aspectRatio;
+    a.shape='story'; drawPhotoSheet();
+    await new Promise(r=>setTimeout(r,200));
+    const st = getComputedStyle(document.getElementById('pho-frame')).aspectRatio;
+    a.shape='';
+    sheet(null);
+    return { sq, st };
+  });
+  const square = /1080\s*\/\s*1080|^1\s*\/\s*1$/.test(r.sq);
+  const tall   = /1080\s*\/\s*1920|^9\s*\/\s*16$/.test(r.st);
+  ck('a square post shows its photo in a square box', square, r);
+  ck('and a story shows it tall', tall, r);
+  }
+
+head('pinch works both ways — G, 17 Sept');
+{ const {ctx,p}=await app();
+  const z = await p.evaluate(()=>{
+    const img=document.createElement('canvas'); img.width=1600; img.height=900;
+    const g=img.getContext('2d'); g.fillStyle='#123'; g.fillRect(0,0,1600,900);
+    const F = POST_SHAPES.post;
+    const inAt2  = photoBox(1600, 900, F.w, F.h, { zoom:2 });
+    const at1    = photoBox(1600, 900, F.w, F.h, { zoom:1 });
+    const outAt5 = photoBox(1600, 900, F.w, F.h, { zoom:0.5 });
+    return { bigger: inAt2.dw > at1.dw,
+             smaller: outAt5.dw < at1.dw,
+             leavesWhite: outAt5.dw < F.w && outAt5.dh < F.h,
+             floor: clampZoom(0.01), ceiling: clampZoom(99) };
+  });
+  ck('pinching in makes it bigger', z.bigger===true, z);
+  ck('pinching out makes it smaller', z.smaller===true, z);
+  ck('and out far enough leaves white around it', z.leavesWhite===true, z);
+  ck('with a floor and a ceiling', z.floor===0.35 && z.ceiling===4, z);
   }
 
 console.log('\n'+pass+' passed, '+fail+' failed, console/page errors: '+errs.length);

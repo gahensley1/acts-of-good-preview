@@ -670,7 +670,7 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
      shared out evenly. Top margin and bottom margin are the same number. */
 }
 .photos{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
-.photos .ph-tile{aspect-ratio:1;border-radius:9px;overflow:hidden;position:relative;
+.photos .ph-tile{border-radius:9px;overflow:hidden;position:relative;
   background:var(--mist);border:1px solid var(--line)}
 .photos .ph-tile img{width:100%;height:100%;object-fit:cover;display:block}
 /* a photo tile you can drag. touch-action:none so the page does not scroll out
@@ -680,18 +680,22 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
    is the true proportion rather than a flattering one */
 .photos .ph-tile{container-type:inline-size}
 .photos .ph-tile .mk{position:absolute;left:4.5%;bottom:4.5%;text-align:left;
-  line-height:1.15;pointer-events:none;font-weight:700;font-size:3.6cqw;
+  line-height:1.15;pointer-events:none;font-weight:700;font-size:7.2cqw;
   text-shadow:none;white-space:nowrap}
 .photos .ph-tile .mk b{display:block;font-weight:700}
 .photos .ph-tile .mk i{display:block;font-weight:600;font-style:normal;font-size:.75em}
 /* the photo, big enough to judge — the real frame, the real crop, the real mark */
-.phbig{position:relative;width:100%;max-width:236px;margin:0 auto;aspect-ratio:9/16;
+/* NO SHAPE IS HARD-CODED HERE. It was 9/16, which meant a square post showed
+   its photographs in a tall box — G, 17 September: "how do we know it's not
+   square? Right now you're putting it in a rectangular tall format." The box is
+   whatever the post is, set when it is drawn. */
+.phbig{position:relative;width:100%;max-width:236px;margin:0 auto;
   border-radius:12px;overflow:hidden;border:1px solid var(--line);background:#fff;
   container-type:inline-size;touch-action:none;cursor:grab}
 .phbig:active{cursor:grabbing}
 .phbig img{width:100%;height:100%;object-fit:cover;display:block}
 .phbig .mk{position:absolute;left:4.5%;bottom:4.5%;text-align:left;line-height:1.15;
-  pointer-events:none;font-weight:700;font-size:3.6cqw;white-space:nowrap}
+  pointer-events:none;font-weight:700;font-size:7.2cqw;white-space:nowrap}
 .phbig .mk b{display:block;font-weight:700}
 .phbig .mk i{display:block;font-weight:600;font-style:normal;font-size:.75em}
 .phbig.out{opacity:.4}
@@ -1676,7 +1680,7 @@ select.pick::-ms-expand{display:none}
     <!-- BUILD MARK — dev only, delete this div when the app ships -->
     <!-- IT HAD SAID 5M SINCE 15 SEPTEMBER, eight builds back, and every
          feedback mail sent from the app quoted it. Move it with the build. -->
-    <div id="buildtag">BUILD 6T</div>
+    <div id="buildtag">BUILD 6U</div>
   </div>
 </section>
 
@@ -2870,7 +2874,10 @@ function serialise(){
                           whls:(a.photos||[]).map(p=>p&&p.whole?1:0),
                           /* how far in they pinched. Named here AND read in
                              load() — invariant 1. */
-                          zms:(a.photos||[]).map(p=>(p&&p.zoom>1)?+(+p.zoom).toFixed(3):0) }))
+                          /* ANY zoom that is not 1, in or out. This wrote only
+                             zooms above 1, so pinching out was forgotten on the
+                             next boot the day it became possible. */
+                          zms:(a.photos||[]).map(p=>(p&&p.zoom&&p.zoom!==1)?+(+p.zoom).toFixed(3):0) }))
   };
 }
 /* ── THE LAST FEW SAVES, NOT ONLY THE CURRENT ONE ──────────────────────────
@@ -3349,7 +3356,7 @@ async function load(){
     (Array.isArray(a.poss)?a.poss:[]).forEach((v,i)=>{
       if(Array.isArray(v) && photos[i]) photos[i].pos = { x:+v[0]||0, y:+v[1]||0 }; });
     (Array.isArray(a.whls)?a.whls:[]).forEach((v,i)=>{ if(v && photos[i]) photos[i].whole=true; });
-    (Array.isArray(a.zms)?a.zms:[]).forEach((v,i)=>{ if(v>1 && photos[i]) photos[i].zoom=+v; });
+    (Array.isArray(a.zms)?a.zms:[]).forEach((v,i)=>{ if(v>0 && v!==1 && photos[i]) photos[i].zoom=+v; });
     /* ghost acts with no name, no number and no square are noise, not journal */
     if(!S.acts[S.acts.length-1].t && !slotOf(S.acts[S.acts.length-1]))
       S.acts.pop();
@@ -5213,6 +5220,7 @@ function acPick(){
    filled is usually under the fold. Bring it into view first: a moment that
    erupts out of a tile nobody can see is no moment at all. */
 function actMoment(slot){
+  CEL_PENDING = true;                 // claimed, from here until it has finished
   const wrap = $('actcf'); if(!wrap){ sashStrap(0); celFinish(); return; }
   if(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches){
     sashStrap(0); celFinish(); return; }
@@ -5447,8 +5455,9 @@ function finPost(){
    behind the follow-up sheet. So it waits until Your year actually has the
    screen, and it gives way to halfway and the finish, which outrank it. */
 function celTick(){
-  /* nothing owed a moment still owes the question */
-  if(!CEL_DUE){ celFinish(); return; }
+  /* nothing owed a moment still owes the question — unless one is already on
+     its way or already running, in which case IT will pay */
+  if(!CEL_DUE){ if(!CEL_PENDING && !CEL_RUNNING) celFinish(); return; }
   if(SCREEN !== 'home') return;
   /* the moment overlay SHOWS with .up, it is not hidden with .hide. Guarding
      on the wrong class is how bkupBar stayed invisible for a whole build. */
@@ -9851,6 +9860,16 @@ let SASH_SEEN = null, CEL_DUE = 0, SASH_STRAP = 0;
    never settles — because a question that only appears on a good day is worse
    than no question. */
 let CEL_AFTER = null, CEL_RUNNING = false, CEL_LOCKED = false, CEL_GUARD = 0;
+/* A MOMENT ON ITS WAY IS STILL A MOMENT. Found by driving the real flow and
+   watching, not by reasoning: the confetti played exactly as built, and the
+   question opened on top of it anyway. A second, stray celTick — the one
+   sheet(null) schedules — arrived while the first was still settling the square
+   into place. It saw CEL_DUE already taken, decided nothing was owed a moment,
+   and paid out the question there and then. Half a second later the confetti
+   started, underneath it. G: "seems to have lost the celebration."
+   So: from the instant a moment is claimed until it has finished, nothing else
+   may decide that there is no moment coming. */
+let CEL_PENDING = false;
 function celLock(on){
   if(on === CEL_LOCKED) return;
   CEL_LOCKED = on;
@@ -9858,7 +9877,7 @@ function celLock(on){
 }
 function celFinish(){
   if(CEL_GUARD){ clearTimeout(CEL_GUARD); CEL_GUARD = 0; }
-  CEL_RUNNING = false;
+  CEL_RUNNING = false; CEL_PENDING = false;
   celLock(false);
   const fn = CEL_AFTER; CEL_AFTER = null;
   /* a breath after the confetti rather than on top of the last of it */
@@ -11299,7 +11318,7 @@ function packKey(a){
      the old framing shipped. Same family as the three that were missing before. */
   const shot = (a.photos||[]).map(p=>(p&&p.id)+(p&&p.off?'!':'')+
                  (p&&p.pos?('@'+(+p.pos.x||0).toFixed(3)+','+(+p.pos.y||0).toFixed(3)):'')+
-                 (p&&p.whole?'~w':'')+(p&&p.zoom>1?('~z'+(+p.zoom).toFixed(2)):'')||'').join(',');
+                 (p&&p.whole?'~w':'')+((p&&p.zoom&&p.zoom!==1)?('~z'+(+p.zoom).toFixed(2)):'')||'').join(',');
   /* EVERYTHING THE CARD DRAWS FROM, and it has to mean everything.
      The goal was here; the hand and the words on the mark were not. So
      changing your skin tone, or editing "in year fifty", redrew every card in
@@ -11584,7 +11603,9 @@ function drawPreview(){
     ph.forEach((p,i)=>{
       const t=document.createElement('button');
       t.type='button'; t.className='ph-tile phdrag';
-      t.style.cssText='padding:0;border:0;background:none;position:relative;opacity:'+(p.off?'.35':'1');
+      const shp = postFrame(a);
+      t.style.cssText='padding:0;border:0;background:none;position:relative;'+
+        'aspect-ratio:'+shp.w+' / '+shp.h+';opacity:'+(p.off?'.35':'1');
       t.innerHTML='<img src="'+esc(p.url)+'" alt="" style="outline:'+(p.off?'none':'2px solid var(--coralink)')+';outline-offset:1px;border-radius:6px">';
       /* THE TILE IS ALREADY THE FRAME. It is square and the picture inside it is
          cropped to fill, which is exactly what now goes out. So moving the
@@ -11704,6 +11725,21 @@ function drawPhotoSheet(){
   const a = phoAct(), p = phoOf();
   const fr = $('pho-frame'); if(!fr) return;
   if(!p){ sheet(null); return; }
+  /* the box IS the frame this post will use — square for a post, tall for a
+     story — so what is being cropped is never in doubt */
+  const shp = postFrame(a);
+  fr.style.aspectRatio = shp.w + ' / ' + shp.h;
+  fr.style.maxWidth = (shp.h > shp.w ? 236 : 300) + 'px';
+  /* AND IT SAYS WHICH SHAPE IT IS CROPPING FOR. G, 17 September: "should we not
+     give them the choice when we're editing a photo of what story, reel, post,
+     so they know how to edit the photo — so they don't go in there blind? And
+     that needs to be a choice outside the photo editor."
+     So the CHOICE stays on the Post it page, where it belongs, because it is
+     about the whole post rather than one photograph. What comes in here is the
+     ANSWER, said plainly, so nobody crops for a square and then posts a story. */
+  const h3 = $('pho-h3');
+  if(h3) h3.textContent = (a.shape === 'story') ? 'This photo \u2014 for a story'
+                                                : 'This photo \u2014 for a square post';
   const mk = p.off ? null : markFor(a);
   fr.classList.toggle('out', !!p.off);
   fr.innerHTML = '<img src="'+esc(p.url)+'" alt="">';
@@ -11764,8 +11800,8 @@ function drawPhotoSheet(){
   const hint=$('pho-hint');
   if(hint) hint.textContent = p.off
     ? 'This one stays home. Your journal keeps it either way.'
-    : (p.whole ? 'The whole photo, on white. Move it, or pinch to zoom.'
-               : 'Move the photo around to center it, or pinch to zoom.');
+    : (p.whole ? 'The whole photo, on white. Move it, or pinch to zoom in and out.'
+               : 'Move the photo around to center it. Pinch to zoom in, or out for white around it.');
 
   const lab=$('pho-lab'); if(lab) lab.classList.toggle('hide', !!p.off || !markFor(a));
   const pick=$('pho-pick');
@@ -11825,7 +11861,7 @@ function dataToFile(dataUrl, name){
    you answer can be changed afterwards on that same screen. It used to do none
    of those four things.                                                      */
 let LEFT_FOR = null;
-let TOAST_T = 0;
+let TOAST_T = 0, TOAST_SEQ = 0;
 function toast(msg, opts){
   const bar = $('toastbar'); if(!bar) return;
   const o = opts || {};
@@ -11845,7 +11881,17 @@ function toast(msg, opts){
      So: bring the thing into view FIRST, let the scrolling settle, and only then
      measure and stand the bar just above it. If there is still no room, it goes
      back to its usual place rather than somewhere impossible. */
+  const mine = ++TOAST_SEQ;
   const place = ()=>{
+    /* IT SCROLLS FIRST AND SPEAKS AFTER, AND THE WORLD CAN MOVE IN BETWEEN.
+       Caught by looking: the bar was still scrolling the photographs into view
+       when the photograph's own box opened over the top, and it then posted
+       itself across that box's heading. Same family as S9B. So by the time it
+       actually speaks it checks that it is still the current one, that nothing
+       has put a panel up, and that what it was pointing at is still there. */
+    if(mine !== TOAST_SEQ) return;
+    if(document.querySelector('.sheet:not(.hide)')) return;
+    if(lit && !lit.isConnected) return;
     if(lit){
       const r = lit.getBoundingClientRect();
       const above = window.innerHeight - r.top + 14;
@@ -11874,7 +11920,8 @@ function toast(msg, opts){
   }
   place();
 }
-function dropToast(){ const b=$('toastbar'); if(b){ b.classList.remove('up'); b.style.bottom=''; }
+function dropToast(){ TOAST_SEQ++;      // cancels anything still on its way
+  const b=$('toastbar'); if(b){ b.classList.remove('up'); b.style.bottom=''; }
   clearTimeout(TOAST_T);
   document.querySelectorAll('.photos.lit').forEach(el=>el.classList.remove('lit')); }
 
@@ -12693,11 +12740,14 @@ function drawMark(g, shape, mk){
   const W = shape.w, H = shape.h, k = W/100;
   g.save();
   g.fillStyle = mk.ink;
-  const yD = H - 4.5*k, yA = yD - 3.0*k;
-  g.font = '700 ' + (3.6*k) + 'px "Montserrat", sans-serif';
+  /* TWICE THE SIZE. G, 17 September: "the watermark needs to be twice as big."
+     Every number doubled, the gap between the lines included, so the lockup
+     keeps its proportions rather than only growing its type. */
+  const yD = H - 4.5*k, yA = yD - 6.0*k;
+  g.font = '700 ' + (7.2*k) + 'px "Montserrat", sans-serif';
   g.fillText(mk.line, 4.5*k, yA);
   if(mk.date){
-    g.font = '600 ' + (2.7*k) + 'px "Montserrat", sans-serif';
+    g.font = '600 ' + (5.4*k) + 'px "Montserrat", sans-serif';
     g.fillText(mk.date, 4.5*k, yD);
   }
   g.restore();
@@ -12733,7 +12783,13 @@ function photoOnto(img, shape, p, mk){
 }
 function clampPos(v){ v = +v; if(!isFinite(v)) return 0;
   return v < -0.5 ? -0.5 : v > 0.5 ? 0.5 : v; }
-function clampZoom(v){ v = +v; if(!isFinite(v) || v < 1) return 1;
+/* PINCH BOTH WAYS. G, 17 September: "you can pinch the zoom, but you need to be
+   able to pinch the zoom out, because sometimes the picture doesn't fit very
+   well." Below 1 the photograph is smaller than the frame and white appears
+   around it — which is the same thing the "show the whole photo" button does,
+   reached by hand and by degrees instead of all at once. */
+function clampZoom(v){ v = +v; if(!isFinite(v)) return 1;
+  if(v < 0.35) return 0.35;
   return v > 4 ? 4 : v; }
 /* lay a photograph into a box on screen using the SAME arithmetic the canvas
    uses, in pixels rather than object-position, so the two cannot disagree */
