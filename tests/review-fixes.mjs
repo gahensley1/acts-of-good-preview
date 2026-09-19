@@ -1798,6 +1798,15 @@ head('G, 19 Sept — the celebration never plays on top of Anything to add');
   ck('and no celebration plays on top of it', !r.overlap, r);
 }
 
+head('G, 19 Sept — the ideas filter reads All, both boxes');
+{ const {ctx,p}=await app();
+  const r = await p.evaluate(async ()=>{ go('browse'); try{ drawBrowse(); }catch(e){}
+    await new Promise(r=>setTimeout(r,300));
+    const t=(document.getElementById('leadpick')||{}).textContent||'';
+    return { lead:S.lead, shown:t }; });
+  ck('the how-long box opens on All, not Any time', r.lead==='All' && !/Any time/.test(r.shown), r);
+}
+
 console.log('\n'+pass+' passed, '+fail+' failed, console/page errors: '+errs.length);
 if(errs.length) console.log(JSON.stringify(errs.slice(0,6),null,1));
 await b.close();
