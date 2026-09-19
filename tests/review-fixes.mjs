@@ -489,12 +489,8 @@ head('the watermark, and his picker — G, 17 September');
   ck('there are three inks and coral is the one it starts on',
      r.inks==='coral,white,gold' && r.dflt==='coral', r);
   ck('the mark is burned into the picture that leaves', r.burned > 2000, r);
-  /* L101, reversed by G on 19 September (PHOTO TALL): a PHOTOGRAPH's words now
-     sit on the paper below it, not inside the square. The card still keeps its
-     ink inside the square, and that is what this now holds; the photograph's
-     place is held by the PHOTO TALL block. */
-  ck('the card keeps its words inside the square; a photograph carries them on the paper below',
-     r.markInSafe===true || r.markInSafe===false, r);
+  ck('and it is inside the part that survives every destination',
+     r.markInSafe===true, r);
   ck('the three inks are actually different, and white is white',
      r.distinct===true && r.whiteIsWhite===true, r);
   ck('picking a colour redraws the picture', r.keyVaries===true, r);
@@ -1445,10 +1441,7 @@ head('the question is quieter, and the mark reads on anything \u2014 G, 18 Sept'
   });
   ck('the question reads "Posted?"', r.q.title==='Posted?', r.q);
   ck('and is answered "Yes" or "Not yet"', r.q.yes==='Yes' && r.q.no==='Not yet', r.q);
-  /* L101, reversed by G on 19 September: the words no longer sit ON the
-     photograph, so they can never land on their own colour. What is held now is
-     that a photograph the colour of the ink does not swallow them. */
-  ck('the words can be read whatever colour the photograph is', true, r);
+  ck('a mark stands out even on a photograph of its own colour', r.shadowPixels > 400, r);
   }
 
 head('the words go with the picture \u2014 L119, caught by the testers on 18 Sept');
@@ -1812,51 +1805,6 @@ head('G, 19 Sept — the ideas filter reads All, both boxes');
     const t=(document.getElementById('leadpick')||{}).textContent||'';
     return { lead:S.lead, shown:t }; });
   ck('the how-long box opens on All, not Any time', r.lead==='All' && !/Any time/.test(r.shown), r);
-}
-
-head('G, 19 Sept — P4: photographs go out on the paper with the heart; the words stay on the photo; the card is untouched');
-{ const {ctx,p}=await app();
-  const r = await p.evaluate(async ()=>{
-    const k=document.createElement('canvas'); k.width=600; k.height=400; const kg=k.getContext('2d'); kg.fillStyle='#123456'; kg.fillRect(0,0,600,400);
-    const img=await new Promise(r=>{ const i=new Image(); i.onload=()=>r(i); i.src=k.toDataURL(); });
-    const a=S.acts[S.acts.length-1]; const mk=markFor(a);
-    const c=photoOnto(img, POST_FRAME, {}, mk), g=c.getContext('2d'), sq=safeBox(POST_FRAME);
-    const px=(x,y)=>Array.from(g.getImageData(x,y,1,1).data).slice(0,3);
-    const corner=px(20,20);
-    /* the heart: something non-paper in the top band, inside the 4:5 keep */
-    const keepTop=(1920-1350)/2; let heart=0, heartInFeed=0;
-    const d=g.getImageData(400,0,280,keepTop).data;
-    for(let i=0;i<d.length;i+=4){ if(d[i]>180 && d[i+1]<130) heart++; }
-    const f=g.getImageData(400,keepTop,280,sq.y-keepTop).data;
-    for(let i=0;i<f.length;i+=4){ if(f[i]>180 && f[i+1]<130) heartInFeed++; }
-    /* the words: coral-ish ink inside the photo's lower-left */
-    let words=0; const w=g.getImageData(sq.x, sq.y+sq.h*0.8, sq.w*0.5, sq.h*0.2).data;
-    for(let i=0;i<w.length;i+=4){ if(w[i]>150 && w[i]>w[i+2]+60) words++; }
-    let below=0; const b=g.getImageData(0, sq.y+sq.h+5, 1080, 1920-(sq.y+sq.h)-5).data;
-    for(let i=0;i<b.length;i+=4){ if(b[i]>150 && b[i]>b[i+2]+60) below++; }
-    const card=await cardBlob(a,1080,POST_FRAME); const cb=await createImageBitmap(card);
-    const cc=document.createElement('canvas'); cc.width=cb.width; cc.height=cb.height; cc.getContext('2d').drawImage(cb,0,0);
-    const cardCorner=Array.from(cc.getContext('2d').getImageData(20,20,1,1).data).slice(0,3);
-    return { corner, heart, heartInFeed, words, below, cardCorner };
-  });
-  ck('the margins are the card’s paper, not white', r.corner.join()!=='255,255,255' && r.corner[0]>235, r);
-  ck('the heart shows in the tall view and is trimmed away in the square feed', r.heart>200 && r.heartInFeed<20, r);
-  ck('the card itself is untouched (still white at the edge)', r.cardCorner.join()==='255,255,255', r);
-}
-
-head('G, 19 Sept — PHOTO TALL: the words sit on the paper in the bottom band, left');
-{ const {ctx,p}=await app();
-  const r = await p.evaluate(async ()=>{
-    const k=document.createElement('canvas'); k.width=600; k.height=400; const kg=k.getContext('2d'); kg.fillStyle='#123456'; kg.fillRect(0,0,600,400);
-    const img=await new Promise(r=>{ const i=new Image(); i.onload=()=>r(i); i.src=k.toDataURL(); });
-    const a=S.acts[S.acts.length-1]; a.mark='coral'; const mk=markFor(a);
-    const c=photoOnto(img, POST_FRAME, {}, mk), g=c.getContext('2d'), sq=safeBox(POST_FRAME);
-    const ink=(x,y,w,h)=>{ let n=0; const d=g.getImageData(x,y,w,h).data; for(let i=0;i<d.length;i+=4){ if(d[i]>150 && d[i]>d[i+2]+60) n++; } return n; };
-    return { onPhoto: ink(sq.x, sq.y, sq.w, sq.h), leftBand: ink(0, sq.y+sq.h, 540, 1920-(sq.y+sq.h)),
-             rightBand: ink(900, sq.y+sq.h, 180, 1920-(sq.y+sq.h)) };
-  });
-  ck('the words are on the paper in the bottom band, left', r.leftBand>2000 && r.rightBand<50, r);
-  ck('and nothing is written on the photograph itself', r.onPhoto<20, r);
 }
 
 console.log('\n'+pass+' passed, '+fail+' failed, console/page errors: '+errs.length);

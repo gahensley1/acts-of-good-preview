@@ -13283,12 +13283,7 @@ function photoOnto(img, shape, p, mk){
   const c = document.createElement('canvas');
   c.width = W; c.height = H;
   const g = c.getContext('2d');
-  /* RULED P4, G, 19 September 2026: the margins above and below a photograph
-     are the card's paper, with the balloon heart in the top one and the words on
-     the paper in the bottom one, left (PHOTO TALL). Only the
-     photographs carry it: they are the ones with margin showing. The card is
-     untouched. */
-  paperBands(g, W, H);
+  g.fillStyle = '#FFFFFF'; g.fillRect(0, 0, W, H);
   /* THE PHOTOGRAPH LIVES IN THE MIDDLE SQUARE, exactly as the card does, so the
      two travel together and neither is cut wherever it lands. What the person
      placed in the box on screen is what this draws, because the box on screen
@@ -13300,37 +13295,8 @@ function photoOnto(img, shape, p, mk){
   g.drawImage(img, Math.round(sq.x + b.x), Math.round(sq.y + b.y),
                    Math.round(b.dw), Math.round(b.dh));
   g.restore();
-  bandHeart(g, W, H, sq);
-  bandMark(g, sq, mk);               // PHOTO TALL: the words on the paper, bottom band, left
+  drawMark(g, shape, mk);
   return c;
-}
-const BAND_PAPER = '#F7F3EC';
-function paperBands(g, W, H){
-  g.fillStyle = BAND_PAPER; g.fillRect(0, 0, W, H);
-  g.strokeStyle = 'rgba(120,100,70,.06)'; g.lineWidth = 1;
-  for(let x=0; x<W; x+=12){ g.beginPath(); g.moveTo(x+.5,0); g.lineTo(x+.5,H); g.stroke(); }
-  for(let y=0; y<H; y+=12){ g.beginPath(); g.moveTo(0,y+.5); g.lineTo(W,y+.5); g.stroke(); }
-}
-/* G, 19 September: the heart belongs to the TALL view only (Story, Reel,
-   Message). It sits above the line a square/4:5 feed trims at, so the feed
-   shows the photograph with its words and nothing else. */
-function bandHeart(g, W, H, sq){
-  const im = document.querySelector('#letter .lmark');
-  if(!im || !im.complete || !im.naturalWidth) return;       // no heart is better than a broken one
-  const hw = W * 0.0907, hh = hw * im.naturalHeight / im.naturalWidth;
-  g.drawImage(im, (W-hw)/2, (sq.y-hh)/2 - 14, hw, hh);
-}
-/* PHOTO TALL, as G drew and approved it on 19 September: the words sit on the
-   paper in the bottom band, left, at the photo mark's own size plus a fifth. */
-function bandMark(g, sq, mk){
-  if(!mk) return;
-  const k = sq.w/100 * 1.2, x = 4.5*sq.w/100, y = sq.y + sq.h + 190;
-  g.save(); g.fillStyle = mk.ink; g.textAlign = 'left'; g.textBaseline = 'alphabetic';
-  g.font = '700 ' + (7.2*k) + 'px "Montserrat", sans-serif';
-  g.fillText(mk.line, x, y);
-  if(mk.date){ g.font = '600 ' + (5.4*k) + 'px "Montserrat", sans-serif';
-    g.fillText(mk.date, x, y + 7.4*k); }
-  g.restore();
 }
 function clampPos(v){ v = +v; if(!isFinite(v)) return 0;
   return v < -0.5 ? -0.5 : v > 0.5 ? 0.5 : v; }
