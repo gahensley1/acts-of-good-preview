@@ -8638,7 +8638,9 @@ function drawClaims(){
     const fpos = (typeof c.pos === 'number' && isFinite(c.pos)) ? c.pos
                : (/^[0-9]{1,6}$/.test(String(c.pos)) ? +c.pos : null);
     const free = (got && fpos!=null)
-      ? '<button class="cfree" type="button" data-free="'+fpos+'">Free it</button>' : '';
+      ? '<button class="cfree" type="button" data-free="'+fpos+'">Free it</button>'+
+        /* PROTECTIONS, 19 Sept: the organiser's backstop behind the word filter */
+        '<button class="cfree" type="button" data-block="'+fpos+'">Block</button>' : '';
     /* Their words, under their name. This is the only thing a stranger can
        send back, and on an anonymous sheet it is the only channel there is.
        Escaped like everything else on this row: it is typed by the public. */
@@ -8653,26 +8655,30 @@ function drawClaims(){
   el.querySelectorAll('[data-free]').forEach(b=>{
     b.onclick = ()=>askFree(+b.getAttribute('data-free'));
   });
+  el.querySelectorAll('[data-block]').forEach(b=>{
+    b.onclick = ()=>askFree(+b.getAttribute('data-block'), true);
+  });
 }
 
 /* Somebody texted to say they cannot make it after all. The Worker takes an
    owner release — the same route the claimer's own phone uses, but proved by
    the sheet's key instead of by their key — so the row simply opens again for
    the next person. Nothing is sent and nobody is named. */
-async function askFree(pos){
+async function askFree(pos, block){
   const sh=askOf(); if(!sh || pos==null) return;
   const c=(sh.claims||[]).find(x=>x && x.pos===pos) || {};
-  checkFirst('Put it back on the list?',
+  checkFirst(block ? 'Remove and block?' : 'Put it back on the list?',
     (c.name? c.name+' had ' : 'Somebody had ')+'\u201C'+(c.text||'this')+'\u201D. '+
-    'It goes back to being something that needs doing, and their name comes off. '+
+    (block ? 'Their entry comes off, and whoever it was cannot sign up to this sheet again. '
+           : 'It goes back to being something that needs doing, and their name comes off. ')+
     'Nothing is sent to them.',
-    'Put it back',
+    block ? 'Remove and block' : 'Put it back',
     async ()=>{
       const key=askKeyGet(); if(!key) return;
       try{
         const r=await fetch(AOG_BASE+'/a/'+sh.id+'/release',{method:'POST',
           headers:{'content-type':'application/json','authorization':'Bearer '+key},
-          body:JSON.stringify({pos:pos})});
+          body:JSON.stringify(block ? {pos:pos, block:true} : {pos:pos})});
         if(!r.ok){ await sheetTrouble(r, 'The row was not put back.'); return; }
         const j=await r.json().catch(()=>({}));
         if(j && j.error){
@@ -8684,7 +8690,7 @@ async function askFree(pos){
         const row=(sh.claims||[]).find(x=>x && x.pos===pos);
         if(row){ row.name=''; row.contact=''; row.note=''; }
         workKeep(); save(); drawClaims(); drawAsk();
-        undoBar('Put back on the list', ()=>{}, ()=>{});
+        undoBar(block ? 'Removed and blocked' : 'Put back on the list', ()=>{}, ()=>{});
       }catch(e){ await sheetTrouble(null, 'The row was not put back.'); }
     }, 'Leave it');
 }
@@ -11691,6 +11697,7 @@ function drawGoState(){
   b.disabled = false;                         // still pressable: we queue the press
   b.classList.toggle('waiting', waiting);
   b.textContent = GO_WAITING ? 'Getting the card ready…'
+                : (GO_RETAP && !waiting) ? 'Card ready, tap to send'
                 : (HAND_LABEL[CM_PLAT] || ('Open ' + platLabel(CM_PLAT)));
 }
 
@@ -11731,6 +11738,7 @@ const SHARES_FILES = { instagram:1, facebook:1, threads:1, private:1 };
 function handOff(){
   const a = S.current || S.acts[S.acts.length-1];
   if(!a) return;
+  if(GO_RETAP){ GO_RETAP = false; drawGoState(); }   // this tap is the fresh one
 
   /* DEFECT FOUND 12 September 2026, and it is the one that made posting to
      Instagram feel broken.
@@ -11787,6 +11795,7 @@ function handOff(){
     }).catch(err=>{
       LEFT_FOR = null;                                     // never left, never ask
       if(err && err.name === 'AbortError') return;         // they changed their mind
+      if(needRetap(err)) return;                           // Safari wants a fresh tap
       shareFailed();
     });
     return;
@@ -11796,6 +11805,7 @@ function handOff(){
       markLeaving(a);
       PHONE.share({ text:text }).then(()=>{ askIfPosted(); }).catch(err=>{
         LEFT_FOR = null;
+        if(needRetap(err)) return;
         if(!err || err.name!=='AbortError') shareFailed();
       });
       return;
@@ -11821,6 +11831,16 @@ function dropPasteBar(){
 }
 
 /* A share that fails is not allowed to fail silently. */
+/* THE HOLD, AND SAFARI. A tap on Send while the card is drawing is held and
+   sent the moment the card is ready. On an iPhone, Safari only opens the share
+   sheet within "a few seconds, maybe" of a tap (WebKit's own words), so a long
+   draw can outlast it and the sheet is refused with NotAllowedError. Nothing is
+   broken — so no alarm: the button says the card is ready and one tap sends it. */
+var GO_RETAP = false;
+function needRetap(err){
+  if(!err || err.name !== 'NotAllowedError') return false;
+  GO_RETAP = true; drawGoState(); return true;
+}
 function shareFailed(){
   say('Your phone would not open the share sheet',
       'The caption is copied. Press and hold the card above to save it, then open '+
@@ -11833,6 +11853,7 @@ function shareFailed(){
    an image in a web view and iOS and Android both offer to save it. */
 let PREV_URL = null;
 function leaveCompose(){
+  GO_RETAP = false;
   /* the paste reminder belongs to the page it was said on — it does not follow
      him onto Your year, where the moment and the question are about to happen */
   dropToast();

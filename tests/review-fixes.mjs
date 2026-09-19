@@ -423,7 +423,10 @@ head('the screen says you can move it — ruled A, spelled American');
     go('home'); openCompose(); try{ sheet(null); }catch(e){}
     drawPreview();
   });
-  await p.waitForTimeout(600);
+  /* wait for the card to finish drawing, not a fixed 600ms: on the live site,
+     over a network and in Safari, it was still "Drawing the card…" at 600ms */
+  await p.waitForFunction(()=>typeof PACK!=='undefined' && PACK.busy===false, null, {timeout:15000}).catch(()=>{});
+  await p.waitForTimeout(300);
   const t = await p.evaluate(()=>[...document.querySelectorAll('#cm-prev p')]
       .map(n=>n.textContent.trim()).join(' | '));
   ck('the line is there, in his words', t.indexOf('Move the photo around to center it.')>-1, t);
@@ -1663,6 +1666,88 @@ head('G, 19 Sept — today is a greyed suggestion; the finish sets the real numb
   ck('the suggested date shows greyed out until a day is picked', r.greyed===true && r.pickedNotGrey===true, r);
   ck('the finish says the planned number gives way to the real one', /planned this as 8/.test(r.why), r);
   ck('and says the aimed-for day gives way to the day it is finished', /for .+;.*today/i.test(r.why) && r.why.length<70, r);
+}
+
+head('the hold — Send tapped while the card is still drawing waits, then sends it whole');
+{ const {ctx,p}=await app();
+  const r = await p.evaluate(async ()=>{
+    const out={ shares:0, files:0 };
+    const k=document.createElement('canvas'); k.width=400;k.height=300; k.getContext('2d').fillRect(0,0,400,300);
+    const u=k.toDataURL('image/jpeg',0.8); await idbPut('hold1',u); await idbPut(THUMB('hold1'),u);
+    const a=S.acts[S.acts.length-1]; a.photos=[{id:'hold1',url:u}]; S.current=a;
+    try{ endTabTour(); }catch(e){}
+    PHONE.canShareFiles=()=>true;
+    PHONE.share=async (pl)=>{ out.shares++; out.files=(pl.files||[]).length; };
+    try{ navigator.clipboard.writeText=async()=>{}; }catch(e){}
+    const slow=cardBlob; window.cardBlob=async (...x)=>{ await new Promise(r=>setTimeout(r,2500)); return slow(...x); };
+    go('home'); openCompose(); try{ sheet(null); }catch(e){}
+    await new Promise(r=>setTimeout(r,300));
+    out.busyAtTap = PACK.busy===true;
+    document.getElementById('cm-go').click();
+    await new Promise(r=>setTimeout(r,200));
+    out.label = document.getElementById('cm-go').textContent;
+    out.sharesBefore = out.shares;
+    await new Promise(r=>setTimeout(r,5000));
+    window.cardBlob=slow;
+    return out;
+  });
+  ck('while the card draws, a tap on Send says it is getting ready', r.busyAtTap && /getting the card ready/i.test(r.label), r);
+  ck('and nothing is sent half-drawn', r.sharesBefore===0, r);
+  ck('then it sends by itself, once, with the card and the photo', r.shares===1 && r.files===2, r);
+}
+
+head('the hold on an iPhone — if Safari refuses the late send, one calm tap finishes it');
+{ const {ctx,p}=await app();
+  const r = await p.evaluate(async ()=>{
+    const out={ tries:0, files:0 };
+    const k=document.createElement('canvas'); k.width=400;k.height=300; k.getContext('2d').fillRect(0,0,400,300);
+    const u=k.toDataURL('image/jpeg',0.8); await idbPut('hold2',u); await idbPut(THUMB('hold2'),u);
+    const a=S.acts[S.acts.length-1]; a.photos=[{id:'hold2',url:u}]; S.current=a;
+    try{ endTabTour(); }catch(e){}
+    PHONE.canShareFiles=()=>true;
+    /* the first try is late, as Safari sees it, and is refused; the next is a real tap */
+    PHONE.share=async (pl)=>{ out.tries++; if(out.tries===1){ const e=new Error('late'); e.name='NotAllowedError'; throw e; } out.files=(pl.files||[]).length; };
+    try{ navigator.clipboard.writeText=async()=>{}; }catch(e){}
+    const slow=cardBlob; window.cardBlob=async (...x)=>{ await new Promise(r=>setTimeout(r,2000)); return slow(...x); };
+    go('home'); openCompose(); try{ sheet(null); }catch(e){}
+    await new Promise(r=>setTimeout(r,300));
+    document.getElementById('cm-go').click();
+    await new Promise(r=>setTimeout(r,4500));
+    window.cardBlob=slow;
+    out.label = document.getElementById('cm-go').textContent;
+    out.alarm = !document.getElementById('dlg').classList.contains('hide') ? document.getElementById('dlg-title').textContent : '';
+    document.getElementById('cm-go').click();
+    await new Promise(r=>setTimeout(r,800));
+    out.labelAfter = document.getElementById('cm-go').textContent;
+    return out;
+  });
+  ck('a refused late send raises no alarm', !/would not open/i.test(r.alarm), r);
+  ck('the button says the card is ready and asks for one tap', /card ready, tap to send/i.test(r.label), r);
+  ck('and that tap sends it whole', r.tries===2 && r.files===2 && !/tap to send/i.test(r.labelAfter), r);
+}
+
+head('protections — the organiser can remove and block from the app');
+{ const {ctx,p}=await app();
+  const r = await p.evaluate(async ()=>{
+    const out={};
+    const w={id:'wkB',t:'with a sheet',exp:'',d:'',photos:[],who:[],notes:[],
+      sheet:{ id:'abcde12345', key:'k-owner', claims:[{pos:0,text:'Pans',name:'Rude Person',contact:'912-555-0100',note:''}] }};
+    S.works=[w]; WK=w; openWork(w); await new Promise(r=>setTimeout(r,200));
+    try{ drawClaims(); }catch(e){ out.e=String(e); }
+    const btn=document.querySelector('#wk-claims [data-block]');
+    out.hasBlock=!!btn;
+    let sent=null; const was=window.fetch;
+    window.fetch=async (u,o)=>{ sent={u:String(u), body:o&&o.body}; return new Response(JSON.stringify({ok:true}),{status:200}); };
+    if(btn){ btn.click(); await new Promise(r=>setTimeout(r,150));
+      out.q=document.getElementById('dlg-title').textContent;
+      document.getElementById('dlg-yes').click(); await new Promise(r=>setTimeout(r,300)); }
+    window.fetch=was;
+    out.sent=sent; out.cleared=!(w.sheet.claims[0].name);
+    return out;
+  });
+  ck('each taken row offers Block beside Free it', r.hasBlock, r);
+  ck('it asks first, in plain words', /remove and block/i.test(r.q||''), r);
+  ck('and sends the block to the sheet, then clears the row', r.sent && /\/release$/.test(r.sent.u) && /"block":true/.test(r.sent.body||'') && r.cleared, r);
 }
 
 console.log('\n'+pass+' passed, '+fail+' failed, console/page errors: '+errs.length);
