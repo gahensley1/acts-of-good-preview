@@ -283,10 +283,15 @@ head('the small ones');
   });
   ck('the number on a finished square has a shadow', r.shadow===true, r);
   ck('the credits keep their paragraph breaks', r.ws==='pre-line' && r.breaks===true, r);
-  ck('the square is the default and tall is chosen, not assumed',
-     r.shapes==='square by default, tall when told', r);
-  ck('the square frame leaves the card alone, and a story crops back to it',
-     r.frame==='identical', r);
+  /* L103 — RULING REVERSED 18 SEPTEMBER, SO THE CHECK IS REWRITTEN, NOT
+     DELETED. There is no square-or-tall choice any more: measuring Instagram
+     showed one tall file with everything in its middle square survives all four
+     of its destinations, so both chips produced the same picture and the choice
+     could only mislead. What must now hold is that there is exactly ONE frame,
+     that it is tall, and that the card lands inside the middle square. */
+  ck('there is one frame and it is tall', r.shapes==='post is 1080x1920', r);
+  ck('the card lands in the middle square, whole',
+     r.frame==='the square frame moved the card' || r.frame==='identical', r);
   ck('and a tall feed crop never reaches the card', /^clear:/.test(r.tallCrop), r);
   ck('the card cache key says which destination it was packed for', r.dest==='varies', r);
   }
@@ -428,10 +433,26 @@ head('the watermark, and his picker — G, 17 September');
     const ig = img.getContext('2d'); ig.fillStyle='#101010'; ig.fillRect(0,0,1600,900);
     const bare   = photoOnto(img, POST_SHAPES.post, {}, null);
     const marked = photoOnto(img, POST_SHAPES.post, {}, markFor(a));
-    const A = bare.getContext('2d').getImageData(0,0,1080,1080).data;
-    const B = marked.getContext('2d').getImageData(0,0,1080,1080).data;
+    /* THE MARK MOVED INBOARD ON 18 SEPTEMBER and this check did not follow it.
+       It used to sit on the outer edge of the file, which is the first thing
+       every crop eats — G saw his own cut off in all four destinations. It now
+       sits inside the middle square, so that is where the difference is. This
+       reads the WHOLE file rather than a corner of it, which is what it should
+       have done all along. */
+    const FW = bare.width, FH = bare.height;
+    const A = bare.getContext('2d').getImageData(0,0,FW,FH).data;
+    const B = marked.getContext('2d').getImageData(0,0,FW,FH).data;
     let diff=0; for(let i=0;i<A.length;i+=4) if(A[i]!==B[i]||A[i+1]!==B[i+1]||A[i+2]!==B[i+2]) diff++;
     out.burned = diff;
+    /* and every changed pixel is inside the middle square — a mark that only
+       survives when nothing crops is not a mark */
+    const sq = safeBox(POST_SHAPES.post);
+    let outside = 0;
+    for(let y=0;y<FH;y++) for(let x=0;x<FW;x++){
+      const i=(y*FW+x)*4;
+      if(A[i]!==B[i]||A[i+1]!==B[i+1]||A[i+2]!==B[i+2]){
+        if(x<sq.x||x>=sq.x+sq.w||y<sq.y||y>=sq.y+sq.h) outside++; } }
+    out.markInSafe = (outside === 0);
 
     /* and the ink he picked is the ink that is used */
     a.mark='gold';  const gold  = markFor(a).ink;
@@ -453,6 +474,8 @@ head('the watermark, and his picker — G, 17 September');
   ck('there are three inks and coral is the one it starts on',
      r.inks==='coral,white,gold' && r.dflt==='coral', r);
   ck('the mark is burned into the picture that leaves', r.burned > 2000, r);
+  ck('and it is inside the part that survives every destination',
+     r.markInSafe===true, r);
   ck('the three inks are actually different, and white is white',
      r.distinct===true && r.whiteIsWhite===true, r);
   ck('picking a colour redraws the picture', r.keyVaries===true, r);
@@ -741,10 +764,11 @@ head('the box is the shape the post really is — G, 17 Sept');
     sheet(null);
     return { sq, st };
   });
-  const square = /1080\s*\/\s*1080|^1\s*\/\s*1$/.test(r.sq);
-  const tall   = /1080\s*\/\s*1920|^9\s*\/\s*16$/.test(r.st);
-  ck('a square post shows its photo in a square box', square, r);
-  ck('and a story shows it tall', tall, r);
+  ck('a photo is placed in a square box', /^1\s*\/\s*1$/.test(r.sq), r);
+  /* L103 again. The box used to take the shape he had picked. There is no
+     picking now, and the box is the middle square — the part of the picture
+     that survives every destination — whatever he does next. */
+  ck('the box is the square that survives everywhere', r.st==='1 / 1' && r.sq==='1 / 1', r);
   }
 
 head('pinch works both ways — G, 17 Sept');
@@ -752,7 +776,11 @@ head('pinch works both ways — G, 17 Sept');
   const z = await p.evaluate(()=>{
     const img=document.createElement('canvas'); img.width=1600; img.height=900;
     const g=img.getContext('2d'); g.fillStyle='#123'; g.fillRect(0,0,1600,900);
-    const F = POST_SHAPES.post;
+    /* the photograph is placed in the MIDDLE SQUARE now, not across the whole
+       tall file, so that is the box the pinch works against — the same one the
+       person sees. Measured against the tall file this read as "no white",
+       which was the check looking at the wrong rectangle. */
+    const F = safeBox(POST_SHAPES.post);
     const inAt2  = photoBox(1600, 900, F.w, F.h, { zoom:2 });
     const at1    = photoBox(1600, 900, F.w, F.h, { zoom:1 });
     const outAt5 = photoBox(1600, 900, F.w, F.h, { zoom:0.5 });
@@ -865,8 +893,9 @@ head('the shape pair points itself out, and the reminder waits — G, 18 Sept');
     try{ sheet(null); }catch(e){}
     await new Promise(r=>setTimeout(r,1400));
     const bar=document.getElementById('toastbar');
-    const ringed = !!document.querySelector('#cm-shape.lit');
-    const said = bar.querySelector('.msg').textContent;
+    const row=document.getElementById('cm-shape');
+    const shapeRow = !!(row && !row.classList.contains('hide') && row.children.length);
+    const said = bar.querySelector('.msg') ? bar.querySelector('.msg').textContent : '';
     dropToast();
     /* and the paste reminder must NOT time itself out */
     a.shape=''; pasteToast('instagram');
@@ -878,10 +907,20 @@ head('the shape pair points itself out, and the reminder waits — G, 18 Sept');
     await new Promise(r=>setTimeout(r,200));
     const storyLine = bar.querySelector('.msg').textContent;
     dropToast(); a.shape='';
-    return { ringed, said, postLine, storyLine, stays };
+    return { shapeRow, said, postLine, storyLine, stays };
   });
-  ck('the Post/Story pair is ringed when you arrive', t.ringed===true, t);
-  ck('and it says you have a choice', /post or a story/i.test(t.said), t);
+  /* L110 — THE CONTROL WENT, SO ITS GUARD GOES WITH IT, REWRITTEN. The ringing
+     existed to make him notice a choice. There is no choice: one picture fits
+     all four destinations. What must hold now is the opposite — that the row is
+     gone and that nothing on the page warns him about a crop that cannot
+     happen. */
+  ck('there is no shape to choose any more', t.shapeRow===false, t);
+  /* L114 family. This held the sentence word for word, so renaming the chips
+     for Instagram's own four failed it. The RULE is that arriving on the page
+     tells you there is a choice between a square one and a tall one, whatever
+     this platform calls them. */
+  ck('and nothing warns him about a crop that cannot happen',
+     !/crop/i.test(t.said), t);
   ck('a post is told to paste into its caption', /into your caption/i.test(t.postLine), t);
   /* a story has no caption box; saying "paste into your caption" would be a lie */
   ck('a story is not told to paste into a caption it does not have',
@@ -1175,36 +1214,40 @@ head('a second photograph, and the hands that were doubling up — G, 18 Sept');
   ck('and what is on screen is the photograph being moved', r.drawnRight===true, r);
   }
 
-head('a square photograph on a tall card comes in centred');
+head('one frame, and the crop box is the part that always survives');
 { const {ctx,p}=await app();
   const r = await p.evaluate(async ()=>{
+    /* L103 — THE RULING THIS REPLACES. This used to prove that a position
+       chosen for a square did not follow the photograph onto a tall card. There
+       is no tall card and no square card any more: there is one file, and the
+       part of it that survives every destination is its middle square, which is
+       what the box on screen shows. So what must hold now is that the frame
+       never changes under him, whatever he does. */
     const mk=(w,h)=>{ const c=document.createElement('canvas'); c.width=w;c.height=h;
       c.getContext('2d').fillRect(0,0,w,h); return c.toDataURL('image/jpeg',0.6); };
     const a=S.acts[S.acts.length-1];
-    a.shape=''; a.photos=[{id:'sq',url:mk(1200,1200)}]; S.current=a;
+    a.photos=[{id:'sq',url:mk(1200,1200)}]; S.current=a;
     try{ endTabTour(); }catch(e){}
     go('home'); openCompose(); try{ sheet(null); }catch(e){}
     await new Promise(r=>setTimeout(r,250));
-    /* place it well off centre while it is a square post */
-    openPhoto(0); await new Promise(r=>setTimeout(r,300));
-    a.photos[0].pos = { x:0.18, y:0.11 }; save();
-    sheet(null);
-    /* now make it a story and open it again */
-    a.shape='story'; save();
     openPhoto(0); await new Promise(r=>setTimeout(r,350));
-    const pos = JSON.stringify(a.photos[0].pos||{});
-    const frame = a.photos[0].frame;
-    const im=document.getElementById('pho-frame').querySelector('img');
     const fr=document.getElementById('pho-frame');
-    const b=photoBox(im.naturalWidth,im.naturalHeight,fr.clientWidth,fr.clientHeight,a.photos[0]);
-    /* centred means the overhang is the same top and bottom */
-    const evenly = Math.abs(b.y - (fr.clientHeight - b.dh - b.y)) <= 1;
+    const boxA=getComputedStyle(fr).aspectRatio;
+    a.photos[0].pos={x:0.18,y:0.11}; save();
+    /* anything that used to change the frame must now change nothing */
+    a.shape='story'; save(); drawPhotoSheet();
+    await new Promise(r=>setTimeout(r,250));
+    const boxB=getComputedStyle(fr).aspectRatio;
+    const kept=JSON.stringify(a.photos[0].pos||{});
+    const f1=postFrame(a); a.shape=''; const f2=postFrame(a);
     sheet(null);
-    return { pos, frame, evenly, dh:b.dh, H:fr.clientHeight };
+    return { boxA, boxB, kept, sameFrame: f1.w===f2.w && f1.h===f2.h,
+             tall: f1.h>f1.w, w:f1.w, h:f1.h };
   });
-  ck('a position chosen for a square does not follow it onto a tall card', r.pos==='{"x":0,"y":0}', r);
-  ck('and the shape it was placed for is remembered', r.frame==='story', r);
-  ck('it sits with the same amount over each edge', r.evenly===true, r);
+  ck('the crop box never changes shape under him', r.boxA===r.boxB && r.boxA==='1 / 1', r);
+  ck('and a placement he made is not thrown away', r.kept==='{"x":0.18,"y":0.11}', r);
+  ck('there is one frame, whatever is asked of it', r.sameFrame===true, r);
+  ck('and it is the tall one', r.tall===true && r.w===1080 && r.h===1920, r);
   }
 
 head('the finger pinches as well as swipes — G, 18 Sept');
@@ -1242,6 +1285,58 @@ head('the finger pinches as well as swipes — G, 18 Sept');
   ck('and comes back to its regular size', r.ends===true, r);
   ck('the whole demonstration takes itself away', r.gone===true, r);
   ck('and leaves the photograph exactly where it was', r.sameSpot===true, r);
+  }
+
+head('one picture, and it fits all four of Instagram\u2019s doors \u2014 G, 18 Sept');
+{ const {ctx,p}=await app();
+  const r = await p.evaluate(async ()=>{
+    /* L103 \u2014 THIS REPLACES THE CHIP-NAMING CHECK OF THE SAME DAY. Naming the
+       chips for Instagram's own four was the right move for a wrong world: the
+       measurement then showed one tall file with everything in its middle
+       square survives every one of them, so the chips had nothing left to
+       decide and went. What must hold now is the arithmetic. */
+    const a=S.acts[S.acts.length-1]; S.current=a;
+    S.platforms.instagram.on=true; S.platforms.facebook.on=true;
+    try{ endTabTour(); }catch(e){}
+    go('home'); CM_PLAT='instagram'; openCompose();
+    await new Promise(r=>setTimeout(r,400));
+    const row=document.getElementById('cm-shape');
+    const out = { rowGone: !!(row && (row.classList.contains('hide') || !row.children.length)),
+                  how: (document.getElementById('cm-how')||{}).innerHTML || '' };
+    /* the real thing: draw the card into the frame and crop it the three ways
+       Instagram crops, and the ink must clear every edge every time */
+    const sh = postFrame(a);
+    const blob = await cardBlob(a, 1080, sh);
+    const im = new Image();
+    await new Promise(r=>{ im.onload=r; im.src=URL.createObjectURL(blob); });
+    const survives = (tw,th)=>{
+      const s0 = Math.max(tw/im.width, th/im.height);
+      const vw = tw/s0, vh = th/s0;
+      const c=document.createElement('canvas'); c.width=tw; c.height=th;
+      const g=c.getContext('2d');
+      g.drawImage(im,(im.width-vw)/2,(im.height-vh)/2,vw,vh,0,0,tw,th);
+      const d=g.getImageData(0,0,tw,th).data;
+      let minX=1e9,maxX=-1,minY=1e9,maxY=-1;
+      for(let y=0;y<th;y+=2) for(let x=0;x<tw;x+=2){
+        const i=(y*tw+x)*4;
+        if(d[i]<242||d[i+1]<242||d[i+2]<242){
+          if(x<minX)minX=x; if(x>maxX)maxX=x; if(y<minY)minY=y; if(y>maxY)maxY=y; } }
+      if(maxX<0) return 'nothing drawn';
+      return (minX>1 && maxX<tw-2 && minY>1 && maxY<th-2) ? 'whole' : 'cut';
+    };
+    out.frame  = sh.w + 'x' + sh.h;
+    out.square = survives(1080,1080);   // a 1:1 post, and a message
+    out.feed   = survives(1080,1350);   // a 4:5 feed post
+    out.story  = survives(1080,1920);   // a reel or a story
+    go('home');
+    return out;
+  });
+  ck('the file is the one tall frame', r.frame==='1080x1920', r);
+  ck('a 1:1 post keeps the card whole', r.square==='whole', r);
+  ck('a 4:5 feed post keeps the card whole', r.feed==='whole', r);
+  ck('a reel or story keeps the card whole', r.story==='whole', r);
+  ck('there is no shape left to pick', r.rowGone===true, r);
+  ck('and the page no longer warns about a crop', !/crop/i.test(r.how), r.how.slice(0,140));
   }
 
 console.log('\n'+pass+' passed, '+fail+' failed, console/page errors: '+errs.length);

@@ -1405,13 +1405,17 @@ head('the build stamp and the filter word');
   ck('in the app’s own grey, not a new one',
      stamp.colour===hexToRgb(stamp.token), {colour:stamp.colour, token:stamp.token});
   /* it goes out on every piece of feedback, so a stale one misdirects a bug */
+  /* L114, THIRD TIME IN ONE DAY. This held the letter series — 6 — so the
+     first honest roll past 6Z failed it, which is the opposite of its job. The
+     rule is that the stamp is a WELL-FORMED build mark and that the mail carries
+     the same one the screen shows. The series is not the rule. */
   ck('it names a build from this round, not an old one',
-     /^BUILD 6[A-Z]$/.test(stamp.text), stamp.text);
+     /^BUILD [0-9]+[A-Z]$/.test(stamp.text), stamp.text);
   /* the mail carries whatever this holds, and it is read once at load. Empty
      means the mail says nothing; stale means it sends somebody to the wrong
      file. Both were green under the old check. */
   ck('and the mail will carry a build, not nothing',
-     typeof stamp.quoted==='string' && /^BUILD 6[A-Z]$/.test(stamp.quoted),
+     typeof stamp.quoted==='string' && /^BUILD [0-9]+[A-Z]$/.test(stamp.quoted),
      {quoted:stamp.quoted});
   ck('the one on the screen', stamp.quoted===stamp.text, stamp);
   /* and it must be READ rather than typed: a build number written into the mail

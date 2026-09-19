@@ -1763,7 +1763,7 @@ select.pick::-ms-expand{display:none}
     <!-- BUILD MARK — dev only, delete this div when the app ships -->
     <!-- IT HAD SAID 5M SINCE 15 SEPTEMBER, eight builds back, and every
          feedback mail sent from the app quoted it. Move it with the build. -->
-    <div id="buildtag">BUILD 6Z</div>
+    <div id="buildtag">BUILD 7C</div>
   </div>
 </section>
 
@@ -5332,6 +5332,27 @@ function acPick(){
    erupts out of a tile nobody can see is no moment at all. */
 function actMoment(slot){
   CEL_PENDING = true;                 // claimed, from here until it has finished
+  /* A CLAIM THAT NEVER PAYS OUT WEDGES EVERYTHING BEHIND IT. Found on
+     18 September by driving the real flow in Chrome with the window behind
+     another one: the browser stops handing out animation frames altogether, so
+     the moment never reaches the point where it BEGINS — which is where the
+     long-stop that would release it was armed — and the claim stands for ever.
+     Nothing behind it can run: not the rest of the moment, not the question,
+     not the next act's moment, for the whole session. The same thing happens on
+     a phone put down, locked, or swapped away from in the second between
+     finishing an act and the square settling into place.
+
+     So the long-stop is armed HERE, the instant the moment is CLAIMED, rather
+     than when it starts. If it does start, celStart resets it to its own clock.
+     A moment that never got to happen still hands over what it owed. */
+  if(CEL_GUARD) clearTimeout(CEL_GUARD);
+  CEL_GUARD = setTimeout(function(){
+    CEL_GUARD = 0;
+    if(!CEL_PENDING && !CEL_RUNNING) return;
+    acStop(); sashStrap(0);
+    CEL_RUNNING = true;               // so celFinish does its whole job
+    celFinish();
+  }, 9000);
   const wrap = $('actcf'); if(!wrap){ sashStrap(0); celFinish(); return; }
   if(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches){
     sashStrap(0); celFinish(); return; }
@@ -11222,45 +11243,17 @@ function drawCompose(){
   chips($('cm-plats'), choices, ()=>CM_PLAT, v=>{
     CM_PLAT=v; buildCaption(false);
   });
-  /* POST OR STORY. G's correction, 17 September: the square is the default and
-     tall is chosen. It sits here, under the destination, because it describes
-     the whole post rather than one photograph — and a personal note has no
-     shape to choose, so it does not appear there. */
+  /* THE POST-OR-STORY CHOICE IS GONE, AND THE MEASUREMENT IS WHY. See the note
+     on POST_FRAME. Both chips produced the same file the moment one picture
+     began fitting all four destinations, so the control could only tell him he
+     had a decision he did not have — and he had already watched Instagram
+     ignore it. The row and its one-off highlight go with it (L110: a guard that
+     outlives its control is only a trap). His 17 September correction that the
+     square must be the default still stands — the square is now the only thing
+     there is. */
   const shrow = $('cm-shape');
-  if(shrow){
-    shrow.classList.toggle('hide', CM_PLAT==='private');
-    if(CM_PLAT!=='private'){
-      chips(shrow, [['Post','post'],['Story','story']],
-        ()=>(a.shape||SHAPE_DEFAULT),
-        v=>{ a.shape = (v==='story') ? 'story' : ''; save(); drawCompose(); prepack(); });
-      /* G, 18 September: "you need to highlight a sort of post or story when you
-         get to the screen, to make you realise you have a choice." Once per act,
-         and it RINGS the pair rather than only talking about them — the same beat
-         the photographs get. It goes first, because the shape decides what every
-         photograph below it is cropped to. */
-      if(!SHP_TOURED[a.no]){
-        SHP_TOURED[a.no] = 1;
-        setTimeout(()=>{
-          if(SCREEN !== 'compose') return;
-          if(!document.getElementById('cm-shape')) return;
-          toast('A post or a story — pick before you send.',
-                { coral:true, lit:'#cm-shape', ms:5200 });
-        }, 520);
-      }
-    }
-  }
-  /* Ask for a caption only if one has never been built. Testing for truthiness
-     here is what let an empty caption bounce between the two functions until the
-     stack gave out; buildCaption now always returns something, and this asks the
-     narrower question anyway, so neither half can loop on its own. */
-  a.captions = a.captions || {};
-  if(a.captions[CM_PLAT] == null){ buildCaption(true); return; }
-  $('cm-text').value = a.captions[CM_PLAT];
-  const platName = platLabel(CM_PLAT);
-  $('cm-label').textContent = ', for ' + platName;
-  $('cm-go').textContent = HAND_LABEL[CM_PLAT] || ('Open ' + platName);
-  const env=$('cm-env'); if(env){ env.classList.toggle('on', CM_PLAT==='private');
-    env.setAttribute('aria-pressed', CM_PLAT==='private'?'true':'false'); }
+  if(shrow){ shrow.innerHTML = ''; shrow.classList.add('hide'); }
+
   /* innerHTML, and safe: HAND_HOW is a fixed table of our own words with no
      user input anywhere near it. The two numbered steps need a line break and
      a bold word to be readable at all, and a paragraph of run-on instructions
@@ -11438,8 +11431,8 @@ const HAND_HOW = {
      afterthought at the end. So the screen was teaching the long way round.
      One route now, and pasting is its own line rather than the tail of one. */
   instagram: '<b>Tap the button above and choose Instagram.</b> The card goes '+
-             'over with you and Instagram opens on Reel, Post, Story or Message. '+
-             'Pick one.'+
+             'over with you. Reel, Post, Story or Message — <b>take whichever '+
+             'you like</b>: it comes out whole in all four.'+
              '<br><br><b>Then paste your words.</b> They are already copied. '+
              'Hold down the caption box in Instagram and tap <b>Paste</b>. '+
              'Instagram will not let any app fill that box in for you.'+
@@ -11960,11 +11953,10 @@ function drawPhotoSheet(){
   const a = phoAct(), p = phoOf();
   const fr = $('pho-frame'); if(!fr) return;
   if(!p){ sheet(null); return; }
-  /* the box IS the frame this post will use — square for a post, tall for a
-     story — so what is being cropped is never in doubt */
-  const shp = postFrame(a);
-  fr.style.aspectRatio = shp.w + ' / ' + shp.h;
-  fr.style.maxWidth = (shp.h > shp.w ? 236 : 300) + 'px';
+  /* THE BOX IS THE SAFE SQUARE — the part of the picture that survives every
+     destination. What he places here is exactly what comes out, everywhere. */
+  fr.style.aspectRatio = '1 / 1';
+  fr.style.maxWidth = '300px';
   /* AND IT SAYS WHICH SHAPE IT IS CROPPING FOR. G, 17 September: "should we not
      give them the choice when we're editing a photo of what story, reel, post,
      so they know how to edit the photo — so they don't go in there blind? And
@@ -11973,24 +11965,11 @@ function drawPhotoSheet(){
      about the whole post rather than one photograph. What comes in here is the
      ANSWER, said plainly, so nobody crops for a square and then posts a story. */
   const h3 = $('pho-h3');
-  if(h3) h3.textContent = (a.shape === 'story') ? 'This photo \u2014 for a story'
-                                                : 'This photo \u2014 for a square post';
-  /* IT COMES IN CENTRED, WHATEVER SHAPE IT IS AND WHATEVER FRAME IT LANDS IN.
-     G, 18 September: "it comes in asymmetrical. It should come in centered no
-     matter what. Especially if it's squared, it goes onto a tall card."
-     A photograph nobody has moved has no offset at all, which draws it dead
-     centre — so this only has to make sure nothing is left lying there from a
-     frame it is no longer in. A square picture moved about inside a square post
-     and then shown in a tall story is being cropped on a different axis
-     entirely, and carrying the old offset across is what put it off to one
-     side. Move it again and the new position sticks, for that shape. */
-  const shapeNow = (a.shape === 'story') ? 'story' : 'post';
-  /* only a photograph that was positioned for the OTHER shape is recentred. One
-     that has never been opened has nothing to lose, and one saved by a build
-     that did not record the shape keeps what it has rather than being reset for
-     a reason nobody would understand. */
-  if(p.frame && p.frame !== shapeNow) p.pos = { x:0, y:0 };
-  p.frame = shapeNow;
+  /* NOTHING TO GO IN BLIND ABOUT ANY MORE. This used to name the shape he had
+     chosen — "for a square post" or "for a story" — because choosing wrongly
+     cost him the picture. One file fits all four now, so there is no wrong
+     choice left to warn him about. */
+  if(h3) h3.textContent = 'This photo';
   const mk = p.off ? null : markFor(a);
   fr.classList.toggle('out', !!p.off);
   fr.innerHTML = '<img draggable="false" src="'+esc(p.url)+'" alt="">';
@@ -12812,12 +12791,45 @@ const CREED = ['PUT A LITTLE','MORE GOOD INTO','THE WORLD.'];
      story — 1080x1920, only when he says this one is a story.
    Chosen per act on the Post it page, because it describes the whole post
    rather than one photograph. */
-const POST_SHAPES = { post:{ w:1080, h:1080 }, story:{ w:1080, h:1920 } };
-const SHAPE_DEFAULT = 'post';
-function postFrame(a){
-  const k = (a && a.shape) || SHAPE_DEFAULT;
-  return POST_SHAPES[k] || POST_SHAPES.post;
+/* ONE PICTURE, AND IT FITS EVERYWHERE. Measured on the live build, 18
+   September 2026, after G sent a photograph of Instagram's own panel and said
+   "all four are cropping the images badly". He was right, and the reason had
+   nothing to do with our choosing:
+
+   INSTAGRAM OFFERS REEL, POST, STORY AND MESSAGE EVERY TIME, and nothing an
+   outside app sends decides which he taps. Each one then fills its own frame
+   from the middle:
+       a story or a reel is 9:16  — it takes 21.9% off each side of a square
+       a feed post is now 4:5     — it takes 10.0% off each side of a square
+       a 1:1 post and a message   — leave a square alone
+   The card's ink starts 3.5% in from the left. So three of the four ate it, and
+   there was no label, no warning and no chip that could have prevented it.
+
+   THE ANSWER IS ARITHMETIC, NOT A CHOICE. One file, 1080 by 1920, with
+   everything that matters inside the middle 1080 square:
+       9:16 keeps the whole file          — the square is safe
+       4:5  keeps the middle 1350         — the square is safe
+       1:1  keeps the middle 1080         — exactly the square
+   Nothing is ever cut, wherever he taps. Proved by rendering his own three
+   photographs through all four and looking at them.
+
+   AND SO THE POST-OR-STORY CHOICE IS GONE. It was answering a question that no
+   longer exists: both chips now produce the same file, so the control could
+   only mislead. This is the second time measuring has killed a control on this
+   screen rather than adding one, and it is the same good day as the first. */
+const POST_FRAME = { w:1080, h:1920 };
+const SAFE_SIDE  = 1080;                    // the middle square, where the ink lives
+function postFrame(a){ return POST_FRAME; }
+/* the middle square of a frame, in that frame's own pixels */
+function safeBox(shape){
+  const sh = shape || POST_FRAME;
+  const side = Math.min(sh.w, SAFE_SIDE);
+  return { x:Math.round((sh.w - side)/2), y:Math.round((sh.h - side)/2), w:side, h:side };
 }
+/* kept so old files still load and nothing that reads it breaks; nothing
+   chooses it any more */
+const POST_SHAPES = { post:POST_FRAME, story:POST_FRAME };
+const SHAPE_DEFAULT = 'post';
 
 /* Instagram makes every picture in one post share the shape of the first, so a
    phone snapshot beside the square card is cropped BY INSTAGRAM — a second cut
@@ -13076,8 +13088,15 @@ function markFor(a){
 /* drawn at the card's own margin, bottom left, at the card's own proportions */
 function drawMark(g, shape, mk){
   if(!mk) return;
-  const W = shape.w, H = shape.h, k = W/100;
+  /* INSIDE THE SAFE SQUARE. It used to sit on the outer edge of the file, which
+     is the first thing every crop eats — G saw his own mark cut off in all four
+     destinations on 18 September. A mark that only survives when nothing crops
+     is not a mark. It now sits where the card's own ink sits, and travels
+     everywhere the card does. */
+  const sq = safeBox(shape);
+  const W = sq.w, H = sq.h, k = W/100;
   g.save();
+  g.translate(sq.x, sq.y);
   g.fillStyle = mk.ink;
   /* TWICE THE SIZE. G, 17 September: "the watermark needs to be twice as big."
      Every number doubled, the gap between the lines included, so the lockup
@@ -13115,8 +13134,17 @@ function photoOnto(img, shape, p, mk){
   c.width = W; c.height = H;
   const g = c.getContext('2d');
   g.fillStyle = '#FFFFFF'; g.fillRect(0, 0, W, H);
-  const b = photoBox(img.width, img.height, W, H, p || {});
-  g.drawImage(img, Math.round(b.x), Math.round(b.y), Math.round(b.dw), Math.round(b.dh));
+  /* THE PHOTOGRAPH LIVES IN THE MIDDLE SQUARE, exactly as the card does, so the
+     two travel together and neither is cut wherever it lands. What the person
+     placed in the box on screen is what this draws, because the box on screen
+     is that same square. */
+  const sq = safeBox(shape);
+  g.save();
+  g.beginPath(); g.rect(sq.x, sq.y, sq.w, sq.h); g.clip();
+  const b = photoBox(img.width, img.height, sq.w, sq.h, p || {});
+  g.drawImage(img, Math.round(sq.x + b.x), Math.round(sq.y + b.y),
+                   Math.round(b.dw), Math.round(b.dh));
+  g.restore();
   drawMark(g, shape, mk);
   return c;
 }
