@@ -16,15 +16,20 @@ const EXE = process.env.CHROME ||
 const LAUNCH = EXE ? { executablePath: EXE } : {};
 const FILE = process.env.AOG || pathToFileURL(path.resolve(process.cwd(),'index.html')).href;
 
-const b = await chromium.launch(LAUNCH);
+/* IPHONE=1 runs every check in Safari's engine on an iPhone 15's screen, with touch. */
+const IPHONE = !!process.env.IPHONE;
+const b = IPHONE ? await (pw.default||pw).webkit.launch() : await chromium.launch(LAUNCH);
 let pass=0, fail=0; const errs=[];
 const ck=(n,c,g)=>{ if(c){pass++;console.log('  ok   '+n);} else {fail++;console.log('  FAIL '+n+'   '+JSON.stringify(g));} };
 const head=t=>console.log('\n== '+t+' ==');
 let CTX=null, PAGE=null;
 async function app(acts=11, goal=50){
   if(!CTX){
-    CTX=await b.newContext({viewport:{width:390,height:844}});
+    CTX=await b.newContext(IPHONE ? {...(pw.default||pw).devices['iPhone 15']} : {viewport:{width:390,height:844}});
     PAGE=await CTX.newPage();
+    /* Safari's "Add to Home Screen" strip comes back on every load; the phone
+       being tested is treated as installed, which is how G uses it. */
+    if(IPHONE) await PAGE.addInitScript(()=>{ try{ Object.defineProperty(navigator,'standalone',{get:()=>true}); }catch(e){} });
     PAGE.on('console',m=>{if(m.type()==='error')errs.push(m.text());});
     PAGE.on('pageerror',e=>errs.push('pageerror: '+e.message));
   }
@@ -33,6 +38,9 @@ async function app(acts=11, goal=50){
   await p.goto(FILE); await p.waitForTimeout(1100);
   await p.evaluate(()=>{ try{ localStorage.clear(); }catch(e){} });
   await p.goto(FILE); await p.waitForTimeout(1100);
+  /* on the iPhone, Safari shows the "Add to Home Screen" strip. A person closes
+     it with its own ×, so the tester does the same, with a finger. */
+  if(IPHONE){ await p.waitForSelector("#install:not(.hide)",{timeout:3000}).catch(()=>{}); const x=await p.$('#install:not(.hide) button[aria-label="Hide this"]'); if(x) await x.tap({timeout:3000}).catch(()=>p.evaluate(()=>document.querySelector("#install button").click())); }
   await p.evaluate(([n,goal])=>{
     S.letterSeen=S.started=S.tabToured=S.ideasNudged=true;
     S.name='Tony';S.bday='1973-06-01';S.n=goal;S.weeks=52;S.why='to test';
@@ -367,10 +375,14 @@ head('the photograph moves inside the frame — G, 17 September');
        Find it again before tapping, or the tap lands on nothing. */
     await p.waitForFunction(()=>!!document.querySelector('#cm-prev .photos > *'), null, {timeout:8000}).catch(()=>{});
     const tile2 = await p.$('#cm-prev .photos > *');
-    if(tile2) await tile2.scrollIntoViewIfNeeded();
+    /* centred, not merely "in view": on an iPhone's shorter screen a tile at the
+       bottom edge is in view but under the tab bar, and the tap lands on a tab */
+    if(tile2) await tile2.evaluate(e=>e.scrollIntoView({block:'center'}));
     await p.waitForTimeout(300);
     const box2 = tile2 ? await tile2.boundingBox() : {x:cx,y:cy,width:1,height:1};
-    await p.mouse.click(box2.x+box2.width/2, box2.y+box2.height/2);
+    /* on the iPhone a tap is a finger, not a mouse click */
+    if(IPHONE) await p.touchscreen.tap(box2.x+box2.width/2, box2.y+box2.height/2);
+    else await p.mouse.click(box2.x+box2.width/2, box2.y+box2.height/2);
     await p.waitForTimeout(400);
     /* L103. This asserted that a tap left the photo out. A tap now OPENS the
        photograph's own box (G, 17 Sept) and leaving it out is a labelled button
@@ -907,16 +919,21 @@ head('the shape pair points itself out, and the reminder waits — G, 18 Sept');
     const said = bar.querySelector('.msg') ? bar.querySelector('.msg').textContent : '';
     dropToast();
     /* and the paste reminder must NOT time itself out */
+    /* 7G: the reminder now stands beside the Send button, so when that button is
+       off screen \u2014 as it is here, and never is after a real press \u2014 it scrolls
+       it into view first and speaks after. Read it once it has spoken. */
     a.shape=''; pasteToast('instagram');
-    await new Promise(r=>setTimeout(r,300));
+    await new Promise(r=>setTimeout(r,900));
     const postLine = bar.querySelector('.msg').textContent;
     const stays = bar.style.pointerEvents === 'auto';
+    const g=document.getElementById('cm-go').getBoundingClientRect(), tb=bar.getBoundingClientRect();
+    const byTheButton = (g.top - tb.bottom) >= 0 && (g.top - tb.bottom) < 40;
     dropToast();
     a.shape='story'; pasteToast('instagram');
     await new Promise(r=>setTimeout(r,200));
     const storyLine = bar.querySelector('.msg').textContent;
     dropToast(); a.shape='';
-    return { shapeRow, said, postLine, storyLine, stays };
+    return { shapeRow, said, postLine, storyLine, stays, byTheButton };
   });
   /* L110 — THE CONTROL WENT, SO ITS GUARD GOES WITH IT, REWRITTEN. The ringing
      existed to make him notice a choice. There is no choice: one picture fits
@@ -931,9 +948,13 @@ head('the shape pair points itself out, and the reminder waits — G, 18 Sept');
   ck('and nothing warns him about a crop that cannot happen',
      !/crop/i.test(t.said), t);
   ck('a post is told to paste into its caption', /into your caption/i.test(t.postLine), t);
-  /* a story has no caption box; saying "paste into your caption" would be a lie */
-  ck('a story is not told to paste into a caption it does not have',
-     !/into your caption/i.test(t.storyLine) && /copied/i.test(t.storyLine), t);
+  /* L103. This guarded the story wording \u2014 a story has no caption box. There is
+     no story choice now (7C): one picture, always posted, always a caption box
+     to paste into. What holds instead is that nothing left over from the old
+     field can change what he is told. */
+  ck('whatever an old act\u2019s shape says, he is told to paste into the caption',
+     /into your caption/i.test(t.storyLine), t);
+  ck('and the reminder stands right above the Send button', t.byTheButton===true, t);
   ck('and the reminder stays up rather than timing out', t.stays===true, t);
   }
 
@@ -1419,6 +1440,230 @@ head('the question is quieter, and the mark reads on anything \u2014 G, 18 Sept'
   ck('and is answered "Yes" or "Not yet"', r.q.yes==='Yes' && r.q.no==='Not yet', r.q);
   ck('a mark stands out even on a photograph of its own colour', r.shadowPixels > 400, r);
   }
+
+head('the words go with the picture \u2014 L119, caught by the testers on 18 Sept');
+{ const {ctx,p}=await app();
+  /* L119. From 7C to 7E every post left with an EMPTY caption: a cut meant to
+     remove the post-or-story chips ran on and took the six lines that build the
+     caption. Six hundred and thirty-five checks passed, because not one of them
+     finished an act the way a person does and then looked in the box. This one
+     does, and then presses Send, and reads what actually leaves. */
+  await p.evaluate(()=>{
+    window.__SH=[]; window.__CL=[];
+    navigator.canShare=()=>true;
+    navigator.share=(x)=>{ window.__SH.push(x); return Promise.resolve(); };
+    try{ Object.defineProperty(navigator,'clipboard',{ value:{ writeText:(t)=>{ window.__CL.push(t); return Promise.resolve(); } }, configurable:true }); }catch(e){}
+  });
+  const r = await p.evaluate(async ()=>{
+    try{ endTabTour(); }catch(e){}
+    S.platforms.instagram.on=true; S.platforms.facebook.on=true;
+    go('works'); startWork();
+    const t='Drove Bev to her appointment', story='Took ten minutes. Felt like more.';
+    document.getElementById('wk-t').value=t; WK.t=t;
+    document.getElementById('wk-story').value=story; WK.story=story;
+    workKeep(); save();
+    finishWork(false); await new Promise(r=>setTimeout(r,250)); finishGo();
+    await new Promise(r=>setTimeout(r,1500));
+    const a=S.current;
+    const out={ box: document.getElementById('cm-text').value,
+                go: document.getElementById('cm-go').textContent.trim(), no:a.no, n:S.n };
+    /* Instagram: the words go to the clipboard, not the sheet */
+    const ig=[...document.querySelectorAll('#cm-plats button')].find(b=>/Instagram/.test(b.textContent));
+    if(ig) ig.click();
+    await new Promise(r=>setTimeout(r,300));
+    for(let k=0;k<60 && (PACK.busy||!PACK.files);k++) await new Promise(r=>setTimeout(r,150));
+    handOff(); await new Promise(r=>setTimeout(r,300));
+    out.igClip = window.__CL[window.__CL.length-1] || '';
+    out.igSheetText = (window.__SH[window.__SH.length-1]||{}).text || null;
+    /* Facebook: the words travel through the sheet */
+    const dl=document.getElementById('dlg'); if(dl && !dl.classList.contains('hide')) document.getElementById('dlg-no').click();
+    const fb=[...document.querySelectorAll('#cm-plats button')].find(b=>/Facebook/.test(b.textContent));
+    if(fb) fb.click();
+    await new Promise(r=>setTimeout(r,300));
+    for(let k=0;k<60 && (PACK.busy||!PACK.files);k++) await new Promise(r=>setTimeout(r,150));
+    handOff(); await new Promise(r=>setTimeout(r,300));
+    out.fbSheetText = (window.__SH[window.__SH.length-1]||{}).text || null;
+    const d2=document.getElementById('dlg'); if(d2 && !d2.classList.contains('hide')) document.getElementById('dlg-no').click();
+    go('home');
+    return out;
+  });
+  ck('a finished act arrives with its caption already written', r.box.length > 20, r.box.slice(0,80));
+  ck('and the caption names the act', new RegExp('Act '+r.no+' of '+r.n).test(r.box), r.box.slice(0,80));
+  ck('and carries what she wrote', /ten minutes/.test(r.box), r.box.slice(0,80));
+  ck('the Send button says what it does', /^Send to /.test(r.go), r.go);
+  ck('Instagram: the caption is on the clipboard', r.igClip === r.box && r.igClip.length > 20, r.igClip.slice(0,60));
+  ck('Instagram: and not in the sheet, which drops it', r.igSheetText === null, r.igSheetText);
+  ck('Facebook: the caption travels with the picture', !!r.fbSheetText && /ten minutes/.test(r.fbSheetText), (r.fbSheetText||'').slice(0,60));
+  }
+
+head('faults 1 and 2 \u2014 a backup never swaps photographs, and act 0 has no number');
+{ const {ctx,p}=await app();
+  const r = await p.evaluate(async ()=>{
+    /* FAULT 1, as it happens: two acts standing on the same number, each with
+       its own photograph. Write a real backup and read the file back. */
+    const img=(c)=>{ const k=document.createElement('canvas'); k.width=40;k.height=30;
+      const g=k.getContext('2d'); g.fillStyle=c; g.fillRect(0,0,40,30); return k.toDataURL('image/jpeg',0.9); };
+    const A={ no:'5', t:'First of two', who:[], story:'', d:'2026-03-01', captions:{}, posted:{},
+              photos:[{ id:'phA', url:img('#f00') }] };
+    const B={ no:'5', t:'Second of two', who:[], story:'', d:'2026-03-02', captions:{}, posted:{},
+              photos:[{ id:'phB', url:img('#00f') }] };
+    S.acts.push(A, B); save();
+    let file=null;
+    const was=PHONE.share, wasCan=PHONE.canShareFiles;
+    PHONE.canShareFiles=()=>true;
+    PHONE.share=async (pl)=>{ file=pl.files[0]; };
+    await exportJournal();
+    PHONE.share=was; PHONE.canShareFiles=wasCan;
+    try{ sheet(null); }catch(e){}
+    const o=JSON.parse(await file.text());
+    const inA=o.acts.find(x=>x.t==='First of two'), inB=o.acts.find(x=>x.t==='Second of two');
+    const out={ aIds:(inA.photos||[]).map(x=>x.id), bIds:(inB.photos||[]).map(x=>x.id) };
+    S.acts.splice(S.acts.indexOf(A),1); S.acts.splice(S.acts.indexOf(B),1);
+
+    /* FAULT 2: act 0 is neither renumbered nor silently not-deleted */
+    S.zero = S.zero || { no:'0', zero:true, d:'2026-01-01', t:'begins', posted:{}, captions:{} };
+    S.current = S.zero; go('card');
+    await new Promise(r=>setTimeout(r,200));
+    const fx=document.getElementById('cd-fix'); out.fixHidden = fx ? fx.classList.contains('hide') : false;
+    renumberAct(); await new Promise(r=>setTimeout(r,150));
+    out.renumberSaid = document.getElementById('dlg-title').textContent;
+    document.getElementById('dlg-yes').click();
+    deleteAct(); await new Promise(r=>setTimeout(r,150));
+    out.deleteSaid = document.getElementById('dlg-title').textContent;
+    document.getElementById('dlg-yes').click();
+    out.zeroNo = S.zero.no;
+    /* and a file that arrives with a numbered act 0 is put right */
+    S.zero.no='7'; save(); 
+    return out;
+  });
+  ck('two acts on one number each keep their own photograph in the backup',
+     r.aIds.join()==='phA' && r.bIds.join()==='phB', r);
+  ck('act 0 is not offered a new number or deletion', r.fixHidden===true, r);
+  ck('and if reached anyway, renumbering says why not', /no number/i.test(r.renumberSaid), r);
+  ck('and so does deleting, instead of saying nothing', /stays/i.test(r.deleteSaid), r);
+  await p.reload(); await p.waitForTimeout(1200);
+  const z = await p.evaluate(()=>S.zero && S.zero.no);
+  ck('a file carrying a numbered act 0 is put back to 0 when it loads', z==='0', z);
+  }
+
+head('fault 3 \u2014 a full year never invites anyone to act 6 of 5');
+{ const {ctx,p}=await app();
+  const r = await p.evaluate(()=>{
+    const keepActs=S.acts, keepN=S.n, keepWK=WK, keepKind=ASK_KIND;
+    S.n=3; S.acts=[1,2,3].map(i=>({no:String(i),t:'done '+i,d:'2026-02-0'+i,photos:[],posted:{},captions:{}}));
+    WK={ t:'', d:'2026-03-01', who:['Sam Lee'] };
+    const out=[];
+    for(const k of ['along','part']){ ASK_KIND=k; const d=askDrafts(); out.push(d.text,d.subject,d.email); }
+    out.push(icsFor('', '2026-03-01', (typeof realSlot==='function'?realSlot:String)(nextSlot(true)), [], 'none', false).text);
+    S.acts=keepActs; S.n=keepN; WK=keepWK; ASK_KIND=keepKind;
+    return out.join('\n~~\n');
+  });
+  ck('a full year never hands out a number past the end of it', !/\b(act|number)\s+4\b/i.test(r) && !/\b4 of 3\b/.test(r), r.slice(0,400));
+  ck('and the invitation still reads as a whole sentence', /one of my 3 acts/.test(r), r.slice(0,300));
+  }
+
+head('faults 5 to 9 — the numbers stay inside the year');
+{ const {ctx,p}=await app();
+  const r = await p.evaluate(async ()=>{
+    const out={};
+    const mk=(no,t)=>({no:String(no),t:t,d:'2026-02-01',photos:[],posted:{},captions:{}});
+    /* FAULT 5: a refused goal change leaves everything as it was */
+    S.n=5; S.acts=[1,2,3,4,5].map(i=>mk(i,'done '+i));
+    S.works=[{id:'wkT',t:'kept guess',exp:'5',photos:[],who:[],notes:[]}];
+    setGoal(3); await new Promise(r=>setTimeout(r,150));
+    out.refused = document.getElementById('dlg-title').textContent;
+    try{ document.getElementById('dlg-yes').click(); }catch(e){}
+    out.expAfterRefusal = S.works[0].exp; out.nAfterRefusal=S.n;
+    /* FAULT 9: a proposed act is a number in the year, or nothing */
+    WK=S.works[0]; if(typeof openWork==='function'){ try{ openWork(WK); }catch(e){} }
+    const box=document.getElementById('wk-exp');
+    if(box){ box.value='abc'; try{ wkEdited(); }catch(e){ out.e9=String(e); } }
+    out.expTyped = WK.exp;
+    /* FAULTS 7, 8, 9 across a real reload: goal below the acts, a number
+       that is no square, a proposal that is no number */
+    S.works[0].exp='abc';
+    S.acts[0].no='-4'; S.acts.shift(); S.acts.push(mk('-4','the lost one'));
+    S.n=3; save(); await new Promise(r=>setTimeout(r,400));
+    return out;
+  });
+  ck('a refused goal change says so, and nothing has been changed', /room/i.test(r.refused) && r.expAfterRefusal==='5' && r.nAfterRefusal===5, r);
+  ck('typing letters as the expected act keeps nothing', !r.expTyped || /^[0-9.,]+$/.test(r.expTyped), r);
+  await p.reload(); await p.waitForTimeout(1500);
+  const q = await p.evaluate(()=>({ n:S.n, nos:S.acts.map(a=>a.no), exp:(S.works[0]||{}).exp,
+    book:S.acts.map(a=>'act '+a.no+' of '+S.n).join(' | ') }));
+  ck('a goal smaller than the acts done grows to hold them', q.n>=q.nos.length, q);
+  ck('no act loads with a number that is no square in the year', q.nos.every(x=>+x>=1 && +x<=q.n) && !/-4/.test(q.book), q);
+  ck('a proposed act that is not a number does not survive loading', !q.exp, q);
+  /* FAULT 6: a work carried into a new year forgets last year's number */
+  const y = await p.evaluate(async ()=>{
+    S.works=[{id:'wkY',t:'carried',exp:'3',photos:[],who:[],notes:[]}];
+    try{ rollYear(); }catch(e){ return {err:String(e)}; }
+    return { exp:S.works[0] && S.works[0].exp };
+  });
+  ck('a work carried into a new year keeps no number from the old one', y.exp==='', y);
+}
+
+head('faults 4, 11, 12 — a suggested date is not a choice; Instagram has three doors; Facebook gets the framed picture');
+{ const {ctx,p}=await app();
+  const r = await p.evaluate(async ()=>{
+    const out={};
+    const w={id:'wkD',t:'',exp:'',d:'',photos:[],who:[],notes:[]}; S.works=[w];
+    WK=w; openWork(w); await new Promise(r=>setTimeout(r,200));
+    const t=document.getElementById('wk-t'); t.value='a'; t.dispatchEvent(new Event('input',{bubbles:true}));
+    try{ wkEdited(); }catch(e){ out.e=String(e); }
+    out.dAfterKey = w.d;
+    out.igWords = (typeof HAND_HOW==='object' && HAND_HOW.instagram) || '';
+    out.fbFramed = !!(typeof FRAME_PHOTOS==='object' && FRAME_PHOTOS.facebook);
+    return out;
+  });
+  ck('one keystroke does not save today as the aimed-for date', r.dAfterKey==='', r);
+  ck('Instagram is described as it is: Post, Story or Message, no Reel', !/Reel/.test(r.igWords) && /Post, Story or Message/.test(r.igWords), r.igWords.slice(0,120));
+  ck('a photograph going to Facebook is framed and marked like Instagram', r.fbFramed, r);
+}
+
+head('test 14 — rolling into a new year, and waking up in it');
+{ const {ctx,p}=await app(5,5);
+  await p.evaluate(async ()=>{
+    const k=document.createElement('canvas'); k.width=40;k.height=30; k.getContext('2d').fillRect(0,0,40,30);
+    const u=k.toDataURL('image/jpeg',0.9); await idbPut('phY',u); await idbPut(THUMB('phY'),u);
+    S.acts[0].photos=[{ id:'phY', url:u }]; save(); await new Promise(r=>setTimeout(r,300));
+    S.n=5; S.works=[{id:'wkC',t:'carried over',exp:'2',d:'',photos:[],who:[],notes:[]}];
+    S.zero = S.zero || { no:'0', zero:true, d:'2026-01-01', t:'begins', posted:{}, captions:{} };
+    rollYear(); save(); await new Promise(r=>setTimeout(r,500));
+  });
+  await p.reload(); await p.waitForTimeout(1600);
+  const r = await p.evaluate(async ()=>{
+    WK=S.works[0]; ASK_KIND='along'; const d=askDrafts();
+    return { past:(S.past||[]).length, lastYearActs:((S.past||[]).slice(-1)[0]||{acts:[]}).acts.length,
+      lastYearPhotos:((S.past||[]).slice(-1)[0]||{acts:[]}).acts.reduce((n,a)=>n+(a.photos||[]).length,0),
+      acts:S.acts.length, next:nextSlot(), works:S.works.length, exp:(S.works[0]||{}).exp, invite:d.text.slice(0,80) };
+  });
+  ck('last year is kept whole on the shelf, acts and photographs', r.past>=1 && r.lastYearActs===5 && r.lastYearPhotos>0, r);
+  ck('the new year starts empty, at square one', r.acts===0 && r.next===1, r);
+  ck('the carried work survives, with no old number', r.works===1 && r.exp==='', r);
+  ck('and its invitation speaks of act 1, not last year’s act', /act 1 of/.test(r.invite), r);
+}
+
+head('G, 19 Sept — today is a greyed suggestion; the finish sets the real number and day');
+{ const {ctx,p}=await app();
+  const r = await p.evaluate(async ()=>{
+    const out={};
+    const w={id:'wkG',t:'planned one',exp:'8',d:'',photos:[],who:[],notes:[]}; S.works=[w];
+    WK=w; openWork(w); await new Promise(r=>setTimeout(r,200));
+    out.greyed = document.getElementById('wk-when-btn').classList.contains('suggest');
+    const fut=new Date(Date.now()+9*864e5).toISOString().slice(0,10);
+    w.d=fut; WK_WHEN_AUTO=''; document.getElementById('wk-when').value=fut; syncDateBtn('wk-when');
+    out.pickedNotGrey = !document.getElementById('wk-when-btn').classList.contains('suggest');
+    try{ finishWork(false); }catch(e){ out.e=String(e); }
+    await new Promise(r=>setTimeout(r,250));
+    out.why = (document.getElementById('fin-why')||{}).textContent||'';
+    try{ sheet(null); }catch(e){}
+    return out;
+  });
+  ck('the suggested date shows greyed out until a day is picked', r.greyed===true && r.pickedNotGrey===true, r);
+  ck('the finish says the planned number gives way to the real one', /planned this as 8/.test(r.why), r);
+  ck('and says the aimed-for day gives way to the day it is finished', /for .+;.*today/i.test(r.why) && r.why.length<70, r);
+}
 
 console.log('\n'+pass+' passed, '+fail+' failed, console/page errors: '+errs.length);
 if(errs.length) console.log(JSON.stringify(errs.slice(0,6),null,1));

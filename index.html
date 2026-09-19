@@ -1101,7 +1101,7 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
      weight instead of by colour. */
   .finact{font-size:17px;font-weight:600;color:var(--muted);margin:14px 0 14px;
     letter-spacing:-.01em}
-.datebtn.empty{color:#B9B2A9;font-weight:400}
+.datebtn.empty,.datebtn.suggest{color:#B9B2A9;font-weight:400}
 /* The half act was removed entirely on G's instruction, 6 Sept 2026. See HANDOFF. */
 /* the year, finished — the one line on Your year that is not a measurement */
 #p-state{color:var(--muted);font-weight:500}
@@ -1771,7 +1771,7 @@ select.pick::-ms-expand{display:none}
     <!-- BUILD MARK — dev only, delete this div when the app ships -->
     <!-- IT HAD SAID 5M SINCE 15 SEPTEMBER, eight builds back, and every
          feedback mail sent from the app quoted it. Move it with the build. -->
-    <div id="buildtag">BUILD 7E</div>
+    <div id="buildtag">BUILD 7H</div>
   </div>
 </section>
 
@@ -2277,7 +2277,7 @@ What you actually did. Why it mattered. Say the awkward parts."></textarea>
       <button class="btn ghost" style="margin-top:10px" onclick="doItAgain()">Do it again</button>
       <!-- "Mark as half an act" removed 6 Sept 2026 (G). -->
 
-      <div style="margin-top:18px;border-top:1px solid var(--line);padding-top:16px">
+      <div id="cd-fix" style="margin-top:18px;border-top:1px solid var(--line);padding-top:16px">
         <button class="btn ghost" onclick="renumberAct()">Change its number</button>
         <button class="btn ghost" style="margin-top:10px;color:var(--coralink)"
           onclick="deleteAct()">Delete this act</button>
@@ -3397,7 +3397,11 @@ async function load(){
     ? o.celBag.split(',').filter(k=>AC_KINDS.indexOf(k)>-1).join(',') : '';
   S.fin=(o.fin&&typeof o.fin==='object')?o.fin:null;
   if(S.cat==='Neighbours') S.cat='Neighbors';   // the library went American
-  S.zero=o.zero||null; S.tabToured=!!o.tabToured; S.opens=o.opens||0; S.todoOpens=o.todoOpens||0; S.handles=o.handles||{}; S.places=o.places||{};
+  S.zero=o.zero||null;
+  /* a declaration given a number by an older build is put back to 0 on the way
+     in, so it can never stand on the same square as a real act (fault 2) */
+  if(S.zero){ S.zero.zero = true; S.zero.no = '0'; }
+  S.tabToured=!!o.tabToured; S.opens=o.opens||0; S.todoOpens=o.todoOpens||0; S.handles=o.handles||{}; S.places=o.places||{};
   /* A handle nobody can use should not go on living in the file or ride in
      every backup. Anyone who typed an X name before today has it dropped on
      the next load — quietly, because there is nothing to tell them: the app
@@ -3421,7 +3425,7 @@ async function load(){
     S.works.push({ pid:w.pid||newWorkId(), t:w.t||'', d:w.d||'', who:Array.isArray(w.who)?w.who:[],
                    r:w.r||'',                              // named in serialise() too — invariant 1
                    hon:w.hon||'', cost:+w.cost||0, spends:Array.isArray(w.spends)?w.spends:[],
-                   story:w.story||'', exp:String(w.exp||''), startedAt:w.startedAt||'', sheet:(w.sheet&&typeof w.sheet==='object')?w.sheet:null, askShut:w.askShut?1:0,
+                   story:w.story||'', exp:expOk(w.exp), startedAt:w.startedAt||'', sheet:(w.sheet&&typeof w.sheet==='object')?w.sheet:null, askShut:w.askShut?1:0,
                    seed:(w.seed&&typeof w.seed==='object')?w.seed:null,
                    notes:Array.isArray(w.notes)?w.notes:[], njr:w.njr?1:0, photos:photos });
   }
@@ -3480,6 +3484,16 @@ async function load(){
     if(!S.acts[S.acts.length-1].t && !slotOf(S.acts[S.acts.length-1]))
       S.acts.pop();
   }
+  /* FAULT 8, 19 September: a number that is no place in any year ("-4", "abc")
+     survived loading and the book printed "act -4 of 50". Such an act is still
+     a real act, so it is kept and given the first free square instead. */
+  S.acts.forEach(a=>{
+    if(String(a.no).trim()!=='' && slotOf(a) < 1){
+      const used={}; S.acts.forEach(b=>{ const k=slotOf(b); if(k>=1) used[k]=1; });
+      let i=1; while(used[i]) i++; a.no=String(i);
+    }
+  });
+  fitGoal();
 
   /* ── THE MASTER KEY IS RETIRED HERE ──────────────────────────────────────
      Closed 13 September 2026. Every sheet has carried its own key since 5E,
@@ -3571,7 +3585,15 @@ async function exportJournal(){
     parts.push(',"acts":[');
     for(let i=0;i<(o.acts||[]).length;i++){
       const a = Object.assign({}, o.acts[i]);
-      const live = S.acts.filter(x=>String(x.no)===String(a.no))[0];
+      /* THE PHOTOGRAPHS ARE FOUND BY PLACE, NOT BY NUMBER. Fault 1 of the list G
+         was given on 18 September: this used to look each act up by its number,
+         and nothing anywhere promises that numbers are unique \u2014 so two acts
+         sharing one both wrote the FIRST act's photographs into the backup, and
+         the second act's pictures were simply not in it. Restoring then handed
+         one act's photographs to the other and lost the rest for good.
+         serialise() writes the acts in exactly the order they are held, one for
+         one, so the act at this place in the line IS this act. */
+      const live = S.acts[i];
       delete a.photos;
       /* THE CLAIM LIST DOES NOT GO IN THE BACKUP. The works loop below has said
          so since the sheet shipped; an act never carried a sheet, so an act
@@ -5751,6 +5773,10 @@ function rollYear(){
   const owing  = Math.max(0, before - (S.bkupAt||0));
   S.acts = [];
   S.plans = {};
+  /* FAULT 6, 19 September: a work carried across kept last year's expected
+     number, and the shelf showed it. A new year starts at square one, so the
+     guess goes and the box proposes afresh. */
+  (S.works||[]).forEach(w=>{ w.exp = ''; });
   S.zero = null;
   S.fin = null;
   S.finShown = 0;
@@ -6264,9 +6290,22 @@ function askDetails(){
   /* There used to be three ways in here — a plan sheet, a log screen and the
      editor. The first two are gone; the editor is the only place an invite can
      start from now, so an empty answer just means nothing is open. */
-  if(WK) return { t:(WK.t||'').trim(), d:WK.d||'', no:String(WK.exp||nextSlot(true)), who:(WK.who||[]).slice() };
+  if(WK) return { t:(WK.t||'').trim(), d:WK.d||'', no:realSlot(WK.exp||nextSlot(true)), who:(WK.who||[]).slice() };
   return { t:'', d:'', no:'', who:[] };
 }
+/* FAULT 3, 19 September: a full year handed out "act 6 of 5". A number only
+   travels if it is a real place in the year; otherwise the words go without one. */
+function expOk(v){ const t=String(v==null?'':v).trim(); if(!t) return '';
+  const n=parseFloat(t.replace(',','.')); return (/^[0-9]+([.,][0-9]+)?$/.test(t) && n>=1 && n<=S.n) ? t : ''; }
+/* FAULT 7, 19 September: a file whose goal was smaller than the acts in it gave
+   three screens three counts and called the year complete with acts left over.
+   The goal is never smaller than the acts already done or their highest square. */
+function fitGoal(){
+  const top = Math.max(S.acts.length, ...S.acts.map(slotOf).filter(n=>n>=1), 0);
+  if(top > S.n) S.n = Math.min(1000, top);
+}
+function realSlot(n){ n=Math.round(+n); return (isFinite(n)&&n>=1&&n<=S.n)?String(n):''; }
+function actOfN(no){ return no ? 'act '+no+' of my '+S.n : 'one of my '+S.n+' acts'; }
 function whenWords(iso){
   if(!iso) return 'sometime soon';
   const d=new Date(iso+'T00:00:00'), now=new Date();
@@ -6283,22 +6322,21 @@ function askDrafts(){
   if(ASK_KIND==='part'){
     const name=(S.name||'').trim();
     const first=a.who.length ? listWords(a.who.map(n=>n.split(' ')[0])) : 'you';
-    const what=a.t || ('act '+a.no);
-    const text='Hello '+first+', I\u2019m putting together act '+a.no+' of my '+S.n+': '+what+'.\n\n'+
+    const what=a.t || (a.no?'act '+a.no:'something good');
+    const text='Hello '+first+', I\u2019m putting together '+actOfN(a.no)+': '+what+'.\n\n'+
       'You don\u2019t have to be there, but if you\u2019d like to be part of it, there\u2019s room. '+
       'A hand beforehand, an idea, or just your name on the card with mine.'+
       (name?'\n\n'+name:'')+'\n\n'+S.n+' acts of good'+(S.word?', '+S.line+' '+S.word:'')+'.';
-    return { text:text, email:text, subject:'Act '+a.no+' of '+S.n+': be part of it?' };
+    return { text:text, email:text, subject:(a.no?'Act '+a.no+' of '+S.n:'An act of good')+': be part of it?' };
   }
   const name = (S.name||'').trim();
   const first = a.who.length ? listWords(a.who.map(n=>n.split(' ')[0])) : 'you';
-  const what  = a.t || ('act '+a.no);
+  const what  = a.t || (a.no?'act '+a.no:'something good');
   const when  = whenWords(a.d);
   const per   = periodNoun();
 
   const text =
-    'Hello ' + (a.who.length ? first : 'you') + ', I’m doing act ' + a.no +
-    ' of ' + S.n + ' ' + when + ': ' + what + '.\n\n' +
+    'Hello ' + (a.who.length ? first : 'you') + ', I’m doing ' + (a.no ? 'act ' + a.no + ' of ' + S.n : 'one of my ' + S.n + ' acts') + ' ' + when + ': ' + what + '.\n\n' +
     'Any chance you fancy joining me? Genuinely no pressure if not, ' +
     'it’s more fun with company, that’s all.' +
     (name ? '\n\n' + name : '') +
@@ -6308,11 +6346,10 @@ function askDrafts(){
        (When there is a link to send, it belongs on the end of this line.) */
     '\n\n' + S.n + ' acts of good' + (S.word ? ', ' + S.line + ' ' + S.word : '') + '.';
 
-  const subject = 'Act ' + a.no + ' of ' + S.n + ', fancy joining me?';
+  const subject = (a.no ? 'Act ' + a.no + ' of ' + S.n : 'An act of good') + ', fancy joining me?';
   const email =
     'Hello ' + (a.who.length ? first : 'there') + ',\n\n' +
-    'I’m doing ' + S.n + ' acts of good over a ' + per + ', and number ' +
-    a.no + ' is ' + when + '.\n\n' +
+    'I’m doing ' + S.n + ' acts of good over a ' + per + (a.no ? ', and number ' + a.no + ' is ' : ', and the next one is ') + when + '.\n\n' +
     '  • What: ' + what + '\n' +
     '  • When: ' + (a.d ? longDate(a.d) : 'still deciding') + '\n' +
     '\nWould you like to come along? No obligation whatsoever, the offer is the\n' +
@@ -6590,6 +6627,8 @@ function syncDateBtn(id){
   const lab = b.getAttribute('data-lab') || 'Date';
   b.setAttribute('aria-label', lab + ', ' + (v ? longDate(v) : 'pick a date'));
   b.classList.toggle('empty', !v);
+  /* G, 19 Sept: today shows greyed out as the default until a day is picked */
+  b.classList.toggle('suggest', id==='wk-when' && !!v && v===WK_WHEN_AUTO);
 }
 /* THE DATE PICKER IS A SHEET, AND A SHEET REPLACES THE SHEET IT OPENED FROM.
    For one morning that was fatal, because the finish sheet had a date on it and
@@ -6618,6 +6657,7 @@ function dpStep(d){
 }
 function dpPick(iso){
   $(DP.id).value = iso;
+  if(DP.id==='wk-when') WK_WHEN_AUTO = '';   // picked on purpose, even if it is today
   syncDateBtn(DP.id);
   sheet(null);
   /* the write screen's date edits the act itself, and saves like everything
@@ -9125,6 +9165,7 @@ function askPoster(kind){
   PHONE.print(60);
 }
 
+var WK_WHEN_AUTO = '';   // var: syncDateBtn may run before this line
 function openWork(w){
   WK = w;
   $('wk-t').value = w.t||'';
@@ -9160,7 +9201,10 @@ function openWork(w){
      not, they'll have to pick the calendar to change it." Starting empty made
      every act in the works begin with no day at all, which meant a tap before
      you could even see what you were changing. */
-  $('wk-when').value = w.d || todayISO(); syncDateBtn('wk-when');
+  /* FAULT 4, 19 September: today is shown as a suggestion, and like the number
+     beside it, a suggestion is not a choice until the date itself is touched. */
+  WK_WHEN_AUTO = w.d ? '' : todayISO();
+  $('wk-when').value = w.d || WK_WHEN_AUTO; syncDateBtn('wk-when');
   $('wk-hon').value = w.hon||'';
   $('wk-story').value = w.story||'';
   /* THE BOX IS AN ENTRY FIELD, not the readout. Once there are lines the total
@@ -9197,8 +9241,8 @@ function wkEdited(){
   /* a number the app proposed is not a number the person chose. Leaving it
      empty is what keeps it running. */
   const typed = $('wk-exp').value.trim();
-  WK.exp = (typed && typed === WK_EXP_AUTO) ? '' : typed;
-  WK.d = $('wk-when').value;
+  WK.exp = (typed && typed === WK_EXP_AUTO) ? '' : expOk(typed);   // FAULT 9: "abc" is not an act
+  { const dv=$('wk-when').value; WK.d = (dv && dv===WK_WHEN_AUTO) ? '' : dv; }
   WK.hon = $('wk-hon').value.trim();
   WK.story = $('wk-story').value;
   workKeep(); save();
@@ -9428,10 +9472,11 @@ function drawWorkWho(){
 function workToCalendar(){
   if(!WK) return;
   wkEdited();
-  if(!WK.d){ say('It needs a day first','Pick one above and the reminder can go in.'); return; }
+  const shownDay = WK.d || $('wk-when').value;   // the day on screen, suggested or chosen
+  if(!shownDay){ say('It needs a day first','Pick one above and the reminder can go in.'); return; }
   /* was hardcoded '1'. The choice above is now real. */
-  const r = WK.r || '1', slot = WK.exp||nextSlot(true), who = WK.who,
-        title = WK.t || ('Act '+slot), day = WK.d;
+  const r = WK.r || '1', slot = realSlot(WK.exp||nextSlot(true)), who = WK.who,
+        title = WK.t || (slot?'Act '+slot:'An act of good'), day = shownDay;
   /* RULED 12–13 September: the phone is asked FIRST and the calendar is offered
      when the phone cannot — never both, because two alarms for one promise is
      worse than one. On the web canRemind() is false and this falls straight
@@ -9648,6 +9693,13 @@ function finishWork(anon){
       ? 'You planned this as ' + planned + '. Finishing it now makes it act ' +
         slot + '.'
       : 'Acts are numbered in the order you finish them.';
+    /* G, 19 Sept: "the act and the date will be overruled at the end … those
+       are the ones that kick in." The number said so; now the date does too. */
+    /* kept to one short breath, which a standing check holds it to */
+    const moved = WK.d && isFuture(WK.d);
+    if(moved) why.textContent = (planned && planned !== slot)
+      ? 'You planned this as ' + planned + ' for ' + fieldDate(WK.d) + '; it becomes act ' + slot + ', today.'
+      : 'You aimed for ' + fieldDate(WK.d) + '; it is dated today, when you finish.';
   }
 
   /* fin-of went with the box it lived beside; the line below says the whole
@@ -10125,11 +10177,12 @@ function startInSquare(i, whenISO){
    stopped drawing them, nothing warned, and their cards read "act 20 of 12". */
 function setGoal(v){
   const stranded = S.acts.filter(a=>slotOf(a) > v);
-  const strandedPlans = Object.keys(S.plans||{}).filter(k=>+k > v);
   /* works with an expectation above the new ceiling: the expectation simply
      relaxes — it was only ever a guess, and the finish re-checks the ceiling */
-  (S.works||[]).forEach(w=>{ if(+w.exp > v) w.exp=''; });
-  if(!stranded.length && !strandedPlans.length){ S.n=v; drawSetup(); save(); return; }
+  /* FAULT 5, 19 September: this ran before the refusal below, so "Nothing has
+     been changed" was false. It now runs only once the change is really made. */
+  const relax = ()=>(S.works||[]).forEach(w=>{ if(+w.exp > v) w.exp=''; });
+  if(!stranded.length){ relax(); S.n=v; drawSetup(); save(); return; }
 
   /* Work out the free squares BEFORE offering anything. The old version called
      nextSlot() inside the loop against a list it was mutating, so it moved the
@@ -10137,10 +10190,9 @@ function setGoal(v){
      disappeared from the grid after a button that promised the opposite. */
   const taken = {};
   S.acts.forEach(a=>{ const n=slotOf(a); if(n>=1 && n<=v) taken[n]=1; });
-  Object.keys(S.plans||{}).forEach(k=>{ if(+k<=v) taken[k]=1; });
   const free = [];
   for(let i=1;i<=v;i++) if(!taken[i]) free.push(i);
-  const needed = stranded.length + strandedPlans.length;
+  const needed = stranded.length;
 
   if(free.length < needed){
     say('That would not leave room',
@@ -10150,23 +10202,18 @@ function setGoal(v){
         'Delete or renumber something first, or pick a bigger number.');
     return;
   }
-  const names = stranded.map(a=>'act '+a.no)
-    .concat(strandedPlans.map(k=>'the plan in '+k));
+  const names = stranded.map(a=>'act '+a.no);
   checkFirst('Moving '+listWords(names),
     (needed===1?'It is':'They are')+' numbered above '+v+', so '+(needed===1?'it':'they')+
     ' would drop off the grid. '+(needed===1?'It moves':'They move')+' into '+
     (needed===1?'the first free square':'the first free squares')+' instead, keeping '+
     (needed===1?'its':'their')+' photos and everything else.',
     'Renumber and change', ()=>{
-      S.n = v;
+      relax(); S.n = v;
       let i = 0;
       stranded.forEach(a=>{
         const slot = free[i++];
         a.no = String(slot);
-      });
-      strandedPlans.forEach(k=>{
-        const slot = free[i++];
-        S.plans[slot] = S.plans[k]; delete S.plans[k];
       });
       drawSetup(); save(); drawGrid();
     });
@@ -10211,10 +10258,10 @@ function setGoal(v){
    Without an address it degrades to a plain event, which still offers a
    one-tap "Add to Calendar". Either way the person keeps control.          */
 function icsFor(title, d, no, who, remind, invite){
-  const t = title || ('Act '+no);
+  const t = title || (no?'Act '+no:'An act of good');
   const emails = (who||[]).map(n=>({n:n, e:(handlesOf(n)||{}).email})).filter(x=>x.e);
   const stamp = d.replace(/-/g,'');
-  const desc = ['Act '+no+' of '+S.n,
+  const desc = [no?'Act '+no+' of '+S.n:'',
                 (who&&who.length) ? 'With '+listWords(who) : '',
                 'From Acts of Good'].filter(Boolean).join('\n');
   /* a REQUEST without a valid organiser gets rejected by Mail, so it only
@@ -10223,7 +10270,7 @@ function icsFor(title, d, no, who, remind, invite){
   const head = ['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Acts of Good//EN','CALSCALE:GREGORIAN'];
   if(rsvp) head.push('METHOD:REQUEST');
   const ev = ['BEGIN:VEVENT',
-    'UID:actsofgood-'+no+'-'+stamp+'@local',
+    'UID:actsofgood-'+(no||'x')+'-'+stamp+'@local',
     'DTSTAMP:'+todayISO().replace(/-/g,'')+'T090000Z',
     'DTSTART;VALUE=DATE:'+stamp,
     'DTEND;VALUE=DATE:'+stamp,
@@ -10241,11 +10288,11 @@ function icsFor(title, d, no, who, remind, invite){
   }
   ev.push('END:VEVENT');
   return { text: head.concat(ev,['END:VCALENDAR']).join('\r\n'),
-           rsvp: rsvp, invited: emails.map(x=>x.n), name: 'act-'+no+'.ics' };
+           rsvp: rsvp, invited: emails.map(x=>x.n), name: 'act-'+(no||'next')+'.ics' };
 }
 
 function toCalendar(title, d, no, who, remind){
-  const t = title || ('Act '+no);
+  const t = title || (no?'Act '+no:'An act of good');
   if(!d){ say('It needs a date','Give it one and it can go straight in your calendar.'); return; }
   const file = icsFor(t, d, no, who, remind, false);
   const url = 'data:text/calendar;charset=utf-8,' + encodeURIComponent(file.text);
@@ -11012,6 +11059,9 @@ function drawCard(){
   $('cd-iy').textContent  = S.line;
   $('cd-scr').textContent = S.word;
   drawActNo(a);
+  /* ACT 0 AND THE CLOSING CARD ARE NOT ACTS OF THE YEAR, so they cannot be
+     renumbered or deleted from here \u2014 see renumberAct and deleteAct. */
+  const fx=$('cd-fix'); if(fx) fx.classList.toggle('hide', !!(a.zero || a.fin));
   fitAllMarks();
 }
 
@@ -11262,6 +11312,25 @@ function drawCompose(){
   const shrow = $('cm-shape');
   if(shrow){ shrow.innerHTML = ''; shrow.classList.add('hide'); }
 
+  /* THESE LINES WERE CUT BY MISTAKE IN 7C AND ARE PUT BACK IN 7F. Removing the
+     post-or-story chips, the cut ran on to the next landmark it was told to stop
+     at and took everything in between — including the six lines that build the
+     caption and put it in the box. From 7C every post left with an empty
+     caption: nothing to paste into Instagram, no words through the sheet to
+     Facebook. 635 checks passed. Seven testers posting a year each caught it on
+     the first act. L119. */
+  /* Ask for a caption only if one has never been built. Testing for truthiness
+     here is what let an empty caption bounce between the two functions until the
+     stack gave out; buildCaption now always returns something, and this asks the
+     narrower question anyway, so neither half can loop on its own. */
+  a.captions = a.captions || {};
+  if(a.captions[CM_PLAT] == null){ buildCaption(true); return; }
+  $('cm-text').value = a.captions[CM_PLAT];
+  const platName = platLabel(CM_PLAT);
+  $('cm-label').textContent = ', for ' + platName;
+  $('cm-go').textContent = HAND_LABEL[CM_PLAT] || ('Open ' + platName);
+  const env=$('cm-env'); if(env){ env.classList.toggle('on', CM_PLAT==='private');
+    env.setAttribute('aria-pressed', CM_PLAT==='private'?'true':'false'); }
   /* innerHTML, and safe: HAND_HOW is a fixed table of our own words with no
      user input anywhere near it. The two numbered steps need a line break and
      a bold word to be readable at all, and a paragraph of run-on instructions
@@ -11439,8 +11508,8 @@ const HAND_HOW = {
      afterthought at the end. So the screen was teaching the long way round.
      One route now, and pasting is its own line rather than the tail of one. */
   instagram: '<b>Tap the button above and choose Instagram.</b> The card goes '+
-             'over with you. Reel, Post, Story or Message — <b>take whichever '+
-             'you like</b>: it comes out whole in all four.'+
+             'over with you. Post, Story or Message — <b>take whichever '+
+             'you like</b>: it comes out whole in all three.'+   /* FAULT 11: Instagram\'s own panel offers no Reel */
              '<br><br><b>Then paste your words.</b> They are already copied. '+
              'Hold down the caption box in Instagram and tap <b>Paste</b>. '+
              'Instagram will not let any app fill that box in for you.'+
@@ -11583,8 +11652,8 @@ async function prepack(){
          so a snapshot travelling beside the square card is cropped by Instagram
          — a second cut nobody asked for, and the half of the fault that is easy
          to miss. Ruling A: the photograph whole on white, standing back by the
-         margin the card's own ink keeps. Facebook does not do it, so a
-         photograph going there is left exactly as it is and stays a JPEG. */
+         margin the card's own ink keeps. Facebook crops its feed to 4:5,
+         so since 19 September it gets the same framed picture (FRAME_PHOTOS). */
       if(got.url) files.push(FRAME_PHOTOS[plat]
         ? await framedPhotoFile(got.url, 'act-'+a.no+'-'+(i+1)+'.png', shape, p, mk)
         : dataToFile(got.url, 'act-'+a.no+'-'+(i+1)+'.jpg'));
@@ -11764,6 +11833,9 @@ function shareFailed(){
    an image in a web view and iOS and Android both offer to save it. */
 let PREV_URL = null;
 function leaveCompose(){
+  /* the paste reminder belongs to the page it was said on — it does not follow
+     him onto Your year, where the moment and the question are about to happen */
+  dropToast();
   /* THE DOOR. Posted and said yes, said not yet and then left, tapped Finish
      without posting, or simply pressed back — they are all one thing, and
      this is the one place that catches all of them. Re-opening an act that is
@@ -12256,16 +12328,18 @@ function markLeaving(a){ LEFT_FOR = { act:a, plat:CM_PLAT, at:Date.now() }; }
    nothing else does. */
 function pasteToast(plat){
   if(plat === 'private') return;
-  const a = S.current || S.acts[S.acts.length-1];
-  const story = !!(a && a.shape === 'story');
-  /* A STORY HAS NO CAPTION BOX. Telling somebody to paste into a caption that is
-     not there is worse than saying nothing, so a story is told what is true. */
+  /* The story wording went with the story choice (7C, L110): there is one
+     picture now and it is posted, so there is always a caption to paste into. */
   const line = (plat === 'facebook')
     ? 'Your words went over with it. If the box comes up empty, they are copied — paste them in.'
-    : (story ? 'Your words are copied, ready to paste wherever you want them.'
-             : 'Your words are copied. Paste them into your caption.');
-  /* it stays until it is tapped, because the share sheet covers it instantly */
-  toast(line, { ms:0 });
+    : 'Your words are copied. Paste them into your caption.';
+  /* IT STANDS BY THE BUTTON THAT WAS PRESSED. G, 18 September: "fix the toast
+     location, locate near the action item." It used to drop to the foot of the
+     screen, a page away from the Send button, so the thing it was talking about
+     and the thing that said it were never in view together. It now sits right
+     above Send, the same way "Tap a photo" sits by the photographs. It stays
+     until it is tapped, because the share sheet covers it instantly. */
+  toast(line, { ms:0, lit:'#cm-go' });
 }
 function askIfPosted(){
   if(!LEFT_FOR) return;
@@ -12360,10 +12434,12 @@ function slotOf(a){
   const n = parseFloat(a && a.no);
   return isFinite(n) ? Math.ceil(n) : 0;      // 0 means "no square" and is skipped
 }
-function nextSlot(countPlans){
+/* FAULT 10, 19 September: load() empties the old numbered plans into the works
+   on every launch and nothing writes one back, so every "plan in that square"
+   branch here could never run. They are gone rather than left making claims. */
+function nextSlot(){
   const used = {};
   S.acts.forEach(a=>{ const n=slotOf(a); if(n>=1) used[n]=1; });
-  if(countPlans) Object.keys(S.plans||{}).forEach(k=>used[k]=1);
   for(let i=1;i<=S.n;i++) if(!used[i]) return i;   // fill gaps, don't skip them
   return S.n+1;
 }
@@ -12373,6 +12449,13 @@ function nextSlot(countPlans){
    One mistyped number stranded it forever. */
 function renumberAct(){
   const a = S.current; if(!a) return;
+  /* ACT 0 NEVER TAKES A NUMBER. Fault 2 of the 18 September list: this used to
+     give the declaration a real act number, which a real act could then also
+     take \u2014 two acts on one number, which is exactly what let a backup hand one
+     act's photographs to another (fault 1). Act 0 is the year declared; it is
+     not one of the acts, and it has no number to change. */
+  if(a.zero || a.fin){ say('This one has no number','It is the '+(a.zero?'declaration':'closing card')+
+    ' of your year, not one of the acts in it.'); return; }
   askFor('Which act is this?', 'e.g. 7', v=>{
     const n = Math.round(parseFloat(String(v).trim()));
     if(!isFinite(n) || n<=0 || n>S.n){
@@ -12381,21 +12464,19 @@ function renumberAct(){
     const slot = n;
     const clash = S.acts.filter(x=>x!==a && slotOf(x)===slot)[0];
     if(clash){ say('Act '+slot+' is taken','“'+clash.t+'” is already in that square.'); return; }
-    /* a plan in that square would still exist but have no tile, so it becomes
-       invisible and unreachable rather than being replaced */
-    const pl = (S.plans||{})[slot];
-    if(pl){
-      say('Act '+slot+' is planned',
-        (pl.t ? '“'+pl.t+'” is' : 'Something is')+' planned in that square. Clear '+
-        'that plan first, or pick another number.');
-      return;
-    }
     a.no = String(n);
     save(); drawCard(); drawGrid();
   });
 }
 function deleteAct(){
   const a = S.current; if(!a) return;
+  /* ACT 0 IS NEVER SILENTLY UNDELETED. It used to ask "Delete act 0?", take
+     the yes, and do nothing at all \u2014 act 0 is not kept with the acts, so it
+     was never found \u2014 and say nothing. A question answered and then ignored
+     is worse than no question. It is not deletable, so it is not offered, and
+     if reached it says why. */
+  if(a.zero || a.fin){ say('This one stays','It is the '+(a.zero?'declaration':'closing card')+
+    ' of your year. It can be rewritten, but not removed.'); return; }
   checkFirst('Delete act '+a.no+'?', '“'+a.t+'”, and its photos and story. This one '+
     'cannot be undone.', 'Delete it', ()=>{
     const i = S.acts.indexOf(a);
@@ -12849,11 +12930,14 @@ const SHAPE_DEFAULT = 'post';
 
 /* Instagram makes every picture in one post share the shape of the first, so a
    phone snapshot beside the square card is cropped BY INSTAGRAM — a second cut
-   nobody asked for. Facebook does no such thing and leaves each picture alone.
+   nobody asked for. Facebook's feed was thought to leave pictures alone; it does not.
    G, 17 September: "there needs to be a Facebook slash Instagram post
    difference … you will know how to build it based on the button." The button
    is CM_PLAT and he is never asked. */
-const FRAME_PHOTOS = { instagram:1 };
+/* FAULT 12, 19 September: Facebook's feed crops anything taller than 4:5 or
+   wider than 1.91:1 — 149 of the testers' 390 photographs — and a raw photo
+   carried no mark. Facebook now gets the same framed, marked picture. */
+const FRAME_PHOTOS = { instagram:1, facebook:1 };
 async function renderCard(a, W){
   W = W || 1080;
   const k = W/100;                                   // one unit = 1% of width
@@ -13602,6 +13686,10 @@ function bkupBar(){
     return;
   }
   if(document.querySelector('.sheet:not(.hide)')) return;      // not over a sheet
+  /* nor over the posting screen. Found by the iPhone harness, 19 September:
+     on a phone-sized screen a drag saved, the save raised this bar, and it sat
+     squarely on the photograph the next tap was meant for. */
+  if(SCREEN==='compose') return;
   const mo=$('moment'); if(mo && mo.classList.contains('up')) return;     // nor the moment
   /* nor an act's own moment. The bubbles run about seven seconds, which is
      longer than the 2600ms this used to wait, so it was landing on top of
@@ -13774,6 +13862,24 @@ function sheet(which){
   /* an example must not leak into the next thing this sheet is asked to show */
   if(!which || which!=='pv') PV_EG = false;
   dropUndo();      // an offer does not follow you into or out of a sheet
+  /* NOR DOES A BAR. Found by the testers on 18 September, on the very first act
+     each of them posted: the paste reminder is built to stay until it is tapped,
+     so it was still up when "Anything to add?" arrived — lying exactly across
+     that sheet's bottom button. A thumb aimed at "Nothing to add" dismissed the
+     reminder instead, and the question seemed not to answer. The toast already
+     refused to OPEN over a sheet; it now also stands aside when one opens over
+     it. A sheet is the thing being asked, and nothing may sit on its buttons.
+
+     AND IT WAS NOT ONLY THE TOAST. The same run caught the backup reminder —
+     "Nothing is backed up yet" — lying across the same button. Every bar that
+     floats above the tab bar can do it, so every one of them stands aside. Each
+     comes back by itself on the next visit to the screen it belongs to. */
+  if(which){
+    dropToast();
+    try{ dropBkupBar(); }catch(e){}
+    try{ dropClaimBar(); }catch(e){}
+    try{ dropGapBar(); }catch(e){}
+  }
   ['you','social','spend','person','cal','date','ask','done','finish','eval','pv','bkup','past','restart','photo'].forEach(x=>{ const el=$('sheet-'+x); if(el) el.classList.add('hide'); });
   if(which){ $('sheet-'+which).classList.remove('hide'); }
   if(which==='you'){ const r=$('you-restore'); if(r) r.classList.toggle('hide', !!S.started); }
@@ -14087,7 +14193,7 @@ function closeLetter(){
           who:a.who||[], cost:+a.cost||0, spends:a.spends||[],
           d:a.d||'', captions:a.captions||{}, posted:a.posted||{},
           note:a.note||'', story:a.story||'', photos:[] }));
-        S.n = parseInt(o.n,10)||25; S.name=o.name||''; S.started=true;
+        S.n = parseInt(o.n,10)||25; fitGoal(); S.name=o.name||''; S.started=true;
         S.letterSeen = true;
         /* THIS RESCUE HANDS THE WORDS BACK WITH photos:[] — every id dropped.
            Without this line the orphan sweep ran eight lines later, found that
