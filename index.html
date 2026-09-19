@@ -1771,7 +1771,7 @@ select.pick::-ms-expand{display:none}
     <!-- BUILD MARK — dev only, delete this div when the app ships -->
     <!-- IT HAD SAID 5M SINCE 15 SEPTEMBER, eight builds back, and every
          feedback mail sent from the app quoted it. Move it with the build. -->
-    <div id="buildtag">BUILD 7H</div>
+    <div id="buildtag">BUILD 7I</div>
   </div>
 </section>
 
@@ -12412,7 +12412,7 @@ function askIfPosted(){
 }
 document.addEventListener('visibilitychange', ()=>{
   if(document.hidden || !LEFT_FOR) return;
-  if(Date.now() - LEFT_FOR.at < 4000){ LEFT_FOR = null; return; }  // came straight back
+  if(Date.now() - LEFT_FOR.at < 6000){ LEFT_FOR = null; return; }  // came straight back (G, 19 Sept: 4s became 6s)
   askIfPosted();
 });
 function copyCaption(){
