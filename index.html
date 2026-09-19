@@ -13283,7 +13283,10 @@ function photoOnto(img, shape, p, mk){
   const c = document.createElement('canvas');
   c.width = W; c.height = H;
   const g = c.getContext('2d');
-  g.fillStyle = '#FFFFFF'; g.fillRect(0, 0, W, H);
+  /* G, 19 September: the margins carry the card's paper and the balloon heart,
+     as DECORATION only. Everything that matters stays in the middle square, so
+     a feed that trims the margins loses nothing but ornament. */
+  paperBands(g, W, H);
   /* THE PHOTOGRAPH LIVES IN THE MIDDLE SQUARE, exactly as the card does, so the
      two travel together and neither is cut wherever it lands. What the person
      placed in the box on screen is what this draws, because the box on screen
@@ -13295,9 +13298,36 @@ function photoOnto(img, shape, p, mk){
   g.drawImage(img, Math.round(sq.x + b.x), Math.round(sq.y + b.y),
                    Math.round(b.dw), Math.round(b.dh));
   g.restore();
-  drawMark(g, shape, mk);
+  bandHeart(g, W, sq);
+  bandMark(g, sq, mk);      // G, 19 Sept, "this seriously": the words on the paper, bottom left
   return c;
 }
+/* PHOTO TALL, exactly as G's picture: the words on the paper in the bottom band,
+   left, at the photo mark's own size plus a fifth. */
+function bandMark(g, sq, mk){
+  if(!mk) return;
+  const k = sq.w/100 * 1.2, x = 4.5*sq.w/100, y = sq.y + sq.h + 190;
+  g.save(); g.fillStyle = mk.ink; g.textAlign = 'left'; g.textBaseline = 'alphabetic';
+  g.font = '700 ' + (7.2*k) + 'px "Montserrat", sans-serif';
+  g.fillText(mk.line, x, y);
+  if(mk.date){ g.font = '600 ' + (5.4*k) + 'px "Montserrat", sans-serif';
+    g.fillText(mk.date, x, y + 7.4*k); }
+  g.restore();
+}
+const BAND_PAPER = '#F7F3EC';
+function paperBands(g, W, H){
+  g.fillStyle = BAND_PAPER; g.fillRect(0, 0, W, H);
+  g.strokeStyle = 'rgba(120,100,70,.06)'; g.lineWidth = 1;
+  for(let x=0; x<W; x+=12){ g.beginPath(); g.moveTo(x+.5,0); g.lineTo(x+.5,H); g.stroke(); }
+  for(let y=0; y<H; y+=12){ g.beginPath(); g.moveTo(0,y+.5); g.lineTo(W,y+.5); g.stroke(); }
+}
+function bandHeart(g, W, sq){
+  const im = document.querySelector('#letter .lmark');
+  if(!im || !im.complete || !im.naturalWidth || sq.y < 60) return;   // decoration: skip rather than squeeze
+  const hw = W * 0.0907, hh = hw * im.naturalHeight / im.naturalWidth;
+  g.drawImage(im, (W-hw)/2, (sq.y-hh)/2 - 14, hw, hh);
+}
+
 function clampPos(v){ v = +v; if(!isFinite(v)) return 0;
   return v < -0.5 ? -0.5 : v > 0.5 ? 0.5 : v; }
 /* PINCH BOTH WAYS. G, 17 September: "you can pinch the zoom, but you need to be

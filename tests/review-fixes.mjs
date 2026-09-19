@@ -489,8 +489,9 @@ head('the watermark, and his picker — G, 17 September');
   ck('there are three inks and coral is the one it starts on',
      r.inks==='coral,white,gold' && r.dflt==='coral', r);
   ck('the mark is burned into the picture that leaves', r.burned > 2000, r);
-  ck('and it is inside the part that survives every destination',
-     r.markInSafe===true, r);
+  /* L101, reversed by G on 19 September ("this seriously"): a photograph's words
+     now sit on the paper below it. Held by the PHOTO TALL block instead. */
+  ck('the mark is drawn (its place is held by the PHOTO TALL block)', true, r);
   ck('the three inks are actually different, and white is white',
      r.distinct===true && r.whiteIsWhite===true, r);
   ck('picking a colour redraws the picture', r.keyVaries===true, r);
@@ -1441,7 +1442,8 @@ head('the question is quieter, and the mark reads on anything \u2014 G, 18 Sept'
   });
   ck('the question reads "Posted?"', r.q.title==='Posted?', r.q);
   ck('and is answered "Yes" or "Not yet"', r.q.yes==='Yes' && r.q.no==='Not yet', r.q);
-  ck('a mark stands out even on a photograph of its own colour', r.shadowPixels > 400, r);
+  /* L101, reversed on 19 September: the words sit on the paper, never on a photograph */
+  ck('the words can never land on a photograph of their own colour', true, r);
   }
 
 head('the words go with the picture \u2014 L119, caught by the testers on 18 Sept');
@@ -1805,6 +1807,28 @@ head('G, 19 Sept — the ideas filter reads All, both boxes');
     const t=(document.getElementById('leadpick')||{}).textContent||'';
     return { lead:S.lead, shown:t }; });
   ck('the how-long box opens on All, not Any time', r.lead==='All' && !/Any time/.test(r.shown), r);
+}
+
+head('G, 19 Sept — PHOTO TALL: paper, the heart above, the words on the paper bottom left; the card untouched');
+{ const {ctx,p}=await app();
+  const r = await p.evaluate(async ()=>{
+    const k=document.createElement('canvas'); k.width=600; k.height=400; const kg=k.getContext('2d'); kg.fillStyle='#123456'; kg.fillRect(0,0,600,400);
+    const img=await new Promise(r=>{ const i=new Image(); i.onload=()=>r(i); i.src=k.toDataURL(); });
+    const a=S.acts[S.acts.length-1]; a.mark='coral'; const mk=markFor(a);
+    const c=photoOnto(img, POST_FRAME, {}, mk), g=c.getContext('2d'), sq=safeBox(POST_FRAME);
+    const ink=(x,y,w,h)=>{ let n=0; const d=g.getImageData(x,y,w,h).data; for(let i=0;i<d.length;i+=4){ if(d[i]>150 && d[i]>d[i+2]+60) n++; } return n; };
+    const corner=Array.from(g.getImageData(20,20,1,1).data).slice(0,3);
+    const card=await cardBlob(a,1080,POST_FRAME); const cb=await createImageBitmap(card);
+    const cc=document.createElement('canvas'); cc.width=cb.width; cc.height=cb.height; cc.getContext('2d').drawImage(cb,0,0);
+    return { corner, heart: ink(400,0,280,sq.y), onPhoto: ink(sq.x,sq.y,sq.w,sq.h),
+      leftBand: ink(0,sq.y+sq.h,540,1920-(sq.y+sq.h)), rightBand: ink(900,sq.y+sq.h,180,1920-(sq.y+sq.h)),
+      cardCorner: Array.from(cc.getContext('2d').getImageData(20,20,1,1).data).slice(0,3) };
+  });
+  ck('the margins are the card’s paper', r.corner.join()!=='255,255,255' && r.corner[0]>235, r);
+  ck('the heart is in the top margin', r.heart>200, r);
+  ck('the words are on the paper at the bottom, left', r.leftBand>2000 && r.rightBand<50, r);
+  ck('and nothing is written on the photograph', r.onPhoto<20, r);
+  ck('the card is untouched', r.cardCorner.join()==='255,255,255', r);
 }
 
 console.log('\n'+pass+' passed, '+fail+' failed, console/page errors: '+errs.length);
