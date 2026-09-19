@@ -1339,6 +1339,34 @@ head('one picture, and it fits all four of Instagram\u2019s doors \u2014 G, 18 S
   ck('and the page no longer warns about a crop', !/crop/i.test(r.how), r.how.slice(0,140));
   }
 
+head('the app speaks in one voice, and it is black \u2014 G, 18 Sept (1J restored)');
+{ const {ctx,p}=await app();
+  const r = await p.evaluate(async ()=>{
+    /* L103 \u2014 A RULING REVERSED GETS A CHECK, NOT A SILENCE. The coral bar was
+       asked for on 17 September, flagged at the time as contradicting 1J, and
+       ruled back to black on the 18th: "i agree the coral toasts need to be
+       black." Nothing guarded the colour either way, which is how it drifted in
+       the first place. This holds it. */
+    const a=S.acts[S.acts.length-1]; S.current=a;
+    try{ endTabTour(); }catch(e){}
+    dropToast();
+    toast('Any bar at all.', { lit:'#cm-prev .photos' });
+    await new Promise(r=>setTimeout(r,500));
+    const bar=document.getElementById('toastbar');
+    const bg=getComputedStyle(bar).backgroundColor;
+    const ink=getComputedStyle(document.documentElement).getPropertyValue('--ink').trim();
+    /* and nothing anywhere can still ask for a coral one */
+    const askable = /coral\s*:\s*(true|1)\b/.test(document.documentElement.innerHTML);
+    dropToast();
+    return { bg, ink, askable, hasCoralClass: bar.classList.contains('coral') };
+  });
+  const rgb = (h)=>{ const m=/^#?([0-9a-f]{6})$/i.exec(h); if(!m) return null;
+    const n=parseInt(m[1],16); return 'rgb('+[(n>>16)&255,(n>>8)&255,n&255].join(', ')+')'; };
+  ck('a bar is the app\u2019s own ink, not coral', r.bg===rgb(r.ink), r);
+  ck('and it never wears a coral coat', r.hasCoralClass===false, r);
+  ck('and nothing left in the app can ask for one', r.askable===false, r);
+  }
+
 console.log('\n'+pass+' passed, '+fail+' failed, console/page errors: '+errs.length);
 if(errs.length) console.log(JSON.stringify(errs.slice(0,6),null,1));
 await b.close();

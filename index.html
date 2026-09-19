@@ -901,11 +901,19 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
   border-radius:12px;padding:11px 14px;display:flex;align-items:center;gap:14px;
   width:max-content;max-width:min(92vw,420px);box-shadow:0 8px 24px rgba(0,0,0,.28);
   transition:transform .22s cubic-bezier(.2,.8,.3,1);pointer-events:none;visibility:hidden}
-/* CORAL, ASKED FOR BY G ON 17 SEPTEMBER, and worth flagging rather than doing
-   quietly: a coral bar was tried and RULED BACK TO BLACK in 1J because black
-   read better. This one is coral on purpose — its job is to point at something
-   rather than to speak — and it is the only one. */
-#toastbar.coral{background:var(--coralink)}
+/* THE CORAL BAR IS GONE, 18 September 2026. G: "i agree the coral toasts need
+   to be black."
+
+   It was asked for on the 17th and flagged at the time as contradicting 1J,
+   where a coral bar was tried and ruled back to black because black read
+   better. He has now read the flag and ruled with his older self. The argument
+   for coral — that this bar points rather than speaks — did not survive seeing
+   it: the app has one voice and it is black.
+
+   WHAT DOES THE POINTING IS THE RING, not the bar. The coral outline around the
+   photographs stays; that is the half that was doing the work. L110 — the
+   option and its rule go together, so nothing is left able to turn a colour on
+   that no longer exists. */
 /* what it is pointing at, lit for as long as it is up */
 .photos.lit{outline:2px solid var(--coralink);outline-offset:6px;border-radius:12px;
   animation:litpulse 1.3s ease-in-out 2}
@@ -1763,7 +1771,7 @@ select.pick::-ms-expand{display:none}
     <!-- BUILD MARK — dev only, delete this div when the app ships -->
     <!-- IT HAD SAID 5M SINCE 15 SEPTEMBER, eight builds back, and every
          feedback mail sent from the app quoted it. Move it with the build. -->
-    <div id="buildtag">BUILD 7C</div>
+    <div id="buildtag">BUILD 7D</div>
   </div>
 </section>
 
@@ -11902,7 +11910,7 @@ function drawPreview(){
       setTimeout(()=>{
         if(SCREEN !== 'compose') return;
         if(!document.querySelector('#cm-prev .photos')) return;
-        toast('Tap a photo to set its crop.', { coral:true, lit:'#cm-prev .photos', ms:6500 });
+        toast('Tap a photo to set its crop.', { lit:'#cm-prev .photos', ms:6500 });
       }, 2600);           // after the shape beat has had its turn
     }
     /* RULED A, 17 September 2026, and the wording is G's own with his spelling:
@@ -12163,7 +12171,6 @@ function toast(msg, opts){
   const bar = $('toastbar'); if(!bar) return;
   const o = opts || {};
   bar.querySelector('.msg').textContent = msg;
-  bar.classList.toggle('coral', !!o.coral);
   const lit = o.lit ? document.querySelector(o.lit) : null;
   bar.style.bottom = '';
   clearTimeout(TOAST_T);
