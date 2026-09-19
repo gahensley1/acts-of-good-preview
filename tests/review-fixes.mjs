@@ -1750,6 +1750,54 @@ head('protections — the organiser can remove and block from the app');
   ck('and sends the block to the sheet, then clears the row', r.sent && /\/release$/.test(r.sent.u) && /"block":true/.test(r.sent.body||'') && r.cleared, r);
 }
 
+head('G, 19 Sept — the age you are turning, required, and no birthday kept');
+{ const {ctx,p}=await app();
+  const r = await p.evaluate(async ()=>{
+    const out={};
+    out.noMonth = !document.getElementById('bday-month') && !document.getElementById('bday-year');
+    const sel=document.getElementById('bday-age'); out.hasAge=!!sel;
+    S.turning=0; sheet('you'); await new Promise(r=>setTimeout(r,150));
+    saveYou(); await new Promise(r=>setTimeout(r,150));
+    out.blocked = /how old are you turning/i.test(document.getElementById('dlg-title').textContent);
+    document.getElementById('dlg-yes').click();
+    sel.value='53'; sel.dispatchEvent(new Event('change'));
+    out.word=S.word; out.turning=S.turning;
+    return out;
+  });
+  ck('only one question: how old you are turning (no month, no year)', r.noMonth && r.hasAge, r);
+  ck('it cannot be skipped', r.blocked, r);
+  ck('53 names the year on the card', r.turning===53 && /fifty-three/.test(r.word||''), r);
+  /* an old journal with a birthday: converted, and the birthday gone */
+  await p.evaluate(()=>{ const o=JSON.parse(localStorage.getItem(LS_KEY)); o.bday='1973-06-01'; delete o.turning; localStorage.setItem(LS_KEY, JSON.stringify(o)); });
+  await p.reload(); await p.waitForTimeout(1500);
+  const q = await p.evaluate(()=>({ t:S.turning, b:S.bday, saved:JSON.stringify(serialise ? serialise() : {}) }));
+  ck('an old birthday becomes the age it names, and the date is dropped', q.t===new Date().getFullYear()-1973 && !q.b && !/1973-06/.test(q.saved), {t:q.t,b:q.b});
+  const y = await p.evaluate(()=>{ const before=S.turning; rollYear(); return {before, after:S.turning}; });
+  ck('a new year is one year older', y.after===y.before+1, y);
+}
+
+head('G, 19 Sept — the celebration never plays on top of Anything to add');
+{ const {ctx,p}=await app();
+  const r = await p.evaluate(async ()=>{
+    try{ endTabTour(); }catch(e){}
+    const a=S.acts[S.acts.length-1]; a.pipelined=true; a.evalAsked=false;
+    go('home'); drawGrid(); await new Promise(r=>setTimeout(r,300));
+    const slot=slotOf(a);
+    CEL_AFTER=()=>askEval(a);
+    actMoment(slot);
+    /* the long-stop pays out before the page has settled: exactly as on a slow phone */
+    CEL_RUNNING=true; celFinish();
+    let overlap=false;
+    for(let i=0;i<40;i++){ await new Promise(r=>setTimeout(r,100));
+      const ev=!document.getElementById('sheet-eval').classList.contains('hide');
+      const cf=document.getElementById('actcf').classList.contains('up');
+      if(ev && cf) overlap=true; }
+    return { overlap, evalShown:!document.getElementById('sheet-eval').classList.contains('hide') };
+  });
+  ck('Anything to add is shown', r.evalShown, r);
+  ck('and no celebration plays on top of it', !r.overlap, r);
+}
+
 console.log('\n'+pass+' passed, '+fail+' failed, console/page errors: '+errs.length);
 if(errs.length) console.log(JSON.stringify(errs.slice(0,6),null,1));
 await b.close();

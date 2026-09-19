@@ -2579,11 +2579,11 @@ What you actually did. Why it mattered. Say the awkward parts."></textarea>
        nothing gates on it, "Skip this for now" clears it properly on first run,
        and the note says plainly what it is for. That is a design purpose stated
        honestly, which is what the rule actually asks for. -->
-  <div class="field"><label for="bday-month">Your birthday</label>
-    <div style="display:flex;gap:10px">
-      <select id="bday-month" aria-label="Birth month" style="flex:1.3"></select>
-      <select id="bday-year" aria-label="Birth year"  style="flex:1"></select>
-    </div>
+  <!-- G, 19 Sept 2026: "you don't need to know the month. You just need to know
+       when you're starting it and how old you're turning." One number, required,
+       no birth date ever asked or kept. It moves up by one each new year. -->
+  <div class="field"><label for="bday-age">How old are you turning?</label>
+    <select id="bday-age" aria-label="How old you are turning"></select>
     <p class="note" style="margin-top:8px" id="bday-hint">Used to work out which
       year you're marking. That's the word on your card.</p></div>
 
@@ -2919,7 +2919,7 @@ function serialise(){
     ac:(S.acts||[]).length,
     lineTouched:S.lineTouched, wordTouched:S.wordTouched,
     tone:S.tone,
-    name:S.name, bday:S.bday, why:S.why, email:S.email||'',
+    name:S.name, turning:S.turning||0, why:S.why, email:S.email||'',
     start:S.start.toISOString(),
     /* Finished years. RULED 12 September 2026: "the journal should stay intact
        no matter what, and a second session should build on the first."
@@ -3349,7 +3349,11 @@ async function load(){
   S.weeks=o.weeks; S.line=o.line; S.word=o.word;
   S.lineTouched=o.lineTouched; S.wordTouched=o.wordTouched;
   S.tone=o.tone;
-  S.name=o.name||''; S.bday=o.bday||''; S.why=o.why||''; S.email=o.email||'';
+  S.name=o.name||''; S.why=o.why||'';
+  /* the birthday is no longer kept. A journal that still has one is converted
+     to the age it names this year, and the date itself is dropped. */
+  S.turning = Math.round(+o.turning||0) || turningFromBday(o.bday) || 0;
+  S.bday=''; S.email=o.email||'';
   S.pubkey=o.pubkey||'';
   S.start=o.start?new Date(o.start):new Date();
   if(isNaN(S.start.getTime())) S.start = new Date();          // "week NaN of 52"
@@ -4137,7 +4141,7 @@ const S = {
      Now it does. */
   outcome: 'Went to plan', lead: LEAD_ANY, cat: CAT_ANY, current: null,
   line: 'in year', word: '', lineTouched: false, wordTouched: false, tone: null, toneToured: false,
-  name: '', bday: '', why: '',
+  name: '', bday: '', turning: 0, why: '',
   /* x was here too, switched off and unreachable, and it travelled in every
      backup — the same half-removal as the handle field, in a second place.
      Taken out 13 Sep 2026 on the same ruling. */
@@ -4533,6 +4537,11 @@ function cardWords(a){
   return { n:S.n, line:(S.line||''), word:(S.word||'') };
 }
 
+/* the only use left for an old birthday: what age it names in this calendar year */
+function turningFromBday(bday){
+  const m=/^(\d{4})-/.exec(String(bday||'')); if(!m) return 0;
+  const a=new Date().getFullYear() - (+m[1]); return (a>=13 && a<=120) ? a : 0;
+}
 function ageTurning(bday){
   if(!bday) return null;
   /* SECOND FIX, an hour after the first, and the first fix caused it.
@@ -4561,7 +4570,7 @@ function ageTurning(bday){
 function derive(n, weeks, bday){
   if(weeks !== 52) return weeks===26 ? {line:'in six', word:'months'}
                                      : {line:'this',  word:'summer'};
-  const age = ageTurning(bday);
+  const age = +S.turning || 0;
   if(age) return { line:'in year', word: ORD[age] || String(age) };
   return { line:'in year', word:'' };     // blank until we know the birthday
 }
@@ -4809,7 +4818,7 @@ function drawSetup(){
   $('su-scr').textContent = S.word || 'your year';
   $('su-scr').style.opacity = S.word ? 1 : .18;
   fitAllMarks();
-  $('reason-word').placeholder = S.bday ? '' : 'set at step 2';
+  $('reason-word').placeholder = S.turning ? '' : 'set at step 2';
   const days=Math.round(S.weeks*7/S.n);
   $('cadence').innerHTML=
     '<div class="lab">That\'s</div>'+
@@ -5393,6 +5402,13 @@ function actMoment(slot){
     return r.width > 2 && r.top > 40 && r.bottom < window.innerHeight - 40;
   };
   const play = () => {
+    /* G, 19 September: "it fired on top of Anything to add". The long-stop
+       armed at the claim can pay out before a slow page settles — and the
+       question then opens — while this play is still queued. A moment that
+       has already been paid for, or that would land on an open window, does
+       not play late. */
+    if(!CEL_PENDING || CEL_RUNNING) return;
+    if(document.querySelector('.sheet:not(.hide)')){ sashStrap(0); celFinish(); return; }
     const r = t.getBoundingClientRect();
     if(r.width < 2){ sashStrap(0); celFinish(); return; }
     acStop();
@@ -5777,6 +5793,7 @@ function rollYear(){
      number, and the shelf showed it. A new year starts at square one, so the
      guess goes and the box proposes afresh. */
   (S.works||[]).forEach(w=>{ w.exp = ''; });
+  if(+S.turning) S.turning = +S.turning + 1;       // a new year is one year older
   S.zero = null;
   S.fin = null;
   S.finShown = 0;
@@ -13578,13 +13595,12 @@ function drawYou(){
   $('v-n').textContent = S.n+' acts over '+per+' · '+humanCadence(Math.round(S.weeks*7/S.n));
   $('v-reason').textContent = (S.line+' '+(S.word||'…')).trim();
   $('v-name').textContent = S.name || 'Add';
-  $('v-bday').textContent = S.bday
-    ? MONTHS[parseInt(S.bday.slice(5,7),10)-1]+' '+S.bday.slice(0,4)+
-      ' · year '+(ORD[ageTurning(S.bday)]||ageTurning(S.bday))
+  $('v-bday').textContent = S.turning
+    ? 'Year '+(ORD[S.turning]||S.turning)
     : 'Add. Your card says "in year …" without it';
   $('v-why').textContent = S.why || 'Add';
   /* the row wears the mark, so the dot on the tab has somewhere to land */
-  markGap('v-name', !S.name); markGap('v-bday', !S.bday); markGap('v-why', !S.why);
+  markGap('v-name', !S.name); markGap('v-bday', !S.turning); markGap('v-why', !S.why);
   $('storagenote').textContent = _storageOK
     ? 'Everything is saved on this phone, your acts, photos and settings. Nothing leaves it.'
     : 'Storage is unavailable in this browser, so nothing will be remembered after you close it.';
@@ -13617,7 +13633,7 @@ function backFromSetup(){
 function cardGaps(){
   const g=[];
   if(!S.name) g.push('a name');
-  if(!S.bday) g.push('a birthday');
+  if(!S.turning) g.push('a birthday');
   if(!S.why)  g.push('a reason');
   return g;
 }
@@ -14007,15 +14023,18 @@ function skipYou(){
   /* The birthday is committed the moment the selects change, so it was the one
      field in the sheet that survived an explicit skip — and it is the one that
      decides the app's age rating. */
-  if(!S.started){
-    S.bday = '';
-    $('bday-month').value=''; $('bday-year').value='';
-    onBdayChange();
-  }
+  /* G, 19 Sept: the age cannot be skipped — it names the year. The rest can. */
+  if(!needAge()) return;
   sheet(null);
   if($('tabs').classList.contains('hide')) drawSetup();
 }
+function needAge(){
+  if(+S.turning) return true;
+  say('How old are you turning?', 'Used to work out which year you\u2019re marking. That\u2019s the word on your card.');
+  return false;
+}
 function saveYou(){
+  if(!needAge()) return;
   S.name=$('you-name').value.trim();
   S.why =$('you-why').value.trim();
   S.email=$('you-email').value.trim();
@@ -14104,18 +14123,10 @@ const YEAR_MIN=1930;
 const YEAR_MAX=new Date().getFullYear()-13;
 
 (function(){
-  const m=$('bday-month'), y=$('bday-year');
-  m.innerHTML='<option value="">Month</option>'+
-    MONTHS.map((n,i)=>'<option value="'+(i+1)+'">'+n+'</option>').join('');
-  let opts='<option value="">Year</option>';
-  for(let v=YEAR_MAX; v>=YEAR_MIN; v--) opts+='<option value="'+v+'">'+v+'</option>';
-  y.innerHTML=opts;
+  let opts='<option value="">Choose</option>';
+  for(let v=13; v<=110; v++) opts+='<option value="'+v+'">'+v+'</option>';
+  $('bday-age').innerHTML=opts;
 })();
-
-function readBday(){
-  const m=$('bday-month').value, y=$('bday-year').value;
-  return (m && y) ? y+'-'+String(m).padStart(2,'0')+'-01' : '';
-}
 
 /* Run the tone tour only when the picker is genuinely on screen — that means
    in the viewport AND with no sheet covering it. An IntersectionObserver alone
@@ -14279,8 +14290,7 @@ function closeLetter(){
     $('you-name').value=S.name||'';
     $('you-why').value=S.why||'';
     $('you-email').value=S.email||'';
-    if(S.bday){ $('bday-month').value=String(parseInt(S.bday.slice(5,7),10));
-                $('bday-year').value=S.bday.slice(0,4); onBdayChange(); }
+    if(S.turning){ $('bday-age').value=String(S.turning); onBdayChange(); }
   }
   if(restored && S.started){
     setThemeColor('#FFFFFF');   // no letter on this launch; the strip goes app-white
@@ -14319,9 +14329,10 @@ $('reason-line').addEventListener('input',()=>{
 $('reason-word').addEventListener('input',()=>{
   S.wordTouched=true; S.word=$('reason-word').value; drawSetup(); save(); });
 function onBdayChange(){
-  S.bday = readBday(); save();
+  S.turning = +$('bday-age').value || 0; S.bday=''; save();
+  try{ syncReason(); drawSetup(); }catch(e){}
   const hint=$('bday-hint');
-  const a = S.bday ? ageTurning(S.bday) : null;
+  const a = S.turning;
   hint.textContent = a
     ? "You're in year " + (ORD[a]||a) + ", that's the word on your card. Change it if you like."
     : "Used to work out which year you're marking. That's the word on your card.";
@@ -14358,8 +14369,7 @@ $('w-file').addEventListener('change', ()=>{
   takeFiles($('w-file'), a.photos, ()=>drawWritePhotos(a));
 });
 
-$('bday-month').addEventListener('change', onBdayChange);
-$('bday-year').addEventListener('change',  onBdayChange);
+$('bday-age').addEventListener('change', onBdayChange);
 $('resetreason').addEventListener('click',()=>{
   S.lineTouched=false; S.wordTouched=false; drawSetup(); });
 $('w-story').addEventListener('input',count);
