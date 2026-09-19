@@ -609,11 +609,19 @@ head('yes closes the window, the moment plays locked, the question comes after â
     askIfPosted();
   });
   await p.waitForTimeout(500);
-  const asked = await p.evaluate(()=>
-    [...document.querySelectorAll('button')].some(b=>/yes, it is up/i.test(b.textContent)));
+  /* L114, FOURTH TIME ON 18 SEPTEMBER. These three found the Yes button by its
+     WORDS \u2014 "Yes, it is up" \u2014 so the moment G ruled the question quieter
+     ("Posted?" / "Yes"), they could not find it and everything after them fell
+     over. The rule is the dialog that asks and the button that answers yes, not
+     the sentence written on it. Found by identity now, so a copy ruling can
+     never again break a check about behaviour. */
+  const asked = await p.evaluate(()=>{
+    const box=document.getElementById('dlg');
+    return !!(box && !box.classList.contains('hide') &&
+              /posted|sent/i.test(document.getElementById('dlg-title').textContent)); });
   ck('it asks whether it went up', asked===true, asked);
   await p.evaluate(()=>{
-    const b=[...document.querySelectorAll('button')].find(x=>/yes, it is up/i.test(x.textContent));
+    const b=document.getElementById('dlg-yes');
     if(b) b.click(); });
   /* the instant it is pressed: off the post page, and the question NOT yet up */
   await p.waitForTimeout(140);
@@ -709,7 +717,8 @@ head('the question never lands on the moment â€” the fault G saw, 17 Sept');
     markLeaving(a); LEFT_FOR.at = Date.now() - 9000;
     askIfPosted();
     await new Promise(r=>setTimeout(r, 200));
-    const btn=[...document.querySelectorAll('button')].find(x=>/yes, it is up/i.test(x.textContent));
+    const box=document.getElementById('dlg');
+    const btn=(box && !box.classList.contains('hide')) ? document.getElementById('dlg-yes') : null;
     if(!btn) return { noButton:true };
     btn.click();
     /* watch the whole thing, the way a person does */
@@ -1365,6 +1374,50 @@ head('the app speaks in one voice, and it is black \u2014 G, 18 Sept (1J restore
   ck('a bar is the app\u2019s own ink, not coral', r.bg===rgb(r.ink), r);
   ck('and it never wears a coral coat', r.hasCoralClass===false, r);
   ck('and nothing left in the app can ask for one', r.askable===false, r);
+  }
+
+head('the question is quieter, and the mark reads on anything \u2014 G, 18 Sept');
+{ const {ctx,p}=await app();
+  const r = await p.evaluate(async ()=>{
+    const a=S.acts[S.acts.length-1]; S.current=a; a.posted={};
+    try{ endTabTour(); }catch(e){}
+    go('home'); CM_PLAT='instagram'; openCompose();
+    await new Promise(r=>setTimeout(r,300));
+    LEFT_FOR = { act:a, plat:'instagram', at:0 };
+    askIfPosted();
+    await new Promise(r=>setTimeout(r,200));
+    const q = { title:document.getElementById('dlg-title').textContent,
+                yes:document.getElementById('dlg-yes').textContent,
+                no:document.getElementById('dlg-no').textContent };
+    document.getElementById('dlg-no').click();
+    await new Promise(r=>setTimeout(r,150));
+
+    /* C \u2014 the mark must stand off a background of its OWN colour. Draw it on a
+       square of exactly its ink: with no shadow it is invisible, with one it is
+       not. That is the whole claim, contested exactly (L109). */
+    a.mark='coral';
+    const mk=markFor(a);
+    const shape=POST_SHAPES.post;
+    const bg=document.createElement('canvas'); bg.width=1080; bg.height=1080;
+    const bgc=bg.getContext('2d'); bgc.fillStyle=mk.ink; bgc.fillRect(0,0,1080,1080);
+    const out=photoOnto(bg, shape, {}, mk);
+    const sq=safeBox(shape);
+    const d=out.getContext('2d').getImageData(sq.x, sq.y, sq.w, sq.h).data;
+    /* anything noticeably DARKER than the ink is the shadow. Measured as
+       brightness, not channel by channel: coral is already low in green and
+       blue, so a real shadow barely moves them and a per-channel test missed
+       it. That was the check being wrong, not the shadow being absent. */
+    const lum=(r,g,b)=>0.2126*r+0.7152*g+0.0722*b;
+    const ink=[parseInt(mk.ink.slice(1,3),16),parseInt(mk.ink.slice(3,5),16),parseInt(mk.ink.slice(5,7),16)];
+    const L0=lum(ink[0],ink[1],ink[2]);
+    let darker=0;
+    for(let i=0;i<d.length;i+=4){ if(lum(d[i],d[i+1],d[i+2]) < L0-12) darker++; }
+    go('home');
+    return { q, shadowPixels:darker };
+  });
+  ck('the question reads "Posted?"', r.q.title==='Posted?', r.q);
+  ck('and is answered "Yes" or "Not yet"', r.q.yes==='Yes' && r.q.no==='Not yet', r.q);
+  ck('a mark stands out even on a photograph of its own colour', r.shadowPixels > 400, r);
   }
 
 console.log('\n'+pass+' passed, '+fail+' failed, console/page errors: '+errs.length);

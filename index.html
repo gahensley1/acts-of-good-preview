@@ -1771,7 +1771,7 @@ select.pick::-ms-expand{display:none}
     <!-- BUILD MARK — dev only, delete this div when the app ships -->
     <!-- IT HAD SAID 5M SINCE 15 SEPTEMBER, eight builds back, and every
          feedback mail sent from the app quoted it. Move it with the build. -->
-    <div id="buildtag">BUILD 7D</div>
+    <div id="buildtag">BUILD 7E</div>
   </div>
 </section>
 
@@ -12015,6 +12015,8 @@ function drawPhotoSheet(){
   if(mk){
     const m = document.createElement('span');
     m.className='mk'; m.style.color = mk.ink;
+    /* the same faint shadow the picture gets — what is on screen is what goes */
+    m.style.textShadow = '0 0.5px 3px rgba(0,0,0,.45)';
     m.innerHTML = '<b>'+esc(mk.line)+'</b>' + (mk.date ? '<i>'+esc(mk.date)+'</i>' : '');
     fr.appendChild(m);
   }
@@ -12272,9 +12274,16 @@ function askIfPosted(){
   if(SCREEN !== 'compose') return;               // they have moved on; do not ambush them
   if((act.posted||{})[plat]) return;
   const sent = (plat==='private');
-  dlg({ title: sent ? 'Did you send it?' : 'Did it go up?',
+  /* QUIETER. RULED BY G, 18 September 2026: "Posted?" with "Yes" and "Not
+     yet". Five of the seven testers read "Did it go up? / Yes, it is up" as
+     being checked up on — Paula: "don't make me file a report on my own
+     honesty before you'll give me my sash." The question has to stay, because
+     it is the only way the app learns that a post happened; what changes is
+     that it now sounds like a nod, not an audit. The personal-note wording was
+     not part of the ruling and is left as it was. */
+  dlg({ title: sent ? 'Did you send it?' : 'Posted?',
         note: 'Act '+act.no+(sent ? ', as a message.' : ' on '+platLabel(plat)+'.'),
-        ok: sent ? 'Yes, sent' : 'Yes, it is up', cancel:'Not yet',
+        ok: sent ? 'Yes, sent' : 'Yes', cancel:'Not yet',
         /* HIS SEQUENCE, 17 September. Yes is the key that closes this window:
            off the post page, onto Your year, the moment plays with nothing on
            top of it and nothing to scroll, and the question comes after. */
@@ -13105,6 +13114,17 @@ function drawMark(g, shape, mk){
   g.save();
   g.translate(sq.x, sq.y);
   g.fillStyle = mk.ink;
+  /* A FAINT SHADOW, SO ANY COLOUR READS ON ANY PHOTOGRAPH. Ruled by G, 18
+     September: "c faint ok". Seen in his own photographs: coral all but
+     vanished into a tan background. The colour he picks is untouched; what
+     changes is a soft, low, dark shadow behind it — the way a caption is made
+     to read on a film. All three inks are light (coral, white, gold), so one
+     dark shadow serves all of them; a dark ink would need a light one, and
+     there is none. */
+  g.shadowColor   = 'rgba(0,0,0,.45)';
+  g.shadowBlur    = 1.1*k;
+  g.shadowOffsetX = 0;
+  g.shadowOffsetY = 0.15*k;
   /* TWICE THE SIZE. G, 17 September: "the watermark needs to be twice as big."
      Every number doubled, the gap between the lines included, so the lockup
      keeps its proportions rather than only growing its type. */
