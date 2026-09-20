@@ -11940,8 +11940,7 @@ function drawPreview(){
     /* §2. This read "Tap to include or leave out", which stopped being true the
        moment a tap started opening the photograph instead. A line that describes
        a gesture the app no longer has is worse than no line. */
-    box.innerHTML += '<p class="note" style="margin:10px 0 6px">Riding along. Tap one to '+
-      'move it, colour its mark, or leave it out. The journal keeps them all.</p>';
+    box.innerHTML += '<p class="note" style="margin:10px 0 6px">Riding along. The journal keeps them all.</p>';
     const strip=document.createElement('div'); strip.className='photos';
     ph.forEach((p,i)=>{
       const t=document.createElement('button');
@@ -12082,7 +12081,7 @@ function drawPreview(){
       setTimeout(()=>{
         if(SCREEN !== 'compose') return;
         if(!document.querySelector('#cm-prev .photos')) return;
-        toast('Tap a photo to set its crop.', { lit:'#cm-prev .photos', ms:6500 });
+        /* folded into the one line under the photos (G, 19 Sept, 1-A) */
       }, cropAt);           // after the shape beat has had its turn
     }
     /* RULED A, 17 September 2026, and the wording is G's own with his spelling:
@@ -12092,7 +12091,7 @@ function drawPreview(){
        a line that has removed itself is no help in March. */
     const mv=document.createElement('p');
     mv.className='note'; mv.style.cssText='margin:8px 0 0';
-    mv.textContent='Move the photo around to center it.';
+    mv.textContent='Tap to crop or colour the words. Drag to center. Hold to change the order.';
     box.appendChild(mv);
 
     /* THE PICKER LIVES IN THE PHOTOGRAPH'S OWN BOX NOW, not here. It set the

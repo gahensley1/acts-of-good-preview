@@ -430,7 +430,8 @@ head('the screen says you can move it — ruled A, spelled American');
   await p.waitForTimeout(300);
   const t = await p.evaluate(()=>[...document.querySelectorAll('#cm-prev p')]
       .map(n=>n.textContent.trim()).join(' | '));
-  ck('the line is there, in his words', t.indexOf('Move the photo around to center it.')>-1, t);
+  /* L101: 1-A, G 19 Sept — one line under the photos replaces the three */
+  ck('the one line is there, in his approved words', t.indexOf('Tap to crop or colour the words. Drag to center. Hold to change the order.')>-1 && t.indexOf('Move the photo around')<0, t);
   /* his instruction: "you need to spell it American" */
   ck('and it is not spelled the English way', t.indexOf('centre')===-1, t);
   }
