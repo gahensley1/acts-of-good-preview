@@ -297,7 +297,8 @@ head('the small ones');
      of its destinations, so both chips produced the same picture and the choice
      could only mislead. What must now hold is that there is exactly ONE frame,
      that it is tall, and that the card lands inside the middle square. */
-  ck('there is one frame and it is tall', r.shapes==='post is 1080x1920', r);
+  /* L101, G 19 Sept: "We only need a square and the tall. Period." */
+  ck('square is the default shape', r.shapes==='default is square', r);
   ck('the card lands in the middle square, whole',
      r.frame==='the square frame moved the card' || r.frame==='identical', r);
   ck('and a tall feed crop never reaches the card', /^clear:/.test(r.tallCrop), r);
@@ -944,7 +945,7 @@ head('the shape pair points itself out, and the reminder waits — G, 18 Sept');
      all four destinations. What must hold now is the opposite — that the row is
      gone and that nothing on the page warns him about a crop that cannot
      happen. */
-  ck('there is no shape to choose any more', t.shapeRow===false, t);
+  ck('square or tall is his to choose (G, 19 Sept)', t.shapeRow===true, t);
   /* L114 family. This held the sentence word for word, so renaming the chips
      for Instagram's own four failed it. The RULE is that arriving on the page
      tells you there is a choice between a square one and a tall one, whatever
@@ -1280,7 +1281,7 @@ head('one frame, and the crop box is the part that always survives');
   });
   ck('the crop box never changes shape under him', r.boxA===r.boxB && r.boxA==='1 / 1', r);
   ck('and a placement he made is not thrown away', r.kept==='{"x":0.18,"y":0.11}', r);
-  ck('there is one frame, whatever is asked of it', r.sameFrame===true, r);
+  ck('asking for tall gives the tall frame (G, 19 Sept)', r.w===1080 && r.h===1920, r);
   ck('and it is the tall one', r.tall===true && r.w===1080 && r.h===1920, r);
   }
 
@@ -1365,11 +1366,11 @@ head('one picture, and it fits all four of Instagram\u2019s doors \u2014 G, 18 S
     go('home');
     return out;
   });
-  ck('the file is the one tall frame', r.frame==='1080x1920', r);
+  ck('the default file is the square (G, 19 Sept)', r.frame==='1080x1080', r);
   ck('a 1:1 post keeps the card whole', r.square==='whole', r);
   ck('a 4:5 feed post keeps the card whole', r.feed==='whole', r);
-  ck('a reel or story keeps the card whole', r.story==='whole', r);
-  ck('there is no shape left to pick', r.rowGone===true, r);
+  ck('a square post keeps the card whole', r.square==='whole', r);
+  ck('the square/tall row is there to pick', r.rowGone===false, r);
   ck('and the page no longer warns about a crop', !/crop/i.test(r.how), r.how.slice(0,140));
   }
 
@@ -1622,7 +1623,7 @@ head('faults 4, 11, 12 — a suggested date is not a choice; Instagram has three
     return out;
   });
   ck('one keystroke does not save today as the aimed-for date', r.dAfterKey==='', r);
-  ck('Instagram is described as it is: Post, Story or Message, no Reel', !/Reel/.test(r.igWords) && /Post, Story or Message/.test(r.igWords), r.igWords.slice(0,120));
+  ck('Instagram is told plainly: square is Post, tall is Story, no Reel', !/Reel/.test(r.igWords) && /Square: choose Post\. Tall: choose Story\./.test(r.igWords), r.igWords.slice(0,120));
   ck('a photograph going to Facebook is framed and marked like Instagram', r.fbFramed, r);
 }
 
@@ -1829,6 +1830,65 @@ head('G, 19 Sept — PHOTO TALL: paper, the heart above, the words on the paper 
   ck('the words are on the paper at the bottom, left', r.leftBand>2000 && r.rightBand<50, r);
   ck('and nothing is written on the photograph', r.onPhoto<20, r);
   ck('the card is untouched', r.cardCorner.join()==='255,255,255', r);
+}
+
+head('G, 19 Sept — HOLD A PHOTO TO SWAP IT, and the tour that shows it once');
+{ const {ctx,p}=await app();
+  await p.evaluate(()=>{
+    const mk=(c1)=>{ const c=document.createElement('canvas'); c.width=800;c.height=800;
+      const g=c.getContext('2d'); g.fillStyle=c1; g.fillRect(0,0,800,800); return c.toDataURL('image/jpeg',0.7); };
+    const a=S.acts[S.acts.length-1];
+    a.photos=[{id:'sw1',url:mk('#224466')},{id:'sw2',url:mk('#aa7722')},{id:'sw3',url:mk('#448844')}];
+    delete S.swapToured; S.current=a; save();
+    try{ endTabTour(); }catch(e){}
+    go('home'); openCompose(); try{ sheet(null); }catch(e){}
+    const n=document.getElementById('calnudge'); if(n) n.remove();
+    drawPreview();
+  });
+  await p.waitForFunction(()=>typeof PACK!=='undefined' && PACK.busy===false && !!PACK.files, null, {timeout:20000}).catch(()=>{});
+  await p.waitForTimeout(3400);
+  const tour = await p.evaluate(()=>({ marked: S.swapToured===1,
+    finger: !!document.querySelector('#cm-prev .swapfinger'),
+    toast: (document.querySelector('.toast, #toast')||{}).textContent||'',
+    order: S.acts[S.acts.length-1].photos.map(x=>x.id).join() }));
+  ck('the tour plays the first time there are photos to swap', tour.finger, tour);
+  ck('and says what to do', /Hold a photo to pick it up/.test(tour.toast) || tour.finger, tour);
+  ck('and is marked done so it never plays again', tour.marked, tour);
+  await p.waitForTimeout(5600);
+  const after = await p.evaluate(()=>({ order: S.acts[S.acts.length-1].photos.map(x=>x.id).join(),
+    finger: !!document.querySelector('#cm-prev .swapfinger') }));
+  ck('the tour leaves the real order alone and clears away', after.order==='sw1,sw2,sw3' && !after.finger, after);
+  await p.evaluate(()=>{ document.querySelectorAll('button').forEach(b=>{ if(b.textContent.trim()==='Got it') b.click(); }); dropToast(); });
+  const tiles = await p.$$('#cm-prev .photos .ph-tile');
+  await tiles[0].evaluate(e=>e.scrollIntoView({block:'center'})); await p.waitForTimeout(300);
+  const b0=await tiles[0].boundingBox(), b1=await tiles[1].boundingBox();
+  // a quick drag still only moves the picture inside its square
+  await p.mouse.move(b0.x+b0.width/2,b0.y+b0.height/2); await p.mouse.down();
+  await p.mouse.move(b0.x+b0.width/2+30,b0.y+b0.height/2,{steps:6}); await p.mouse.up();
+  await p.waitForTimeout(500);
+  let o = await p.evaluate(()=>S.acts[S.acts.length-1].photos.map(x=>x.id).join());
+  ck('a quick drag does not reorder (it still centres the picture)', o==='sw1,sw2,sw3', o);
+  await p.waitForFunction(()=>typeof PACK!=='undefined' && PACK.busy===false, null, {timeout:20000}).catch(()=>{});
+  await p.waitForTimeout(400);
+  await p.evaluate(()=>{ document.querySelectorAll('button').forEach(b=>{ if(b.textContent.trim()==='Got it') b.click(); }); dropToast(); });
+  await p.waitForTimeout(300);
+  const t2 = await p.$$('#cm-prev .photos .ph-tile');
+  await t2[0].evaluate(e=>e.scrollIntoView({block:'center'})); await p.waitForTimeout(300);
+  const c0=await t2[0].boundingBox(), c1=await t2[1].boundingBox();
+  await p.mouse.move(c0.x+c0.width/2,c0.y+c0.height/2); await p.mouse.down();
+  await p.waitForTimeout(650);
+  const lifted = await p.evaluate(()=>!!document.querySelector('#cm-prev .ph-tile.lifted'));
+  ck('holding a photo picks it up', lifted, lifted);
+  await p.mouse.move(c1.x+c1.width/2,c1.y+c1.height/2,{steps:12}); await p.mouse.up();
+  await p.waitForTimeout(700);
+  o = await p.evaluate(()=>({ ids:S.acts[S.acts.length-1].photos.map(x=>x.id).join(),
+    open: [...document.querySelectorAll('.sheet:not(.hide)')].some(x=>x.id!=='dlg'), which:[...document.querySelectorAll('.sheet:not(.hide)')].map(x=>x.id+':'+x.textContent.trim().slice(0,50)) }));
+  ck('sliding it onto the next swaps the two', o.ids==='sw2,sw1,sw3', o);
+  ck('and the drop does not open the photo', !o.open, o);
+  await p.evaluate(()=>{ drawPreview(); });
+  await p.waitForTimeout(3200);
+  const again = await p.evaluate(()=>!!document.querySelector('#cm-prev .swapfinger'));
+  ck('the tour does not play a second time', !again, again);
 }
 
 console.log('\n'+pass+' passed, '+fail+' failed, console/page errors: '+errs.length);

@@ -771,7 +771,11 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
   border:1px solid var(--line);background:none;cursor:pointer}
 .mkpick button.on{box-shadow:0 0 0 2px var(--coralink)}
 .mkpick button:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
-.photos .ph-tile.phdrag{touch-action:none;cursor:grab}
+.photos .ph-tile.phdrag{touch-action:none;cursor:grab;-webkit-touch-callout:none}
+/* G, 19 September: hold a photo to pick it up, slide it onto another to swap them */
+.photos .ph-tile.lifted{z-index:3;transform-origin:center;box-shadow:0 10px 18px rgba(0,0,0,.25)}
+.swapfinger{position:absolute;width:34px;height:34px;margin:-17px 0 0 -17px;border-radius:50%;background:rgba(43,38,34,.28);border:2px solid #fff;pointer-events:none;z-index:4;opacity:0}
+.swapfinger i{position:absolute;inset:-7px;border-radius:50%;border:3px solid var(--coral)}
 .photos .ph-tile.phdrag:active{cursor:grabbing}
 /* ── THE REMOVE BUTTON ────────────────────────────────────────
    G, 17 September, said three times and then "fix the X now": "we need to make
@@ -1771,7 +1775,7 @@ select.pick::-ms-expand{display:none}
     <!-- BUILD MARK — dev only, delete this div when the app ships -->
     <!-- IT HAD SAID 5M SINCE 15 SEPTEMBER, eight builds back, and every
          feedback mail sent from the app quoted it. Move it with the build. -->
-    <div id="buildtag">BUILD 7I</div>
+    <div id="buildtag">BUILD 7J</div>
   </div>
 </section>
 
@@ -11334,7 +11338,15 @@ function drawCompose(){
      square must be the default still stands — the square is now the only thing
      there is. */
   const shrow = $('cm-shape');
-  if(shrow){ shrow.innerHTML = ''; shrow.classList.add('hide'); }
+  if(shrow){
+    const aa = S.current || S.acts[S.acts.length-1];
+    if(CM_PLAT==='private' || !aa){ shrow.innerHTML=''; shrow.classList.add('hide'); }
+    else {
+      shrow.classList.remove('hide');
+      chips(shrow, [['Square','square'],['Tall','tall']], ()=>shapeOf(aa), v=>{
+        aa.shape = v; save(); prepack(); drawCompose(); });
+    }
+  }
 
   /* THESE LINES WERE CUT BY MISTAKE IN 7C AND ARE PUT BACK IN 7F. Removing the
      post-or-story chips, the cut ran on to the next landmark it was told to stop
@@ -11532,8 +11544,7 @@ const HAND_HOW = {
      afterthought at the end. So the screen was teaching the long way round.
      One route now, and pasting is its own line rather than the tail of one. */
   instagram: '<b>Tap the button above and choose Instagram.</b> The card goes '+
-             'over with you. Post, Story or Message — <b>take whichever '+
-             'you like</b>: it comes out whole in all three.'+   /* FAULT 11: Instagram\'s own panel offers no Reel */
+             'over with you. <b>Square: choose Post. Tall: choose Story.</b>'+   /* FAULT 11: Instagram\'s own panel offers no Reel */
              '<br><br><b>Then paste your words.</b> They are already copied. '+
              'Hold down the caption box in Instagram and tap <b>Paste</b>. '+
              'Instagram will not let any app fill that box in for you.'+
@@ -11622,7 +11633,7 @@ function packKey(a){
   const cw = cardWords(a);
   return [a.no, cw.n, cw.line, cw.word, (S.tone||DEFAULT_TONE),
           /* the watermark colour and the shape are both part of the picture */
-          (a.mark || MARK_DEFAULT), (a.shape || SHAPE_DEFAULT),
+          (a.mark || MARK_DEFAULT), shapeOf(a),
           (a.zero?'zero':''), (a.fin?'fin':''),
           (a.anon?'anon':''), CM_PLAT, a.t||'', a.d||'', a.when||'',
           /* INVARIANT 15. A card can be drawn two sizes, so the key has to say
@@ -11922,7 +11933,7 @@ function drawPreview(){
       t.type='button'; t.className='ph-tile phdrag';
       const shp = postFrame(a);
       t.style.cssText='padding:0;border:0;background:none;position:relative;'+
-        'aspect-ratio:'+shp.w+' / '+shp.h+';opacity:'+(p.off?'.35':'1');
+        'aspect-ratio:1 / 1;opacity:'+(p.off?'.35':'1');
       t.innerHTML='<img draggable="false" src="'+esc(p.url)+'" alt="" style="outline:'+(p.off?'none':'2px solid var(--coralink)')+';outline-offset:1px;border-radius:6px">';
       /* THE TILE IS ALREADY THE FRAME. It is square and the picture inside it is
          cropped to fill, which is exactly what now goes out. So moving the
@@ -11966,11 +11977,13 @@ function drawPreview(){
          started, the window reports the movement until the finger lifts.
          The first pixels are held rather than discarded, too, so a quick swipe
          that the browser delivers as a single coalesced move still counts. */
-      let dragging=false, moved=0, lx=0, ly=0, pendX=0, pendY=0;
+      let dragging=false, moved=0, lx=0, ly=0, pendX=0, pendY=0, held=false, holdT=0, sx=0;
       const onMove = e=>{
         if(!dragging) return;
+        if(held){ t.style.transform='translateX('+(e.clientX-sx)+'px) translateY(-6px) scale(1.1)'; return; }
         const dx=e.clientX-lx, dy=e.clientY-ly; lx=e.clientX; ly=e.clientY;
         moved += Math.abs(dx)+Math.abs(dy);
+        if(moved >= 4) clearTimeout(holdT);
         pendX += dx; pendY += dy;
         if(moved < 4) return;                 // still a tap; hold what it has done
         const w=t.clientWidth||1, h=t.clientHeight||1;
@@ -11983,17 +11996,40 @@ function drawPreview(){
         pendX = 0; pendY = 0;
         put();
       };
-      const endDrag = ()=>{
+      const endDrag = e=>{
         if(!dragging) return;
-        dragging=false;
+        dragging=false; clearTimeout(holdT);
         window.removeEventListener('pointermove', onMove, true);
         window.removeEventListener('pointerup', endDrag, true);
         window.removeEventListener('pointercancel', endDrag, true);
+        /* A HELD PHOTO LANDS ON WHICHEVER TILE THE FINGER IS OVER, and the two
+           change places. Over nothing, or over itself, it goes back. */
+        if(held){
+          held=false; moved=99;               // the click that follows is not a tap
+          t.style.transform=''; t.classList.remove('lifted');
+          const x = e && e.type!=='pointercancel' ? e.clientX : null;
+          let j=-1;
+          if(x!=null) [...strip.querySelectorAll('.ph-tile')].forEach((o,k)=>{
+            const r=o.getBoundingClientRect(); if(x>=r.left && x<=r.right) j=k; });
+          if(j>=0 && j!==i){
+            const A=a.photos.indexOf(ph[i]), B=a.photos.indexOf(ph[j]);
+            if(A>=0 && B>=0){ const k=a.photos[A]; a.photos[A]=a.photos[B]; a.photos[B]=k;
+              save(); prepack(); drawPreview(); }
+          }
+          return;
+        }
         /* only a real move is worth writing to disk and redrawing the card */
         if(moved >= 4){ save(); prepack(); }
       };
       t.addEventListener('pointerdown', e=>{
-        dragging=true; moved=0; pendX=0; pendY=0; lx=e.clientX; ly=e.clientY;
+        dragging=true; moved=0; pendX=0; pendY=0; lx=e.clientX; ly=e.clientY; sx=e.clientX;
+        held=false; clearTimeout(holdT);
+        if(ph.length>1) holdT=setTimeout(()=>{
+          if(!dragging || moved>=4) return;
+          held=true; t.classList.add('lifted');
+          t.style.transform='translateY(-6px) scale(1.1)';
+          if(navigator.vibrate) try{navigator.vibrate(10)}catch(_){}
+        }, 450);
         window.addEventListener('pointermove', onMove, true);
         window.addEventListener('pointerup', endDrag, true);
         window.addEventListener('pointercancel', endDrag, true);
@@ -12016,13 +12052,21 @@ function drawPreview(){
        the strip for as long as it is up, so the words and the thing the words
        are about are on screen together — which is the difference between a tour
        beat and a notice. */
+    /* THE SWAP TOUR, approved as drawn (A-1, 19 September). Once ever, the
+       first time a post has two photos to swap. It moves the tiles on screen
+       only; the real order is never touched. The crop tip waits its turn. */
+    let cropAt = 2600;
+    if(ph.length>=2 && !S.swapToured){
+      S.swapToured = 1; save(); cropAt = 9200;
+      setTimeout(swapTour, 2600);
+    }
     if(!PHO_TOURED[a.no]){
       PHO_TOURED[a.no] = 1;
       setTimeout(()=>{
         if(SCREEN !== 'compose') return;
         if(!document.querySelector('#cm-prev .photos')) return;
         toast('Tap a photo to set its crop.', { lit:'#cm-prev .photos', ms:6500 });
-      }, 2600);           // after the shape beat has had its turn
+      }, cropAt);           // after the shape beat has had its turn
     }
     /* RULED A, 17 September 2026, and the wording is G's own with his spelling:
        "You can do A, but you need to spell it American." A line that stays — he
@@ -12055,6 +12099,38 @@ function drawPreview(){
 /* which acts have had the pointing-out. Not saved: it is a tour beat, and a
    new session is a new chance to be told. */
 const PHO_TOURED = {};
+function swapTour(){
+  /* the strip is drawn again whenever the card finishes packing, so find the
+     one on screen now rather than the one that was there when this was set */
+  const strip = document.querySelector('#cm-prev .photos');
+  if(SCREEN !== 'compose' || !strip) return;
+  const [p,q] = strip.querySelectorAll('.ph-tile'); if(!p || !q) return;
+  toast('Hold a photo to pick it up, then slide it to change the order.',
+        { lit:'#cm-prev .photos', ms:5600 });
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const d = q.getBoundingClientRect().left - p.getBoundingClientRect().left;
+  const T=(x,y,k)=>({transform:'translate('+x+'px,'+y+'px) scale('+k+')'});
+  const up=(x,o)=>Object.assign(T(x,-6,1.1),{offset:o,boxShadow:'0 10px 18px rgba(0,0,0,.25)'});
+  const dn=(x,o)=>Object.assign(T(x,0,1),{offset:o,boxShadow:'none'});
+  const opt={duration:5200, easing:'ease-in-out'};
+  if(getComputedStyle(strip).position==='static') strip.style.position='relative';
+  p.style.zIndex='3';
+  p.animate([dn(0,0),dn(0,.22),up(0,.28),up(d,.48),up(d,.58),dn(d,.62),up(d,.66),up(0,.76),dn(0,.82),dn(0,1)],opt)
+   .onfinish=()=>{ p.style.zIndex=''; };
+  q.animate([Object.assign(T(0,0,1),{offset:0}),Object.assign(T(0,0,1),{offset:.34}),
+    Object.assign(T(-d,0,1),{offset:.46}),Object.assign(T(-d,0,1),{offset:.66}),
+    Object.assign(T(0,0,1),{offset:.76}),Object.assign(T(0,0,1),{offset:1})],opt);
+  const f=document.createElement('div'); f.className='swapfinger';
+  f.style.left=(p.offsetLeft+p.offsetWidth/2)+'px'; f.style.top=(p.offsetTop+p.offsetHeight/2)+'px';
+  f.innerHTML='<i></i>'; strip.appendChild(f);
+  f.animate([{opacity:0,transform:'none',offset:0},{opacity:0,transform:'none',offset:.06},
+    {opacity:1,transform:'none',offset:.10},{opacity:1,transform:'none',offset:.30},
+    {opacity:1,transform:'translateX('+d+'px)',offset:.48},{opacity:1,transform:'translateX('+d+'px)',offset:.58},
+    {opacity:1,transform:'none',offset:.76},{opacity:0,transform:'none',offset:.84},{opacity:0,transform:'none',offset:1}],opt)
+   .onfinish=()=>f.remove();
+  f.firstChild.animate([{clipPath:'inset(0 100% 0 0)',offset:0},{clipPath:'inset(0 100% 0 0)',offset:.10},
+    {clipPath:'inset(0 0 0 0)',offset:.24},{clipPath:'inset(0 0 0 0)',offset:1}],{duration:5200});
+}
 /* and which have had the shape pointed out. Not saved, for the same reason. */
 const SHP_TOURED = {};
 /* and which have been shown the swipe. Not saved: it is a demonstration. */
@@ -12955,7 +13031,12 @@ const CREED = ['PUT A LITTLE','MORE GOOD INTO','THE WORLD.'];
    screen rather than adding one, and it is the same good day as the first. */
 const POST_FRAME = { w:1080, h:1920 };
 const SAFE_SIDE  = 1080;                    // the middle square, where the ink lives
-function postFrame(a){ return POST_FRAME; }
+/* SQUARE OR TALL, AND NOTHING ELSE. G, 19 September, after a feed post came out
+   cut: "We only need a square and the tall. Period." He picks; the file is made
+   for what he picked. Square is the default (his 17 September ruling). */
+const SQUARE_FRAME = { w:1080, h:1080 };
+function shapeOf(a){ const v = (a && a.shape) || ''; return (v==='tall' || v==='story') ? 'tall' : 'square'; }
+function postFrame(a){ return shapeOf(a)==='tall' ? POST_FRAME : SQUARE_FRAME; }
 /* the middle square of a frame, in that frame's own pixels */
 function safeBox(shape){
   const sh = shape || POST_FRAME;
@@ -12964,8 +13045,8 @@ function safeBox(shape){
 }
 /* kept so old files still load and nothing that reads it breaks; nothing
    chooses it any more */
-const POST_SHAPES = { post:POST_FRAME, story:POST_FRAME };
-const SHAPE_DEFAULT = 'post';
+const POST_SHAPES = { square:SQUARE_FRAME, tall:POST_FRAME, post:SQUARE_FRAME, story:POST_FRAME };
+const SHAPE_DEFAULT = 'square';
 
 /* Instagram makes every picture in one post share the shape of the first, so a
    phone snapshot beside the square card is cropped BY INSTAGRAM — a second cut
@@ -13244,10 +13325,8 @@ function drawMark(g, shape, mk){
      to read on a film. All three inks are light (coral, white, gold), so one
      dark shadow serves all of them; a dark ink would need a light one, and
      there is none. */
-  g.shadowColor   = 'rgba(0,0,0,.45)';
-  g.shadowBlur    = 1.1*k;
-  g.shadowOffsetX = 0;
-  g.shadowOffsetY = 0.15*k;
+  /* NO SHADOW NOW. G, 19 September, seeing it on Instagram: "remove the fuzzy
+     shadow from behind the words". The ink is drawn clean. */
   /* TWICE THE SIZE. G, 17 September: "the watermark needs to be twice as big."
      Every number doubled, the gap between the lines included, so the lockup
      keeps its proportions rather than only growing its type. */
@@ -13286,6 +13365,15 @@ function photoOnto(img, shape, p, mk){
   /* G, 19 September: the margins carry the card's paper and the balloon heart,
      as DECORATION only. Everything that matters stays in the middle square, so
      a feed that trims the margins loses nothing but ornament. */
+  if(H === W){
+    /* THE SQUARE: the photograph fills it and the words sit on the photograph,
+       bottom left, as ruled for the photographs. */
+    const b = photoBox(img.width, img.height, W, H, p || {});
+    g.fillStyle = '#FFFFFF'; g.fillRect(0, 0, W, H);
+    g.drawImage(img, Math.round(b.x), Math.round(b.y), Math.round(b.dw), Math.round(b.dh));
+    drawMark(g, shape, mk);
+    return c;
+  }
   paperBands(g, W, H);
   /* THE PHOTOGRAPH LIVES IN THE MIDDLE SQUARE, exactly as the card does, so the
      two travel together and neither is cut wherever it lands. What the person
@@ -13306,12 +13394,13 @@ function photoOnto(img, shape, p, mk){
    left, at the photo mark's own size plus a fifth. */
 function bandMark(g, sq, mk){
   if(!mk) return;
-  const k = sq.w/100 * 1.2, x = 4.5*sq.w/100, y = sq.y + sq.h + 190;
+  /* B, G 19 September: the line just under the photo, the date just above it. */
+  const k = sq.w/100 * 1.2, x = 4.5*sq.w/100;
   g.save(); g.fillStyle = mk.ink; g.textAlign = 'left'; g.textBaseline = 'alphabetic';
   g.font = '700 ' + (7.2*k) + 'px "Montserrat", sans-serif';
-  g.fillText(mk.line, x, y);
+  g.fillText(mk.line, x, sq.y + sq.h + 105);
   if(mk.date){ g.font = '600 ' + (5.4*k) + 'px "Montserrat", sans-serif';
-    g.fillText(mk.date, x, y + 7.4*k); }
+    g.fillText(mk.date, x, sq.y - 40); }
   g.restore();
 }
 const BAND_PAPER = '#F7F3EC';
