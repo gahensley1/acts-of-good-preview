@@ -1978,6 +1978,40 @@ head('G, 19 Sept — the celebration waits until he is back and nothing is over 
   ck('back in the app, the square is brought into view and the moment plays', back.ran===1 && back.inView, back);
 }
 
+head('G, 20 Sept — the coral X on each photo leaves it out, + puts it back');
+{ const {ctx,p}=await app();
+  await p.evaluate(()=>{ const mk=()=>{const c=document.createElement('canvas');c.width=600;c.height=600;c.getContext('2d').fillRect(0,0,600,600);return c.toDataURL('image/jpeg',.7)};
+    const a=S.acts[S.acts.length-1]; a.photos=[{id:'x1',url:mk()},{id:'x2',url:mk()}]; S.current=a; save(); CM_PLAT='instagram'; openCompose(); });
+  await p.waitForTimeout(800);
+  const r=await p.evaluate(async()=>{ const a=S.acts[S.acts.length-1];
+    document.querySelectorAll('#cm-prev .ph-rm')[1].click(); await new Promise(r=>setTimeout(r,300));
+    const off1=!!a.photos[1].off, plus=(document.querySelectorAll('#cm-prev .ph-rm')[1]||{}).textContent, open=[...document.querySelectorAll('.sheet:not(.hide)')].some(x=>x.id!=='dlg');
+    document.querySelectorAll('#cm-prev .ph-rm')[1].click(); await new Promise(r=>setTimeout(r,300));
+    return {off1, plus, open, back:!a.photos[1].off, kept:a.photos.length}; });
+  ck('the X leaves the photo out of the post without opening it', r.off1 && !r.open, r);
+  ck('it then shows + and puts it back', r.plus==='+' && r.back, r);
+  ck('the journal keeps the photo either way', r.kept===2, r);
+}
+
+head('G, 20 Sept — the coral X leaves a photo out; white words turn coral on the paper');
+{ const {ctx,p}=await app();
+  await p.evaluate(()=>{ const mk=()=>{const c=document.createElement('canvas');c.width=600;c.height=600;c.getContext('2d').fillRect(0,0,600,600);return c.toDataURL('image/jpeg',.7)};
+    const a=S.acts[S.acts.length-1]; a.photos=[{id:'x1',url:mk()},{id:'x2',url:mk()}]; a.shape='post'; S.current=a; save(); CM_PLAT='instagram'; openCompose(); });
+  await p.waitForTimeout(800);
+  const r=await p.evaluate(async()=>{ const a=S.acts[S.acts.length-1];
+    document.querySelectorAll('#cm-prev .ph-rm')[1].click(); await new Promise(r=>setTimeout(r,300));
+    const off1=!!a.photos[1].off, plus=(document.querySelectorAll('#cm-prev .ph-rm')[1]||{}).textContent, open=[...document.querySelectorAll('.sheet:not(.hide)')].some(x=>x.id!=='dlg');
+    document.querySelectorAll('#cm-prev .ph-rm')[1].click(); await new Promise(r=>setTimeout(r,300));
+    const c=document.createElement('canvas'); c.width=1080;c.height=1920; const g=c.getContext('2d'); const sq=safeBox(POST_FRAME);
+    bandMark(g, sq, {ink:'#FFFFFF',line:'act 8 of 25',date:'September 20, 2026'});
+    const d=g.getImageData(0,sq.y+sq.h,540,160).data; let coral=0; for(let i=0;i<d.length;i+=4) if(d[i+3]>200 && d[i]>180 && d[i+1]<140) coral++;
+    return {off1, plus, open, back:!a.photos[1].off, kept:a.photos.length, coral}; });
+  ck('the X leaves the photo out of the post without opening it', r.off1 && !r.open, r);
+  ck('it then shows + and puts it back', r.plus==='+' && r.back, r);
+  ck('the journal keeps the photo either way', r.kept===2, r);
+  ck('white words are drawn coral on the tall paper', r.coral>500, r);
+}
+
 console.log('\n'+pass+' passed, '+fail+' failed, console/page errors: '+errs.length);
 if(errs.length) console.log(JSON.stringify(errs.slice(0,6),null,1));
 await b.close();

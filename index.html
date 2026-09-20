@@ -772,6 +772,10 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
 .mkpick button.on{box-shadow:0 0 0 2px var(--coralink)}
 .mkpick button:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 .photos .ph-tile.phdrag{touch-action:none;cursor:grab;-webkit-touch-callout:none;user-select:none;-webkit-user-select:none}
+.photos .ph-tile .ph-rm{position:absolute;top:-8px;right:-8px;width:28px;height:28px;border-radius:50%;
+  background:var(--coral,#EA634F);color:#fff;font:700 20px/28px Montserrat,sans-serif;text-align:center;
+  box-shadow:0 1px 3px rgba(0,0,0,.25);z-index:4;cursor:pointer;opacity:1}
+.photos .ph-tile{overflow:visible}
 /* 2A wide, G 19 Sept: both rows run edge to edge */
 #cm-plats,#cm-shape{display:flex;flex-wrap:wrap}
 #cm-plats>.chip,#cm-shape>.chip{flex:1 1 0;justify-content:center;text-align:center}
@@ -11993,8 +11997,8 @@ function drawPreview(){
       t.type='button'; t.className='ph-tile phdrag';
       const shp = postFrame(a);
       t.style.cssText='padding:0;border:0;background:none;position:relative;'+
-        'aspect-ratio:1 / 1;opacity:'+(p.off?'.35':'1');
-      t.innerHTML='<img draggable="false" src="'+esc(p.url)+'" alt="" style="outline:'+(p.off?'none':'2px solid var(--coralink)')+';outline-offset:1px;border-radius:6px">';
+        'aspect-ratio:1 / 1;';
+      t.innerHTML='<img draggable="false" src="'+esc(p.url)+'" alt="" style="opacity:'+(p.off?'.35':'1')+';outline:'+(p.off?'none':'2px solid var(--coralink)')+';outline-offset:1px;border-radius:6px">';
       /* THE TILE IS ALREADY THE FRAME. It is square and the picture inside it is
          cropped to fill, which is exactly what now goes out. So moving the
          picture here is moving the picture that posts — the trap the 14
@@ -12021,6 +12025,18 @@ function drawPreview(){
                       (mkNow.date ? '<i>'+esc(mkNow.date)+'</i>' : '');
         t.appendChild(m);
       }
+      /* G, 20 September, drawn by him: a coral circle with a white X on the
+         corner of each photo, to take it out of the post in one tap. The
+         journal keeps it; on a photo already left out it reads + to bring it
+         back. */
+      const rm = document.createElement('span');
+      rm.className = 'ph-rm'; rm.setAttribute('role','button');
+      rm.setAttribute('aria-label', p.off ? 'Put this photo back in the post' : 'Leave this photo out of the post');
+      rm.textContent = p.off ? '+' : '\u00d7';
+      rm.addEventListener('pointerdown', e=>{ e.stopPropagation(); });
+      rm.addEventListener('click', e=>{ e.stopPropagation(); e.preventDefault();
+        p.off = !p.off; save(); prepack(); drawPreview(); });
+      t.appendChild(rm);
       t.setAttribute('aria-pressed', p.off?'false':'true');
       t.setAttribute('aria-label','Photo '+(i+1)+(p.off?', left out.':', riding along.')+
         ' Open it to move it, colour the mark, or leave it out.');
@@ -13473,7 +13489,9 @@ function bandMark(g, sq, mk){
   if(!mk) return;
   /* B, G 19 September: the line just under the photo, the date just above it. */
   const k = sq.w/100 * 1.2, x = 4.5*sq.w/100;
-  g.save(); g.fillStyle = mk.ink; g.textAlign = 'left'; g.textBaseline = 'alphabetic';
+  /* white vanishes on the paper (G's dog Story, 20 Sept): on paper it is coral */
+  const ink = /^#fff(fff)?$/i.test(mk.ink) ? markInk('coral') : mk.ink;
+  g.save(); g.fillStyle = ink; g.textAlign = 'left'; g.textBaseline = 'alphabetic';
   g.font = '700 ' + (7.2*k) + 'px "Montserrat", sans-serif';
   g.fillText(mk.line, x, sq.y + sq.h + 105);
   if(mk.date){ g.font = '600 ' + (5.4*k) + 'px "Montserrat", sans-serif';
