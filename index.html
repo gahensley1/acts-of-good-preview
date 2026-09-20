@@ -771,7 +771,7 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
   border:1px solid var(--line);background:none;cursor:pointer}
 .mkpick button.on{box-shadow:0 0 0 2px var(--coralink)}
 .mkpick button:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
-.photos .ph-tile.phdrag{touch-action:none;cursor:grab;-webkit-touch-callout:none}
+.photos .ph-tile.phdrag{touch-action:none;cursor:grab;-webkit-touch-callout:none;user-select:none;-webkit-user-select:none}
 /* G, 19 September: hold a photo to pick it up, slide it onto another to swap them */
 .photos .ph-tile.lifted{z-index:3;transform-origin:center;box-shadow:0 10px 18px rgba(0,0,0,.25)}
 .swapfinger{position:absolute;width:34px;height:34px;margin:-17px 0 0 -17px;border-radius:50%;background:rgba(43,38,34,.28);border:2px solid #fff;pointer-events:none;z-index:4;opacity:0}
@@ -2300,7 +2300,7 @@ What you actually did. Why it mattered. Say the awkward parts."></textarea>
 
     <div class="pace" id="cm-fit" style="margin-bottom:16px"></div>
 
-    <div class="field"><label for="cm-text">Caption <span style="text-transform:none;font-weight:400"
+    <div class="field"><label for="cm-text">Caption<span style="text-transform:none;font-weight:400"
       id="cm-label"></span></label>
       <textarea id="cm-text" style="min-height:220px" oninput="composeEdited()"></textarea>
       <div class="counter"><span id="cm-count"></span>
@@ -2923,6 +2923,7 @@ function serialise(){
     ac:(S.acts||[]).length,
     lineTouched:S.lineTouched, wordTouched:S.wordTouched,
     tone:S.tone,
+    swapToured:S.swapToured||0,   // the photo-swap tour, once ever
     name:S.name, turning:S.turning||0, why:S.why, email:S.email||'',
     start:S.start.toISOString(),
     /* Finished years. RULED 12 September 2026: "the journal should stay intact
@@ -3353,6 +3354,7 @@ async function load(){
   S.weeks=o.weeks; S.line=o.line; S.word=o.word;
   S.lineTouched=o.lineTouched; S.wordTouched=o.wordTouched;
   S.tone=o.tone;
+  S.swapToured=o.swapToured||0;
   S.name=o.name||''; S.why=o.why||'';
   /* the birthday is no longer kept. A journal that still has one is converted
      to the age it names this year, and the date itself is dropped. */
@@ -3471,7 +3473,7 @@ async function load(){
                   /* named in serialise() too — invariant 1 */
                   mark:(MARK_CHOICES.indexOf(a.mark)>-1 ? a.mark : ''),
                   /* named in serialise() too — invariant 1 */
-                  shape:(a.shape==='story' ? 'story' : ''),
+                  shape:(['story','message','post','tall'].indexOf(a.shape)>-1 ? a.shape : ''),
                   /* named in serialise() too — invariant 1. Absent means
                      nothing is pending, which is exactly right for every act
                      written before this field existed. */
@@ -11347,10 +11349,13 @@ function drawCompose(){
          word twice. Post and Message are the square; Story is the tall. */
       const pick = ()=>{ const v=aa.shape||''; return v==='message' ? 'message'
         : (v==='story'||v==='tall') ? 'story' : 'post'; };
-      chips(shrow, [['Post','post'],['Story','story'],['Message','message']], pick, v=>{
+      /* Facebook's share panel has no Message; it goes through Messenger */
+      const opts = [['Post','post'],['Story','story']];
+      if(CM_PLAT!=='facebook') opts.push(['Message','message']);
+      chips(shrow, opts, ()=>(CM_PLAT==='facebook' && pick()==='message') ? 'post' : pick(), v=>{
         aa.shape = v; save(); prepack(); drawCompose(); });
       const where = CM_PLAT==='facebook' ? 'Facebook' : 'Instagram';
-      const word  = pick()==='story' ? 'Story' : pick()==='message' ? 'Message' : 'Post';
+      const word  = pick()==='story' ? 'Story' : (pick()==='message' && CM_PLAT!=='facebook') ? 'Message' : 'Post';
       const hint = document.createElement('p');
       hint.className='note'; hint.id='cm-shapehint'; hint.style.cssText='margin:6px 0 0;width:100%';
       hint.textContent = 'In '+where+', tap '+word+'.';
@@ -12031,6 +12036,8 @@ function drawPreview(){
         /* only a real move is worth writing to disk and redrawing the card */
         if(moved >= 4){ save(); prepack(); }
       };
+      /* Android's own long-press would otherwise grab the tile mid-hold */
+      t.addEventListener('contextmenu', e=>e.preventDefault());
       t.addEventListener('pointerdown', e=>{
         dragging=true; moved=0; pendX=0; pendY=0; lx=e.clientX; ly=e.clientY; sx=e.clientX;
         held=false; clearTimeout(holdT);
@@ -12067,7 +12074,7 @@ function drawPreview(){
        only; the real order is never touched. The crop tip waits its turn. */
     let cropAt = 2600;
     if(ph.length>=2 && !S.swapToured){
-      S.swapToured = 1; save(); cropAt = 9200;
+      cropAt = 9200;
       setTimeout(swapTour, 2600);
     }
     if(!PHO_TOURED[a.no]){
@@ -12113,7 +12120,9 @@ function swapTour(){
   /* the strip is drawn again whenever the card finishes packing, so find the
      one on screen now rather than the one that was there when this was set */
   const strip = document.querySelector('#cm-prev .photos');
-  if(SCREEN !== 'compose' || !strip) return;
+  if(SCREEN !== 'compose' || !strip || S.swapToured) return;
+  /* marked seen only when it actually plays, and saved so it stays seen */
+  S.swapToured = 1; save();
   const [p,q] = strip.querySelectorAll('.ph-tile'); if(!p || !q) return;
   toast('Hold a photo to pick it up, then slide it to change the order.',
         { lit:'#cm-prev .photos', ms:5600 });

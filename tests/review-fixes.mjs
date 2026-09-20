@@ -1909,6 +1909,23 @@ head('G, 19 Sept — Post / Story / Message, and the line that says what to tap'
   ck('Message is square and says tap Message', r.f2===1080 && r.hint2==='In Instagram, tap Message.', r);
 }
 
+head('G, 19 Sept — the five from the engineers and the panel');
+{ const {ctx,p}=await app();
+  const r=await p.evaluate(()=>{ S.swapToured=1; const a=S.acts[S.acts.length-1]; a.shape='message'; save();
+    const raw=localStorage.getItem(LS_KEY); return raw; });
+  await p.reload(); await p.waitForTimeout(1200);
+  const q=await p.evaluate(()=>{ const a=S.acts[S.acts.length-1]; S.current=a; CM_PLAT='facebook'; openCompose();
+    return { toured:S.swapToured, shape:a.shape,
+      fb:[...document.querySelectorAll('#cm-shape button')].map(b=>b.textContent.trim()).join(','),
+      fbHint:(document.getElementById('cm-shapehint')||{}).textContent,
+      label:document.querySelector('label[for="cm-text"]').textContent.replace(/\s+/g,' ').trim(),
+      android:getComputedStyle(document.querySelector('#cm-prev .photos .ph-tile')||document.body).userSelect }; });
+  ck('the swap tour stays seen after the app is reopened', q.toured===1, q);
+  ck('Message is still picked after the app is reopened', q.shape==='message', q);
+  ck('Facebook offers Post and Story only, and never says tap Message', !/Message/.test(q.fb) && q.fbHint==='In Facebook, tap Post.', q);
+  ck('the caption label has no stray space', /^Caption, for Facebook$/.test(q.label), q);
+}
+
 console.log('\n'+pass+' passed, '+fail+' failed, console/page errors: '+errs.length);
 if(errs.length) console.log(JSON.stringify(errs.slice(0,6),null,1));
 await b.close();
