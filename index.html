@@ -5380,7 +5380,32 @@ function acPick(){
    The grid sits below the pace card, so on a phone the square that was just
    filled is usually under the fold. Bring it into view first: a moment that
    erupts out of a tile nobody can see is no moment at all. */
+/* G, 19 September: "after I close those out on my own, I get back to Your year
+   ... you're not resetting it down where the celebrations could be seen."
+   The moment was being claimed while he was still in Instagram (the app is
+   hidden, nothing animates) or while a window sat over the page, and the
+   long-stop then paid it out unseen. So it now WAITS: until the app is in
+   front of him again and no window is open, then brings the square into view
+   and plays. Capped at ten minutes so a claim can never wedge for ever. */
+function celBlocked(){ return document.hidden || !!document.querySelector('.sheet:not(.hide)'); }
+function celWaitClear(go){
+  let waited = 0;
+  const t = setInterval(()=>{
+    waited += 400;
+    if(waited > 600000){ clearInterval(t); sashStrap(0); CEL_RUNNING = true; celFinish(); return; }
+    if(celBlocked() || SCREEN !== 'home') return;
+    clearInterval(t); setTimeout(go, 350);
+  }, 400);
+}
 function actMoment(slot){
+  CEL_PENDING = true;                 // claimed now, so nothing jumps the queue
+  if(celBlocked()){
+    if(CEL_GUARD){ clearTimeout(CEL_GUARD); CEL_GUARD = 0; }
+    celWaitClear(()=>actMomentGo(slot)); return;
+  }
+  actMomentGo(slot);
+}
+function actMomentGo(slot){
   CEL_PENDING = true;                 // claimed, from here until it has finished
   /* A CLAIM THAT NEVER PAYS OUT WEDGES EVERYTHING BEHIND IT. Found on
      18 September by driving the real flow in Chrome with the window behind
@@ -5419,7 +5444,9 @@ function actMoment(slot){
        has already been paid for, or that would land on an open window, does
        not play late. */
     if(!CEL_PENDING || CEL_RUNNING) return;
-    if(document.querySelector('.sheet:not(.hide)')){ sashStrap(0); celFinish(); return; }
+    if(celBlocked()){                 // a window opened meanwhile: wait it out, then play
+      if(CEL_GUARD){ clearTimeout(CEL_GUARD); CEL_GUARD = 0; }
+      celWaitClear(()=>actMomentGo(slot)); return; }
     const r = t.getBoundingClientRect();
     if(r.width < 2){ sashStrap(0); celFinish(); return; }
     acStop();
@@ -11689,7 +11716,11 @@ async function prepack(){
   const mk = markFor(a);
   try {
     const blob = (plat==='private') ? await noteBlob(a) : await cardBlob(a, 1080, shape);
-    const name = 'act-'+a.no+(plat==='private'?'-note':'')+'.png';
+    /* THE CARD LEADS, G 19 September. It was called act-5.png and the photos
+       act-5-1.png, act-5-2.png, and a hyphen sorts before a full stop, so
+       anything that orders by name put the photos ahead of the card. "-0"
+       sorts first every time. */
+    const name = 'act-'+a.no+(plat==='private'?'-note':'-0')+'.png';
     if(blob) files.push(new File([blob], name, {type:'image/png'}));
   } catch(e){}
   /* What goes out is the print-size photo, not the thumbnail the app draws with.

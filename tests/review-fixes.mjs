@@ -1950,6 +1950,34 @@ head('G, 19 Sept — 1A the true count, 4B words in from the edge, 5B tall tiles
   ck('both button rows run edge to edge', r.rows.every(x=>x>=90), r);
 }
 
+head('G, 19 Sept — the card leads, by order and by name');
+{ const {ctx,p}=await app();
+  await p.evaluate(()=>{ const mk=()=>{const c=document.createElement('canvas');c.width=600;c.height=600;c.getContext('2d').fillRect(0,0,600,600);return c.toDataURL('image/jpeg',.7)};
+    const a=S.acts[S.acts.length-1]; a.photos=[{id:'o1',url:mk()},{id:'o2',url:mk()}]; S.current=a; save(); CM_PLAT='instagram'; openCompose(); });
+  await p.waitForFunction(()=>PACK.busy===false&&!!PACK.files,null,{timeout:30000});
+  const n=await p.evaluate(()=>PACK.files.map(f=>f.name));
+  const sorted=[...n].sort();
+  ck('the card is first in what is handed over', /-0\.png$/.test(n[0]), n);
+  ck('and still first when sorted by name', sorted[0]===n[0], {n,sorted});
+}
+
+head('G, 19 Sept — the celebration waits until he is back and nothing is over it');
+{ const {ctx,p}=await app();
+  await p.evaluate(()=>{ go('home'); drawGrid && drawGrid(); window.scrollTo(0,0);
+    window.__ran=0; const o=celStart; celStart=function(){ window.__ran++; return o.apply(this,arguments); };
+    Object.defineProperty(document,'hidden',{configurable:true,get:()=>true});
+    const t=document.querySelector('#grid .tile.done'); window.__slot=t.id.replace('tile-','');
+    actMoment(window.__slot); });
+  await p.waitForTimeout(11000);
+  const hid=await p.evaluate(()=>({ran:window.__ran, pending:CEL_PENDING}));
+  ck('while he is still in Instagram, nothing plays and nothing is spent', hid.ran===0 && hid.pending===true, hid);
+  await p.evaluate(()=>{ Object.defineProperty(document,'hidden',{configurable:true,get:()=>false}); document.dispatchEvent(new Event('visibilitychange')); });
+  await p.waitForTimeout(4500);
+  const back=await p.evaluate(()=>{ const r=document.getElementById('tile-'+window.__slot).getBoundingClientRect();
+    return {ran:window.__ran, inView: r.top>0 && r.bottom<innerHeight}; });
+  ck('back in the app, the square is brought into view and the moment plays', back.ran===1 && back.inView, back);
+}
+
 console.log('\n'+pass+' passed, '+fail+' failed, console/page errors: '+errs.length);
 if(errs.length) console.log(JSON.stringify(errs.slice(0,6),null,1));
 await b.close();
