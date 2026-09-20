@@ -1927,6 +1927,29 @@ head('G, 19 Sept — the five from the engineers and the panel');
   ck('the caption label has no stray space', /^Caption, for Facebook$/.test(q.label), q);
 }
 
+head('G, 19 Sept — 1A the true count, 4B words in from the edge, 5B tall tiles on Story, 2A wide rows');
+{ const {ctx,p}=await app();
+  await p.evaluate(()=>{ const mk=(c1)=>{ const c=document.createElement('canvas'); c.width=900;c.height=900;
+      const g=c.getContext('2d'); g.fillStyle=c1; g.fillRect(0,0,900,900); return c.toDataURL('image/jpeg',0.7); };
+    const a=S.acts[S.acts.length-1]; a.photos=[{id:'c1',url:mk('#335577')},{id:'c2',url:mk('#775533')}]; a.shape='post';
+    S.current=a; save(); CM_PLAT='instagram'; openCompose();
+    [...document.querySelectorAll('#cm-shape button')].find(b=>/Story/.test(b.textContent)).click(); });
+  await p.waitForFunction(()=>PACK.busy===false&&!!PACK.files,null,{timeout:30000}); await p.waitForTimeout(1200);
+  const r=await p.evaluate(()=>{ const d=document.getElementById('dlg');
+    const tile=document.querySelector('#cm-prev .photos .ph-tile');
+    const rows=['cm-plats','cm-shape'].map(id=>{ const bs=[...document.querySelectorAll('#'+id+'>.chip')]; const w=document.getElementById(id).clientWidth;
+      return Math.round(bs.reduce((s,b)=>s+b.offsetWidth,0)/w*100); });
+    const c=document.createElement('canvas'); c.width=1080;c.height=1080; const g=c.getContext('2d'); g.fillStyle='#000'; g.fillRect(0,0,1080,1080);
+    drawMark(g, SQUARE_FRAME, {ink:'#FFFFFF',line:'act 1 of 25',date:'x'});
+    const px=g.getImageData(0,0,135,1080).data; let lit=0; for(let i=0;i<px.length;i+=4) if(px[i]>128) lit++;
+    return { dlg: d && !d.classList.contains('hide') ? d.textContent : '', ratio: tile ? tile.clientHeight/tile.clientWidth : 0,
+      rows, leftStrip: lit }; });
+  ck('the warning never counts a photo twice', !/\b4 photos\b/.test(r.dlg), r.dlg.slice(0,80));
+  ck('on Story the tiles are tall', r.ratio>1.6, r);
+  ck('the square words sit inside what the 3:4 grid keeps', r.leftStrip===0, r);
+  ck('both button rows run edge to edge', r.rows.every(x=>x>=90), r);
+}
+
 console.log('\n'+pass+' passed, '+fail+' failed, console/page errors: '+errs.length);
 if(errs.length) console.log(JSON.stringify(errs.slice(0,6),null,1));
 await b.close();

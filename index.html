@@ -697,7 +697,7 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
    tile's width — the same share it takes of the real picture, so what is shown
    is the true proportion rather than a flattering one */
 .photos .ph-tile{container-type:inline-size}
-.photos .ph-tile .mk{position:absolute;left:4.5%;bottom:4.5%;text-align:left;
+.photos .ph-tile .mk{position:absolute;left:12.5%;bottom:4.5%;text-align:left;
   line-height:1.15;pointer-events:none;font-weight:700;font-size:7.2cqw;
   text-shadow:none;white-space:nowrap}
 .photos .ph-tile .mk b{display:block;font-weight:700}
@@ -712,7 +712,7 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
   container-type:inline-size;touch-action:none;cursor:grab}
 .phbig:active{cursor:grabbing}
 .phbig img{width:100%;height:100%;object-fit:cover;display:block}
-.phbig .mk{position:absolute;left:4.5%;bottom:4.5%;text-align:left;line-height:1.15;
+.phbig .mk{position:absolute;left:12.5%;bottom:4.5%;text-align:left;line-height:1.15;
   pointer-events:none;font-weight:700;font-size:7.2cqw;white-space:nowrap}
 .phbig .mk b{display:block;font-weight:700}
 .phbig .mk i{display:block;font-weight:600;font-style:normal;font-size:.75em}
@@ -772,6 +772,10 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
 .mkpick button.on{box-shadow:0 0 0 2px var(--coralink)}
 .mkpick button:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 .photos .ph-tile.phdrag{touch-action:none;cursor:grab;-webkit-touch-callout:none;user-select:none;-webkit-user-select:none}
+/* 2A wide, G 19 Sept: both rows run edge to edge */
+#cm-plats,#cm-shape{display:flex;flex-wrap:wrap}
+#cm-plats>.chip,#cm-shape>.chip{flex:1 1 0;justify-content:center;text-align:center}
+#cm-shape>p{flex-basis:100%}
 /* G, 19 September: hold a photo to pick it up, slide it onto another to swap them */
 .photos .ph-tile.lifted{z-index:3;transform-origin:center;box-shadow:0 10px 18px rgba(0,0,0,.25)}
 .swapfinger{position:absolute;width:34px;height:34px;margin:-17px 0 0 -17px;border-radius:50%;background:rgba(43,38,34,.28);border:2px solid #fff;pointer-events:none;z-index:4;opacity:0}
@@ -11667,7 +11671,9 @@ async function prepack(){
   const key = packKey(a);
   if(PACK.key === key && PACK.files) return;   // this exact picture is already drawn
   PACK = { key:key, files:null, busy:true };
-  BAD_PHOTOS = 0; SMALL_PHOTOS = 0;
+  /* counted HERE, not in the globals: two drawings in flight both added to the
+     same tally, and two photos were reported as four (G, 19 Sept, 1A) */
+  let bad = 0, small = 0;
   drawPreview(); drawGoState();
   const files = [];
   /* captured BEFORE the awaits: the filename used to re-read the global after
@@ -11707,10 +11713,11 @@ async function prepack(){
       if(got.url) files.push(FRAME_PHOTOS[plat]
         ? await framedPhotoFile(got.url, 'act-'+a.no+'-'+(i+1)+'.png', shape, p, mk)
         : dataToFile(got.url, 'act-'+a.no+'-'+(i+1)+'.jpg'));
-      if(got.url && !got.full) SMALL_PHOTOS++;
-    } catch(e){ BAD_PHOTOS++; }
+      if(got.url && !got.full) small++;
+    } catch(e){ bad++; }
   }
   if(PACK.key !== key) return;                 // a later pack overtook us; it owns the state
+  BAD_PHOTOS = bad; SMALL_PHOTOS = small;
   PACK.files = files; PACK.busy = false;
   drawPreview(); drawGoState();
   if(BAD_PHOTOS) say('One of your photos will not open',
@@ -11942,7 +11949,15 @@ function drawPreview(){
        a gesture the app no longer has is worse than no line. */
     box.innerHTML += '<p class="note" style="margin:10px 0 6px">Riding along. The journal keeps them all.</p>';
     const strip=document.createElement('div'); strip.className='photos';
+    /* 5B, G 19 September: on Story the tiles show the tall picture that will
+       actually post, not the square it is cut from. Post and Message are square,
+       so there the tile already is the picture. */
+    TALL_URLS.forEach(u=>URL.revokeObjectURL(u)); TALL_URLS = [];
+    const tallMode = shapeOf(a)==='tall';
+    let sent = 0;
     ph.forEach((p,i)=>{
+      const tallFile = (tallMode && !p.off) ? (PACK.files||[])[1 + sent] : null;
+      if(!p.off) sent++;
       const t=document.createElement('button');
       t.type='button'; t.className='ph-tile phdrag';
       const shp = postFrame(a);
@@ -11955,13 +11970,20 @@ function drawPreview(){
          September round recorded, where the preview had no equivalent of what
          shipped, cannot happen through this control. */
       const im = t.querySelector('img');
-      const put = layoutWhenReady(im, t, p);
+      let put = layoutWhenReady(im, t, p);
+      if(tallFile){
+        const u = URL.createObjectURL(tallFile); TALL_URLS.push(u);
+        t.style.aspectRatio = '9 / 16';
+        im.src = u;
+        im.style.cssText += ';position:absolute;left:0;top:0;width:100%;height:100%;object-fit:cover';
+        put = ()=>{};              // the picture is already made; nothing to lay out
+      }
       /* THE MARK, SHOWN WHERE IT WILL ACTUALLY BE. The tile is the frame, so the
          mark sits in the tile exactly where it sits in the picture, at the same
          share of the width. It is small, because it IS small — showing it any
          larger would be flattering him with a preview the app never sends. */
       const mkNow = markFor(a);
-      if(mkNow && !p.off){
+      if(mkNow && !p.off && !tallFile){
         const m = document.createElement('span');
         m.className = 'mk'; m.style.color = mkNow.ink;
         m.innerHTML = '<b>'+esc(mkNow.line)+'</b>' +
@@ -12000,6 +12022,7 @@ function drawPreview(){
         if(moved >= 4) clearTimeout(holdT);
         pendX += dx; pendY += dy;
         if(moved < 4) return;                 // still a tap; hold what it has done
+        if(tallFile){ pendX = 0; pendY = 0; return; }   // on Story, tap to crop
         const w=t.clientWidth||1, h=t.clientHeight||1;
         const iw=im.naturalWidth||1, ih=im.naturalHeight||1;
         const b = photoBox(iw, ih, w, h, p);
@@ -12091,7 +12114,9 @@ function drawPreview(){
        a line that has removed itself is no help in March. */
     const mv=document.createElement('p');
     mv.className='note'; mv.style.cssText='margin:8px 0 0';
-    mv.textContent='Tap to crop or colour the words. Drag to center. Hold to change the order.';
+    mv.textContent = tallMode
+      ? 'Tap to crop or colour the words. Hold to change the order.'
+      : 'Tap to crop or colour the words. Drag to center. Hold to change the order.';
     box.appendChild(mv);
 
     /* THE PICKER LIVES IN THE PHOTOGRAPH'S OWN BOX NOW, not here. It set the
@@ -12115,6 +12140,7 @@ function drawPreview(){
 /* which acts have had the pointing-out. Not saved: it is a tour beat, and a
    new session is a new chance to be told. */
 const PHO_TOURED = {};
+let TALL_URLS = [];
 function swapTour(){
   /* the strip is drawn again whenever the card finishes packing, so find the
      one on screen now rather than the one that was there when this was set */
@@ -13350,10 +13376,12 @@ function drawMark(g, shape, mk){
      keeps its proportions rather than only growing its type. */
   const yD = H - 4.5*k, yA = yD - 6.0*k;
   g.font = '700 ' + (7.2*k) + 'px "Montserrat", sans-serif';
-  g.fillText(mk.line, 4.5*k, yA);
+  /* 4B, G 19 Sept: 12.5% in, inside the 3:4 profile-grid thumbnail */
+  const xM = 12.5*k;
+  g.fillText(mk.line, xM, yA);
   if(mk.date){
     g.font = '600 ' + (5.4*k) + 'px "Montserrat", sans-serif';
-    g.fillText(mk.date, 4.5*k, yD);
+    g.fillText(mk.date, xM, yD);
   }
   g.restore();
 }
