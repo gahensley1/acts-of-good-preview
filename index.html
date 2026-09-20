@@ -11343,8 +11343,18 @@ function drawCompose(){
     if(CM_PLAT==='private' || !aa){ shrow.innerHTML=''; shrow.classList.add('hide'); }
     else {
       shrow.classList.remove('hide');
-      chips(shrow, [['Square','square'],['Tall','tall']], ()=>shapeOf(aa), v=>{
+      /* G, 19 September: named with Instagram's own words, so he taps the same
+         word twice. Post and Message are the square; Story is the tall. */
+      const pick = ()=>{ const v=aa.shape||''; return v==='message' ? 'message'
+        : (v==='story'||v==='tall') ? 'story' : 'post'; };
+      chips(shrow, [['Post','post'],['Story','story'],['Message','message']], pick, v=>{
         aa.shape = v; save(); prepack(); drawCompose(); });
+      const where = CM_PLAT==='facebook' ? 'Facebook' : 'Instagram';
+      const word  = pick()==='story' ? 'Story' : pick()==='message' ? 'Message' : 'Post';
+      const hint = document.createElement('p');
+      hint.className='note'; hint.id='cm-shapehint'; hint.style.cssText='margin:6px 0 0;width:100%';
+      hint.textContent = 'In '+where+', tap '+word+'.';
+      shrow.appendChild(hint);
     }
   }
 
@@ -11544,7 +11554,7 @@ const HAND_HOW = {
      afterthought at the end. So the screen was teaching the long way round.
      One route now, and pasting is its own line rather than the tail of one. */
   instagram: '<b>Tap the button above and choose Instagram.</b> The card goes '+
-             'over with you. <b>Square: choose Post. Tall: choose Story.</b>'+   /* FAULT 11: Instagram\'s own panel offers no Reel */
+             'over with you. <b>Tap the same one you picked here: Post, Story or Message.</b>'+   /* FAULT 11: Instagram\'s own panel offers no Reel */
              '<br><br><b>Then paste your words.</b> They are already copied. '+
              'Hold down the caption box in Instagram and tap <b>Paste</b>. '+
              'Instagram will not let any app fill that box in for you.'+

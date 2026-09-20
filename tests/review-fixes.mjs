@@ -1623,7 +1623,7 @@ head('faults 4, 11, 12 — a suggested date is not a choice; Instagram has three
     return out;
   });
   ck('one keystroke does not save today as the aimed-for date', r.dAfterKey==='', r);
-  ck('Instagram is told plainly: square is Post, tall is Story, no Reel', !/Reel/.test(r.igWords) && /Square: choose Post\. Tall: choose Story\./.test(r.igWords), r.igWords.slice(0,120));
+  ck('Instagram is told to match what was picked here, no Reel', !/Reel/.test(r.igWords) && /Tap the same one you picked here: Post, Story or Message\./.test(r.igWords), r.igWords.slice(0,120));
   ck('a photograph going to Facebook is framed and marked like Instagram', r.fbFramed, r);
 }
 
@@ -1889,6 +1889,24 @@ head('G, 19 Sept — HOLD A PHOTO TO SWAP IT, and the tour that shows it once');
   await p.waitForTimeout(3200);
   const again = await p.evaluate(()=>!!document.querySelector('#cm-prev .swapfinger'));
   ck('the tour does not play a second time', !again, again);
+}
+
+head('G, 19 Sept — Post / Story / Message, and the line that says what to tap');
+{ const {ctx,p}=await app();
+  const r=await p.evaluate(async()=>{ const a=S.acts[S.acts.length-1]; a.shape=''; S.current=a; save();
+    CM_PLAT='instagram'; openCompose(); const o={};
+    const labels=[...document.querySelectorAll('#cm-shape button')].map(b=>b.textContent.trim());
+    o.labels=labels.join(','); o.hint0=(document.getElementById('cm-shapehint')||{}).textContent;
+    o.f0=postFrame(a).h;
+    [...document.querySelectorAll('#cm-shape button')].find(b=>/Story/.test(b.textContent)).click();
+    o.hint1=(document.getElementById('cm-shapehint')||{}).textContent; o.f1=postFrame(a).h;
+    [...document.querySelectorAll('#cm-shape button')].find(b=>/Message/.test(b.textContent)).click();
+    o.hint2=(document.getElementById('cm-shapehint')||{}).textContent; o.f2=postFrame(a).h;
+    return o; });
+  ck('the three choices use Instagram’s words', /^Post.*,Story.*,Message/.test(r.labels), r);
+  ck('Post is square and says tap Post', r.f0===1080 && r.hint0==='In Instagram, tap Post.', r);
+  ck('Story is tall and says tap Story', r.f1===1920 && r.hint1==='In Instagram, tap Story.', r);
+  ck('Message is square and says tap Message', r.f2===1080 && r.hint2==='In Instagram, tap Message.', r);
 }
 
 console.log('\n'+pass+' passed, '+fail+' failed, console/page errors: '+errs.length);
