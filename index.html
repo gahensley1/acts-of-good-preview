@@ -907,6 +907,14 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
   border-radius:12px;padding:11px 14px;display:flex;align-items:center;gap:14px;
   width:max-content;max-width:min(92vw,420px);box-shadow:0 8px 24px rgba(0,0,0,.28);
   transition:transform .22s cubic-bezier(.2,.8,.3,1);pointer-events:none;visibility:hidden}
+/* THE CLOSE. RULED BY G, 24 September 2026: "I want an x in circle to close
+   out", "in the corner not in line of the text", "Black x is fine". It sits on
+   the bar's top-right corner. The ring is drawn at 26px; the button around it
+   is 44px so a thumb can find it, and it only closes: the bar comes back three
+   acts later, as it always did. */
+#bkupbar .bkx-close{position:absolute;top:-19px;right:-19px;width:44px;height:44px;min-height:0;
+  padding:0;display:flex;align-items:center;justify-content:center;background:none;border:0;cursor:pointer}
+#bkupbar .bkx-close svg{width:26px;height:26px;display:block}
 #undobar.up,#gapbar.up,#bkupbar.up,#claimbar.up,#toastbar.up{transform:translate(-50%,0);pointer-events:auto;visibility:visible}
 #undobar .msg,#gapbar .msg,#bkupbar .msg,#claimbar .msg,#toastbar .msg{font-size:13.5px}
 /* the same bar as the others, so the app speaks in one voice (1J). */
@@ -1143,6 +1151,16 @@ body.hasinstall{padding-bottom:calc(184px + env(safe-area-inset-bottom))}
    Hearts rise and leave through the top; confetti falls and leaves through the
    bottom. That is what keeps this from ever competing with the end of a year. */
 #actcf{position:fixed;inset:0;z-index:60;pointer-events:none;display:none}
+/* the paper plane: the campaign's own plane and dotted flight, on Your year */
+#spl{position:fixed;inset:0;z-index:60;pointer-events:none;display:none;overflow:hidden}
+#spl.up{display:block}
+#spl svg.spl-sky{position:absolute;left:0;top:0;width:100%;height:100%;overflow:visible}
+#spl .spl-dash{stroke:#E0553F;stroke-width:2.4;stroke-linecap:round}
+#spl .spl-heart{fill:#E0553F}
+#spl .spl-ring{fill:none;stroke:#E0553F;stroke-width:1.2}
+#spl .spl-body path{fill:none;stroke:#E0553F;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}
+#spl .spl-body .flank{fill:#E0553F;opacity:.34;stroke:none}
+#spl .spl-body .nearfill{fill:#E0553F;opacity:.10;stroke:none}
 #actcf.up{display:block}
 #actcf canvas{width:100%;height:100%;display:block}
 #momentcf{position:fixed;inset:0;z-index:71;pointer-events:none;display:none}
@@ -1795,7 +1813,7 @@ select.pick::-ms-expand{display:none}
     <!-- BUILD MARK — dev only, delete this div when the app ships -->
     <!-- IT HAD SAID 5M SINCE 15 SEPTEMBER, eight builds back, and every
          feedback mail sent from the app quoted it. Move it with the build. -->
-    <div id="buildtag">BUILD 7S</div>
+    <div id="buildtag">BUILD 7T</div>
   </div>
 </section>
 
@@ -1926,7 +1944,7 @@ select.pick::-ms-expand{display:none}
 <div id="toastbar" role="status" aria-live="polite"><span class="msg"></span></div>
 
 <div id="bkupbar" role="status" aria-live="polite">
-  <span class="msg"></span><button type="button" onclick="goBackup()">Back it up</button></div>
+  <span class="msg"></span><button type="button" onclick="goBackup()">Back it up</button><button type="button" class="bkx-close" aria-label="Close" onclick="dropBkupBar()"><svg viewBox="0 0 26 26" aria-hidden="true"><circle cx="13" cy="13" r="11.5" fill="#231f1c" stroke="#fff" stroke-width="1.6"/><path d="M9 9l8 8M17 9l-8 8" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg></button></div>
 
 <!-- Someone took something off a sign-up sheet. The app cannot be told; it
      looks when it opens. -->
@@ -2390,6 +2408,7 @@ What you actually did. Why it mattered. Say the awkward parts."></textarea>
 <!-- ══════════ THE MOMENT ══════════
      Halfway, and the end of the year. Never both at once. -->
 <div id="actcf" aria-hidden="true"><canvas id="actcanvas"></canvas></div>
+<div id="spl" aria-hidden="true"></div>
 <div id="momentcf" aria-hidden="true"><canvas id="momentcanvas"></canvas></div>
 <div id="moment" role="dialog" aria-modal="true" aria-labelledby="m-title">
   <div class="inner">
@@ -4903,7 +4922,142 @@ function drawZero(){
    own moment; nothing while the phone is in your pocket or the tab is hidden;
    nothing under reduced motion; and it cannot be tapped, so it can never take
    a tap meant for a square.                                                  */
-let STRAY_T = null, STRAY_ON = 0;
+let STRAY_T = null, STRAY_ON = 0, STRAY_N = 0;
+
+/* THE PAPER PLANE. The campaign's card 11 plane, drawn from the same seven
+   strokes, flying the campaign's dotted flight: short coral dashes laid down
+   behind it that fade over 2.6 seconds, as they do on the card. It crosses Your
+   year once, loops the loop in the middle, and goes. It obeys every rule the
+   heart obeys (it is only ever sent from strayGo), cannot be tapped, and stops
+   the moment the screen changes or the phone is put away.
+
+   The path is a prolate cycloid: x = a·t + b·sin t, y = -b(1 - cos t), which
+   is a loop-the-loop, used only across the loops and a straight glide either
+   side. At the joins sin t and 1 - cos t are both zero and their slopes match
+   the glide, so the line never kinks. Everything runs off the frame clock, not
+   CSS, so a test can step it exactly. */
+var SPL_LOOPS = 1;
+const SPL_ART = '<g class="spl-body"><path class="flank" d="M138 58 L 68 13 L 60 46 Z"/>'+
+  '<path class="nearfill" d="M138 58 L 30 28 L 60 46 Z"/><path d="M138 58 L 88 4 L 68 13 Z"/>'+
+  '<path d="M138 58 L 30 28 L 60 46 Z"/><path d="M138 58 L 68 13 L 60 46 Z"/>'+
+  '<path d="M138 58 L 68 13"/><path d="M138 58 L 60 46"/></g>';
+function splRoute(W, H, loops, fromLeft, yFrac){
+  /* G: "Can you do bigger loops". The radius went from 13% of the screen's
+     width to 22%; two loops carry it forward a little less each, so both
+     still fit between the edges. */
+  const b = Math.max(60, Math.min(W, H)*0.22), a = b*(loops > 1 ? 0.20 : 0.28), v = a + b;
+  const dir = fromLeft ? 1 : -1;
+  const T = 2*Math.PI*loops;
+  const loopW = a*T;                                   // how far the loops carry it forward
+  const xL = W/2 - dir*loopW/2;                        // the loops sit in the middle
+  const y0 = H*yFrac;
+  const t0 = -(dir > 0 ? xL + 90 : W - xL + 90)/v;
+  const t1 = T + (dir > 0 ? W - (xL + loopW) + 90 : (xL - loopW) + 90)/v;
+  /* the glide either side runs at the loop's own entry speed, a + b */
+  const at = t => { const inL = t > 0 && t < T;
+    const fx = t <= 0 ? v*t : t >= T ? a*T + v*(t - T) : a*t + b*Math.sin(t);
+    return { x: xL + dir*fx,
+             y: y0 - (inL ? b*(1 - Math.cos(t)) : 0) - t*1.2 }; };
+  const pts = []; let len = 0, prev = null;
+  for(let t = t0; t <= t1; t += 0.02){
+    const q = at(t); if(prev) len += Math.hypot(q.x - prev.x, q.y - prev.y);
+    q.s = len; pts.push(q); prev = q;
+  }
+  return { pts, len, dir };
+}
+function splFly(opt){
+  opt = opt || {};
+  const lay = $('spl'); if(!lay) return;
+  STRAY_ON = 1;
+  const W = window.innerWidth, H = window.innerHeight;
+  const R = splRoute(W, H, opt.loops || SPL_LOOPS,
+                     opt.fromLeft != null ? opt.fromLeft : Math.random() < 0.5,
+                     opt.y != null ? opt.y : 0.50 + Math.random()*0.14);
+  const NS = 'http://www.w3.org/2000/svg';
+  lay.innerHTML = '<svg class="spl-sky" xmlns="'+NS+'"><g class="spl-trail"></g>'+
+    '<g class="spl-plane">'+SPL_ART+'</g></svg>';
+  lay.classList.add('up');
+  const trail = lay.querySelector('.spl-trail'), plane = lay.querySelector('.spl-plane');
+  const SPEED = 150, GAP = 13, DASH = 6.5, FADE = 2600, K = 50/160;   // px/s; the plane is 50px long
+  const dashes = []; let nextDash = 0, i = 0, nDash = 0;
+  /* G, 24 Sept: "have one or 2 hearts in the dotted line". One or two of the
+     dashes, somewhere in the middle of the flight, are small hearts instead. */
+  const total = Math.floor((R.len - 20)/GAP), hearts = {};
+  const nH = Math.random() < 0.5 ? 1 : 2;
+  for(let h = 0; h < nH; h++) hearts[Math.floor(total*(0.30 + 0.40*(nH > 1 ? h/(nH-1)*0.9 + Math.random()*0.1 : Math.random())))] = 1;
+  const POP = 190, RING = 320;   // ms: the pop, and the little ring it leaves
+  const start = performance.now();
+  function stop(){ lay.classList.remove('up'); lay.innerHTML = ''; STRAY_ON = 0; SPL_RAF = 0; }
+  function frame(now){
+    if(SCREEN !== 'home' || document.hidden){ stop(); return; }
+    const t = now - start, s = t/1000*SPEED;
+    /* never stuck, measured on the flight's own clock. It was a plain 30-second
+       timer, which cut the second loop's line off whole the moment a slow
+       phone (or a recording) took longer than that in real time. */
+    if(t > 40000){ stop(); return; }
+    while(i < R.pts.length - 2 && R.pts[i+1].s < s) i++;
+    const p = R.pts[i], q = R.pts[i+1] || p;
+    const ang = Math.atan2(q.y - p.y, q.x - p.x)*180/Math.PI;
+    if(s < R.len){
+      /* the art's nose points 20 degrees below its own x axis, so this holds
+         it level on the glide; flying left, it is turned over, not mirrored,
+         so the loop still carries it upside down across the top */
+      plane.setAttribute('transform', 'translate('+p.x.toFixed(1)+' '+p.y.toFixed(1)+') rotate('+ang.toFixed(1)+')'+
+        (R.dir < 0 ? ' scale(1 -1)' : '')+' rotate(-20) scale('+K+') translate(-79 -35)');
+      while(nextDash <= s - 20){
+        let j = i; while(j > 0 && R.pts[j].s > nextDash) j--;
+        const a1 = R.pts[j], a2 = R.pts[j+1] || a1, d = Math.hypot(a2.x-a1.x, a2.y-a1.y) || 1;
+        const ux = (a2.x-a1.x)/d, uy = (a2.y-a1.y)/d;
+        const heart = !!hearts[nDash++];
+        const g = document.createElementNS(NS, 'g');
+        g.setAttribute('transform', 'translate('+a1.x.toFixed(1)+' '+a1.y.toFixed(1)+')');
+        const el = document.createElementNS(NS, heart ? 'path' : 'line');
+        if(heart){
+          /* G, 24 Sept: the hearts sit IN the line, not across it — "keep it
+             parallel", as if dropped from the back of the plane. The heart is
+             drawn point-down, so it is turned until its point runs along the
+             flight, the way the plane was going. */
+          el.setAttribute('transform', 'rotate('+(Math.atan2(uy, ux)*180/Math.PI - 90).toFixed(1)+') translate(0 1.5)');
+          el.setAttribute('class','spl-heart');
+          el.setAttribute('d','M0 4.4C-2.2-.8-8.2-.6-8.2-5c0-3.3 3.6-5 6-2.8 1 .9 1.7 1.9 2.2 2.8.5-.9 1.2-1.9 2.2-2.8 2.4-2.2 6-.5 6 2.8 0 4.4-6 4.2-8.2 9.4z');
+        } else {
+          el.setAttribute('class','spl-dash');
+          el.setAttribute('x1', (-ux*DASH/2).toFixed(2)); el.setAttribute('y1', (-uy*DASH/2).toFixed(2));
+          el.setAttribute('x2', ( ux*DASH/2).toFixed(2)); el.setAttribute('y2', ( uy*DASH/2).toFixed(2));
+        }
+        const inner = document.createElementNS(NS, 'g'); inner.appendChild(el); g.appendChild(inner);
+        trail.appendChild(g); dashes.push({ g, inner, born: now, heart });
+        nextDash += GAP;
+      }
+    } else plane.setAttribute('opacity', '0');
+    /* G, 24 Sept: "instead of dissipating it pops like a bubble as the line
+       disappears". Each dash comes in as it did on the card, holds, and at
+       the end of its 2.6 seconds swells and is gone in a fifth of a second,
+       leaving a little ring that opens and fades. They go in the order they
+       were laid, so the line pops away behind the plane, oldest first. */
+    let live = 0;
+    dashes.forEach(D => { if(!D.g) return; const age = now - D.born;
+      const popAt = FADE - POP;
+      if(age >= FADE + RING){ D.g.remove(); D.g = null; return; } live++;
+      if(age < popAt){
+        D.inner.setAttribute('opacity', (age < 160 ? age/160*.95 : .95).toFixed(3));
+      } else {
+        const u = Math.min(1, (age - popAt)/POP);
+        D.inner.setAttribute('transform', 'scale('+(1 + (D.heart ? .9 : .8)*u).toFixed(3)+')');
+        D.inner.setAttribute('opacity', (.95*(1 - u)).toFixed(3));
+        if(!D.ring){ D.ring = document.createElementNS(NS, 'circle'); D.ring.setAttribute('class','spl-ring'); D.g.appendChild(D.ring); }
+        const w = Math.min(1, (age - popAt)/(POP + RING)), e = 1 - (1-w)*(1-w);
+        D.ring.setAttribute('r', ((D.heart ? 4 : 2) + (D.heart ? 12 : 7)*e).toFixed(2));
+        D.ring.setAttribute('opacity', (.7*(1 - w)).toFixed(3));
+      }
+    });
+    if(s >= R.len && !live){ stop(); return; }
+    SPL_RAF = requestAnimationFrame(frame);
+  }
+  SPL_RAF = requestAnimationFrame(frame);
+  setTimeout(()=>{ if(lay.classList.contains('up') && SPL_RAF && performance.now() - start > 40000){ cancelAnimationFrame(SPL_RAF); stop(); } }, 90000);  // a last resort if frames stop coming
+}
+var SPL_RAF = 0;
 /* G, 10 Sept: "they're randomly floating hearts, it's awesome — make it happen
    twice as much as it happens now." Both waits halved. */
 function strayGap(){ return 60000 + Math.random()*90000; }     // 1 to 2.5 minutes
@@ -4925,6 +5079,15 @@ function strayGo(){
   if(['you','social','spend','person','cal','date','ask','done','finish','eval','pv']
      .some(x=>{ const el=$('sheet-'+x); return el && !el.classList.contains('hide'); })) return;
   if(!acSize()) return;
+
+  /* ABOUT ONE IN THREE IS THE PLANE. G, 24 September 2026: "add the paper
+     airplane in between the random floating heart — use the airplane and
+     dotted line flight path [of] our campaign, like a single loop or 2". */
+  /* G, 24 Sept, on seeing both: "Add both into the mix randomly", "Randomly".
+     So about one stray in three is the plane, by chance, never on a count, and
+     each plane loops once or twice, also by chance. */
+  STRAY_N++;
+  if(Math.random() < 1/3){ splFly({ loops: Math.random() < 0.5 ? 1 : 2 }); return; }
 
   STRAY_ON = 1;
   wrap.classList.add('up');
