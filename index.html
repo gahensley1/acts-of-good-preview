@@ -131,6 +131,18 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
   /* no scrim, ruled 30 Aug — the panel carries its own edge instead */
   box-shadow:0 -10px 30px rgba(60,50,35,.18);border-top:1px solid var(--line)}
 .sheet h3{font-size:20px;letter-spacing:-.02em;margin-bottom:6px}
+/* the copy-in-their-cloud switch (store app only): coral when on, like every
+   other thing in the app that is switched on */
+.cl-row{margin-top:14px;padding:12px 14px;border:1px solid var(--line);border-radius:12px}
+.cl-line{display:flex;align-items:center;justify-content:space-between;gap:14px}
+.cl-lab{font-size:15px;font-weight:600;color:var(--ink)}
+.cl-sw{flex:none;position:relative;width:51px;height:31px;border-radius:99px;border:0;padding:0;
+  background:#D9D3CA;cursor:pointer;transition:background .2s}
+.cl-sw i{position:absolute;top:2px;left:2px;width:27px;height:27px;border-radius:50%;background:#fff;
+  box-shadow:0 1px 3px rgba(0,0,0,.25);transition:transform .2s}
+.cl-sw[aria-checked="true"]{background:var(--coral)}
+.cl-sw[aria-checked="true"] i{transform:translateX(20px)}
+.cl-sw:focus-visible{outline:2px solid var(--coralink);outline-offset:3px}
 .privacy{background:var(--mist);border-radius:10px;padding:12px 14px;font-size:12.5px;
   color:var(--muted);line-height:1.55;margin:2px 0 20px}
 .privacy b{color:var(--ink);font-weight:600}
@@ -1813,7 +1825,7 @@ select.pick::-ms-expand{display:none}
     <!-- BUILD MARK — dev only, delete this div when the app ships -->
     <!-- IT HAD SAID 5M SINCE 15 SEPTEMBER, eight builds back, and every
          feedback mail sent from the app quoted it. Move it with the build. -->
-    <div id="buildtag">BUILD 7T</div>
+    <div id="buildtag">BUILD 7U</div>
   </div>
 </section>
 
@@ -2515,7 +2527,15 @@ What you actually did. Why it mattered. Say the awkward parts."></textarea>
     <div class="setgroup" style="margin-top:30px">
       <h3 class="seth">This device</h3>
       <p class="note" id="storagenote">Everything is saved on this phone.</p>
-      <p class="note" style="margin-top:10px">Because it never leaves the phone, it
+      <!-- The copy in their own cloud. Store app only: on the web this row is
+           never shown. G, 24 Sept, option 1: on by itself, with a switch. -->
+      <div class="cl-row hide" id="cloudrow">
+        <div class="cl-line"><span class="cl-lab" id="cloudlab">Keep a copy in your iCloud</span>
+          <button type="button" role="switch" aria-checked="true" class="cl-sw" id="cloudsw"
+            aria-labelledby="cloudlab" onclick="cloudToggle()"><i></i></button></div>
+        <p class="note" id="cloudwhen" style="margin:6px 0 0"></p>
+      </div>
+      <p class="note" id="bkup-why" style="margin-top:10px">Because it never leaves the phone, it
         can go with the phone. A backup is one file with everything in it: every act,
         every photograph, every person.</p>
       <!-- G, 10 Sept, ruled L2 + the pair. The eight-line grey paragraph is gone:
@@ -2592,7 +2612,7 @@ What you actually did. Why it mattered. Say the awkward parts."></textarea>
 <div class="sheet hide" id="sheet-you" role="dialog" aria-modal="true" aria-labelledby="you-h3"><div class="panel">
   <div class="steps">Step 1 of 3</div>
   <h3 id="you-h3">First, a bit about you</h3>
-  <div class="privacy"><b>Your privacy comes first.</b> Everything happens right on
+  <div class="privacy" id="you-privacy"><b>Your privacy comes first.</b> Everything happens right on
     your device to calculate your year and draft your posts, we don't collect,
     track, or share a thing.</div>
 
@@ -2994,6 +3014,8 @@ function serialise(){
                                 })) })),
     people:S.people, platforms:S.platforms,
     started:S.started, letterSeen:!!S.letterSeen, bkup:S.bkup||'', bkupNag:S.bkupNag||'', bkupAt:S.bkupAt||0, bkupToldAt:S.bkupToldAt||0,
+    /* the copy in their own cloud (store app): the switch, and when it last went */
+    cloudOff:!!S.cloudOff, cloudAt:S.cloudAt||'', cloudCount:S.cloudCount||0, cloudAsked:!!S.cloudAsked,
     finShown:+S.finShown||0, halfShown:+S.halfShown||0, fin:S.fin||null, celLast:S.celLast||'', celBag:S.celBag||'', zero:S.zero||null, tabToured:!!S.tabToured, opens:S.opens||0, todoOpens:S.todoOpens||0, plans:slimPlans(), handles:S.handles||{}, places:S.places||{},
     works:(S.works||[]).map(w=>({ pid:w.pid, t:w.t||'', d:w.d||'', who:w.who||[], hon:w.hon||'',
                           r:w.r||'',                       // the reminder lead time — see load()
@@ -3279,7 +3301,7 @@ function save(){
      the spare copies either. */
   if(otherTabAhead()) return;
   keepSnapshot();
-  try{ writeJournal(JSON.stringify(serialise())); }
+  try{ writeJournal(JSON.stringify(serialise())); try{ cloudSoon(); }catch(_){} }
   catch(e){
     /* Everything after this point was being kept in memory and lost on the next
        launch, while the app went on saying "Nicely done". Silence was the bug. */
@@ -3437,6 +3459,7 @@ async function load(){
   if(S.platforms && S.platforms.x) delete S.platforms.x;
   S.started=!!o.started; S.letterSeen=!!o.letterSeen; S.bkup=o.bkup||''; S.bkupNag=o.bkupNag||'';
   S.bkupAt=o.bkupAt||0; S.bkupToldAt=o.bkupToldAt||0;
+  S.cloudOff=!!o.cloudOff; S.cloudAt=o.cloudAt||''; S.cloudCount=o.cloudCount||0; S.cloudAsked=!!o.cloudAsked;
   /* An older journal wrote these as 1 for "yes". Read as a goal that would be
      a year of one act, so the ending would fire again the moment the app
      opened. A legacy 1 means "seen, at whatever the goal was then", which is
@@ -3609,8 +3632,12 @@ function stripClaims(holder){
    promise is that the phone can lose it, so there has to be a way out. One
    file, readable without this app, carrying the photos too.                  */
 let EXPORTING = false;
-async function exportJournal(){
-  if(EXPORTING) return;         // one at a time; the button can be hammered
+async function exportJournal(opt){
+  /* opt.cloud: the store app's automatic copy. The same file, built the same
+     way, handed back to cloudNow() instead of to the share sheet, and in
+     silence: nobody asked for it, so nothing is said. */
+  const quiet = !!(opt && opt.cloud);
+  if(EXPORTING) return null;    // one at a time; the button can be hammered
   EXPORTING = true;
   /* A year of real camera photos is hundreds of megabytes. Building that as ONE
      JSON.stringify string — plus the Blob copy — peaked at better than twice
@@ -3619,9 +3646,11 @@ async function exportJournal(){
      journal that most needs it. So the file is assembled as Blob PARTS, one act
      at a time — the photos' data URLs pass straight through as their own parts
      and no giant string ever exists — and the screen says it is working. */
-  say('Making your copy…','This can take a moment with a year of photos. Keep '+
-      'the app open.');
-  await new Promise(r=>setTimeout(r, 60));     // let the dialog paint
+  if(!quiet){
+    say('Making your copy…','This can take a moment with a year of photos. Keep '+
+        'the app open.');
+    await new Promise(r=>setTimeout(r, 60));   // let the dialog paint
+  }
   let lost = 0;
   const parts = [];
   try {
@@ -3772,6 +3801,7 @@ async function exportJournal(){
     parts.push('}}');
   } catch(e){
     EXPORTING = false;
+    if(quiet) return null;
     say('It could not make the copy','Something went wrong reading the photos. '+
         'Try again, or free some space first.');
     return;
@@ -3779,6 +3809,7 @@ async function exportJournal(){
   EXPORTING = false;
   const name = 'acts-of-good-'+todayISO()+'.json';
   const blob = new Blob(parts, {type:'application/json'});
+  if(quiet) return { blob, name, lost };
 
   /* The share sheet is the reliable route on a phone: Save to Files, Mail,
      Drive, whatever they use. A download link is the desktop fallback. */
@@ -3822,6 +3853,7 @@ function backupMade(){
 }
 
 function drawBackupLine(){
+  try{ drawCloudRow(); }catch(e){}
   const el = $('bkupwhen'); if(!el) return;
   const done = (S.acts||[]).length + (S.works||[]).length;
   if(!done){ el.textContent=''; el.style.color=''; return; }
@@ -3837,7 +3869,7 @@ function drawBackupLine(){
     : 'Last backup: ' + Math.round(days/30) + ' months ago.';
 }
 
-function importJournal(input){
+function importJournal(input, opt){
   const file = input.files && input.files[0];
   input.value = '';
   if(!file) return;
@@ -3861,7 +3893,8 @@ function importJournal(input){
           'parts this one does not know about. Update the app, then bring it back.');
       return;
     }
-    checkFirst('Bring this copy back?',
+    /* opt.noAsk: the store app's restore has already asked, in its own words */
+    (opt && opt.noAsk ? (t,n,l,fn)=>fn() : checkFirst)('Bring this copy back?',
       o.acts.length+' act'+(o.acts.length===1?'':'s')+', saved '+
       (o.exported ? shortDate(o.exported.slice(0,10)) : 'earlier')+
       '. Everything comes back exactly as it was \u2014 every act, every '+
@@ -4156,6 +4189,215 @@ const PHONE = {
   remind(/* isoDate, lead, title, who */){ return Promise.resolve(false); },
   forget(/* id */){ return Promise.resolve(false); }
 };
+
+/* ══ THE COPY IN THEIR OWN CLOUD — store app only ══════════════════════════
+   RULED BY G, 24 September 2026, option 1 — "1 so go and adjust to make it
+   work": in the store app a copy of the whole year is kept in the person's own
+   iCloud Drive (iPhone) or Google Drive (Android), by itself, after every
+   finished act, with a switch on the You screen to turn it off. It is the same
+   file "Create backup" makes, photographs and all. It goes from their phone to
+   their own account. Nothing comes to us; there is still no server of ours in
+   it, and the privacy promise stands as it is.
+
+   ON THE WEB NONE OF THIS RUNS. available() is false without the store app's
+   native half, so no row is drawn, no copy is made, nothing is offered back,
+   and the words on the first screen are unchanged.
+
+   The native half is one small plugin, CloudBackup, kept with the store build
+   (store/cloud-backup/ in the acts of good folder). Everything else — when to
+   copy, what to say, when to offer it back — is here in the HTML, where it can
+   change without a store review.
+
+   HANDED ACROSS IN PIECES. A year with photographs is hundreds of megabytes.
+   Passed to the phone as one message it would be several times that in memory,
+   which is the shape iOS kills. So it is written into the app's own scratch
+   folder 3 MB at a time, and the plugin then moves the finished file into the
+   cloud folder in one native step. The pieces are a multiple of three bytes so
+   each one is whole base64 and nothing is split mid-character. */
+const CLOUD = {
+  plug(){ try{ return (window.Capacitor && Capacitor.isNativePlatform && Capacitor.isNativePlatform()
+            && Capacitor.Plugins && Capacitor.Plugins.CloudBackup) || null; }catch(_){ return null; } },
+  fs(){ try{ return (window.Capacitor && Capacitor.Plugins && Capacitor.Plugins.Filesystem) || null; }catch(_){ return null; } },
+  st: null          // the last thing the plugin said: {available, provider, signedIn, reason}
+};
+function b64(buf){
+  let bin = ''; const u = new Uint8Array(buf);
+  for(let i=0; i<u.length; i+=0x8000) bin += String.fromCharCode.apply(null, u.subarray(i, i+0x8000));
+  return btoa(bin);
+}
+PHONE.cloud = {
+  available(){ return !!(CLOUD.plug() && CLOUD.fs()); },
+  gdrive(){ return !!(CLOUD.st && CLOUD.st.provider === 'gdrive'); },
+  name(){ return this.gdrive() ? 'Google Drive' : 'iCloud'; },
+  async status(){
+    const p = CLOUD.plug(); if(!p) return (CLOUD.st = { available:false });
+    try{ CLOUD.st = await p.status(); }catch(e){ CLOUD.st = { available:false, reason:'error' }; }
+    return CLOUD.st;
+  },
+  async signIn(){ const p = CLOUD.plug(); if(!p) return false;
+    try{ const r = await p.signIn(); await this.status(); return !!(r && r.signedIn); }catch(e){ return false; } },
+  async save(blob, name){
+    const p = CLOUD.plug(), fs = CLOUD.fs(); if(!p || !fs) throw new Error('no cloud');
+    const tmp = 'aog-cloud-' + Date.now() + '.json', CH = 3*1024*1024;
+    await fs.writeFile({ path:tmp, directory:'CACHE', data:'' });
+    for(let at = 0; at < blob.size; at += CH)
+      await fs.appendFile({ path:tmp, directory:'CACHE', data: b64(await blob.slice(at, at+CH).arrayBuffer()) });
+    const u = await fs.getUri({ path:tmp, directory:'CACHE' });
+    try{ return await p.push({ path:u.uri, name:name }); }
+    finally{ try{ await fs.deleteFile({ path:tmp, directory:'CACHE' }); }catch(_){} }
+  },
+  async latest(){ const p = CLOUD.plug(); if(!p) return null;
+    try{ const r = await p.latest(); return (r && r.name) ? r : null; }catch(e){ return null; } },
+  async read(name){
+    const p = CLOUD.plug(); const r = await p.pull({ name:name });
+    const res = await fetch(Capacitor.convertFileSrc(r.path));
+    return new File([await res.blob()], name, { type:'application/json' });
+  },
+  async keep(name){ const p = CLOUD.plug(); try{ if(p) await p.keep({ name:name }); }catch(_){} }
+};
+
+let CLOUD_T = null, CLOUD_BUSY = false;
+function cloudOn(){ return PHONE.cloud.available() && !S.cloudOff; }
+/* on, and able to go: the words about where the year lives follow this */
+function cloudGoing(){ return cloudOn() && !(CLOUD.st && CLOUD.st.available === false); }
+/* working: on, reachable, and a copy has gone within the last week */
+function cloudHealthy(){
+  if(!cloudOn() || !CLOUD.st || !CLOUD.st.available || !S.cloudAt) return false;
+  if(PHONE.cloud.gdrive() && !CLOUD.st.signedIn) return false;
+  return (Date.now() - Date.parse(S.cloudAt)) < 7*864e5;
+}
+/* Every save nudges it; the copy itself waits for 15 quiet seconds, so a
+   burst of typing is one copy, not forty. */
+function cloudSoon(){
+  if(!cloudOn()) return;
+  clearTimeout(CLOUD_T); CLOUD_T = setTimeout(()=>cloudNow(false), 15000);
+}
+/* A whole copy with every photograph is heavy, so it is only made when there
+   is something new worth it: an act or a work finished since the last one, or a
+   day gone by with changes. */
+async function cloudNow(force){
+  if(!cloudOn() || CLOUD_BUSY) return false;
+  const count = (S.acts||[]).length + (S.works||[]).length;
+  const age = S.cloudAt ? Date.now() - Date.parse(S.cloudAt) : Infinity;
+  if(!force && (!count || (count === S.cloudCount && age < 864e5))) return false;
+  const st = await PHONE.cloud.status();
+  if(!st.available){ drawCloudRow(); return false; }
+  if(PHONE.cloud.gdrive() && !st.signedIn){ cloudAskGoogle(); return false; }
+  CLOUD_BUSY = true;
+  try{
+    const got = await exportJournal({ cloud:true });
+    if(!got){ CLOUD_BUSY = false; return false; }
+    await PHONE.cloud.save(got.blob, got.name);
+    S.cloudAt = new Date().toISOString(); S.cloudCount = count; CLOUD.err = '';
+    backupMade();                 // it IS a backup: the reminder's count starts again
+  }catch(e){ CLOUD.err = String((e && e.message) || e); }
+  CLOUD_BUSY = false; drawCloudRow();
+  return !CLOUD.err;
+}
+/* Android only: Google makes them tap Allow once. Said once, in our words
+   first, and never again by itself; after that the switch is how. */
+function cloudAskGoogle(){
+  if(S.cloudAsked || document.querySelector('.sheet:not(.hide)')) return;
+  S.cloudAsked = true; save();
+  dlg({ title:'Keep a copy in your Google Drive?',
+        note:'After every act, a copy of your year goes to your own Google Drive, '+
+             'so a new phone never means starting over. Google will ask you to '+
+             'allow it. Only you can see it; nothing comes to us.',
+        ok:'Allow', cancel:'Not now',
+        then: async ()=>{ if(await PHONE.cloud.signIn()) cloudNow(true); else drawCloudRow(); },
+        no: ()=>{ S.cloudOff = true; save(); drawCloudRow(); } });
+}
+function cloudToggle(){
+  S.cloudOff = !S.cloudOff; save(); drawCloudRow();
+  if(!S.cloudOff){
+    if(PHONE.cloud.gdrive() && !(CLOUD.st && CLOUD.st.signedIn))
+      PHONE.cloud.signIn().then(ok=>{ if(ok) cloudNow(true); drawCloudRow(); });
+    else cloudNow(true);
+  }
+}
+function cloudWhen(iso){
+  const d = new Date(iso), now = new Date();
+  const t = d.toLocaleTimeString([], { hour:'numeric', minute:'2-digit' }).toLowerCase().replace(/\s/g,' ');
+  const day = d.toDateString() === now.toDateString() ? 'today'
+            : (new Date(now - 864e5)).toDateString() === d.toDateString() ? 'yesterday'
+            : shortDate(iso.slice(0,10));
+  return day + ', ' + t;
+}
+function drawCloudRow(){
+  const row = $('cloudrow'); if(!row) return;
+  if(!PHONE.cloud.available()){ row.classList.add('hide'); return; }
+  row.classList.remove('hide');
+  const where = PHONE.cloud.name();
+  $('cloudlab').textContent = 'Keep a copy in your ' + where;
+  const sn = $('storagenote');
+  if(sn && _storageOK) sn.textContent = !cloudGoing()
+    ? 'Everything is saved on this phone, your acts, photos and settings. Nothing leaves it.'
+    : 'Everything is saved on this phone, your acts, photos and settings, and a copy goes to your own '+
+      where + '. Nothing comes to us.';
+  /* the paragraph under it said the year "never leaves the phone" */
+  const why = $('bkup-why');
+  if(why) why.textContent = !cloudGoing()
+    ? 'Because it never leaves the phone, it can go with the phone. A backup is one file with '+
+      'everything in it: every act, every photograph, every person.'
+    : 'You can also make a backup by hand: one file with everything in it, every act, every '+
+      'photograph, every person, to keep wherever you like.';
+  $('cloudsw').setAttribute('aria-checked', S.cloudOff ? 'false' : 'true');
+  const w = $('cloudwhen'), st = CLOUD.st || {};
+  w.style.color = '';
+  if(S.cloudOff){
+    w.textContent = 'Off. Your year is only on this phone, so make a backup now and then.';
+  } else if(st.available === false && st.reason === 'icloud-off'){
+    w.style.color = 'var(--coralink)';
+    w.textContent = 'iCloud Drive is off on this phone, so no copy is being kept. Turn it on '+
+                    'in Settings, under your name, then iCloud.';
+  } else if(PHONE.cloud.gdrive() && !st.signedIn){
+    w.style.color = 'var(--coralink)';
+    w.textContent = 'Waiting for Google. Turn the switch off and on to allow it.';
+  } else if(CLOUD.err){
+    w.style.color = 'var(--coralink)';
+    w.textContent = 'The last copy did not go. It will try again after your next act.';
+  } else if(S.cloudAt){
+    w.textContent = 'Saved after every act. Last copy ' + cloudWhen(S.cloudAt) + '. Only you can see it.';
+  } else {
+    w.textContent = 'Saved after every act. Only you can see it.';
+  }
+}
+/* On first launch in the store app: is there a year in their cloud already? */
+async function cloudOffer(){
+  if(!PHONE.cloud.available()) return false;
+  const st = await PHONE.cloud.status();
+  if(!st.available || (PHONE.cloud.gdrive() && !st.signedIn)) return false;
+  const f = await PHONE.cloud.latest();
+  if(!f) return false;
+  return new Promise(res=>{
+    dlg({ title:'We found your year',
+          note:'A copy from ' + shortDate(String(f.modified||'').slice(0,10)) + ' is in your ' +
+               PHONE.cloud.name() + '. Bring it back, every act and every photograph?',
+          ok:'Bring it back', cancel:'Start fresh',
+          then: async ()=>{
+            try{ importJournal({ files:[ await PHONE.cloud.read(f.name) ], value:'' }, { noAsk:true }); }
+            catch(e){ say('It could not bring it back', 'The copy in your ' + PHONE.cloud.name() +
+                          ' would not open. Nothing has been changed.', ()=>openLetter()); }
+            res(true); },
+          /* starting fresh sets the old copy aside where the new year's copies
+             will never replace it */
+          no: ()=>{ PHONE.cloud.keep(f.name); res(false); } });
+  });
+}
+/* On every launch in the store app: learn where the copy goes, say it on the
+   first screen, and draw the row. */
+async function cloudInit(){
+  if(!PHONE.cloud.available()) return;
+  await PHONE.cloud.status();
+  const pv = $('you-privacy');
+  if(pv && !S.cloudOff) pv.innerHTML = '<b>Your privacy comes first.</b> Everything happens right on '+
+    'your device to calculate your year and draft your posts, and a copy is kept safe in your own '+
+    esc(PHONE.cloud.name()) + '. We don\'t collect, track, or share a thing.';
+  drawCloudRow();
+  cloudSoon();
+}
+setTimeout(()=>{ try{ cloudInit(); }catch(e){} }, 600);
+
 
 /* G, 16 September 2026: "under who it helps, instead of saying anything, say
    everyone or anyone, whatever makes more sense, because it is a who."
@@ -14032,9 +14274,14 @@ function drawYou(){
   $('v-why').textContent = S.why || 'Add';
   /* the row wears the mark, so the dot on the tab has somewhere to land */
   markGap('v-name', !S.name); markGap('v-bday', !S.turning); markGap('v-why', !S.why);
-  $('storagenote').textContent = _storageOK
-    ? 'Everything is saved on this phone, your acts, photos and settings. Nothing leaves it.'
-    : 'Storage is unavailable in this browser, so nothing will be remembered after you close it.';
+  /* In the store app with the cloud copy on, "Nothing leaves it" stops being
+     true, so it says exactly where the one copy goes. */
+  $('storagenote').textContent = !_storageOK ? '' : cloudGoing()
+    ? 'Everything is saved on this phone, your acts, photos and settings, and a copy goes to your own '+
+      PHONE.cloud.name()+'. Nothing comes to us.'
+    : 'Everything is saved on this phone, your acts, photos and settings. Nothing leaves it.'
+;
+  if(!_storageOK) $('storagenote').textContent = 'Storage is unavailable in this browser, so nothing will be remembered after you close it.';
   $('v-tone').textContent = S.tone
     ? S.tone.replace('-',' ').replace(/^./,c=>c.toUpperCase())
     : 'As drawn';
@@ -14116,6 +14363,10 @@ function bkupAgeDays(){
   return t ? Math.floor((Date.now()-t)/86400000) : -1;   // -1 means never
 }
 function bkupDue(){
+  /* In the store app, with the copy in their own cloud working, nothing is
+     ever left unsaved, so there is nothing to remind anybody about. If it stops
+     working, or they turn it off, the reminder comes back as before. */
+  if(cloudHealthy()) return false;
   /* Two counts, both in acts, and both must be met:
        sinceBackup — how much has been written since the last backup. This is
          what would actually be lost, and backing up sets it to zero.
@@ -14751,7 +15002,9 @@ function closeLetter(){
       }, 500);
     }
   } else if(!S.letterSeen){
-    setTimeout(openLetter, 250);
+    /* A new phone, or the app deleted and put back: in the store app, look in
+       their own cloud first. On the web this answers "nothing" at once. */
+    setTimeout(()=>{ cloudOffer().then(found=>{ if(!found) openLetter(); }); }, 250);
   } else {
     setTimeout(()=>sheet('you'), 350);
   }
