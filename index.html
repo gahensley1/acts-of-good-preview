@@ -948,6 +948,16 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
 #pastenote{display:flex;gap:9px;align-items:flex-start;margin-top:10px;
   font-size:13px;line-height:1.55;color:var(--coralink);font-weight:500}
 #pastenote .tick{flex:none;font-weight:700;line-height:1.45}
+/* the paste lesson (24 Sept) — every class prefixed pth- */
+.pth-steps{display:flex;gap:10px;justify-content:space-between;text-align:center;margin:14px 0 2px}
+.pth-step{flex:1;min-width:0}
+.pth-box{border:1.5px solid #cfc6b8;border-radius:10px;height:64px;display:flex;align-items:center;justify-content:center;background:#fff}
+.pth-cap{color:#9a9087;font-size:12px;line-height:1.3;padding:0 6px}
+.pth-hand{width:44px;height:48px;display:block}
+.pth-paste{background:#231f1c;color:#fff;border-radius:8px;padding:6px 12px;font-size:13px}
+.pth-lab{margin-top:6px;font-size:13px;line-height:1.3}
+.pth-again{width:100%;margin:14px 0 0}
+.pth-againnote{font-size:13px;margin:6px 0 0}
 /* BUILD MARK — dev only, delete this rule and the div at the foot of Your year
    when the app ships. It used to be a 9px pale-grey label pinned to the bottom
    right corner, which on a notched phone landed inside the tab bar and could
@@ -1785,7 +1795,7 @@ select.pick::-ms-expand{display:none}
     <!-- BUILD MARK — dev only, delete this div when the app ships -->
     <!-- IT HAD SAID 5M SINCE 15 SEPTEMBER, eight builds back, and every
          feedback mail sent from the app quoted it. Move it with the build. -->
-    <div id="buildtag">BUILD 7J</div>
+    <div id="buildtag">BUILD 7S</div>
   </div>
 </section>
 
@@ -1890,6 +1900,7 @@ select.pick::-ms-expand{display:none}
     width:calc(100% - 40px);padding:24px 22px">
     <h3 id="dlg-title" tabindex="-1"></h3>
     <p class="note" id="dlg-note" style="margin-top:6px"></p>
+    <div class="hide" id="dlg-extra"></div>
     <div class="field hide" id="dlg-field" style="margin-top:16px">
       <input id="dlg-input" aria-label="Your answer"></div>
     <div style="display:flex;gap:10px;margin-top:20px">
@@ -2032,7 +2043,7 @@ select.pick::-ms-expand{display:none}
     <h2>Plan &amp; Log</h2><div class="sub" id="wk-sub"></div></div>
   <div class="wrap">
     <div class="field"><label for="wk-t">The act <span style="text-transform:none;font-weight:400">(journal page &amp; post title)</span></label>
-      <input id="wk-t" oninput="wkEdited()" placeholder="Doughnuts for the vet clinic staff"></div>
+      <input id="wk-t" oninput="wkEdited()" placeholder="Name your act"></div>
 
     <div style="display:flex;gap:10px">
       <div class="field" style="flex:1"><label for="wk-exp">Proposed act</label>
@@ -2576,8 +2587,11 @@ What you actually did. Why it mattered. Say the awkward parts."></textarea>
        No explanation beside it: the words are in the confirm, after the tap.
        Setup only, hidden once the year has started (see sheet()). -->
   <div class="field hide" id="you-restore" style="margin-top:18px;margin-bottom:26px">
-    <p class="note" style="margin:0 0 10px;font-weight:600;color:var(--ink)">Had this app before?</p>
-    <button class="btn ghost" type="button" onclick="$('imp-file').click()">Restore from a backup</button></div>
+    <!-- G, 24 Sept: "It should not confuse new persons to the app so we need to
+         be explicit." Says who the button is for, and tells a newcomer to skip it. -->
+    <p class="note" style="margin:0 0 10px;font-weight:600;color:var(--ink)">Used Acts of Good before and saved a backup?</p>
+    <button class="btn ghost" type="button" onclick="$('imp-file').click()">Restore my year from it</button>
+    <p class="note" style="margin:10px 0 0">New here? Skip this and start with your name.</p></div>
 
   <!-- REVERTED 13 Sep 2026. This was briefly labelled "(optional)" in the same
        grey as the email below it, to sit more comfortably with Apple's rule that
@@ -2934,6 +2948,7 @@ function serialise(){
     lineTouched:S.lineTouched, wordTouched:S.wordTouched,
     tone:S.tone,
     swapToured:S.swapToured||0,   // the photo-swap tour, once ever
+    pasteTaught:S.pasteTaught||0, // the paste lesson, shown the first three sends (G, 24 Sept)
     name:S.name, turning:S.turning||0, why:S.why, email:S.email||'',
     start:S.start.toISOString(),
     /* Finished years. RULED 12 September 2026: "the journal should stay intact
@@ -3365,6 +3380,7 @@ async function load(){
   S.lineTouched=o.lineTouched; S.wordTouched=o.wordTouched;
   S.tone=o.tone;
   S.swapToured=o.swapToured||0;
+  S.pasteTaught=o.pasteTaught||0;
   S.name=o.name||''; S.why=o.why||'';
   /* the birthday is no longer kept. A journal that still has one is converted
      to the age it names this year, and the date itself is dropped. */
@@ -11623,7 +11639,7 @@ const HAND_HOW = {
              'way. The card, the photos and the words travel together, and nothing '+
              'is posted anywhere.'
 };
-const HAND_LABEL = { instagram:'Send to Instagram', facebook:'Send to Facebook',
+const HAND_LABEL = { instagram:'Copy my words & open Instagram', facebook:'Send to Facebook',
                      threads:'Send to Threads', private:'Send it' };
 function envNote(){ CM_PLAT='private'; buildCaption(false); }
 
@@ -11823,9 +11839,41 @@ const SHARES_FILES = { instagram:1, facebook:1, threads:1, private:1 };
    road, and G had it deleted. openApp() itself stays — handOff() still uses it
    on the phone that cannot share files at all. */
 
+var PASTE_TEACH_OK = false;
+const PTH_HAND = '<svg class="pth-hand" viewBox="0 0 52 56" aria-hidden="true" fill="none" stroke="#231f1c" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 33 V14 a3.2 3.2 0 0 1 6.4 0 V26 v-3 a3.2 3.2 0 0 1 6.4 0 v2.5 a3.2 3.2 0 0 1 6.4 0 v2 a3.2 3.2 0 0 1 6.4 0 V38 c0 8 -4.6 13 -12 13 h-4.5 c-4.6 0 -7 -2.2 -10 -6.6 l-6.4 -8.8 a3.3 3.3 0 0 1 5 -4.2 z"/><path d="M26.4 26 v4 M32.8 25.5 v4 M39.2 27.5 v3.6" stroke-width="2.2"/><path d="M23.2 3.5 v4 M13.5 7.5 l2.8 2.8 M33 7.5 l-2.8 2.8 M10 16 h4 M32.5 16 h4 M13.5 24.5 l2.8 -2.8" stroke="#E0553F" stroke-width="2.4"/></svg>';
+function teachPaste(){
+  dlg({ title:'Your words are copied',
+        note:"Instagram won't fill in the caption for you, so paste it in:",
+        html:'<div class="pth-steps">'+
+          '<div class="pth-step"><div class="pth-box"><span class="pth-cap">Write a caption\u2026</span></div><div class="pth-lab"><b>1.</b> Tap the caption box</div></div>'+
+          '<div class="pth-step"><div class="pth-box">'+PTH_HAND+'</div><div class="pth-lab"><b>2.</b> Hold your finger down</div></div>'+
+          '<div class="pth-step"><div class="pth-box"><span class="pth-paste">Paste</span></div><div class="pth-lab"><b>3.</b> Tap <b>Paste</b></div></div>'+
+          '</div>',
+        ok:'Open Instagram', cancel:'Not now',
+        then:()=>{ S.pasteTaught = (S.pasteTaught||0) + 1; save();
+                   PASTE_TEACH_OK = true; handOff(); } });
+}
+function copyWordsAgain(btn){
+  copyToClip($('cm-text') ? $('cm-text').value : '');
+  if(btn) btn.textContent = 'Copied';
+}
 function handOff(){
   const a = S.current || S.acts[S.acts.length-1];
   if(!a) return;
+
+  /* THE PASTE LESSON. RULED BY G, 24 September 2026, after testers did not know
+     the words were copied: "We have had tests where the poster did not know the
+     text copied from our app." Every reminder we had lived in THIS app, and the
+     moment it is needed is inside Instagram. So the first three times, before
+     anybody leaves, one window shows the three moves. The words are copied on
+     this tap so the title is true; "Open Instagram" is a fresh tap and carries
+     the share. A queued press (GO_WAITING) never re-teaches. */
+  if(CM_PLAT==='instagram' && !PASTE_TEACH_OK && !GO_WAITING && (S.pasteTaught||0) < 3){
+    copyToClip($('cm-text').value);
+    teachPaste();
+    return;
+  }
+  PASTE_TEACH_OK = false;
   if(GO_RETAP){ GO_RETAP = false; drawGoState(); }   // this tap is the fresh one
 
   /* DEFECT FOUND 12 September 2026, and it is the one that made posting to
@@ -12566,6 +12614,9 @@ function askIfPosted(){
   dlg({ title: sent ? 'Did you send it?' : 'Posted?',
         note: 'Act '+act.no+(sent ? ', as a message.' : ' on '+platLabel(plat)+'.'),
         ok: sent ? 'Yes, sent' : 'Yes', cancel:'Not yet',
+        /* G, 24 Sept: a way back for anyone whose caption came up empty. */
+        html: (plat==='instagram') ? '<button class="btn ghost pth-again" type="button" onclick="copyWordsAgain(this)">Copy my words again</button>'+
+              '<p class="note pth-againnote">Caption box empty? Tap, then paste it in.</p>' : '',
         /* HIS SEQUENCE, 17 September. Yes is the key that closes this window:
            off the post page, onto Your year, the moment plays with nothing on
            top of it and nothing to scroll, and the question comes after. */
@@ -14026,6 +14077,8 @@ function dlg(o){
      the app passes a blank line, so this costs nothing anywhere else. */
   const n=$('dlg-note'); n.textContent=o.note||''; n.classList.toggle('hide', !o.note);
   n.style.whiteSpace = (o.note && o.note.indexOf('\n') > -1) ? 'pre-line' : '';
+  /* a fixed piece of the app's own markup, never anything a person typed */
+  const x=$('dlg-extra'); if(x){ x.innerHTML = o.html || ''; x.classList.toggle('hide', !o.html); }
   const f=$('dlg-field'), i=$('dlg-input');
   f.classList.toggle('hide', !o.input);
   if(o.input){ i.placeholder=o.placeholder||''; i.value=o.value||''; }

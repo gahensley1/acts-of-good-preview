@@ -1497,7 +1497,7 @@ head('the words go with the picture \u2014 L119, caught by the testers on 18 Sep
   ck('a finished act arrives with its caption already written', r.box.length > 20, r.box.slice(0,80));
   ck('and the caption names the act', new RegExp('Act '+r.no+' of '+r.n).test(r.box), r.box.slice(0,80));
   ck('and carries what she wrote', /ten minutes/.test(r.box), r.box.slice(0,80));
-  ck('the Send button says what it does', /^Send to /.test(r.go), r.go);
+  ck('the Send button says what it does', /^Send to |^Copy my words & open /.test(r.go), r.go);
   ck('Instagram: the caption is on the clipboard', r.igClip === r.box && r.igClip.length > 20, r.igClip.slice(0,60));
   ck('Instagram: and not in the sheet, which drops it', r.igSheetText === null, r.igSheetText);
   ck('Facebook: the caption travels with the picture', !!r.fbSheetText && /ten minutes/.test(r.fbSheetText), (r.fbSheetText||'').slice(0,60));
@@ -1683,6 +1683,7 @@ head('the hold — Send tapped while the card is still drawing waits, then sends
     PHONE.canShareFiles=()=>true;
     PHONE.share=async (pl)=>{ out.shares++; out.files=(pl.files||[]).length; };
     try{ navigator.clipboard.writeText=async()=>{}; }catch(e){}
+    S.pasteTaught=3; /* the paste lesson has been seen; this tests the hold */
     const slow=cardBlob; window.cardBlob=async (...x)=>{ await new Promise(r=>setTimeout(r,2500)); return slow(...x); };
     go('home'); openCompose(); try{ sheet(null); }catch(e){}
     await new Promise(r=>setTimeout(r,300));
@@ -1712,6 +1713,7 @@ head('the hold on an iPhone — if Safari refuses the late send, one calm tap fi
     /* the first try is late, as Safari sees it, and is refused; the next is a real tap */
     PHONE.share=async (pl)=>{ out.tries++; if(out.tries===1){ const e=new Error('late'); e.name='NotAllowedError'; throw e; } out.files=(pl.files||[]).length; };
     try{ navigator.clipboard.writeText=async()=>{}; }catch(e){}
+    S.pasteTaught=3; /* the paste lesson has been seen; this tests the hold */
     const slow=cardBlob; window.cardBlob=async (...x)=>{ await new Promise(r=>setTimeout(r,2000)); return slow(...x); };
     go('home'); openCompose(); try{ sheet(null); }catch(e){}
     await new Promise(r=>setTimeout(r,300));
