@@ -1317,10 +1317,11 @@ select.pick::-ms-expand{display:none}
 .sugbox.dly #sug-title{font-family:'Lobster',Georgia,serif;font-weight:400;font-size:44px;letter-spacing:0;line-height:1.1;color:#C2185B;text-shadow:2px 2px 0 #fff,3px 3px 0 #F2A7C9}
 /* G, 25 Sep: a cute pink rainbow beside the name, "Center in dead space".
    Our own drawing, not the stock picture he pointed at. */
-.sugbox.dly .dly-row{display:flex;align-items:center;margin-bottom:8px}
+/* G, 25 Sep: more room after "Day", and the rainbow sits on the line the words sit on, not down at the tail of the y */
+.sugbox.dly .dly-row{display:flex;align-items:baseline;gap:16px;margin:-12px 0 8px}
 .sugbox.dly .dly-row #sug-title{display:inline-block;width:auto;margin-bottom:0;flex:none}
-.sugbox.dly .dly-rb{flex:1;display:flex;justify-content:center;align-items:center;min-width:0}
-.sugbox.dly .dly-rb svg{width:105px;height:auto;max-width:100%;display:block}
+.sugbox.dly .dly-rb{flex:1;display:block;text-align:center;min-width:0;line-height:0}
+.sugbox.dly .dly-rb svg{width:96px;height:auto;max-width:100%;display:inline-block;vertical-align:baseline}
 @keyframes dlyTw{0%,100%{transform:scale(.55) rotate(0);opacity:.35}50%{transform:scale(1) rotate(20deg);opacity:1}}
 .sugbox.dly .dly-gem{animation:dlyTw 2.4s ease-in-out infinite}
 @media (prefers-reduced-motion:reduce){ .sugbox.dly .dly-gem{animation:none} }
@@ -1853,7 +1854,7 @@ select.pick::-ms-expand{display:none}
     <!-- BUILD MARK — dev only, delete this div when the app ships -->
     <!-- IT HAD SAID 5M SINCE 15 SEPTEMBER, eight builds back, and every
          feedback mail sent from the app quoted it. Move it with the build. -->
-    <div id="buildtag">BUILD 7Y</div>
+    <div id="buildtag">BUILD 7Z</div>
   </div>
 </section>
 
@@ -6768,7 +6769,7 @@ function drawHome(){
   $('p-spend-mine').textContent = money(sp.mine);
 
   const sug = suggestion();
-  $('sug-tag').textContent   = sug.dolly ? 'Today \u00b7 9/25' : sug.tag;
+  $('sug-tag').textContent   = sug.dolly ? 'Today' : sug.tag;   /* G, 25 Sep: one date on the screen, not two (ruled 1) */
   const st = $('sug-title'), sb = $('sug-body');
   st.textContent = sug.t;
   sb.textContent = sug.b || '';
