@@ -1854,7 +1854,7 @@ select.pick::-ms-expand{display:none}
     <!-- BUILD MARK — dev only, delete this div when the app ships -->
     <!-- IT HAD SAID 5M SINCE 15 SEPTEMBER, eight builds back, and every
          feedback mail sent from the app quoted it. Move it with the build. -->
-    <div id="buildtag">BUILD 7Z</div>
+    <div id="buildtag">BUILD 8A</div>
   </div>
 </section>
 
@@ -5331,25 +5331,46 @@ function splFly(opt){
 var SPL_RAF = 0;
 /* G, 10 Sept: "they're randomly floating hearts, it's awesome — make it happen
    twice as much as it happens now." Both waits halved. */
-function strayGap(){ return 60000 + Math.random()*90000; }     // 1 to 2.5 minutes
+/* G, 25 Sept 2026: "Increase the frequency of floating hearts and paper
+   airplane flights ... more whimsy ... it happens within 3 seconds the app opens".
+   Then, having heard all seven testers call every half minute a screensaver:
+   "Maybe go to 4 to 5 seconds and then every 30 seconds after that annoying
+   should be more like 45 seconds."
+   So: 4 to 5 seconds after the app opens or Your year comes back, then one
+   about every 45 seconds (40 to 50, so it never feels like a metronome). If the
+   first one is blocked (a sheet or a moment is up) it tries again every 3
+   seconds until the way is clear. */
+let STRAY_EAGER = false;
+function strayGap(){ return 40000 + Math.random()*10000; }     // about 45 seconds
 function strayStop(){ if(STRAY_T) clearTimeout(STRAY_T); STRAY_T = null; }
 function strayPlan(first){
   strayStop();
-  STRAY_T = setTimeout(strayGo, first ? 12500 + Math.random()*20000 : strayGap());
+  STRAY_EAGER = !!first;
+  STRAY_T = setTimeout(strayGo, first ? 4000 + Math.random()*1000 : strayGap());
+}
+function strayBlocked(){
+  if(STRAY_ON) return true;
+  if(document.hidden) return true;
+  const mo = $('moment'); if(mo && mo.classList.contains('up')) return true;
+  const wrap = $('actcf'); if(!wrap || wrap.classList.contains('up')) return true;
+  if(['you','social','spend','person','cal','date','ask','done','finish','eval','pv']
+     .some(x=>{ const el=$('sheet-'+x); return el && !el.classList.contains('hide'); })) return true;
+  if(!acSize()) return true;
+  return false;
 }
 function strayGo(){
   /* Where it is gets checked BEFORE the next one is planned. Re-planning first
      kept a timer alive on every other screen in the app. */
   if(SCREEN !== 'home'){ strayStop(); return; }
+  if(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches){ strayStop(); return; }
+  if(strayBlocked()){
+    strayStop();
+    STRAY_T = setTimeout(strayGo, STRAY_EAGER ? 3000 : strayGap());
+    return;
+  }
+  STRAY_EAGER = false;
   strayPlan(false);
-  if(STRAY_ON) return;
-  if(document.hidden) return;
-  if(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-  const mo = $('moment'); if(mo && mo.classList.contains('up')) return;
-  const wrap = $('actcf'); if(!wrap || wrap.classList.contains('up')) return;
-  if(['you','social','spend','person','cal','date','ask','done','finish','eval','pv']
-     .some(x=>{ const el=$('sheet-'+x); return el && !el.classList.contains('hide'); })) return;
-  if(!acSize()) return;
+  const wrap = $('actcf');
 
   /* ABOUT ONE IN THREE IS THE PLANE. G, 24 September 2026: "add the paper
      airplane in between the random floating heart — use the airplane and
