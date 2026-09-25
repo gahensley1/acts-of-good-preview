@@ -1847,7 +1847,7 @@ select.pick::-ms-expand{display:none}
     <!-- BUILD MARK — dev only, delete this div when the app ships -->
     <!-- IT HAD SAID 5M SINCE 15 SEPTEMBER, eight builds back, and every
          feedback mail sent from the app quoted it. Move it with the build. -->
-    <div id="buildtag">BUILD 7W</div>
+    <div id="buildtag">BUILD 7X</div>
   </div>
 </section>
 
@@ -6785,7 +6785,8 @@ function drawHome(){
   sa.innerHTML = '';
   if(named){
     const h = document.createElement('b');
-    h.textContent = 'One act for it: ' + act.t;
+    /* G, 25 Sep 2026: "One act for it sounds like you are limited by your options." Ruled 2. */
+    h.textContent = 'One way to mark it: ' + act.t;
     sa.appendChild(h);
   }
 
@@ -7459,17 +7460,14 @@ function drawMonth(){
           (thisMonth.length ? '· ' + thisMonth.length +
             (thisMonth.length===1?' act':' acts') : '') + '</span>';
 
-  let html = '<div class="lab">This month</div>'+
-             '<div class="big" style="margin-bottom:'+(thisMonth.length?'10px':'0')+'">'+head+'</div>';
-
-  thisMonth.forEach(a=>{
-    html += '<div style="display:flex;gap:10px;align-items:baseline;padding:5px 0;'+
-      'border-top:1px solid var(--line)">'+
-      '<b style="font-size:12.5px;color:var(--muted);min-width:52px">'+shortDate(a.d)+'</b>'+
-      '<span style="font-size:14.5px;flex:1;min-width:0;overflow:hidden;'+
-      'text-overflow:ellipsis;white-space:nowrap">'+esc(a.t)+'</span>'+
-      '<span style="font-size:12.5px;color:var(--muted)">act '+a.no+'</span></div>';
-  });
+  /* RULED by G, 25 September 2026. The list of this month's acts is gone: "do
+     we need this part of the calendar? If we have the grid below?" (ruled 1).
+     In its place, what day it really is, changing every day (ruled C):
+     "I wanna incorporate what day it really is". */
+  /* "This month" label removed: G, 25 Sep 2026, "Can we remove words this month". */
+  let html = '<div class="big" style="margin-bottom:0">'+head+'</div>'+
+             '<div class="mtoday" style="font-size:14px;font-weight:600;color:var(--coralink);margin-top:4px">Today is '+
+             now.toLocaleDateString('en-US',{weekday:'long', month:'long', day:'numeric'})+'</div>';
   /* This was shown ONLY when the maths said you were short, and hidden when
      you were ahead — so the app's last surviving piece of pace judgement was
      reserved for the person least able to take it. An empty month is an empty

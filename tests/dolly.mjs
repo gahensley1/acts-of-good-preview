@@ -28,6 +28,7 @@ console.log('\n== on 25 September ==');
   ck('it says Today · 9/25', i.tag==='Today · 9/25', i);
   ck('its name is Dolly Day', i.t==='Dolly Day', i);
   ck('it brings the book act', /Little Free Library/.test(i.act), i);
+  ck('it reads One way to mark it', /^One way to mark it: /.test(i.act), i);
   await p.waitForTimeout(1400);
   const f = await p.evaluate(()=>({up:$('actcf').classList.contains('up'), pink:AC_FILL, n:AC_PARTS.length+AC_QUEUE.length}));
   ck('pink hearts fly out of it on opening', f.up && f.pink==='#F06EA9' && f.n>0, f);
