@@ -1566,7 +1566,8 @@ head('fault 3 \u2014 a full year never invites anyone to act 6 of 5');
     return out.join('\n~~\n');
   });
   ck('a full year never hands out a number past the end of it', !/\b(act|number)\s+4\b/i.test(r) && !/\b4 of 3\b/.test(r), r.slice(0,400));
-  ck('and the invitation still reads as a whole sentence', /one of my 3 acts/.test(r), r.slice(0,300));
+  /* G, 25 Sep 2026: the invitation no longer names an act number at all */
+  ck('and the invitation still reads as a whole sentence', /I’d love your help with something good/.test(r), r.slice(0,300));
   }
 
 head('faults 5 to 9 — the numbers stay inside the year');
@@ -1648,7 +1649,8 @@ head('test 14 — rolling into a new year, and waking up in it');
   ck('last year is kept whole on the shelf, acts and photographs', r.past>=1 && r.lastYearActs===5 && r.lastYearPhotos>0, r);
   ck('the new year starts empty, at square one', r.acts===0 && r.next===1, r);
   ck('the carried work survives, with no old number', r.works===1 && r.exp==='', r);
-  ck('and its invitation speaks of act 1, not last year’s act', /act 1 of/.test(r.invite), r);
+  /* G, 25 Sep 2026: no act number in the invitation, so none from last year either */
+  ck('and its invitation names no act number, least of all last year’s', !/act \d+ of/.test(r.invite), r);
 }
 
 head('G, 19 Sept — today is a greyed suggestion; the finish sets the real number and day');
@@ -1926,7 +1928,7 @@ head('G, 19 Sept — the five from the engineers and the panel');
   ck('the swap tour stays seen after the app is reopened', q.toured===1, q);
   ck('Message is still picked after the app is reopened', q.shape==='message', q);
   ck('Facebook offers Post and Story only, and never says tap Message', !/Message/.test(q.fb) && q.fbHint==='In Facebook, tap Post.', q);
-  ck('the caption label has no stray space', /^Caption, for Facebook$/.test(q.label), q);
+  ck('the caption label has no stray space', /^Caption, for Facebook \(edit it, make it yours\)$/.test(q.label), q);   // G, 25 Sep: "edit it, make it yours"
 }
 
 head('G, 19 Sept — 1A the true count, 4B words in from the edge, 5B tall tiles on Story, 2A wide rows');

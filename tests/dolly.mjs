@@ -41,6 +41,15 @@ console.log('\n== on 25 September ==');
   await p.evaluate(()=>$('sug-title').click()); await p.waitForTimeout(500);
   const h = await p.evaluate(()=>({up:$('actcf').classList.contains('up'), pink:AC_FILL}));
   ck('tapping the name sends them again', h.up && h.pink==='#F06EA9', h);
+  /* G, 25 Sep: "If that window is open they stop but run when it closes." */
+  await p.waitForTimeout(8000);
+  await p.evaluate(()=>$('sug-title').click()); await p.waitForTimeout(400);
+  await p.evaluate(()=>sheet('you')); await p.waitForTimeout(300);
+  const w1 = await p.evaluate(()=>({up:$('actcf').classList.contains('up')}));
+  ck('a window opening stops the hearts', !w1.up, w1);
+  await p.evaluate(()=>sheet(null)); await p.waitForTimeout(1800);
+  const w2 = await p.evaluate(()=>({up:$('actcf').classList.contains('up'), pink:AC_FILL}));
+  ck('and they fly again when it closes', w2.up && w2.pink==='#F06EA9', w2);
   ck('no page errors', errs.length===0, errs);
   await c.close(); }
 console.log('\n== any other day ==');

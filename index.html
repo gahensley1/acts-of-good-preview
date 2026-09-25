@@ -1854,7 +1854,7 @@ select.pick::-ms-expand{display:none}
     <!-- BUILD MARK — dev only, delete this div when the app ships -->
     <!-- IT HAD SAID 5M SINCE 15 SEPTEMBER, eight builds back, and every
          feedback mail sent from the app quoted it. Move it with the build. -->
-    <div id="buildtag">BUILD 8A</div>
+    <div id="buildtag">BUILD 8B</div>
   </div>
 </section>
 
@@ -1898,7 +1898,7 @@ select.pick::-ms-expand{display:none}
 
   <div class="field" id="ask-subwrap"><label for="ask-subject">Subject</label>
     <input id="ask-subject"></div>
-  <div class="field"><label for="ask-body">Message</label>
+  <div class="field"><label for="ask-body">Message <span style="text-transform:none;font-weight:400">(edit it, make it yours)</span></label>
     <textarea id="ask-body" style="min-height:200px"></textarea></div>
 
   <button class="btn" onclick="sendAsk()" id="ask-send">Open Messages</button>
@@ -2155,7 +2155,7 @@ select.pick::-ms-expand{display:none}
       <div class="remindrow"><div id="wk-remind"></div>
         <button class="btn mini" type="button" id="wk-setremind" onclick="workToCalendar()">Set it</button></div></div>
 
-    <div class="field"><label>Invite someone to join you</label>
+    <div class="field"><label>Invite someone to join you<span style="text-transform:none;font-weight:400">. Drop a name, and we’ll help draft a text, email, or calendar invite.</span></label>
       <div class="chips" id="wk-who"></div>
       <button type="button" class="tlink" id="wk-invite" style="display:none;margin-top:5px;font-size:13px;font-weight:600;background:none;border:0;color:var(--coralink);text-align:left;padding:12px 0;min-height:44px" onclick="openAsk('work')"></button></div>
 
@@ -6620,7 +6620,7 @@ function actForOccasion(o){
    opened on Your year, and again whenever the day's name is tapped. Pink
    hearts for the day. It waits for anything open to close, and it stands down
    for reduced motion like everything else that moves. */
-let DOLLY_FLOWN = false;
+var DOLLY_FLOWN = false, DOLLY_PENDING = false;
 function dollyDress(on){
   const box = document.querySelector('.sugbox'); if(!box) return;
   box.classList.toggle('dly', on);
@@ -6648,7 +6648,7 @@ function dollyDress(on){
   });
   const st = $('sug-title');
   if(st && !st.onclick) st.onclick = ()=>dollyFly(true);
-  if(!DOLLY_FLOWN) setTimeout(()=>dollyFly(false), 900);
+  if(!DOLLY_FLOWN || DOLLY_PENDING) setTimeout(()=>dollyFly(false), 900);
 }
 function dollyFly(again){
   if(SCREEN !== 'home') return;
@@ -6666,7 +6666,7 @@ function dollyFly(again){
     if(!again) setTimeout(()=>dollyFly(false), 1500);
     return;
   }
-  DOLLY_FLOWN = true;
+  DOLLY_FLOWN = true; DOLLY_PENDING = false;
   acStop();
   wrap.classList.add('up');
   if(!acSize()){ acStop(); return; }
@@ -6917,7 +6917,7 @@ function whenWords(iso){
   if(days===0) return 'today';
   if(days===1) return 'tomorrow';
   if(days>1 && days<7) return 'this '+DAYS[d.getDay()];
-  if(days>=7 && days<14) return DAYS[d.getDay()]+' week, '+longDate(iso);
+  if(days>=7 && days<14) return 'next '+DAYS[d.getDay()]+', '+d.toLocaleDateString('en-US',{month:'long',day:'numeric'});   // "Saturday week" is British
   return 'on '+longDate(iso);
 }
 function askDrafts(){
@@ -6938,10 +6938,13 @@ function askDrafts(){
   const when  = whenWords(a.d);
   const per   = periodNoun();
 
+  /* RULED by G, 25 September 2026 (2): no act number, and a plain ask. "I'm
+     doing act 2 of 25 … I don't think we specify an act number but we need a
+     more less vague ask." What, when, and that you want them there. */
   const text =
-    'Hello ' + (a.who.length ? first : 'you') + ', I’m doing ' + (a.no ? 'act ' + a.no + ' of ' + S.n : 'one of my ' + S.n + ' acts') + ' ' + when + ': ' + what + '.\n\n' +
-    'Any chance you fancy joining me? Genuinely no pressure if not, ' +
-    'it’s more fun with company, that’s all.' +
+    'Hi ' + (a.who.length ? first : 'there') + '! I’d love your help with something good ' +
+    (when === 'sometime soon' ? 'soon' : when) + ': ' + what + '. Can you join me? ' +
+    'No pressure, it’s just more fun together.' +
     (name ? '\n\n' + name : '') +
     /* The message never said what it was part of, so a recipient had nothing to
        take away except a yes or a no to one afternoon. One line, in her own
@@ -6949,15 +6952,14 @@ function askDrafts(){
        (When there is a link to send, it belongs on the end of this line.) */
     '\n\n' + S.n + ' acts of good' + (S.word ? ', ' + S.line + ' ' + S.word : '') + '.';
 
-  const subject = (a.no ? 'Act ' + a.no + ' of ' + S.n : 'An act of good') + ', fancy joining me?';
+  const subject = 'Can you join me? ' + what;
   const email =
-    'Hello ' + (a.who.length ? first : 'there') + ',\n\n' +
-    'I’m doing ' + S.n + ' acts of good over a ' + per + (a.no ? ', and number ' + a.no + ' is ' : ', and the next one is ') + when + '.\n\n' +
+    'Hi ' + (a.who.length ? first : 'there') + ',\n\n' +
+    'I’m doing ' + S.n + ' acts of good over a ' + per + ', and I’d love your help with one ' + (when === 'sometime soon' ? 'soon' : when) + '.\n\n' +
     '  • What: ' + what + '\n' +
     '  • When: ' + (a.d ? longDate(a.d) : 'still deciding') + '\n' +
-    '\nWould you like to come along? No obligation whatsoever, the offer is the\n' +
-    'point, and it’d be nicer with you in it.\n\n' +
-    'If this one doesn’t suit, there are ' + Math.max(1, S.n - S.acts.length - 1) +
+    '\nCan you join me? No pressure, it’s just more fun together.\n\n' +
+    'If this one doesn’t work for you, there are ' + Math.max(1, S.n - S.acts.length - 1) +
     ' more to come.\n\n' +
     (name ? name + '\n' : '') +
     '\n- - - - -\n' +
@@ -11954,7 +11956,8 @@ function drawCompose(){
   if(a.captions[CM_PLAT] == null){ buildCaption(true); return; }
   $('cm-text').value = a.captions[CM_PLAT];
   const platName = platLabel(CM_PLAT);
-  $('cm-label').textContent = ', for ' + platName;
+  /* G, 25 Sep 2026: "on the prefilled out post we need the same edit it, make it yours" */
+  $('cm-label').textContent = ', for ' + platName + ' (edit it, make it yours)';
   $('cm-go').textContent = HAND_LABEL[CM_PLAT] || ('Open ' + platName);
   const env=$('cm-env'); if(env){ env.classList.toggle('on', CM_PLAT==='private');
     env.setAttribute('aria-pressed', CM_PLAT==='private'?'true':'false'); }
@@ -14700,6 +14703,11 @@ function checkFirst(title, note, okLabel, then, cancelLabel){
 
 let SHEET_FROM = null;
 function sheet(which){
+  /* G, 25 Sep 2026: "If that window is open they stop but run when it closes."
+     Dolly Day's hearts never fly over an open window: it stops them, and when
+     it is put away they fly again. */
+  if(which && AC_FILL){ acStop(); DOLLY_PENDING = true; }
+  if(!which && DOLLY_PENDING) setTimeout(()=>{ if(DOLLY_PENDING) dollyFly(false); }, 500);
   /* an example must not leak into the next thing this sheet is asked to show */
   if(!which || which!=='pv') PV_EG = false;
   dropUndo();      // an offer does not follow you into or out of a sheet
@@ -14862,6 +14870,7 @@ function go(v){
   if(v !== 'work') wkFlushRow();     // before the screen changes under it
   if(v !== SCREEN) dropUndo();
   if(v !== 'home') strayStop();   // it belongs to Your year and nowhere else
+  if(v !== 'home' && AC_FILL){ acStop(); DOLLY_PENDING = true; }   // Dolly Day's hearts belong to Your year: they pause, and fly again on the way back
   if(v !== 'work') killDisarm();   // a primed delete never survives the screen
   /* the finished act owns the sheet panel only while its own page is up */
   if(v !== 'write') SH_OWN = null;
