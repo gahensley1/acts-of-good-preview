@@ -123,7 +123,7 @@ head('about one in three strays is the plane, by chance, with one or two loops')
 
 head('the backup reminder has its X in the corner');
 { const {ctx,p}=await app();
-  const r = await p.evaluate(async ()=>{ go('home'); BKUPBAR_SHOWN=false; S.bkupAt=0; S.bkupToldAt=0; S.bkup=''; 
+  const r = await p.evaluate(async ()=>{ go('home'); try{ acStop(); }catch(e){} BKUPBAR_SHOWN=false; S.bkupAt=0; S.bkupToldAt=0; S.bkup=''; 
     try{ sheet(null); }catch(e){} const n=$('calnudge'); if(n) n.classList.remove('on'); const t=$('toastbar'); if(t) t.classList.remove('up');
     bkupBar(); await new Promise(r=>setTimeout(r,400));
     const bar=$('bkupbar'), x=bar.querySelector('.bkx-close'); const b=bar.getBoundingClientRect(), c=x.getBoundingClientRect();
