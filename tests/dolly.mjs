@@ -28,6 +28,9 @@ console.log('\n== on 25 September ==');
   ck('it says Today · 9/25', i.tag==='Today · 9/25', i);
   ck('its name is Dolly Day', i.t==='Dolly Day', i);
   ck('it brings the book act', /Little Free Library/.test(i.act), i);
+  const rb = await p.evaluate(()=>{ const r=document.querySelector('.dly-rb svg'); const t=$('sug-title').getBoundingClientRect(); const b=document.querySelector('.sugbox').getBoundingClientRect();
+    if(!r) return null; const q=r.getBoundingClientRect(); return {gapL:q.left-t.right, gapR:(b.right-18)-q.right, top:q.top, tt:t.top, tb:t.bottom}; });
+  ck('a rainbow sits beside the name, centred in the space left', rb && Math.abs(rb.gapL-rb.gapR)<6 && rb.top>=rb.tt-10 && rb.top<rb.tb, rb);
   ck('it reads One way to mark it', /^One way to mark it: /.test(i.act), i);
   await p.waitForTimeout(1400);
   const f = await p.evaluate(()=>({up:$('actcf').classList.contains('up'), pink:AC_FILL, n:AC_PARTS.length+AC_QUEUE.length}));
@@ -44,6 +47,7 @@ console.log('\n== any other day ==');
 { const {c,p,errs} = await open('2026-10-02T10:00:00');
   const i = await p.evaluate(()=>({dly:document.querySelector('.sugbox').classList.contains('dly'), gems:document.querySelectorAll('.dly-gem').length}));
   ck('the box is plain', !i.dly && i.gems===0, i);
+  ck('and no rainbow', await p.evaluate(()=>!document.querySelector('.dly-rb')), null);
   await c.close(); }
 { const {c,p,errs} = await open('2026-09-20T10:00:00');
   const i = await p.evaluate(()=>({dly:document.querySelector('.sugbox').classList.contains('dly'), tag:$('sug-tag').textContent, t:$('sug-title').textContent}));
