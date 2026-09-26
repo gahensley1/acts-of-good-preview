@@ -36,8 +36,9 @@ console.log('\n== on 25 September ==');
   const f = await p.evaluate(()=>({up:$('actcf').classList.contains('up'), pink:AC_FILL, n:AC_PARTS.length+AC_QUEUE.length}));
   ck('pink hearts fly out of it on opening', f.up && f.pink==='#F06EA9' && f.n>0, f);
   await p.waitForTimeout(9000);
-  const g = await p.evaluate(()=>({up:$('actcf').classList.contains('up'), pink:AC_FILL}));
+  const g = await p.evaluate(()=>({up:$('actcf').classList.contains('up') && !STRAY_ON, pink:AC_FILL}));  /* a stray heart may be up; it is not Dolly's */
   ck('and then they are gone and the colour is put back', !g.up && g.pink===null, g);
+  await p.waitForFunction(()=>!STRAY_ON, null, {timeout:20000});  /* a stray heart or plane in the air holds the tap */
   await p.evaluate(()=>$('sug-title').click()); await p.waitForTimeout(500);
   const h = await p.evaluate(()=>({up:$('actcf').classList.contains('up'), pink:AC_FILL}));
   ck('tapping the name sends them again', h.up && h.pink==='#F06EA9', h);
@@ -51,6 +52,30 @@ console.log('\n== on 25 September ==');
   const w2 = await p.evaluate(()=>({up:$('actcf').classList.contains('up'), pink:AC_FILL}));
   ck('and they fly again when it closes', w2.up && w2.pink==='#F06EA9', w2);
   ck('no page errors', errs.length===0, errs);
+  await c.close(); }
+console.log('\n== Thanksgiving, 26 November 2026 ==');
+{ const {c,p,errs} = await open('2026-11-26T10:00:00');
+  const i = await p.evaluate(()=>({dly:document.querySelector('.sugbox').classList.contains('dly'), thx:document.querySelector('.sugbox').classList.contains('thx'),
+    tag:$('sug-tag').textContent, t:$('sug-title').textContent, act:$('sug-act').textContent, gems:document.querySelectorAll('.dly-gem').length,
+    kind:(document.querySelector('.dly-row')||{}).dataset?.kind}));
+  ck('the box is dressed for Thanksgiving, not Dolly', i.dly && i.thx && i.kind==='thanks', i);
+  ck('it says Today and Thanksgiving', i.tag==='Today' && i.t==='Thanksgiving', i);
+  ck('it brings the thank-you act', /^One way to mark it: Thank the crews/.test(i.act), i);
+  ck('no leaves and no stars (G: "Remove all the leaves")', i.gems===0, i);
+  const rb = await p.evaluate(()=>{ const t=$('sug-title').getBoundingClientRect(), a=document.querySelector('.dly-rb img').getBoundingClientRect(), b=document.querySelector('.sugbox').getBoundingClientRect(), g=(()=>{const r=document.createRange(); r.selectNodeContents($('sug-tag')); return r.getBoundingClientRect();})();
+    return {ab:[a.bottom,t.top,t.height], above:a.bottom<=t.top+t.height*0.3, inside:a.right<=b.right-8 && a.top>=b.top, right:a.left>g.right, w:a.width}; });
+  ck('the THANKFUL banner hangs across the top right, above the name, inside the box', rb.above && rb.inside && rb.right && rb.w>=180, rb);
+  ck('no oak leaf in the row (G: "Remove it")', await p.evaluate(()=>!document.querySelector('.dly-rowart')), null);
+  await p.waitForTimeout(1400);
+  const f = await p.evaluate(()=>({up:$('actcf').classList.contains('up'), fill:AC_FILL}));
+  ck('autumn hearts fly out of it', f.up && f.fill==='#C8662A', f);
+  ck('no page errors', errs.length===0, errs);
+  await c.close(); }
+{ const {c,p} = await open('2027-11-25T10:00:00');
+  ck('next year it lands on the fourth Thursday again', await p.evaluate(()=>$('sug-title').textContent==='Thanksgiving' && document.querySelector('.sugbox').classList.contains('thx')), null);
+  await c.close(); }
+{ const {c,p} = await open('2026-09-25T10:00:00');
+  ck('Dolly Day still wears pink, with no leaves', await p.evaluate(()=>!document.querySelector('.sugbox').classList.contains('thx') && document.querySelector('.dly-row').dataset.kind==='dolly'), null);
   await c.close(); }
 console.log('\n== any other day ==');
 { const {c,p,errs} = await open('2026-10-02T10:00:00');
